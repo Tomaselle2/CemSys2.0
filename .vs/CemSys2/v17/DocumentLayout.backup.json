@@ -58,8 +58,7 @@
               "RelativeToolTip": "Interface\\IRepositoryDB.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T20:18:52.264Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T20:18:52.264Z"
             },
             {
               "$type": "Document",
@@ -71,8 +70,7 @@
               "RelativeToolTip": "Business\\SeccionesBusiness.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T15:35:01.588Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T15:35:01.588Z"
             },
             {
               "$type": "Document",
@@ -84,8 +82,7 @@
               "RelativeToolTip": "Controllers\\SeccionesController.cs",
               "ViewState": "AgIAAA8AAAAAAAAAAAAAABoAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T00:42:25.609Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T00:42:25.609Z"
             },
             {
               "$type": "Document",
@@ -97,8 +94,7 @@
               "RelativeToolTip": "Interface\\ISeccionesBusiness.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T15:30:40.482Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T15:30:40.482Z"
             },
             {
               "$type": "Document",
@@ -108,7 +104,7 @@
               "RelativeDocumentMoniker": "Views\\Secciones\\InicioSeccionesNichos.cshtml",
               "ToolTip": "C:\\Users\\tomas\\Desktop\\Paginas Web\\CemSys2\\CemSys2\\Views\\Secciones\\InicioSeccionesNichos.cshtml",
               "RelativeToolTip": "Views\\Secciones\\InicioSeccionesNichos.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAABQAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-07-06T13:15:18.988Z",
               "EditorCaption": ""
@@ -123,8 +119,7 @@
               "RelativeToolTip": "ViewModel\\SeccionesViewModel.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAACYAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-06T01:19:56.663Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-06T01:19:56.663Z"
             },
             {
               "$type": "Document",
