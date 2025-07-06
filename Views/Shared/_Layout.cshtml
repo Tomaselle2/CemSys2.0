@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <title>CemSys</title>
+    <link rel="icon" type="image/png" href="~/fotos/logito.png" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CemSys.styles.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div class="d-flex">
+
+        <nav class="sidebar bg-white border-end p-3">
+            <a class="navbar-brand mb-4 d-block text-center" asp-area="" asp-controller="Home" asp-action="Index">
+                <img src="~/fotos/logo.png" alt="CemSys Logo" style="height: 40px;" />
+            </a>
+
+            <ul class="nav flex-column">
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" href="#">
+                        <i class="bi bi-person"></i> <span class="nav-text">@ViewData["UsuarioLogueado"]</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-file-earmark"></i> <span class="nav-text">Trámites</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-house-door"></i> <span class="nav-text">Parcelas</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Difuntos" asp-action="IndexIntroduccion">
+                        <i class="bi bi-person-up"></i></i> <span class="nav-text">Introducción</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Difuntos" asp-action="Index">
+                        <i class="bi bi-person-vcard"></i> <span class="nav-text">Difuntos</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-shield-lock"></i> <span class="nav-text">Autorizaciones</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-arrow-repeat"></i> <span class="nav-text">Cambio Titularidad</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-bell"></i> <span class="nav-text">Notificaciones</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Secciones" asp-action="Index">
+                        <i class="bi bi-bell"></i> <span class="nav-text">Secciones</span>
+                    </a>
+                </li>
+
+                @if (Context.Session.GetInt32("tipoUsuario") == 2)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Configuracion" asp-action="Index">
+                            <i class="bi bi-gear"></i> <span class="nav-text">Configuración</span>
+                        </a>
+                    </li>
+                }
+
+                <li class="nav-item">
+                    <a class="nav-link cerrar-sesion" asp-controller="Login" asp-action="CerrarSesion">
+                        <i class="bi bi-box-arrow-right"></i> <span class="nav-text">Cerrar sesión</span>
+                    </a>
+                </li>
+
+
+
+            </ul>
+        </nav>
+
+
+
+        <div class="content-area flex-grow-1">
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    </environment>
+
+    <script src="~/js/modalConfirmacionEliminacion.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
