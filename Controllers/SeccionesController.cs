@@ -12,6 +12,8 @@ namespace CemSys2.Controllers
     {
 
         private readonly ISeccionesBusiness _seccionesBusiness;
+        private const int CANTIDAD_POR_PAGINA = 5;
+
         public SeccionesController(ISeccionesBusiness seccionesBusiness)
         {
             _seccionesBusiness = seccionesBusiness;
@@ -24,22 +26,28 @@ namespace CemSys2.Controllers
 
         public async Task<IActionResult> InicioSeccionesNichos(int pagina = 1)
         {
-            const int cantidadPorPagina = 5;
+            // Validar parámetros
+            if (pagina < 1) pagina = 1;
             SeccionesViewModel viewModel = new();
             try
             {
-                viewModel.TipoNumeracionParcelas = await _seccionesBusiness.ListaNumeracionParcelas(); //trae los tipos de numeración de parcelas
-                viewModel.TipoNichos = await _seccionesBusiness.ListaTipoNicho(); //trae los tipos de nichos
+                await CargarCombos(viewModel);
+
+                // Definir filtro una sola vez
                 Expression<Func<Seccione, bool>> filtro = s => s.Visibilidad == true;
 
-                // Total de registros con el filtro
+                // Obtener total de registros y secciones paginadas con el mismo filtro
                 int totalRegistros = await _seccionesBusiness.ContarTotalAsync(filtro);
-                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)cantidadPorPagina);
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)CANTIDAD_POR_PAGINA);
 
-                viewModel.Secciones = await ObtenerSeccionesPaginadas(pagina, cantidadPorPagina);
+                // Ajustar página si es mayor al total
+                if (pagina > totalPaginas && totalPaginas > 0)
+                    pagina = totalPaginas;
+
+                viewModel.Secciones = await ObtenerSeccionesPaginadas(pagina, CANTIDAD_POR_PAGINA, filtro);
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
-
+                viewModel.TotalRegistros = totalRegistros;
             }
             catch (Exception ex)
             {
@@ -98,11 +106,11 @@ namespace CemSys2.Controllers
         }
 
 
-        private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina)
+        private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null)
         {
             try
             {
-                return await _seccionesBusiness.ListaSeccionesPaginado(pagina, cantidadPorPagina);
+                return await _seccionesBusiness.ListaSeccionesPaginado(pagina, cantidadPorPagina, filtro);
             }
             catch (Exception ex)
             {
@@ -112,9 +120,15 @@ namespace CemSys2.Controllers
 
         private async Task CargarCombos(SeccionesViewModel model)
         {
-            model.TipoNichos = await _seccionesBusiness.ListaTipoNicho();
-            model.TipoNumeracionParcelas = await _seccionesBusiness.ListaNumeracionParcelas();
-            model.Secciones = await _seccionesBusiness.ListaSeccionesPaginado(1, 10);
+            try
+            {
+                model.TipoNichos = await _seccionesBusiness.ListaTipoNicho();
+                model.TipoNumeracionParcelas = await _seccionesBusiness.ListaNumeracionParcelas();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al cargar los combos: {ex.Message}", ex);
+            }
         }
     }
 

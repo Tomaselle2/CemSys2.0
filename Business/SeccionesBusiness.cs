@@ -60,35 +60,15 @@ namespace CemSys2.Business
             }
         }
 
-        public async Task<List<DTO_secciones>> ListaSecciones()
+        public async Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null)
         {
             try
             {
-                List<Seccione> listaTipoNicho = await _repositorySeccionesBusiness.EmitirListado();
-                return listaTipoNicho.Select(t => new DTO_secciones
-                {
-                    Id = t.Id,
-                    Nombre = t.Nombre,
-                    Visibilidad = t.Visibilidad,
-                    Filas = t.Filas,
-                    NroParcelas = t.NroParcelas,
-                    TipoNumeracion = t.TipoNumeracionParcelaNavigation.TipoNumeracion.ToString()
-                }).ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al obtener la lista de secciones: {ex.Message}", ex);
-            }
-        }
-
-        public async Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina)
-        {
-            try
-            {
-                Expression<Func<Seccione, bool>> filtro = s => s.Visibilidad == true;
+                // Si no se proporciona filtro, usar el filtro por defecto
+                if (filtro == null)
+                    filtro = s => s.Visibilidad == true;
 
                 var secciones = await _repositorySeccionesBusiness.ObtenerPaginadoAsync(pagina, cantidadPorPagina, filtro);
-
                 return secciones.Select(t => new DTO_secciones
                 {
                     Id = t.Id,

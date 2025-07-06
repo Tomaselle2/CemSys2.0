@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CemSys2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f63a45157270b583bb89dc49f9892baff8949630")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fab2a789726d2071c9625eaad41eb2bd568adf3")]
 [assembly: System.Reflection.AssemblyProductAttribute("CemSys2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CemSys2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
