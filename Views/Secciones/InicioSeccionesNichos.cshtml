@@ -108,6 +108,18 @@
             </table>
         </div>
     </div>
+
+    @* Paginador *@
+    <nav aria-label="Paginador de secciones">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= Model.TotalPaginas; i++)
+            {
+                <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                    <a class="page-link" asp-action="InicioSeccionesNichos" asp-route-pagina="@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
 }
     @* Modal de confirmación *@
     @await Html.PartialAsync("_ModalConfirmacionEliminacion");

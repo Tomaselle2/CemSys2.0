@@ -1,5 +1,6 @@
 ﻿using CemSys2.DTO;
 using CemSys2.Models;
+using System.Linq.Expressions;
 namespace CemSys2.Interface
 {
     public interface ISeccionesBusiness
@@ -10,6 +11,10 @@ namespace CemSys2.Interface
 
         public Task<int> RegistrarSeccion(Seccione seccionesViewModel);
         public Task Eliminar(int id);
+
+        public Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina);
+        Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro);
+
 
     }
 }

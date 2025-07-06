@@ -1,6 +1,7 @@
 ﻿using CemSys2.DTO;
 using CemSys2.Interface;
 using CemSys2.Models;
+using System.Linq.Expressions;
 
 namespace CemSys2.Business
 {
@@ -17,6 +18,18 @@ namespace CemSys2.Business
             _repositorySeccionesBusiness = repositorySeccionesBusiness;
             _repositoryTipoNumeracionParcela = repositoryTipoNumeracionParcela;
             _repositoryTipoNicho = repositoryTipoNicho;
+        }
+
+        public async Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro)
+        {
+            try
+            {
+                return await _repositorySeccionesBusiness.ContarTotalAsync(filtro);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al contar las secciones: {ex.Message}", ex);
+            }
         }
 
         public Task Eliminar(int id)
@@ -67,6 +80,31 @@ namespace CemSys2.Business
                 throw new Exception($"Error al obtener la lista de secciones: {ex.Message}", ex);
             }
         }
+
+        public async Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina)
+        {
+            try
+            {
+                Expression<Func<Seccione, bool>> filtro = s => s.Visibilidad == true;
+
+                var secciones = await _repositorySeccionesBusiness.ObtenerPaginadoAsync(pagina, cantidadPorPagina, filtro);
+
+                return secciones.Select(t => new DTO_secciones
+                {
+                    Id = t.Id,
+                    Nombre = t.Nombre,
+                    Visibilidad = t.Visibilidad,
+                    Filas = t.Filas,
+                    NroParcelas = t.NroParcelas,
+                    TipoNumeracion = t.TipoNumeracionParcelaNavigation.TipoNumeracion.ToString()
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener la lista paginada de secciones: {ex.Message}", ex);
+            }
+        }
+
 
         public async Task<List<DTO_TipoNichos>> ListaTipoNicho()
         {

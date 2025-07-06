@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\CemSys2.props" />
+</Project>

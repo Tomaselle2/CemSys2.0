@@ -34,5 +34,8 @@ namespace CemSys2.ViewModel
 
         public string? MensajeError { get; set; }
         public string? Redirigir { get; set; }
+
+        public int PaginaActual { get; set; }
+        public int TotalPaginas { get; set; }
     }
 }
