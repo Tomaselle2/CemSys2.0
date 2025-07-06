@@ -69,7 +69,7 @@ namespace CemSys2.Business
                     filtro = s => s.Visibilidad == true;
 
                 var secciones = await _repositorySeccionesBusiness.ObtenerPaginadoAsync(pagina, cantidadPorPagina, filtro);
-                return secciones.Select(t => new DTO_secciones
+                return secciones.OrderByDescending(t => t.Id).Select(t => new DTO_secciones
                 {
                     Id = t.Id,
                     Nombre = t.Nombre,
