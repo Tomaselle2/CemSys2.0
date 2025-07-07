@@ -1,13 +1,13 @@
 ﻿@using CemSys2.ViewModel
-@model SeccionesViewModel
+@model PaginadorViewModel
 
-<nav aria-label="Paginador de secciones" class="mt-3">
+<nav aria-label="Paginador" class="mt-3">
     <ul class="pagination justify-content-center">
         @* Botón anterior *@
         @if (Model.PaginaActual > 1)
         {
             <li class="page-item">
-                <a class="page-link" asp-action="InicioSeccionesNichos" asp-route-pagina="@(Model.PaginaActual - 1)">
+                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@(Model.PaginaActual - 1)">
                     <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
@@ -23,7 +23,7 @@
         @if (paginaInicio > 1)
         {
             <li class="page-item">
-                <a class="page-link" asp-action="InicioSeccionesNichos" asp-route-pagina="1">1</a>
+                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="1">1</a>
             </li>
             @if (paginaInicio > 2)
             {
@@ -37,7 +37,7 @@
         @for (int i = paginaInicio; i <= paginaFin; i++)
         {
             <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
-                <a class="page-link" asp-action="InicioSeccionesNichos" asp-route-pagina="@i">@i</a>
+                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@i">@i</a>
             </li>
         }
 
@@ -51,7 +51,7 @@
                 </li>
             }
             <li class="page-item">
-                <a class="page-link" asp-action="InicioSeccionesNichos" asp-route-pagina="@Model.TotalPaginas">@Model.TotalPaginas</a>
+                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@Model.TotalPaginas">@Model.TotalPaginas</a>
             </li>
         }
 
@@ -59,7 +59,7 @@
         @if (Model.PaginaActual < Model.TotalPaginas)
         {
             <li class="page-item">
-                <a class="page-link" asp-action="InicioSeccionesNichos" asp-route-pagina="@(Model.PaginaActual + 1)">
+                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@(Model.PaginaActual + 1)">
                     <i class="bi bi-chevron-right"></i>
                 </a>
             </li>

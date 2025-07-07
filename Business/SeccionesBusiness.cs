@@ -60,7 +60,11 @@ namespace CemSys2.Business
             }
         }
 
-        public async Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null)
+        public async Task<List<DTO_secciones>> ListaSeccionesPaginado(
+    int pagina,
+    int cantidadPorPagina,
+    Expression<Func<Seccione, bool>> filtro = null,
+    Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>>? orderBy = null)
         {
             try
             {
@@ -68,8 +72,19 @@ namespace CemSys2.Business
                 if (filtro == null)
                     filtro = s => s.Visibilidad == true;
 
-                var secciones = await _repositorySeccionesBusiness.ObtenerPaginadoAsync(pagina, cantidadPorPagina, filtro);
-                return secciones.OrderByDescending(t => t.Id).Select(t => new DTO_secciones
+                // Si no se proporciona orden, usar Id descendente por defecto
+                if (orderBy == null)
+                    orderBy = q => q.OrderByDescending(s => s.Id);
+
+                // Llamada al repositorio con orden incluido
+                var secciones = await _repositorySeccionesBusiness.ObtenerPaginadoAsync(
+                    pagina,
+                    cantidadPorPagina,
+                    filtro,
+                    orderBy
+                );
+
+                return secciones.Select(t => new DTO_secciones
                 {
                     Id = t.Id,
                     Nombre = t.Nombre,
@@ -84,6 +99,7 @@ namespace CemSys2.Business
                 throw new Exception($"Error al obtener la lista paginada de secciones: {ex.Message}", ex);
             }
         }
+
 
 
         public async Task<List<DTO_TipoNichos>> ListaTipoNicho()

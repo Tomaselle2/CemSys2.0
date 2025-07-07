@@ -29,6 +29,7 @@ namespace CemSys2.Controllers
             // Validar parámetros
             if (pagina < 1) pagina = 1;
             SeccionesViewModel viewModel = new();
+
             try
             {
                 await CargarCombos(viewModel);
@@ -44,7 +45,7 @@ namespace CemSys2.Controllers
                 if (pagina > totalPaginas && totalPaginas > 0)
                     pagina = totalPaginas;
 
-                viewModel.Secciones = await ObtenerSeccionesPaginadas(pagina, CANTIDAD_POR_PAGINA, filtro);
+                viewModel.Secciones = await ObtenerSeccionesPaginadas(pagina, CANTIDAD_POR_PAGINA, filtro, q => q.OrderByDescending(s => s.Id));
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
                 viewModel.TotalRegistros = totalRegistros;
@@ -68,12 +69,12 @@ namespace CemSys2.Controllers
 
             Seccione seccion = new Seccione
             {
-                Nombre = model.Nombre.Trim(),
+                Nombre = model.Nombre.ToLower().Trim(),
                 Visibilidad = true,
                 Filas = model.Filas.Value,
                 NroParcelas = model.NroParcelas.Value,
                 TipoNumeracionParcela = model.IdTipoNumeracionParcela.Value,
-                TipoParcela = 1
+                TipoParcela = 1 //nicho
             };
 
             try
@@ -84,7 +85,7 @@ namespace CemSys2.Controllers
             {
                 model.MensajeError = ex.Message;
                 await CargarCombos(model);
-                return View(model);
+                return View(model.Redirigir, model);
             }
 
             return RedirectToAction(model.Redirigir);
@@ -101,16 +102,17 @@ namespace CemSys2.Controllers
             }
             catch(Exception ex)
             {
+                model.MensajeError = ex.Message;
                 return RedirectToAction(model.Redirigir);
             }
         }
 
 
-        private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null)
+        private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>>? orderBy = null)
         {
             try
             {
-                return await _seccionesBusiness.ListaSeccionesPaginado(pagina, cantidadPorPagina, filtro);
+                return await _seccionesBusiness.ListaSeccionesPaginado(pagina, cantidadPorPagina, filtro, orderBy);
             }
             catch (Exception ex)
             {

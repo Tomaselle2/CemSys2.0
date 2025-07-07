@@ -10,7 +10,7 @@ namespace CemSys2.Interface
         Task<int> Modificar(T modelo);
         Task Eliminar(int id);
 
-        Task<List<T>> ObtenerPaginadoAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> filtro);
+        Task<List<T>> ObtenerPaginadoAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> filtro, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null);
         Task<int> ContarTotalAsync(Expression<Func<T, bool>> filtro);
     }
 }

@@ -121,21 +121,32 @@ namespace CemSys2.Data
             }
         }
 
-        public async Task<List<T>> ObtenerPaginadoAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> filtro)
+        public async Task<List<T>> ObtenerPaginadoAsync(
+            int pageNumber,
+            int pageSize,
+            Expression<Func<T, bool>> filtro,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
         {
             try
             {
-                return await _dbSet
-                    .Where(filtro)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
+                IQueryable<T> query = _dbSet.Where(filtro);
+
+                if (orderBy != null)
+                {
+                    query = orderBy(query);
+                }
+
+                query = query.Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
+
+                return await query.ToListAsync();
             }
             catch (Exception)
             {
                 throw;
             }
         }
+
 
         public async Task<int> ContarTotalAsync(Expression<Func<T, bool>> filtro)
         {

@@ -12,7 +12,7 @@ namespace CemSys2.Interface
         public Task<int> RegistrarSeccion(Seccione seccionesViewModel);
         public Task Eliminar(int id);
 
-        public Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null);
+        public Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>>? orderBy = null);
         Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro);
 
 

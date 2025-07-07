@@ -112,7 +112,14 @@
     @* Paginador *@
     @if (Model.TotalPaginas > 1)
     {
-        @await Html.PartialAsync("_Paginador", Model)
+       @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+       {
+           PaginaActual = Model.PaginaActual,
+           TotalPaginas = Model.TotalPaginas,
+           TotalRegistros = Model.TotalRegistros,
+           Accion = "InicioSeccionesNichos",
+           Controlador = "Secciones"
+       })
     }
 
 }
