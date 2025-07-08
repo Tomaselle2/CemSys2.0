@@ -9,11 +9,11 @@ namespace CemSys2.Interface
         public Task<List<DTO_TipoNichos>> ListaTipoNicho();
         //public Task<List<DTO_secciones>> ListaSecciones();
 
-        public Task<int> RegistrarSeccion(Seccione seccionesViewModel);
+        public Task<int> RegistrarSeccion(DTO_secciones seccionesViewModel);
         public Task Eliminar(int id);
 
-        public Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>>? orderBy = null);
-        Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro);
+        public Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null);
+        public Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro);
 
 
     }

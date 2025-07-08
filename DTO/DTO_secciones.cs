@@ -10,5 +10,10 @@ namespace CemSys2.DTO
         public int Filas { get; set; }
         public int NroParcelas { get; set; }
         public string TipoNumeracion { get; set; } = null!;
+        public int IdTipoNumeracionParcela { get; set; }
+        public int IdTipoNicho { get; set; }
+        public int IdTipoPanteon { get; set; }
+        public int IdTipoParcela { get; set; }
+        public string? Redirigir { get; set; }
     }
 }

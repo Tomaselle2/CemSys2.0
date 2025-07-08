@@ -32,11 +32,13 @@ namespace CemSys2.Business
             }
         }
 
-        public Task Eliminar(int id)
+        public async Task Eliminar(int id)
         {
             try
             {
-                return _repositorySeccionesBusiness.Eliminar(id);
+                Seccione seccion = await _repositorySeccionesBusiness.Consultar(id);
+                seccion.Visibilidad = false;
+                await _repositorySeccionesBusiness.Modificar(seccion);
             }
             catch (Exception ex)
             {
@@ -61,10 +63,10 @@ namespace CemSys2.Business
         }
 
         public async Task<List<DTO_secciones>> ListaSeccionesPaginado(
-    int pagina,
-    int cantidadPorPagina,
-    Expression<Func<Seccione, bool>> filtro = null,
-    Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>>? orderBy = null)
+            int pagina,
+            int cantidadPorPagina,
+            Expression<Func<Seccione, bool>> filtro = null,
+            Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null)
         {
             try
             {
@@ -119,11 +121,21 @@ namespace CemSys2.Business
             }
         }
 
-        public async Task<int> RegistrarSeccion(Seccione seccionesViewModel)
+        public async Task<int> RegistrarSeccion(DTO_secciones seccionesViewModel)
         {
             try
             {
-                return await _repositorySeccionesBusiness.Registrar(seccionesViewModel);
+                Seccione seccion = new Seccione
+                {
+                    Nombre = seccionesViewModel.Nombre,
+                    Visibilidad = true,
+                    Filas = seccionesViewModel.Filas,
+                    NroParcelas = seccionesViewModel.NroParcelas,
+                    TipoNumeracionParcela = seccionesViewModel.IdTipoNumeracionParcela,
+                    TipoParcela = seccionesViewModel.IdTipoParcela
+                    
+                };
+                return await _repositorySeccionesBusiness.Registrar(seccion);
             }
             catch (Exception ex)
             {

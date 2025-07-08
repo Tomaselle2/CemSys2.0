@@ -12,7 +12,7 @@ namespace CemSys2.Controllers
     {
 
         private readonly ISeccionesBusiness _seccionesBusiness;
-        private const int CANTIDAD_POR_PAGINA = 5;
+        private const int CANTIDAD_POR_PAGINA = 20;
 
         public SeccionesController(ISeccionesBusiness seccionesBusiness)
         {
@@ -36,7 +36,7 @@ namespace CemSys2.Controllers
 
                 // Definir filtro una sola vez
                 Expression<Func<Seccione, bool>> filtro = s => s.Visibilidad == true;
-
+                Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = q => q.OrderByDescending(s => s.Id);
                 // Obtener total de registros y secciones paginadas con el mismo filtro
                 int totalRegistros = await _seccionesBusiness.ContarTotalAsync(filtro);
                 int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)CANTIDAD_POR_PAGINA);
@@ -45,7 +45,7 @@ namespace CemSys2.Controllers
                 if (pagina > totalPaginas && totalPaginas > 0)
                     pagina = totalPaginas;
 
-                viewModel.Secciones = await ObtenerSeccionesPaginadas(pagina, CANTIDAD_POR_PAGINA, filtro, q => q.OrderByDescending(s => s.Id));
+                viewModel.Secciones = await ObtenerSeccionesPaginadas(pagina, CANTIDAD_POR_PAGINA, filtro, orderBy);
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
                 viewModel.TotalRegistros = totalRegistros;
@@ -60,26 +60,29 @@ namespace CemSys2.Controllers
         [HttpPost]
         public async Task<IActionResult> RegistrarSeccion(SeccionesViewModel model)
         {
-
+            int idSeccion = 0;
             if (!ModelState.IsValid)
             {
                 await CargarCombos(model);
                 return View(model.Redirigir, model);
             }
 
-            Seccione seccion = new Seccione
+            DTO_secciones seccion = new DTO_secciones()
             {
                 Nombre = model.Nombre.ToLower().Trim(),
                 Visibilidad = true,
                 Filas = model.Filas.Value,
                 NroParcelas = model.NroParcelas.Value,
-                TipoNumeracionParcela = model.IdTipoNumeracionParcela.Value,
-                TipoParcela = 1 //nicho
+                IdTipoNumeracionParcela = model.IdTipoNumeracionParcela.Value,
+                IdTipoParcela = ObtenerTipoParcela(model.Redirigir),
+                IdTipoNicho = model.IdTipoNicho.Value,
+                Redirigir = model.Redirigir
             };
-
             try
             {
-                int idSeccion = await _seccionesBusiness.RegistrarSeccion(seccion);
+                idSeccion = await _seccionesBusiness.RegistrarSeccion(seccion); //registrar sección
+                seccion.Id = idSeccion;
+                return RedirectToAction("RegistrarParcelas", "Parcelas", seccion);
             }
             catch (Exception ex)
             {
@@ -88,7 +91,21 @@ namespace CemSys2.Controllers
                 return View(model.Redirigir, model);
             }
 
-            return RedirectToAction(model.Redirigir);
+        }
+
+        private int ObtenerTipoParcela(string tipo)
+        {
+            switch (tipo)
+            {
+                case "InicioSeccionesNichos":
+                    return 1; // Nicho
+                case "InicioSeccionesFosas":
+                    return 2; // Fosa
+                case "InicioSeccionesPanteones":
+                    return 3; // Panteón
+                default:
+                    return 0;
+            }
         }
 
 
@@ -108,7 +125,7 @@ namespace CemSys2.Controllers
         }
 
 
-        private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>>? orderBy = null)
+        private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null)
         {
             try
             {

@@ -27,6 +27,7 @@ builder.Services.AddScoped(typeof(IRepositoryDB<>), typeof(ServiceGenericDB<>));
 //contenedor de capa de negocio
 builder.Services.AddScoped(typeof(IRepositoryBusiness<>), typeof(ServiceGenericBusiness<>));
 builder.Services.AddScoped<ISeccionesBusiness, SeccionesBusiness>();
+builder.Services.AddScoped<IParcelasBusiness, ParcelasBusiness>();
 
 var app = builder.Build();
 

@@ -117,29 +117,44 @@ namespace CemSys2.Data
             }
             catch (Exception)
             {
-                throw; // o podés loguear antes de relanzar
+                throw; 
             }
         }
 
         public async Task<List<T>> ObtenerPaginadoAsync(
-            int pageNumber,
-            int pageSize,
-            Expression<Func<T, bool>> filtro,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
+    int pageNumber,
+    int pageSize,
+    Expression<Func<T, bool>> filtro,
+    Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
         {
             try
             {
-                IQueryable<T> query = _dbSet.Where(filtro);
+                if (pageNumber < 1) pageNumber = 1;
+                if (pageSize < 1) pageSize = 10;
 
+                var query = _dbSet.AsQueryable();
+
+                // Aplicar filtro
+                if (filtro != null)
+                    query = query.Where(filtro);
+
+                // Aplicar orden - SIEMPRE debe haber un orden para paginación
+                IOrderedQueryable<T> orderedQuery;
                 if (orderBy != null)
                 {
-                    query = orderBy(query);
+                    orderedQuery = orderBy(query);
+                }
+                else
+                {
+                    // Orden por defecto por Id descendente
+                    orderedQuery = query.OrderByDescending(x => EF.Property<object>(x, "Id"));
                 }
 
-                query = query.Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
-
-                return await query.ToListAsync();
+                // Aplicar paginación
+                return await orderedQuery
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
             }
             catch (Exception)
             {

@@ -24,10 +24,12 @@ body {
     margin-left: 65px;
 }
 
-
+.tituloDePagina{
+    font-size: 2.5em;
+    text-align: center;
+    font-weight: bold;
+}
 /* ------------------------ BARRA LATERAL CON ICONOS ------------------------- */
-
-
 .nav-link:hover {
     background-color: #9ce0db;
     border-radius: 5px;
@@ -127,4 +129,141 @@ body {
     transform: scale(1.3);
 }
 
-/* -----------------------------------------------------------------------------------------------------------------------------------*/        
+/* -----------------------------------------------------------------------------------------------------------------------------------*/  
+/*ESTILOS GENERALES*/
+
+/*NUEVA SECCIÓN*/
+        .nueva-seccion {
+            background-color: #005954;
+            color: #ffffff;
+            padding: 16px 24px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+/*ACORDEON*/
+        .accordion {
+            max-width: 1300px; /* Por ejemplo, un ancho máximo de 600px */
+            margin-left: auto; /* Centrarlo si tiene un max-width */
+            margin-right: auto;
+            margin-bottom: 20px;
+        }
+        /* Color del encabezado cuando está colapsado (cerrado) */
+        .accordion-button.collapsed {
+            background-color: #f0f0f0; /* Un gris claro */
+            color: #333; /* Color del texto */
+        }
+
+        /* Color del encabezado cuando está abierto */
+        .accordion-button:not(.collapsed) {
+            background-color: #005954; /* Azul de Bootstrap */
+            color: #fff; /* Texto blanco */
+        }
+
+        /* Opcional: Eliminar o cambiar el box-shadow al hacer foco */
+        .accordion-button:focus {
+            box-shadow: none; /* Eliminar el box-shadow */
+        }
+
+        .accordion-button::after {
+            /* Por ejemplo, para hacer una flecha negra blanca o viceversa */
+            filter: invert(100%);
+        }
+/*FIN ACORDEON*/
+
+
+
+
+/*Formularios*/
+    .form-columns-container3 {
+        display: flex; 
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    /* Estilo para cada div que contiene un campo de formulario */
+    .form-columns-container3 > div {
+        /* flex-basis: Define el tamaño inicial del elemento antes de que se distribuya el espacio.
+       calc(33.333% - (2 * 1.5rem / 3)) para 3 columnas con un gap de 1.5rem.
+       (2 * 1.5rem / 3) es la cantidad de gap que le corresponde a cada elemento en la fila.
+       Esto asegura que el cálculo sea preciso y el espacio se vea uniforme.
+    */
+        flex: 1 1 calc(33.333% - (2 * 1.5rem / 3));
+        min-width: 250px; /* Ancho mínimo antes de que el elemento salte a la siguiente línea */
+    }
+
+    .form-button-registrar {
+        flex: 1 1 100%; /* Ocupa el 100% del ancho, forzándolo a una nueva línea */
+        text-align: center; /* Alinea el botón a la derecha */
+        margin-top: 1rem; /* Espacio superior para separarlo de los campos */
+    }
+/*fin formularios*/
+
+
+
+/*--------------------BOTONES-----------------------------*/
+/* Boton REGISTAR*/
+    .btn-registrar {
+        background-color: #338b85;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 130px;
+        display: block;
+        text-align: center;
+        margin: 10px;
+    }
+        .btn-registrar:hover {
+            background-color: #287a6c;
+        }
+/* BOTON MODIFICAR*/
+
+    .btn-modificar {
+        background-color: #6c7069;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .btn-modificar:hover {
+            background-color: #194441;
+        }
+
+/*BOTON ELIMINAR*/
+
+    .btn-eliminar {
+        background-color: #e53935;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .btn-eliminar:hover {
+            background-color: #b71c1c;
+        }
+
+/*BOTON VOLVER*/
+    .btn-volver {
+        background-color: #145c57;
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        margin: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: inline-block;
+    }
+        .btn-volver:hover {
+            background-color: #1f946e;
+        }
+

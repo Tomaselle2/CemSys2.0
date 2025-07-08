@@ -1,130 +1,153 @@
 ﻿@using CemSys2.ViewModel
 @model SeccionesViewModel
 
-<a asp-action="Index" asp-controller="Secciones" class="btn-volver"><i class="bi bi-box-arrow-left"></i></a>
+<a asp-action="Index" asp-controller="Secciones" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
 
-<h1>Gestión de Secciones de Nichos</h1>
+<h1 class="tituloDePagina">Gestión de Secciones de Nichos</h1>
 
 <!-- formulario -->
-<div class="card shadow-sm mb-4">
-    <div class="nueva-seccion">Nueva Sección</div>
-    <div class="card-body">
-        <form asp-action="RegistrarSeccion" method="post">
-            <input type="hidden" asp-for="Id" />
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Nueva sección
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            <div class="accordion-body"> 
+                <form asp-action="RegistrarSeccion" method="post">
+                    <input type="hidden" asp-for="Id" />
 
-            <div>
-                <div class="flex-item-200 flex-column">
-                    <label for="nombre" class="form-label">Nombre</label>
-                    <input class="form-control" type="text" asp-for="Nombre" required maxlength="50" id="nombre" />
-                    <span asp-validation-for="Nombre" class="text-danger"></span>
-                </div>
+                    <div class="form-columns-container3">
+                        <div>
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input class="form-control" type="text" asp-for="Nombre" required maxlength="50" id="nombre" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
 
-                <div>
-                    <label for="nroNichos" class="form-label">Cantidad de nichos</label>
-                    <input class="form-control" type="number" asp-for="NroParcelas" required id="nroNichos" min="1" />
-                    <span asp-validation-for="NroParcelas" class="text-danger"></span>
-                </div>
+                        <div>
+                            <label for="nroNichos" class="form-label">Cantidad de nichos</label>
+                            <input class="form-control" type="number" asp-for="NroParcelas" required id="nroNichos" min="1" />
+                            <span asp-validation-for="NroParcelas" class="text-danger"></span>
+                        </div>
 
-                <div>
-                    <label for="nroFilas" class="form-label">Cantidad de filas</label>
-                    <input class="form-control" type="number" asp-for="Filas" required id="nroFilas" min="1" />
-                    <span asp-validation-for="Filas" class="text-danger"></span>
-                </div>
+                        <div>
+                            <label for="nroFilas" class="form-label">Cantidad de filas</label>
+                            <input class="form-control" type="number" asp-for="Filas" required id="nroFilas" min="1" />
+                            <span asp-validation-for="Filas" class="text-danger"></span>
+                        </div>
 
-                <div>
-                    <label for="tipoNumeracion" class="form-label">Tipo de numeración</label>
-                    <select class="form-select" asp-for="IdTipoNumeracionParcela" asp-items="@(new SelectList(Model.TipoNumeracionParcelas, "Id", "Tipo"))" required>
-                        <option value="">--Elija una opción--</option>
-                    </select>
-                    <span asp-validation-for="IdTipoNumeracionParcela" class="text-danger"></span>
-                </div>
+                        <div>
+                            <label for="tipoNumeracion" class="form-label">Tipo de numeración</label>
+                            <select class="form-select" asp-for="IdTipoNumeracionParcela" asp-items="@(new SelectList(Model.TipoNumeracionParcelas, "Id", "Tipo"))" required>
+                                <option value="">--Elija una opción--</option>
+                            </select>
+                            <span asp-validation-for="IdTipoNumeracionParcela" class="text-danger"></span>
+                        </div>
 
-                <div>
-                    <label for="IdTipoNicho" class="form-label">Tipo de nicho</label>
-                    <select class="form-select" asp-for="IdTipoNicho" asp-items="@(new SelectList(Model.TipoNichos, "Id", "Tipo"))" required>
-                        <option value="">--Elija una opción--</option>
-                    </select>
-                    <span asp-validation-for="IdTipoNicho" class="text-danger"></span>
-                </div>
+                        <div>
+                            <label for="IdTipoNicho" class="form-label">Tipo de nicho</label>
+                            <select class="form-select" asp-for="IdTipoNicho" asp-items="@(new SelectList(Model.TipoNichos, "Id", "Tipo"))" required>
+                                <option value="">--Elija una opción--</option>
+                            </select>
+                            <span asp-validation-for="IdTipoNicho" class="text-danger"></span>
+                        </div>
 
-                <div class="flex-button-container">
-                    <input type="hidden" asp-for="Redirigir" value="InicioSeccionesNichos" />
-                    <input class="btn-custom" type="submit" value="Registrar" />
-                </div>
+                        <div class="form-button-registrar">
+                            <input type="hidden" asp-for="Redirigir" value="InicioSeccionesNichos" />
+                            <input class="btn-registrar" type="submit" value="Registrar" />
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
+            @* Fin cuerpo del acordeon *@
+        </div>
     </div>
 </div>
 
 <!-- Tabla -->
-@if (Model.Secciones.Count != 0)
-{
-    <div class="card shadow-sm">
-        <div class="card-header bg-secondary text-white">
-            Secciones Registradas
-        </div>
-        <div class="card-body p-0">
-            <table class="table table-striped mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Nichos</th>
-                        <th>Filas</th>
-                        <th>Tipo de numeración</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var opc in Model.Secciones)
-                    {
-                        if (opc.Visibilidad != false)
-                        {
-                            <tr>
-                                <td>@opc.Nombre.ToUpper()</td>
-                                <td>@opc.NroParcelas</td>
-                                <td>@opc.Filas</td>
-                                <td>@opc.TipoNumeracion</td>
-                                <td>
-                                    <form asp-action="Administrar" method="get" style="display: inline-block;">
-                                        <input type="hidden" asp-for="Id" value="@opc.Id" />
-                                        <button type="submit" class="btn-modificar btn-sm" title="Administrar">
-                                            <i class="bi bi-gear"></i>
-                                        </button>
-                                    </form>
 
-                                    <form asp-action="Eliminar" method="post" style="display: inline-block;" id="formularioEliminar_@opc.Id">
-                                        <input type="hidden" asp-for="Id" value="@opc.Id" />
-                                        <input type="hidden" asp-for="Redirigir" value="InicioSeccionesNichos" />
-                                        <button type="button" class="btn-eliminar btn-sm" title="Eliminar"
-                                                onclick="confirmarEliminacion('formularioEliminar_@opc.Id', '¿Desea eliminar la sección @opc.Nombre.ToUpper()?')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Secciones Registradas
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.Secciones.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Nichos</th>
+                                    <th>Filas</th>
+                                    <th>Tipo de numeración</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.Secciones)
+                                {
+                                    if (opc.Visibilidad != false)
+                                    {
+                                        <tr>
+                                            <td>@opc.Nombre.ToUpper()</td>
+                                            <td>@opc.NroParcelas</td>
+                                            <td>@opc.Filas</td>
+                                            <td>@opc.TipoNumeracion</td>
+                                            <td>
+                                                <form asp-action="Administrar" method="get" style="display: inline-block;">
+                                                    <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                    <button type="submit" class="btn-modificar btn-sm" title="Administrar">
+                                                        <i class="bi bi-gear"></i>
+                                                    </button>
+                                                </form>
 
-    @* Paginador *@
-    @if (Model.TotalPaginas > 1)
-    {
-       @await Html.PartialAsync("_Paginador", new PaginadorViewModel
-       {
+                                                <form asp-action="Eliminar" method="post" style="display: inline-block;" id="formularioEliminar_@opc.Id">
+                                                    <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                    <input type="hidden" asp-for="Redirigir" value="InicioSeccionesNichos" />
+                                                    <button type="button" class="btn-eliminar btn-sm" title="Eliminar"
+                                                            onclick="confirmarEliminacion('formularioEliminar_@opc.Id', '¿Desea eliminar la sección @opc.Nombre.ToUpper()?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+        @* Paginador *@
+        @if (Model.TotalPaginas > 1)
+        {
+            @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+        {
            PaginaActual = Model.PaginaActual,
            TotalPaginas = Model.TotalPaginas,
            TotalRegistros = Model.TotalRegistros,
            Accion = "InicioSeccionesNichos",
            Controlador = "Secciones"
-       })
-    }
+        })
+          }
 
-}
-    @* Modal de confirmación *@
-    @await Html.PartialAsync("_ModalConfirmacionEliminacion")
+        }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+
+@* Modal de confirmación *@
+@await Html.PartialAsync("_ModalConfirmacionEliminacion")
 
 
 
