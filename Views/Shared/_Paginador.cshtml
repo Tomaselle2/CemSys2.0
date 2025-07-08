@@ -1,29 +1,36 @@
 ﻿@using CemSys2.ViewModel
 @model PaginadorViewModel
-
 <nav aria-label="Paginador" class="mt-3">
     <ul class="pagination justify-content-center">
         @* Botón anterior *@
         @if (Model.PaginaActual > 1)
         {
             <li class="page-item">
-                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@(Model.PaginaActual - 1)">
+                <a class="page-link"
+                   asp-action="@Model.Accion"
+                   asp-controller="@Model.Controlador"
+                   asp-route-pagina="@(Model.PaginaActual - 1)"
+                   asp-all-route-data="Model.ParametrosAdicionales">
                     <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
         }
-
         @* Páginas numéricas *@
         @{
             int paginaInicio = Math.Max(1, Model.PaginaActual - 2);
             int paginaFin = Math.Min(Model.TotalPaginas, Model.PaginaActual + 2);
         }
-
         @* Primera página si no está en el rango *@
         @if (paginaInicio > 1)
         {
             <li class="page-item">
-                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="1">1</a>
+                <a class="page-link"
+                   asp-action="@Model.Accion"
+                   asp-controller="@Model.Controlador"
+                   asp-route-pagina="1"
+                   asp-all-route-data="Model.ParametrosAdicionales">
+                    1
+                </a>
             </li>
             @if (paginaInicio > 2)
             {
@@ -32,14 +39,55 @@
                 </li>
             }
         }
-
         @* Páginas del rango *@
-        @for (int i = paginaInicio; i <= paginaFin; i++)
+@*         @for (int i = paginaInicio; i <= paginaFin; i++)
         {
             <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
-                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@i">@i</a>
+                @if (i == Model.PaginaActual)
+                {
+                    <span class="page-link">@i</span>
+                }
+                else
+                {
+                    <a class="page-link"
+                       asp-action="@Model.Accion"
+                       asp-controller="@Model.Controlador"
+                       asp-route-pagina="@i"
+                       asp-all-route-data="Model.ParametrosAdicionales">
+                        @i
+                    </a>
+                }
             </li>
+        } *@
+
+
+        @* Páginas del rango *@
+@for (int i = paginaInicio; i <= paginaFin; i++)
+{
+    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+        @if (i == Model.PaginaActual)
+        {
+            <span class="page-link">@i</span>
         }
+        else
+        {
+            
+                var parametrosConPagina = new Dictionary<string, string>(Model.ParametrosAdicionales);
+                parametrosConPagina["pagina"] = i.ToString();
+            
+            <a class="page-link"
+               asp-action="@Model.Accion"
+               asp-controller="@Model.Controlador"
+               asp-all-route-data="parametrosConPagina">
+                @i
+            </a>
+        }
+    </li>
+}
+
+
+
+
 
         @* Última página si no está en el rango *@
         @if (paginaFin < Model.TotalPaginas)
@@ -51,21 +99,29 @@
                 </li>
             }
             <li class="page-item">
-                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@Model.TotalPaginas">@Model.TotalPaginas</a>
+                <a class="page-link"
+                   asp-action="@Model.Accion"
+                   asp-controller="@Model.Controlador"
+                   asp-route-pagina="@Model.TotalPaginas"
+                   asp-all-route-data="Model.ParametrosAdicionales">
+                    @Model.TotalPaginas
+                </a>
             </li>
         }
-
         @* Botón siguiente *@
         @if (Model.PaginaActual < Model.TotalPaginas)
         {
             <li class="page-item">
-                <a class="page-link" asp-action="@Model.Accion" asp-controller="@Model.Controlador" asp-route-pagina="@(Model.PaginaActual + 1)">
+                <a class="page-link"
+                   asp-action="@Model.Accion"
+                   asp-controller="@Model.Controlador"
+                   asp-route-pagina="@(Model.PaginaActual + 1)"
+                   asp-all-route-data="Model.ParametrosAdicionales">
                     <i class="bi bi-chevron-right"></i>
                 </a>
             </li>
         }
     </ul>
-
     @* Información de paginación *@
     <div class="text-center mt-2">
         <small class="text-muted">

@@ -8,5 +8,8 @@
 
         public string? Accion { get; set; }
         public string? Controlador { get; set; }
+
+        public Dictionary<string, string> ParametrosAdicionales { get; set; } = new Dictionary<string, string>();
+
     }
 }

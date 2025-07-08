@@ -10,14 +10,17 @@ namespace CemSys2.Business
         private readonly IRepositoryBusiness<Seccione> _repositorySeccionesBusiness;
         private readonly IRepositoryBusiness<TipoNumeracionParcela> _repositoryTipoNumeracionParcela;
         private readonly IRepositoryBusiness<TipoNicho> _repositoryTipoNicho;
+        private readonly IRepositoryBusiness<Parcela> _repositoryParcelasBusiness;
 
         public SeccionesBusiness(IRepositoryBusiness<Seccione> repositorySeccionesBusiness,
                                  IRepositoryBusiness<TipoNumeracionParcela> repositoryTipoNumeracionParcela,
-                                 IRepositoryBusiness<TipoNicho> repositoryTipoNicho)
+                                 IRepositoryBusiness<TipoNicho> repositoryTipoNicho,
+                                 IRepositoryBusiness<Parcela> repositoryParcelasBusiness)
         {
             _repositorySeccionesBusiness = repositorySeccionesBusiness;
             _repositoryTipoNumeracionParcela = repositoryTipoNumeracionParcela;
             _repositoryTipoNicho = repositoryTipoNicho;
+            _repositoryParcelasBusiness = repositoryParcelasBusiness;
         }
 
         public async Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro)
@@ -29,6 +32,18 @@ namespace CemSys2.Business
             catch (Exception ex)
             {
                 throw new Exception($"Error al contar las secciones: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<int> ContarTotalparcelasAsync(Expression<Func<Parcela, bool>> filtro)
+        {
+            try
+            {
+                return await _repositoryParcelasBusiness.ContarTotalAsync(filtro);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al contar las parcelas: {ex.Message}", ex);
             }
         }
 
@@ -59,6 +74,43 @@ namespace CemSys2.Business
             catch (Exception ex)
             {
                 throw new Exception($"Error al obtener la lista de numeración de parcelas: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<List<DTO_Parcelas>> ListaParcelasPaginada(int pagina, int cantidadPorPagina, Expression<Func<Parcela, bool>> filtro = null, Func<IQueryable<Parcela>, IOrderedQueryable<Parcela>> orderBy = null)
+        {
+            try
+            {
+                // Si no se proporciona filtro, usar el filtro por defecto
+                if (filtro == null)
+                    filtro = s => s.Visibilidad == true;
+
+                // Si no se proporciona orden, usar Id descendente por defecto
+                if (orderBy == null)
+                    orderBy = q => q.OrderByDescending(s => s.Id);
+
+                // Llamada al repositorio con orden incluido
+                var parcelas = await _repositoryParcelasBusiness.ObtenerPaginadoAsync(
+                    pagina,
+                    cantidadPorPagina,
+                    filtro,
+                    orderBy
+                );
+
+                return parcelas.Select(t => new DTO_Parcelas
+                {
+                    Id = t.Id,
+                    Visibilidad = t.Visibilidad,
+                    NroFila = t.NroFila,
+                    NroParcela = t.NroParcela,
+                    CantidadDifuntos = t.CantidadDifuntos,
+                    Seccion = t.Seccion,
+                    IdTipoNicho = t.TipoNicho
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener la lista paginada de parcelas: {ex.Message}", ex);
             }
         }
 

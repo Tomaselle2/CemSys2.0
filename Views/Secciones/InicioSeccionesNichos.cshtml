@@ -102,8 +102,10 @@
                                             <td>@opc.Filas</td>
                                             <td>@opc.TipoNumeracion</td>
                                             <td>
-                                                <form asp-action="Administrar" method="get" style="display: inline-block;">
-                                                    <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                <form asp-action="AdministrarNichos" method="get" style="display: inline-block;">
+                                                    <input type="hidden" name="IdSeccion" value="@opc.Id.ToString()" />
+                                                    <input type="hidden" name="Redirigir" value="InicioSeccionesNichos" />
+                                                    <input type="hidden" name="Nombre" value="@opc.Nombre"/>
                                                     <button type="submit" class="btn-modificar btn-sm" title="Administrar">
                                                         <i class="bi bi-gear"></i>
                                                     </button>
@@ -126,20 +128,20 @@
                     </div>
                 </div>
 
-        @* Paginador *@
-        @if (Model.TotalPaginas > 1)
-        {
-            @await Html.PartialAsync("_Paginador", new PaginadorViewModel
-        {
-           PaginaActual = Model.PaginaActual,
-           TotalPaginas = Model.TotalPaginas,
-           TotalRegistros = Model.TotalRegistros,
-           Accion = "InicioSeccionesNichos",
-           Controlador = "Secciones"
-        })
-          }
+                @* Paginador *@
+                @if (Model.TotalPaginas > 1)
+                {
+                    @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+                    {
+                       PaginaActual = Model.PaginaActual,
+                       TotalPaginas = Model.TotalPaginas,
+                       TotalRegistros = Model.TotalRegistros,
+                       Accion = "InicioSeccionesNichos",
+                       Controlador = "Secciones"
+                    })
+                }  
 
-        }
+            }
             @* Fin cuerpo del acordeon *@
         </div>
     </div>

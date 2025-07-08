@@ -125,6 +125,42 @@ namespace CemSys2.Controllers
         }
 
 
+        public async Task<IActionResult> AdministrarNichos(string Nombre, string Redirigir, string IdSeccion, int pagina = 1)
+        {
+            if (pagina < 1) pagina = 1;
+            ParcelasViewModel viewModel = new();
+            viewModel.Redirigir = Redirigir;
+            viewModel.NombreSeccion = Nombre;
+            viewModel.IdSeccion = int.Parse(IdSeccion);
+
+            try
+            {
+                // Definir filtro una sola vez
+                Expression<Func<Parcela, bool>> filtro = s => s.Visibilidad == true && s.Seccion == int.Parse(IdSeccion);
+                Func<IQueryable<Parcela>, IOrderedQueryable<Parcela>> orderBy = q => q.OrderBy(s => s.Id);
+                // Obtener total de registros y secciones paginadas con el mismo filtro
+                int totalRegistros = await _seccionesBusiness.ContarTotalparcelasAsync(filtro);
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)CANTIDAD_POR_PAGINA);
+
+                // Ajustar página si es mayor al total
+                if (pagina > totalPaginas && totalPaginas > 0)
+                    pagina = totalPaginas;
+
+                viewModel.Parcelas = await ObtenerparcelasPaginadas(pagina, CANTIDAD_POR_PAGINA, filtro, orderBy);
+                viewModel.PaginaActual = pagina;
+                viewModel.TotalPaginas = totalPaginas;
+                viewModel.TotalRegistros = totalRegistros;
+                viewModel.ListaTipoNicho = await _seccionesBusiness.ListaTipoNicho();
+                return View(viewModel);
+
+            }
+            catch (Exception ex)
+            {
+                ViewData["MensajeError"] = ex.Message;
+                return View(viewModel);
+            }
+        }
+
         private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null)
         {
             try
@@ -134,6 +170,18 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 throw new Exception($"Error al obtener las secciones paginadas: {ex.Message}", ex);
+            }
+        }
+
+        private async Task<List<DTO_Parcelas>> ObtenerparcelasPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Parcela, bool>> filtro = null, Func<IQueryable<Parcela>, IOrderedQueryable<Parcela>> orderBy = null)
+        {
+            try
+            {
+                return await _seccionesBusiness.ListaParcelasPaginada(pagina, cantidadPorPagina, filtro, orderBy);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener las parcelas paginadas: {ex.Message}", ex);
             }
         }
 
