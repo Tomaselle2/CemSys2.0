@@ -13,6 +13,8 @@ namespace CemSys2.Interface
 
         public Task<List<DTO_secciones>> ListaSeccionesPaginado(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null);
         public Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro);
+        public Task<List<DTO_secciones>> ListaSeccionesPaginado2(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null);
+
 
         public Task<List<DTO_Parcelas>> ListaParcelasPaginada(int pagina,
             int cantidadPorPagina,

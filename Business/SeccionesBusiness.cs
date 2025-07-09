@@ -154,6 +154,45 @@ namespace CemSys2.Business
             }
         }
 
+        public async Task<List<DTO_secciones>> ListaSeccionesPaginado2(
+            int pagina,
+            int cantidadPorPagina,
+            Expression<Func<Seccione, bool>> filtro = null,
+            Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null)
+        {
+            try
+            {
+                // Si no se proporciona filtro, usar el filtro por defecto
+                if (filtro == null)
+                    filtro = s => s.Visibilidad == true;
+
+                // Si no se proporciona orden, usar Id descendente por defecto
+                if (orderBy == null)
+                    orderBy = q => q.OrderByDescending(s => s.Id);
+
+                // Llamada al repositorio con orden incluido
+                var secciones = await _repositorySeccionesBusiness.ObtenerPaginadoAsync(
+                    pagina,
+                    cantidadPorPagina,
+                    filtro,
+                    orderBy
+                );
+
+                return secciones.Select(t => new DTO_secciones
+                {
+                    Id = t.Id,
+                    Nombre = t.Nombre,
+                    Visibilidad = t.Visibilidad,
+                    Filas = t.Filas,
+                    NroParcelas = t.NroParcelas
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener la lista paginada de secciones: {ex.Message}", ex);
+            }
+        }
+
 
 
         public async Task<List<DTO_TipoNichos>> ListaTipoNicho()
@@ -175,9 +214,10 @@ namespace CemSys2.Business
 
         public async Task<int> RegistrarSeccion(DTO_secciones seccionesViewModel)
         {
+            Seccione seccion = new Seccione();
             try
             {
-                Seccione seccion = new Seccione
+                seccion = new Seccione
                 {
                     Nombre = seccionesViewModel.Nombre,
                     Visibilidad = true,
@@ -185,8 +225,8 @@ namespace CemSys2.Business
                     NroParcelas = seccionesViewModel.NroParcelas,
                     TipoNumeracionParcela = seccionesViewModel.IdTipoNumeracionParcela,
                     TipoParcela = seccionesViewModel.IdTipoParcela
-                    
                 };
+                
                 return await _repositorySeccionesBusiness.Registrar(seccion);
             }
             catch (Exception ex)

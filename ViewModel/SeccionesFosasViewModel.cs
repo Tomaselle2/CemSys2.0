@@ -1,9 +1,10 @@
 ﻿using CemSys2.DTO;
 using CemSys2.ValidacionAnotations;
 using System.ComponentModel.DataAnnotations;
+
 namespace CemSys2.ViewModel
 {
-    public class SeccionesViewModel
+    public class SeccionesFosasViewModel
     {
         public int? Id { get; set; }
 
@@ -14,7 +15,6 @@ namespace CemSys2.ViewModel
 
         public bool Visibilidad { get; set; }
 
-        [Required(ErrorMessage = "Debe ingresar la cantidad de filas")]
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad de filas debe ser mayor a 0")]
         public int? Filas { get; set; }
 
@@ -22,14 +22,9 @@ namespace CemSys2.ViewModel
         [Range(1, int.MaxValue, ErrorMessage = "El número de parcelas debe ser mayor a 0")]
         public int? NroParcelas { get; set; }
 
-        [Required(ErrorMessage = "Debe seleccionar un tipo de nicho")]
-        public int? IdTipoNicho { get; set; }
 
-        [Required(ErrorMessage = "Debe seleccionar un tipo de numeración de parcela")]
+        public List<DTO_secciones> Secciones { get; set; } = new();
         public int? IdTipoNumeracionParcela { get; set; }
-
-        public List<DTO_secciones> Secciones { get; set; } = new(); 
-        public List<DTO_TipoNichos> TipoNichos { get; set; } = new();
         public List<DTO_TipoNumeracionParcela> TipoNumeracionParcelas { get; set; } = new();
 
         public string? MensajeError { get; set; }
@@ -37,6 +32,6 @@ namespace CemSys2.ViewModel
 
         public int PaginaActual { get; set; }
         public int TotalPaginas { get; set; }
-        public int TotalRegistros{ get; set; }
+        public int TotalRegistros { get; set; }
     }
 }
