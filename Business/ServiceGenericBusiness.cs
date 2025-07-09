@@ -20,7 +20,7 @@ namespace CemSys2.Business
             catch (Exception) { throw; }
         }
 
-        public async Task<int> ContarTotalAsync(Expression<Func<T, bool>> filtro)
+        public async Task<int> ContarTotalAsync(Expression<Func<T, bool>> filtro = null)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace CemSys2.Business
             catch (Exception) { throw; }
         }
 
-        public async Task<List<T>> ObtenerPaginadoAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> filtro, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
+        public async Task<List<T>> ObtenerPaginadoAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> filtro = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
         {
             try
             {

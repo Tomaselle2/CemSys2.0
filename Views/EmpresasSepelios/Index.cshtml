@@ -1,0 +1,154 @@
+﻿@using CemSys2.ViewModel
+@model EmpresasSepelioViewModel
+
+<a asp-action="Index" asp-controller="Configuracion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
+@{
+    string accion = (Model.EsEdicion ? "Modificar" : "Registrar");
+    string redirigir = "Index";
+}
+
+
+<h1 class="tituloDePagina">Empresas de sepelio</h1>
+
+
+
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+
+
+
+
+
+<!-- formulario -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                @(Model.EsEdicion ? "Modificar empresa" : "Nueva empresa")
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                @* cuerpo del acordion *@
+                <form asp-action="Registrar" method="post" class="form-box">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-columns-container3">
+                        <div>
+                            <label class="form-label" for="nombre">Nombre</label>
+                            <input class="form-control" type="text" asp-for="Nombre" required maxlength="60" id="nombre" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-button-registrar">
+                            <input type="hidden" asp-for="Redirigir" value="@redirigir" />
+                            <input type="hidden" asp-for="EsEdicion" value="@(accion == "Modificar" ? "true" : "false")" />
+                            <input class="@(Model.EsEdicion ? "btn-modificar" : "btn-registrar") " type="submit" value="@accion" />
+                        </div>
+                    </div>
+                </form>
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Tabla -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Empresas registradas
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaEmpresasSepelio.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaEmpresasSepelio)
+                                {
+                                    
+                                    <tr>
+                                        <td>@opc.Nombre.ToUpper()</td>
+                                        <td>
+                                            <form asp-action="Modificar" method="get" style="display: inline-block;">
+                                                <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                <input type="hidden" asp-for="Redirigir" value="@redirigir" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="Modificar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            </form>
+                                            <form asp-action="Eliminar" method="post" style="display: inline-block;" id="formularioEliminar_@opc.Id">
+                                                <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                <input type="hidden" asp-for="Redirigir" value="@redirigir" />
+
+                                                <button type="button" class="btn-eliminar btn-sm" title="Eliminar"
+                                                        onclick="confirmarEliminacion('formularioEliminar_@opc.Id', '¿Desea eliminar la empresa @opc.Nombre.ToUpper()')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @* Paginador *@
+                @if (Model.TotalPaginas > 1)
+                {
+                    @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+       {
+           PaginaActual = Model.PaginaActual,
+           TotalPaginas = Model.TotalPaginas,
+           TotalRegistros = Model.TotalRegistros,
+           Accion = redirigir,
+           Controlador = "EmpresasSepelios"
+       })
+                }
+
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+@* Modal de confirmación *@
+@await Html.PartialAsync("_ModalConfirmacionEliminacion")
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

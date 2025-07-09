@@ -163,18 +163,24 @@ namespace CemSys2.Data
         }
 
 
-        public async Task<int> ContarTotalAsync(Expression<Func<T, bool>> filtro)
+        public async Task<int> ContarTotalAsync(Expression<Func<T, bool>> filtro = null) // Hacemos el parámetro opcional
         {
             try
             {
-                return await _dbSet.CountAsync(filtro);
+                if (filtro == null)
+                {
+                    return await _dbSet.CountAsync(); // Si el filtro es nulo, contamos todo
+                }
+                else
+                {
+                    return await _dbSet.CountAsync(filtro); // Si hay filtro, lo aplicamos
+                }
             }
             catch (Exception)
             {
-                throw;
+                throw; // Es una buena práctica registrar la excepción antes de relanzarla
             }
         }
-
 
 
     }

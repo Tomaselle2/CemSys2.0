@@ -21,7 +21,7 @@ namespace CemSys2.Interface
             Expression<Func<Parcela, bool>> filtro = null,
             Func<IQueryable<Parcela>, IOrderedQueryable<Parcela>> orderBy = null);
 
-        public Task<int> ContarTotalparcelasAsync(Expression<Func<Parcela, bool>> filtro);
+        public Task<int> ContarTotalparcelasAsync(Expression<Func<Parcela, bool>> filtro = null);
 
     }
 }

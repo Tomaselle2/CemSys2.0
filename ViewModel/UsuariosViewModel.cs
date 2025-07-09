@@ -50,7 +50,6 @@ namespace CemSys2.ViewModel
         }
 
         public string? MensajeError { get; set; }
-        public string? MensajeExito { get; set; }
 
         public string? Redirigir { get; set; }
 
