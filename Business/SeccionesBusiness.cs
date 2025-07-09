@@ -11,16 +11,19 @@ namespace CemSys2.Business
         private readonly IRepositoryBusiness<TipoNumeracionParcela> _repositoryTipoNumeracionParcela;
         private readonly IRepositoryBusiness<TipoNicho> _repositoryTipoNicho;
         private readonly IRepositoryBusiness<Parcela> _repositoryParcelasBusiness;
+        private readonly IRepositoryBusiness<TipoPanteon> _repositoryTipoPanteon;
 
         public SeccionesBusiness(IRepositoryBusiness<Seccione> repositorySeccionesBusiness,
                                  IRepositoryBusiness<TipoNumeracionParcela> repositoryTipoNumeracionParcela,
                                  IRepositoryBusiness<TipoNicho> repositoryTipoNicho,
-                                 IRepositoryBusiness<Parcela> repositoryParcelasBusiness)
+                                 IRepositoryBusiness<Parcela> repositoryParcelasBusiness,
+                                 IRepositoryBusiness<TipoPanteon> repositoryTipoPanteon)
         {
             _repositorySeccionesBusiness = repositorySeccionesBusiness;
             _repositoryTipoNumeracionParcela = repositoryTipoNumeracionParcela;
             _repositoryTipoNicho = repositoryTipoNicho;
             _repositoryParcelasBusiness = repositoryParcelasBusiness;
+            _repositoryTipoPanteon = repositoryTipoPanteon;
         }
 
         public async Task<int> ContarTotalAsync(Expression<Func<Seccione, bool>> filtro)
@@ -210,6 +213,16 @@ namespace CemSys2.Business
             {
                 throw new Exception($"Error al obtener la lista de tipos de nichos: {ex.Message}", ex);
             }
+        }
+
+        public async Task<List<DTO_TipoPanteon>> ListaTipoPanteon()
+        {
+            List<TipoPanteon> listaTipoPanteon = await _repositoryTipoPanteon.EmitirListado();
+            return listaTipoPanteon.Select(t => new DTO_TipoPanteon
+            {
+                Id = t.Id,
+                Tipo = t.Tipo.ToString()
+            }).ToList();
         }
 
         public async Task<int> RegistrarSeccion(DTO_secciones seccionesViewModel)

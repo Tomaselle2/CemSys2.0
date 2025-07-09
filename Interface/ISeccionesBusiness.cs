@@ -7,6 +7,7 @@ namespace CemSys2.Interface
     {
         public Task<List<DTO_TipoNumeracionParcela>> ListaNumeracionParcelas();
         public Task<List<DTO_TipoNichos>> ListaTipoNicho();
+        public Task<List<DTO_TipoPanteon>> ListaTipoPanteon();
 
         public Task<int> RegistrarSeccion(DTO_secciones seccionesViewModel);
         public Task Eliminar(int id);

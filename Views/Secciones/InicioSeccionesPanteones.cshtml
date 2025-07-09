@@ -53,10 +53,20 @@
                             <span asp-validation-for="NroParcelas" class="text-danger"></span>
                         </div>
 
+                        <div>
+                            <label for="IdTipoPanteon" class="form-label">Tipo de panteón</label>
+                            <select class="form-select" asp-for="IdTipoPanteon" asp-items="@(new SelectList(Model.ListaTipoPanteones, "Id", "Tipo"))" required>
+                                <option value="">--Elija una opción--</option>
+                            </select>
+                            <span asp-validation-for="IdTipoPanteon" class="text-danger"></span>
+                        </div>
+
                         <div class="form-button-registrar">
                             <input type="hidden" asp-for="Redirigir" value="InicioSeccionesPanteones" />
                             <input class="btn-registrar" type="submit" value="Registrar" />
                         </div>
+
+                        
                     </div>
                 </form>
             </div>

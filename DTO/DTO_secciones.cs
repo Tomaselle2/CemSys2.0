@@ -13,6 +13,7 @@ namespace CemSys2.DTO
         public int IdTipoNumeracionParcela { get; set; }
         public int IdTipoNicho { get; set; }
         public int IdTipoPanteon { get; set; }
+        public string? TipoPanteon { get; set; }
         public int IdTipoParcela { get; set; }
         public string? Redirigir { get; set; }
     }

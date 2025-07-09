@@ -209,9 +209,12 @@ CREATE TABLE Parcela (
     cantidadDifuntos INT NOT NULL,
     seccion INT NOT NULL,
     TipoNicho INT NULL,
+	TipoPanteon INT NULL,
     FOREIGN KEY (seccion) REFERENCES Secciones(id),
-    FOREIGN KEY (TipoNicho) REFERENCES TipoNichos(id)
+    FOREIGN KEY (TipoNicho) REFERENCES TipoNichos(id),
+	FOREIGN KEY (TipoPanteon) REFERENCES TipoPanteon(id)
 );
+
 
 -- Precios tarifarias
 CREATE TABLE PreciosTarifarias (

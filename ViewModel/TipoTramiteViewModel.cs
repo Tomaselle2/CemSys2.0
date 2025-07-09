@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using CemSys2.Models;
+﻿using CemSys2.Models;
 using CemSys2.ValidacionAnotations;
-
+using System.ComponentModel.DataAnnotations;
 
 namespace CemSys2.ViewModel
 {
-    public class EmpresasSepelioViewModel
+    public class TipoTramiteViewModel
     {
         public int? Id { get; set; }
 
@@ -14,7 +13,7 @@ namespace CemSys2.ViewModel
         [NoSoloEspacios]
         public string? Nombre { get; set; } = null!;
 
-        public List<EmpresaFunebre> ListaEmpresasSepelio { get; set; } = new();
+        public List<TipoTramite> ListaTipoTramite { get; set; } = new();
 
 
         public bool EsEdicion { get; set; } = false;

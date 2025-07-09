@@ -25,7 +25,14 @@ namespace CemSys2.ViewModel
 
         public List<DTO_secciones> Secciones { get; set; } = new();
         public int? IdTipoNumeracionParcela { get; set; }
+
+        [Required(ErrorMessage = "Debe ingresar el tipo de panteón")]
+        public int? IdTipoPanteon { get; set; }
+
+        public string? TipoPanteon { get; set; }
+
         public List<DTO_TipoNumeracionParcela> TipoNumeracionParcelas { get; set; } = new();
+        public List<DTO_TipoPanteon> ListaTipoPanteones { get; set; } = new();
 
         public string? MensajeError { get; set; }
         public string? Redirigir { get; set; }

@@ -96,6 +96,7 @@ namespace CemSys2.Controllers
 
             try
             {
+                await CargarComboPanteon(viewModel);
                 // Definir filtro una sola vez
                 Expression<Func<Seccione, bool>> filtro = s => s.Visibilidad == true && s.TipoParcela == 3;
                 Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = q => q.OrderByDescending(s => s.Id);
@@ -216,6 +217,7 @@ namespace CemSys2.Controllers
 
             if (!ModelState.IsValid)
             {
+                await CargarComboPanteon(model);
                 return View(model.Redirigir, model);
             }
 
@@ -228,7 +230,8 @@ namespace CemSys2.Controllers
                 NroParcelas = model.NroParcelas.Value,
                 IdTipoParcela = ObtenerTipoParcela(model.Redirigir),
                 IdTipoNumeracionParcela = 2, // Asignar un tipo de numeración por defecto
-                Redirigir = model.Redirigir
+                Redirigir = model.Redirigir,
+                IdTipoPanteon = model.IdTipoPanteon.Value
             };
 
             try
@@ -241,6 +244,7 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 model.MensajeError = ex.Message;
+                await CargarComboPanteon(model);
                 return View(model.Redirigir, model);
             }
 
@@ -459,6 +463,18 @@ namespace CemSys2.Controllers
             {
                 model.TipoNichos = await _seccionesBusiness.ListaTipoNicho();
                 model.TipoNumeracionParcelas = await _seccionesBusiness.ListaNumeracionParcelas();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al cargar los combos: {ex.Message}", ex);
+            }
+        }
+
+        private async Task CargarComboPanteon(SeccionesPanteonesViewModel model)
+        {
+            try
+            {
+                model.ListaTipoPanteones = await _seccionesBusiness.ListaTipoPanteon();
             }
             catch (Exception ex)
             {
