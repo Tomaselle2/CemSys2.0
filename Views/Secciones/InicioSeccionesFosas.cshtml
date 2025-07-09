@@ -85,7 +85,7 @@
                                                     </button>
                                                 </form>
 
-                                                <form asp-action="Eliminar" method="post" style="display: inline-block;" id="formularioEliminar_@opc.Id">
+                                                <form asp-action="EliminarFosa" method="post" style="display: inline-block;" id="formularioEliminar_@opc.Id">
                                                     <input type="hidden" asp-for="Id" value="@opc.Id" />
                                                     <input type="hidden" asp-for="Redirigir" value="InicioSeccionesFosas" />
                                                     <button type="button" class="btn-eliminar btn-sm" title="Eliminar"

@@ -88,6 +88,37 @@ namespace CemSys2.Controllers
             return View(viewModel);
         }
 
+        public async Task<IActionResult> InicioSeccionesPanteones(int pagina = 1)
+        {
+            // Validar parámetros
+            if (pagina < 1) pagina = 1;
+            SeccionesPanteonesViewModel viewModel = new();
+
+            try
+            {
+                // Definir filtro una sola vez
+                Expression<Func<Seccione, bool>> filtro = s => s.Visibilidad == true && s.TipoParcela == 3;
+                Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = q => q.OrderByDescending(s => s.Id);
+                // Obtener total de registros y secciones paginadas con el mismo filtro
+                int totalRegistros = await _seccionesBusiness.ContarTotalAsync(filtro);
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)CANTIDAD_POR_PAGINA);
+
+                // Ajustar página si es mayor al total
+                if (pagina > totalPaginas && totalPaginas > 0)
+                    pagina = totalPaginas;
+
+                viewModel.Secciones = await ObtenerSeccionesPaginadas2(pagina, CANTIDAD_POR_PAGINA, filtro, orderBy);
+                viewModel.PaginaActual = pagina;
+                viewModel.TotalPaginas = totalPaginas;
+                viewModel.TotalRegistros = totalRegistros;
+            }
+            catch (Exception ex)
+            {
+                ViewData["MensajeError"] = ex.Message;
+            }
+            return View(viewModel);
+        }
+
         [HttpPost]
         public async Task<IActionResult> RegistrarSeccion(SeccionesNichosViewModel model)
         {
@@ -176,6 +207,42 @@ namespace CemSys2.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<IActionResult> RegistrarSeccionesPanteones(SeccionesPanteonesViewModel model)
+        {
+            int idSeccion = 0;
+
+            if (!ModelState.IsValid)
+            {
+                return View(model.Redirigir, model);
+            }
+
+
+            DTO_secciones seccion = new DTO_secciones()
+            {
+                Nombre = model.Nombre.ToLower().Trim(),
+                Visibilidad = true,
+                Filas = 1,
+                NroParcelas = model.NroParcelas.Value,
+                IdTipoParcela = ObtenerTipoParcela(model.Redirigir),
+                IdTipoNumeracionParcela = 2, // Asignar un tipo de numeración por defecto
+                Redirigir = model.Redirigir
+            };
+
+            try
+            {
+                idSeccion = await _seccionesBusiness.RegistrarSeccion(seccion); //registrar sección
+                seccion.Id = idSeccion;
+                return RedirectToAction("RegistrarParcelas", "Parcelas", seccion);
+            }
+            catch (Exception ex)
+            {
+                model.MensajeError = ex.Message;
+                return View(model.Redirigir, model);
+            }
+
+        }
+
         private int ObtenerTipoParcela(string tipo)
         {
             switch (tipo)
@@ -193,7 +260,7 @@ namespace CemSys2.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Eliminar(SeccionesNichosViewModel model)
+        public async Task<IActionResult> EliminarNicho(SeccionesNichosViewModel model)
         {
             try
             {
@@ -210,6 +277,21 @@ namespace CemSys2.Controllers
 
         [HttpPost]
         public async Task<IActionResult> EliminarFosa(SeccionesFosasViewModel model)
+        {
+            try
+            {
+                await _seccionesBusiness.Eliminar(model.Id.Value);
+                return RedirectToAction(model.Redirigir);
+            }
+            catch (Exception ex)
+            {
+                model.MensajeError = ex.Message;
+                return RedirectToAction(model.Redirigir);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EliminarPanteon(SeccionesPanteonesViewModel model)
         {
             try
             {
@@ -295,6 +377,40 @@ namespace CemSys2.Controllers
             }
         }
 
+        public async Task<IActionResult> AdministrarPanteones(string Nombre, string Redirigir, string IdSeccion, int pagina = 1)
+        {
+            if (pagina < 1) pagina = 1;
+            ParcelasViewModel viewModel = new();
+            viewModel.Redirigir = Redirigir;
+            viewModel.NombreSeccion = Nombre;
+            viewModel.IdSeccion = int.Parse(IdSeccion);
+
+            try
+            {
+                // Definir filtro una sola vez
+                Expression<Func<Parcela, bool>> filtro = s => s.Visibilidad == true && s.Seccion == int.Parse(IdSeccion);
+                Func<IQueryable<Parcela>, IOrderedQueryable<Parcela>> orderBy = q => q.OrderBy(s => s.Id);
+                // Obtener total de registros y secciones paginadas con el mismo filtro
+                int totalRegistros = await _seccionesBusiness.ContarTotalparcelasAsync(filtro);
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)CANTIDAD_POR_PAGINA);
+
+                // Ajustar página si es mayor al total
+                if (pagina > totalPaginas && totalPaginas > 0)
+                    pagina = totalPaginas;
+
+                viewModel.Parcelas = await ObtenerparcelasPaginadas(pagina, CANTIDAD_POR_PAGINA, filtro, orderBy);
+                viewModel.PaginaActual = pagina;
+                viewModel.TotalPaginas = totalPaginas;
+                viewModel.TotalRegistros = totalRegistros;
+                return View(viewModel);
+
+            }
+            catch (Exception ex)
+            {
+                ViewData["MensajeError"] = ex.Message;
+                return View(viewModel);
+            }
+        }
         private async Task<List<DTO_secciones>> ObtenerSeccionesPaginadas(int pagina, int cantidadPorPagina, Expression<Func<Seccione, bool>> filtro = null, Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = null)
         {
             try

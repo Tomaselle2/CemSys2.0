@@ -1,0 +1,81 @@
+﻿@using CemSys2.ViewModel
+@model ParcelasViewModel
+<a asp-action="@Model.Redirigir" asp-controller="Secciones" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
+
+<h1 class="tituloDePagina">Administrar panteones de la sección @Model.NombreSeccion?.ToUpper()</h1>
+
+<!-- Tabla -->
+
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Parcelas Registradas
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.Parcelas.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Parcela</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.Parcelas)
+                                {
+                                    if (opc.Visibilidad != false)
+                                    {
+                                        <tr>
+                                            <td>Lote @opc.NroParcela</td>
+                                            @{
+                                                string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado @{opc.CantidadDifuntos} difuntos/s";
+                                            }
+                                            <td>@estado</td>
+                                            @* <form asp-action="AdministrarNichos" method="get" style="display: inline-block;">
+                                <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                <input type="hidden" asp-for="Redirigir" value="InicioSeccionesNichos" />
+                                <button type="submit" class="btn-modificar btn-sm" title="Administrar">
+                                <i class="bi bi-gear"></i>
+                                </button>
+                                </form> *@
+
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @* Paginador *@
+                @if (Model.TotalPaginas > 1)
+                {
+                    @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+       {
+           PaginaActual = Model.PaginaActual,
+           TotalPaginas = Model.TotalPaginas,
+           TotalRegistros = Model.TotalRegistros,
+           Accion = "AdministrarPanteones",
+           Controlador = "Secciones",
+           ParametrosAdicionales = new Dictionary<string, string>
+            {
+            { "Nombre", Model.NombreSeccion ?? string.Empty },
+            { "Redirigir", Model.Redirigir ?? string.Empty },
+            { "IdSeccion", Model.IdSeccion.ToString() }
+            }
+       })
+                }
+
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
