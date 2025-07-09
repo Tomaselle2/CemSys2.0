@@ -25,7 +25,7 @@
 
                 <li class="nav-item">
                     <a class="nav-link text-dark icono-menu" href="#">
-                        <i class="bi bi-person"></i> <span class="nav-text">@ViewData["UsuarioLogueado"]</span>
+                        <i class="bi bi-person"></i> <span class="nav-text">@Context.Session.GetString("nombreUsuario")</span>
                     </a>
                 </li>
 
@@ -73,11 +73,12 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-dark icono-menu" asp-controller="Secciones" asp-action="Index">
-                        <i class="bi bi-bell"></i> <span class="nav-text">Secciones</span>
+                        <i class="bi bi-grid-3x3"></i>
+                        <span class="nav-text">Secciones</span>
                     </a>
                 </li>
 
-                @if (Context.Session.GetInt32("tipoUsuario") == 2)
+                @if (Context.Session.GetInt32("Rol") == 2)
                 {
                     <li class="nav-item">
                         <a class="nav-link text-dark icono-menu" asp-controller="Configuracion" asp-action="Index">

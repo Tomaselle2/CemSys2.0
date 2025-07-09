@@ -33,6 +33,9 @@ namespace CemSys2.Controllers
                 if (model.NombreUsuario == usuario.Usuario1 && model.Clave == usuario.Clave)
                 {
                     HttpContext.Session.SetString("nombreUsuario", usuario.Nombre);
+                    HttpContext.Session.SetInt32("Rol", usuario.Rol);
+                    HttpContext.Session.SetInt32("idUsuario", usuario.Id);
+
                     return RedirectToAction("Index", "Home");
                 }
             }

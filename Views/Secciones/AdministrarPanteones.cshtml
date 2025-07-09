@@ -4,6 +4,18 @@
 
 <h1 class="tituloDePagina">Administrar panteones de la sección @Model.NombreSeccion?.ToUpper()</h1>
 
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+
 <!-- Tabla -->
 
 <div class="accordion" id="accordionPanelsStayOpenExample">

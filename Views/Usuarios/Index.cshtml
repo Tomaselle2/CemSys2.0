@@ -1,0 +1,193 @@
+﻿@using CemSys2.ViewModel
+@model UsuariosViewModel
+
+<a asp-action="Index" asp-controller="Configuracion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
+@{
+    string accion = (Model.EsEdicion ? "Modificar" : "Registrar");
+    string redirigir = "Index";
+}
+
+
+<h1 class="tituloDePagina">Usuarios</h1>
+
+
+
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+            @TempData["MensajeExito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+    @if (!string.IsNullOrEmpty(Model.MensajeError))
+    {
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    }
+
+
+
+
+
+
+
+<!-- formulario -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                @(Model.EsEdicion ? "Modificar usuario" : "Nuevo usuario")
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                @* cuerpo del acordion *@
+                <form asp-action="Registrar" method="post" class="form-box">
+                    <input type="hidden" asp-for="Id"/>
+                    <div class="form-columns-container3">
+                        <div>
+                            <label class="form-label" for="nombre">Nombre Completo</label>
+                            <input class="form-control" type="text" asp-for="Nombre" required maxlength="60" id="nombre" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="nombre">Usuario</label>
+                            <input class="form-control" type="text" asp-for="NombreUsuario" required maxlength="60" id="nombre" />
+                            <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="correo">Correo</label>
+                            <input class="form-control" type="email" asp-for="Correo" required maxlength="60" id="correo" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+
+                        <div>
+                            <label class="form-label" for="clave">Contraseña</label>
+                            @if (!Model.EsEdicion)
+                            {
+                                <input class="form-control" type="password" asp-for="Clave" maxlength="300" id="clave" />
+                            }
+                            else
+                            {
+                                <input class="form-control" type="password" asp-for="Clave" maxlength="300" id="clave" placeholder="Dejar vacío para mantener la contraseña actual" />
+                            }
+                            <span asp-validation-for="Clave" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label for="rol" class="form-label">Rol del usuario</label>
+                            <select class="form-select" asp-for="Rol" asp-items="@(new SelectList(Model.ListaRolesUsuarios, "Id", "Rol"))" required>
+                                <option value="">--Elija una opción--</option>
+                            </select>
+                            <span asp-validation-for="Rol" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-button-registrar">
+                            <input type="hidden" asp-for="Redirigir" value="@redirigir" />
+                            <input type="hidden" asp-for="EsEdicion" value="@(accion == "Modificar" ? "true" : "false")" />
+                            <input class="@(Model.EsEdicion ? "btn-modificar" : "btn-registrar") " type="submit" value="@accion" />
+                        </div>
+                    </div>
+                </form>
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Tabla -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Usuarios registrados
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaUsuarios.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Usuario</th>
+                                    <th>Correo</th>
+                                    <th>Rol</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaUsuarios)
+                                {
+                                    if (opc.Visibilidad != false)
+                                    {
+                                        <tr>
+                                            <td>@opc.Nombre.ToUpper()</td>
+                                            <td>@opc.Usuario1</td>
+                                            <td>@opc.Correo.ToLower()</td>
+                                            <td>@opc.RolNavigation.Rol</td>
+                                            <td>
+                                                <form asp-action="Modificar" method="get" style="display: inline-block;">
+                                                    <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                    <input type="hidden" asp-for="Redirigir" value="@redirigir" />
+                                                    <button type="submit" class="btn-modificar btn-sm" title="Modificar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                </form>
+                                                <form asp-action="Eliminar" method="post" style="display: inline-block;" id="formularioEliminar_@opc.Id">
+                                                    <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                    <input type="hidden" asp-for="Redirigir" value="@redirigir" />
+
+                                                    <button type="button" class="btn-eliminar btn-sm" title="Eliminar"
+                                                            onclick="confirmarEliminacion('formularioEliminar_@opc.Id', '¿Desea eliminar el usuario @opc.Usuario1')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @* Paginador *@
+                @if (Model.TotalPaginas > 1)
+                {
+                   @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+                   {
+                       PaginaActual = Model.PaginaActual,
+                       TotalPaginas = Model.TotalPaginas,
+                       TotalRegistros = Model.TotalRegistros,
+                       Accion = redirigir,
+                       Controlador = "Usuarios"
+                   })
+                }
+
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+@* Modal de confirmación *@
+@await Html.PartialAsync("_ModalConfirmacionEliminacion")
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -52,7 +52,7 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["MensajeError"] = ex.Message;
+                viewModel.MensajeError = ex.Message;
             }
             return View(viewModel);
         }
@@ -83,7 +83,7 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["MensajeError"] = ex.Message;
+                viewModel.MensajeError = ex.Message;
             }
             return View(viewModel);
         }
@@ -114,7 +114,7 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["MensajeError"] = ex.Message;
+                viewModel.MensajeError = ex.Message;
             }
             return View(viewModel);
         }
@@ -160,6 +160,7 @@ namespace CemSys2.Controllers
             {
                 idSeccion = await _seccionesBusiness.RegistrarSeccion(seccion); //registrar sección
                 seccion.Id = idSeccion;
+                TempData["MensajeExito"] = "Sección registrada exitosamente"; 
                 return RedirectToAction("RegistrarParcelas", "Parcelas", seccion);
             }
             catch (Exception ex)
@@ -197,6 +198,7 @@ namespace CemSys2.Controllers
             {
                 idSeccion = await _seccionesBusiness.RegistrarSeccion(seccion); //registrar sección
                 seccion.Id = idSeccion;
+                TempData["MensajeExito"] = "Sección registrada exitosamente";
                 return RedirectToAction("RegistrarParcelas", "Parcelas", seccion);
             }
             catch (Exception ex)
@@ -233,6 +235,7 @@ namespace CemSys2.Controllers
             {
                 idSeccion = await _seccionesBusiness.RegistrarSeccion(seccion); //registrar sección
                 seccion.Id = idSeccion;
+                TempData["MensajeExito"] = "Sección registrada exitosamente";
                 return RedirectToAction("RegistrarParcelas", "Parcelas", seccion);
             }
             catch (Exception ex)
@@ -265,6 +268,7 @@ namespace CemSys2.Controllers
             try
             {
                 await _seccionesBusiness.Eliminar(model.Id.Value);
+                TempData["MensajeExito"] = "Sección eliminada exitosamente";
                 return RedirectToAction(model.Redirigir);
             }
             catch(Exception ex)
@@ -281,6 +285,7 @@ namespace CemSys2.Controllers
             try
             {
                 await _seccionesBusiness.Eliminar(model.Id.Value);
+                TempData["MensajeExito"] = "Sección eliminada exitosamente";
                 return RedirectToAction(model.Redirigir);
             }
             catch (Exception ex)
@@ -296,6 +301,7 @@ namespace CemSys2.Controllers
             try
             {
                 await _seccionesBusiness.Eliminar(model.Id.Value);
+                TempData["MensajeExito"] = "Sección eliminada exitosamente";
                 return RedirectToAction(model.Redirigir);
             }
             catch (Exception ex)
@@ -337,7 +343,7 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["MensajeError"] = ex.Message;
+                viewModel.MensajeError = ex.Message;
                 return View(viewModel);
             }
         }
@@ -372,7 +378,7 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["MensajeError"] = ex.Message;
+                viewModel.MensajeError = ex.Message;
                 return View(viewModel);
             }
         }
@@ -407,7 +413,7 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                ViewData["MensajeError"] = ex.Message;
+                viewModel.MensajeError = ex.Message;
                 return View(viewModel);
             }
         }

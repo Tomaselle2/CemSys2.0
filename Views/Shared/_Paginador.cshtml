@@ -6,11 +6,17 @@
         @if (Model.PaginaActual > 1)
         {
             <li class="page-item">
+                @{
+                    // Crea un diccionario de parámetros temporales
+                    var prevParams = new Dictionary<string, string>(Model.ParametrosAdicionales);
+                    // Sobrescribe la clave 'pagina' con el valor de la página anterior
+                    prevParams["pagina"] = (Model.PaginaActual - 1).ToString();
+                }
                 <a class="page-link"
                    asp-action="@Model.Accion"
                    asp-controller="@Model.Controlador"
-                   asp-route-pagina="@(Model.PaginaActual - 1)"
-                   asp-all-route-data="Model.ParametrosAdicionales">
+                   asp-all-route-data="prevParams">
+                    @* Usa el nuevo diccionario aquí *@
                     <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
@@ -24,11 +30,16 @@
         @if (paginaInicio > 1)
         {
             <li class="page-item">
+                @{
+                    // Crea un diccionario de parámetros temporales para la primera página
+                    var firstPageParams = new Dictionary<string, string>(Model.ParametrosAdicionales);
+                    firstPageParams["pagina"] = "1";
+                }
                 <a class="page-link"
                    asp-action="@Model.Accion"
                    asp-controller="@Model.Controlador"
-                   asp-route-pagina="1"
-                   asp-all-route-data="Model.ParametrosAdicionales">
+                   asp-all-route-data="firstPageParams">
+                    @* Usa el nuevo diccionario aquí *@
                     1
                 </a>
             </li>
@@ -40,7 +51,7 @@
             }
         }
         @* Páginas del rango *@
-@*         @for (int i = paginaInicio; i <= paginaFin; i++)
+        @for (int i = paginaInicio; i <= paginaFin; i++)
         {
             <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
                 @if (i == Model.PaginaActual)
@@ -49,44 +60,18 @@
                 }
                 else
                 {
+                    var parametrosConPagina = new Dictionary<string, string>(Model.ParametrosAdicionales);
+                    parametrosConPagina["pagina"] = i.ToString();
+
                     <a class="page-link"
                        asp-action="@Model.Accion"
                        asp-controller="@Model.Controlador"
-                       asp-route-pagina="@i"
-                       asp-all-route-data="Model.ParametrosAdicionales">
+                       asp-all-route-data="parametrosConPagina">
                         @i
                     </a>
                 }
             </li>
-        } *@
-
-
-        @* Páginas del rango *@
-@for (int i = paginaInicio; i <= paginaFin; i++)
-{
-    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
-        @if (i == Model.PaginaActual)
-        {
-            <span class="page-link">@i</span>
         }
-        else
-        {
-            
-                var parametrosConPagina = new Dictionary<string, string>(Model.ParametrosAdicionales);
-                parametrosConPagina["pagina"] = i.ToString();
-            
-            <a class="page-link"
-               asp-action="@Model.Accion"
-               asp-controller="@Model.Controlador"
-               asp-all-route-data="parametrosConPagina">
-                @i
-            </a>
-        }
-    </li>
-}
-
-
-
 
 
         @* Última página si no está en el rango *@
@@ -99,11 +84,16 @@
                 </li>
             }
             <li class="page-item">
+                @{
+                    // Crea un diccionario de parámetros temporales para la última página
+                    var lastPageParams = new Dictionary<string, string>(Model.ParametrosAdicionales);
+                    lastPageParams["pagina"] = Model.TotalPaginas.ToString();
+                }
                 <a class="page-link"
                    asp-action="@Model.Accion"
                    asp-controller="@Model.Controlador"
-                   asp-route-pagina="@Model.TotalPaginas"
-                   asp-all-route-data="Model.ParametrosAdicionales">
+                   asp-all-route-data="lastPageParams">
+                    @* Usa el nuevo diccionario aquí *@
                     @Model.TotalPaginas
                 </a>
             </li>
@@ -112,11 +102,17 @@
         @if (Model.PaginaActual < Model.TotalPaginas)
         {
             <li class="page-item">
+                @{
+                    // Crea un diccionario de parámetros temporales
+                    var nextParams = new Dictionary<string, string>(Model.ParametrosAdicionales);
+                    // Sobrescribe la clave 'pagina' con el valor de la página siguiente
+                    nextParams["pagina"] = (Model.PaginaActual + 1).ToString();
+                }
                 <a class="page-link"
                    asp-action="@Model.Accion"
                    asp-controller="@Model.Controlador"
-                   asp-route-pagina="@(Model.PaginaActual + 1)"
-                   asp-all-route-data="Model.ParametrosAdicionales">
+                   asp-all-route-data="nextParams">
+                    @* Usa el nuevo diccionario aquí *@
                     <i class="bi bi-chevron-right"></i>
                 </a>
             </li>
@@ -133,3 +129,4 @@
         </small>
     </div>
 </nav>
+@* modo *@
