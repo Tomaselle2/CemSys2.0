@@ -117,7 +117,8 @@ CREATE TABLE TipoTramite (
 CREATE TABLE Tarifarias (
     id INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(20) NOT NULL,
-    visibilidad BIT NOT NULL DEFAULT 0
+    visibilidad BIT NOT NULL DEFAULT 0,
+	FechaCreacionTarifaria DATETIME NOT NULL DEFAULT GETDATE()
 );
 
 -- Tipos de concepto tarifaria
