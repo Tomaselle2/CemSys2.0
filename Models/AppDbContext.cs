@@ -79,6 +79,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ActaDefuncion>(entity =>
@@ -450,6 +451,10 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.TipoNichoNavigation).WithMany(p => p.Parcelas)
                 .HasForeignKey(d => d.TipoNicho)
                 .HasConstraintName("FK__Parcela__TipoNic__68487DD7");
+
+            entity.HasOne(d => d.TipoPanteon).WithMany(p => p.Parcelas)
+                .HasForeignKey(d => d.TipoPanteonId)
+                .HasConstraintName("FK_Parcela_TipoPanteon");
         });
 
         modelBuilder.Entity<ParcelaDifunto>(entity =>

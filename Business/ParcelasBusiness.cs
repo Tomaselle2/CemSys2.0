@@ -123,8 +123,7 @@ namespace CemSys2.Business
                 panteon.Visibilidad = true;
                 panteon.CantidadDifuntos = 0;
                 panteon.NroFila = 1; // Asignar una fila por defecto, ya que las panteones no tienen filas
-                panteon.tipoPan
-
+                panteon.TipoPanteonId = seccion.IdTipoPanteon;
                 try
                 {
                     int idParcela = await _parcelaRepository.Registrar(panteon);

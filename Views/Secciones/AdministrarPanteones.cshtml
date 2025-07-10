@@ -35,6 +35,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Parcela</th>
+                                    <td>Tipo de panteón</td>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -46,10 +47,21 @@
                                     {
                                         <tr>
                                             <td>Lote @opc.NroParcela</td>
+                                            
+                                            @foreach (var tipoP in Model.ListaTipoPanteon)
+                                            {
+                                                if (opc.IdTipoPanteon == tipoP.Id)
+                                                {
+                                                    opc.TipoPanteon = tipoP.Tipo;
+                                                    break;
+                                                }
+                                            }
+                                            <td>@opc.TipoPanteon</td>
                                             @{
                                                 string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado @{opc.CantidadDifuntos} difuntos/s";
                                             }
                                             <td>@estado</td>
+
                                             @* <form asp-action="AdministrarNichos" method="get" style="display: inline-block;">
                                 <input type="hidden" asp-for="Id" value="@opc.Id" />
                                 <input type="hidden" asp-for="Redirigir" value="InicioSeccionesNichos" />

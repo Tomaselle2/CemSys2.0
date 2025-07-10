@@ -17,5 +17,9 @@
         public int? IdTipoNicho { get; set; }
 
         public string? TipoNicho { get; set; }
+
+        public int? IdTipoPanteon { get; set; }
+
+        public string? TipoPanteon { get; set; }
     }
 }

@@ -412,6 +412,7 @@ namespace CemSys2.Controllers
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
                 viewModel.TotalRegistros = totalRegistros;
+                viewModel.ListaTipoPanteon = await _seccionesBusiness.ListaTipoPanteon();
                 return View(viewModel);
 
             }

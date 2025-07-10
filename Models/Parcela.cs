@@ -19,6 +19,8 @@ public partial class Parcela
 
     public int? TipoNicho { get; set; }
 
+    public int? TipoPanteonId { get; set; }
+
     public virtual ICollection<ContratoConcesion> ContratoConcesions { get; set; } = new List<ContratoConcesion>();
 
     public virtual ICollection<Introduccione> Introducciones { get; set; } = new List<Introduccione>();
@@ -28,4 +30,6 @@ public partial class Parcela
     public virtual Seccione SeccionNavigation { get; set; } = null!;
 
     public virtual TipoNicho? TipoNichoNavigation { get; set; }
+
+    public virtual TipoPanteon? TipoPanteon { get; set; }
 }

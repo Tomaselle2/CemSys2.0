@@ -34,6 +34,8 @@ namespace CemSys2.ViewModel
         public int IdSeccion { get; set; }
 
         public List<DTO_TipoNichos> ListaTipoNicho { get; set; } = new();
+        public List<DTO_TipoPanteon> ListaTipoPanteon { get; set; } = new();
+
 
     }
 }
