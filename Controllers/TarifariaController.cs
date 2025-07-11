@@ -25,7 +25,6 @@ namespace CemSys2.Controllers
 
         private async Task ListarTarifarias(TarifariaInicioVM model)
         {
-             model = new();
             try
             {
                 model.ListaTarifarias = await _tarifariaBusiness.EmitirListadoTarifaria();
@@ -54,8 +53,8 @@ namespace CemSys2.Controllers
                 {
                     Tarifaria tarifaria = new()
                     {
-                        Id = model.Id.Value, // Si es nuevo, Id será 0
-                        Nombre = model.Nombre.ToLower()
+                        Nombre = model.Nombre.ToLower(),
+                        Visibilidad = true,
                     };
 
                     await _tarifariaBusiness.RegistrarTarifaria(tarifaria);
@@ -82,5 +81,6 @@ namespace CemSys2.Controllers
 
             return View("Index", model);
         }
+
     }
 }

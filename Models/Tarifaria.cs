@@ -11,5 +11,7 @@ public partial class Tarifaria
 
     public bool Visibilidad { get; set; }
 
+    public DateTime FechaCreacionTarifaria { get; set; }
+
     public virtual ICollection<PreciosTarifaria> PreciosTarifaria { get; set; } = new List<PreciosTarifaria>();
 }

@@ -79,7 +79,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ActaDefuncion>(entity =>
@@ -643,6 +642,9 @@ public partial class AppDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Tarifari__3213E83FAA9C14C6");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.FechaCreacionTarifaria)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(20)
                 .HasColumnName("nombre");
