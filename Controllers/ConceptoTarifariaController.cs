@@ -3,17 +3,20 @@ using CemSys2.Models;
 using CemSys2.Interface;
 using CemSys2.ViewModel;
 using CemSys2.Business;
+using CemSys2.Interface.Tarifaria;
 namespace CemSys2.Controllers
 {
     public class ConceptoTarifariaController : Controller
     {
         private readonly IRepositoryBusiness<ConceptosTarifaria> _conceptoTarifariaRepositoryBusiness;
         private readonly IRepositoryBusiness<TiposConceptoTarifarium> _tipoConceptoRepositoryBusiness;
+        private readonly ITarifariaBusiness _tarifariaBusiness;
 
-        public ConceptoTarifariaController(IRepositoryBusiness<ConceptosTarifaria> conceptoTarifariaRepositoryBusiness, IRepositoryBusiness<TiposConceptoTarifarium> tipoConceptoRepositoryBusiness)
+        public ConceptoTarifariaController(IRepositoryBusiness<ConceptosTarifaria> conceptoTarifariaRepositoryBusiness, IRepositoryBusiness<TiposConceptoTarifarium> tipoConceptoRepositoryBusiness, ITarifariaBusiness tarifariaBusiness)
         {
             _conceptoTarifariaRepositoryBusiness = conceptoTarifariaRepositoryBusiness;
             _tipoConceptoRepositoryBusiness = tipoConceptoRepositoryBusiness;
+            _tarifariaBusiness = tarifariaBusiness;
         }
 
         private const int CANTIDAD_POR_PAGINA = 20;
@@ -96,7 +99,7 @@ namespace CemSys2.Controllers
                         Visibilidad = true,
                     };
 
-                    await _conceptoTarifariaRepositoryBusiness.Registrar(concepto);
+                    await _tarifariaBusiness.RegistrarConceptoTarifaria(concepto);
                     TempData["MensajeExito"] = "Concepto registrado correctamente";
                 }
                 return RedirectToAction("Index");

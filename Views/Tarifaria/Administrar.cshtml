@@ -32,6 +32,13 @@
 
 
 @* @(Model.EsEdicion ? "Modificar tarifaria" : "Nueva tarifaria")*@
+
+
+
+
+<!-- Contenedor para mensajes AJAX -->
+<div id="ajax-messages"></div>
+
 <!-- formulario -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
@@ -43,11 +50,12 @@
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingOne">
             <div class="accordion-body">
                 @* cuerpo del acordion *@
-                <form asp-action="ActualizarPreciosTarifaria" method="post" class="form-box">
+                <form id="formPreciosGenerales" class="form-box">
                     @* Hidden field para el ID de la tarifaria *@
-                    <input type="hidden" name="TarifarioId" value="@Model.IdTarifaria" />
+                    <input type="hidden" id="tarifarioId" value="@Model.IdTarifaria" />
+                    @Html.AntiForgeryToken()
 
-                    @if (Model.ListaPreciosTarifaria != null && Model.ListaPreciosTarifaria.Count != 0)
+                    @if (Model.ListaPreciosTarifaria != null && Model.ListaPreciosTarifaria.Any())
                     {
                         <div class="card shadow-sm">
                             <div class="card-body p-0">
@@ -74,14 +82,13 @@
                                                     <div class="input-group">
                                                         <span class="input-group-text">$</span>
                                                         <input type="number"
-                                                               name="Precios[@precio.Id].Precio"
+                                                               class="form-control precio-input"
+                                                               data-precio-id="@precio.Id"
+                                                               data-concepto-id="@precio.ConceptoTarifariaId"
                                                                value="@precio.Precio"
-                                                               class="form-control"
                                                                step="0.01"
                                                                min="0"
                                                                placeholder="0.00" />
-                                                        <input type="hidden" name="Precios[@precio.Id].Id" value="@precio.Id" />
-                                                        <input type="hidden" name="Precios[@precio.Id].ConceptoTarifariaId" value="@precio.ConceptoTarifariaId" />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -106,7 +113,7 @@
                             {
                                 <div class="card-footer">
                                     <div class="d-flex justify-content-end">
-                                        <button type="submit" class="btn btn-success">
+                                        <button type="button" id="btnGuardarPrecios" class="btn btn-success">
                                             <i class="fas fa-save"></i> Guardar Cambios
                                         </button>
                                     </div>
@@ -125,7 +132,117 @@
                 @* Fin cuerpo del acordeon *@
             </div>
         </div>
-
     </div>
 </div>
 
+
+
+
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manejar el click del botón guardar
+            const btnGuardar = document.getElementById('btnGuardarPrecios');
+            if (btnGuardar) {
+                btnGuardar.addEventListener('click', actualizarPrecios);
+            }
+        });
+
+        async function actualizarPrecios() {
+            const precios = [];
+            let todosValidos = true;
+
+            // Recopilar todos los precios de los inputs
+            const inputsPrecios = document.querySelectorAll('.precio-input');
+            inputsPrecios.forEach(input => {
+                const precio = parseFloat(input.value) || 0;
+
+                if (precio < 0) {
+                    todosValidos = false;
+                    input.classList.add('is-invalid');
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+
+                precios.push({
+                    Id: parseInt(input.dataset.precioId),
+                    ConceptoTarifariaId: parseInt(input.dataset.conceptoId),
+                    Precio: precio
+                });
+            });
+
+            if (!todosValidos) {
+                mostrarMensaje('Por favor, ingrese valores válidos para todos los precios.', 'danger');
+                return;
+            }
+
+            const btnGuardar = document.getElementById('btnGuardarPrecios');
+
+            // Mostrar loading
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+            try {
+                // Realizar la llamada con fetch
+                const response = await fetch('@Url.Action("ActualizarPreciosTarifaria", "Tarifaria")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify(precios)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    mostrarMensaje(result.message, 'success');
+                    // Opcional: Actualizar la vista o hacer algo más
+                } else {
+                    mostrarMensaje(result.message, 'danger');
+                }
+
+            } catch (error) {
+                mostrarMensaje('Error de conexión. Por favor, intente nuevamente.', 'danger');
+                console.error('Error:', error);
+            } finally {
+                // Restaurar el botón
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+            }
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            // Limpiar mensajes anteriores
+            const messagesContainer = document.getElementById('ajax-messages');
+            messagesContainer.innerHTML = '';
+
+            // Crear el mensaje
+            const alertClass = tipo === 'success' ? 'alert-success' : 'alert-danger';
+            const iconClass = tipo === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass} alert-dismissible fade show alerta-contenedor`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.innerHTML = `
+                <i class="${iconClass}"></i> ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            messagesContainer.appendChild(alertDiv);
+
+            // Auto-ocultar después de 5 segundos
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+}

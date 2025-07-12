@@ -3,6 +3,7 @@ using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using System.Threading.Tasks;
+using CemSys2.DTO;
 
 namespace CemSys2.Controllers
 {
@@ -86,7 +87,7 @@ namespace CemSys2.Controllers
         [HttpGet]
         public IActionResult AdministrarTarifaria(TarifariaInicioVM model)
         {
-            return RedirectToAction("Administrar", new {Id = model.Id});
+            return RedirectToAction("Administrar", new { Id = model.Id });
         }
 
         public async Task<IActionResult> Administrar(int Id)
@@ -102,7 +103,7 @@ namespace CemSys2.Controllers
             return View(model);
         }
 
-        private async Task ListarPreciosTarifaria (AdministrarTarifariaVM model)
+        private async Task ListarPreciosTarifaria(AdministrarTarifariaVM model)
         {
             try
             {
@@ -114,5 +115,106 @@ namespace CemSys2.Controllers
             }
         }
 
+        // Método actualizado para AJAX
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActualizarPreciosTarifaria([FromBody] List<PrecioActualizarDto> precios)
+        {
+            try
+            {
+                // Validar que se recibieron datos
+                if (precios == null || !precios.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "No se recibieron precios para actualizar."
+                    });
+                }
+
+                // Validar el modelo
+                if (!ModelState.IsValid)
+                {
+                    var errores = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"Datos inválidos: {string.Join(", ", errores)}"
+                    });
+                }
+
+                // Validaciones adicionales
+                foreach (var precio in precios)
+                {
+                    if (precio.Id <= 0)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "ID de precio inválido."
+                        });
+                    }
+
+                    if (precio.ConceptoTarifariaId <= 0)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "ID de concepto tarifario inválido."
+                        });
+                    }
+
+                    if (precio.Precio < 0)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "El precio no puede ser negativo."
+                        });
+                    }
+                }
+
+                // Actualizar los precios usando el business logic
+                await _tarifariaBusiness.ActualizarPreciosTarifaria(precios);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Precios actualizados correctamente."
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log del error (agregar tu sistema de logging aquí)
+                // _logger.LogError(ex, "Error al actualizar precios de tarifaria");
+
+                return Json(new
+                {
+                    success = false,
+                    message = "No se actualizo ningun precio"
+                });
+            }
+
+        }
     }
 }

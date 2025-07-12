@@ -1,4 +1,5 @@
-﻿using CemSys2.Models;
+﻿using CemSys2.DTO;
+using CemSys2.Models;
 namespace CemSys2.Interface.Tarifaria
 {
     public interface ITarifariaBD
@@ -11,10 +12,10 @@ namespace CemSys2.Interface.Tarifaria
 
         Task<int> RegistrarTipoConceptoTarifaria(TiposConceptoTarifarium modelo);
 
-        Task<int> RegistrarConceptoTarifaria(ConceptosTarifaria modelo); //usando
+        Task RegistrarConceptoTarifaria(ConceptosTarifaria nuevoConcepto); //usando
         Task<List<ConceptosTarifaria>> EmitirListadoConceptoTarifaria();//usando
-        Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id);//usando
-        Task<int> ModificarConceptoTarifaria(ConceptosTarifaria modelo);//usando
+        Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id);
+        Task<int> ModificarConceptoTarifaria(ConceptosTarifaria modelo);
 
         Task<List<AniosConcesion>> EmitirListadoAniosConcesion();
 
@@ -22,6 +23,7 @@ namespace CemSys2.Interface.Tarifaria
         Task<List<PreciosTarifaria>> EmitirListadoPrecioTarifaria(PreciosTarifaria modelo);
         Task<List<PreciosTarifaria>> ConsultarPrecioTarifaria(int id);
         Task<int> ModificarPrecioTarifaria(PreciosTarifaria modelo);
+        Task ActualizarPreciosTarifaria(List<PrecioActualizarDto> preciosActualizar);
 
     }
 }

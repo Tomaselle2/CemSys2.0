@@ -1,4 +1,5 @@
-﻿using CemSys2.Interface.Tarifaria;
+﻿using CemSys2.DTO;
+using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -104,9 +105,17 @@ namespace CemSys2.Business
         }
 
 
-        public Task<int> RegistrarConceptoTarifaria(ConceptosTarifaria modelo)
+        public async Task RegistrarConceptoTarifaria(ConceptosTarifaria nuevoConcepto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _tarifariaBD.RegistrarConceptoTarifaria(nuevoConcepto);
+            }
+            catch (Exception ex)
+            {
+                var mensajeDetallado = $"Error registrar concepto tarifaria: {ex.Message}";
+                throw new Exception(mensajeDetallado, ex);
+            }
         }
 
         public Task<int> RegistrarPrecioTarifaria(PreciosTarifaria modelo)
@@ -120,6 +129,17 @@ namespace CemSys2.Business
             throw new NotImplementedException();
         }
 
- 
+        public async Task ActualizarPreciosTarifaria(List<PrecioActualizarDto> preciosActualizar)
+        {
+            try
+            {
+                 await _tarifariaBD.ActualizarPreciosTarifaria(preciosActualizar);
+            }
+            catch (Exception ex)
+            {
+                var mensajeDetallado = $"Error en negocio al actualizar precios: {ex.Message}";
+                throw new Exception(mensajeDetallado, ex);
+            }
+        }
     }
 }
