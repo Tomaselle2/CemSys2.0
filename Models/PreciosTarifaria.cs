@@ -19,6 +19,8 @@ public partial class PreciosTarifaria
 
     public int? AniosConcesion { get; set; }
 
+    public virtual AniosConcesion? AniosConcesionNavigation { get; set; }
+
     public virtual ConceptosTarifaria ConceptoTarifaria { get; set; } = null!;
 
     public virtual ICollection<ContratoConcesion> ContratoConcesions { get; set; } = new List<ContratoConcesion>();

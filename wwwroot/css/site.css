@@ -117,10 +117,10 @@ body {
     gap: 20px;
 }
 
-    
+
     .container3 > * { /* Aplica esto a los hijos directos de container3 */
-        flex: 1 1 calc(33.333% - 20px); 
-        max-width: calc(33.333% - 20px); 
+        flex: 1 1 calc(33.333% - 20px);
+        max-width: calc(33.333% - 20px);
         box-sizing: border-box;
     }
 /* ----------- CERRAR SESIÓN EN ROJO ----------- */
@@ -173,11 +173,20 @@ body {
             margin-left: auto; /* Centrarlo si tiene un max-width */
             margin-right: auto;
             margin-bottom: 20px;
+            padding: 10px;
+        }
+        .acordeon-fijo {
+            cursor: default !important; /* No pointer */
+            background-image: none !important; /* Quita flechita */
+            padding-left: 1rem !important; /* Acomoda texto si quitás la flecha */
+        }
+        .acordeon-fijo::after {
+            display: none !important;
         }
         /* Color del encabezado cuando está colapsado (cerrado) */
         .accordion-button.collapsed {
-            background-color: #f0f0f0; /* Un gris claro */
-            color: #333; /* Color del texto */
+            background-color: #b2b2b2; /* Un gris claro */
+            color: #000; /* Color del texto */
         }
 
         /* Color del encabezado cuando está abierto */

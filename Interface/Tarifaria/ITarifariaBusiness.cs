@@ -4,7 +4,7 @@ namespace CemSys2.Interface.Tarifaria
 {
     public interface ITarifariaBusiness
     {
-        Task<int> RegistrarTarifaria(CemSys2.Models.Tarifaria modelo);
+        Task RegistrarTarifaria(CemSys2.Models.Tarifaria modelo);
         Task<int> ModificarTarifaria(CemSys2.Models.Tarifaria modelo);
         Task<List<CemSys2.Models.Tarifaria>> EmitirListadoTarifaria();
         Task<CemSys2.Models.Tarifaria> ConsultarTarifaria(int id);
@@ -20,7 +20,7 @@ namespace CemSys2.Interface.Tarifaria
 
         Task<int> RegistrarPrecioTarifaria(PreciosTarifaria modelo);
         Task<List<PreciosTarifaria>> EmitirListadoPrecioTarifaria(PreciosTarifaria modelo);
-        Task<PreciosTarifaria> ConsultarPrecioTarifaria(int id);
+        Task<List<PreciosTarifaria>> ConsultarPrecioTarifaria(int id);
         Task<int> ModificarPrecioTarifaria(PreciosTarifaria modelo);
     }
 }

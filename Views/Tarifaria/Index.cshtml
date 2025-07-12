@@ -36,7 +36,7 @@
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button"  data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
                 @(Model.EsEdicion ? "Modificar tarifaria" : "Nueva tarifaria")
             </button>
         </h2>
@@ -72,7 +72,7 @@
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
                 Tarifarias registradas
             </button>
         </h2>
@@ -101,6 +101,13 @@
                                                 <input type="hidden" asp-for="Redirigir" value="@redirigir" />
                                                 <button type="submit" class="btn-modificar btn-sm" title="Modificar">
                                                     <i class="bi bi-pencil"></i>
+                                                </button>
+                                            </form>
+                                            <form asp-action="AdministrarTarifaria" method="get" style="display: inline-block;">
+                                                <input type="hidden" asp-for="Id" value="@opc.Id" />
+                                                <input type="hidden" asp-for="Redirigir" value="@redirigir" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="Modificar">
+                                                    <i class="bi bi-gear"></i>
                                                 </button>
                                             </form>
                                         </td>

@@ -558,6 +558,10 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.SeccionId).HasColumnName("seccionId");
             entity.Property(e => e.TarifarioId).HasColumnName("tarifarioId");
 
+            entity.HasOne(d => d.AniosConcesionNavigation).WithMany(p => p.PreciosTarifaria)
+                .HasForeignKey(d => d.AniosConcesion)
+                .HasConstraintName("FK_PreciosTarifaria_AniosConcesion");
+
             entity.HasOne(d => d.ConceptoTarifaria).WithMany(p => p.PreciosTarifaria)
                 .HasForeignKey(d => d.ConceptoTarifariaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

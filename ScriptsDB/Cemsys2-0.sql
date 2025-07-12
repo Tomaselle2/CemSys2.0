@@ -229,7 +229,8 @@ CREATE TABLE PreciosTarifarias (
     aniosConcesion INT NULL, -- 25, 15, 10, 5, 1 (solo para concesiones)
     FOREIGN KEY (tarifarioId) REFERENCES Tarifarias(id),
     FOREIGN KEY (conceptoTarifariaId) REFERENCES ConceptosTarifarias(id),
-    FOREIGN KEY (seccionId) REFERENCES Secciones(id)
+    FOREIGN KEY (seccionId) REFERENCES Secciones(id),
+	foreign key (aniosConcesion) references AniosConcesion(id)
 );
 
 -- Trámite

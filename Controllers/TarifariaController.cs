@@ -2,6 +2,7 @@
 using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using CemSys2.ViewModel;
+using System.Threading.Tasks;
 
 namespace CemSys2.Controllers
 {
@@ -80,6 +81,37 @@ namespace CemSys2.Controllers
             ModelState.Clear();
 
             return View("Index", model);
+        }
+
+        [HttpGet]
+        public IActionResult AdministrarTarifaria(TarifariaInicioVM model)
+        {
+            return RedirectToAction("Administrar", new {Id = model.Id});
+        }
+
+        public async Task<IActionResult> Administrar(int Id)
+        {
+            AdministrarTarifariaVM model = new()
+            {
+                IdTarifaria = Id,
+                Redirigir = "Administrar",
+                EsEdicion = false,
+                NombreTarifaria = string.Empty
+            };
+            await ListarPreciosTarifaria(model);
+            return View(model);
+        }
+
+        private async Task ListarPreciosTarifaria (AdministrarTarifariaVM model)
+        {
+            try
+            {
+                model.ListaPreciosTarifaria = await _tarifariaBusiness.ConsultarPrecioTarifaria(model.IdTarifaria.Value);
+            }
+            catch (Exception ex)
+            {
+                model.MensajeError = ex.Message;
+            }
         }
 
     }

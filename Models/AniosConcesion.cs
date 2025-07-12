@@ -10,4 +10,6 @@ public partial class AniosConcesion
     public int Anios { get; set; }
 
     public virtual ICollection<ContratoConcesion> ContratoConcesions { get; set; } = new List<ContratoConcesion>();
+
+    public virtual ICollection<PreciosTarifaria> PreciosTarifaria { get; set; } = new List<PreciosTarifaria>();
 }

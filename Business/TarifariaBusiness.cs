@@ -13,11 +13,11 @@ namespace CemSys2.Business
         }
 
         //tarifaria------------------------
-        public async Task<int> RegistrarTarifaria(Tarifaria modelo)
+        public async Task RegistrarTarifaria(Tarifaria modelo)
         {
             try
             {
-                return await _tarifariaBD.RegistrarTarifaria(modelo);
+                await _tarifariaBD.RegistrarTarifaria(modelo);
             }
             catch (Exception ex)
             {
@@ -63,16 +63,20 @@ namespace CemSys2.Business
         //tarifaria------------------------
 
 
+        //precios tarifaria------------------------
+        public async Task<List<PreciosTarifaria>> ConsultarPrecioTarifaria(int id)
+        {
+            return await _tarifariaBD.ConsultarPrecioTarifaria(id);
+        }
+        //precios tarifaria------------------------
+
 
         public Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PreciosTarifaria> ConsultarPrecioTarifaria(int id)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public Task<List<AniosConcesion>> EmitirListadoAniosConcesion()
         {

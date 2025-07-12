@@ -1,6 +1,7 @@
 ﻿using CemSys2.Interface;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CemSys2.Data
@@ -18,11 +19,13 @@ namespace CemSys2.Data
 
 
         //tarifaria------------------------
-        public async Task<int> RegistrarTarifaria(Tarifaria modelo)
+        public async Task RegistrarTarifaria(Tarifaria modelo)
         {
             try
             {
-                return await _tarifariaRepository.Registrar(modelo);
+                var nombreParam = new SqlParameter("@NombreTarifaria", modelo.Nombre);
+
+                await _context.Database.ExecuteSqlRawAsync("EXEC CrearTarifariaCompleta @NombreTarifaria", nombreParam);
             }
             catch (Exception ex)
             {
@@ -70,12 +73,33 @@ namespace CemSys2.Data
 
 
 
-        public Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<PreciosTarifaria> ConsultarPrecioTarifaria(int id)
+        //precios tarifaria------------------------
+        public async Task<List<PreciosTarifaria>> ConsultarPrecioTarifaria(int id)
+        {
+            try
+            {
+                return await _context.PreciosTarifarias
+                        .Where(p => p.TarifarioId == id)
+                        .Include(p => p.AniosConcesionNavigation)
+                        .Include(p => p.ConceptoTarifaria)
+                        .Include(p => p.Seccion)
+                        .Include(p => p.Tarifario)
+                        .OrderBy(p => p.ConceptoTarifaria.Nombre)
+                        .ThenBy(p => p.Seccion.Nombre)
+                        .ThenBy(p => p.NroFila)
+                        .ThenByDescending(p => p.AniosConcesionNavigation.Anios)
+                        .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al consultar precios tarifaria", ex);
+            }
+        }
+        //precios tarifaria------------------------
+
+
+        public Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id)
         {
             throw new NotImplementedException();
         }
