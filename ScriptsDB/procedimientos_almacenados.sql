@@ -9,7 +9,7 @@ BEGIN
 END;
 GO
 ---------------------------- Procedimiento almacenado para insertar una tarifaria con todos los precios-------------------------
-CREATE PROCEDURE CrearTarifariaCompleta
+create PROCEDURE CrearTarifariaCompleta
     @NombreTarifaria NVARCHAR(20)
 AS
 BEGIN
@@ -30,7 +30,7 @@ BEGIN
             ct.id,
             0
         FROM ConceptosTarifarias ct
-        WHERE ct.tipoConceptoId = 1;
+        WHERE ct.tipoConceptoId = 1 and ct.visibilidad = 1;
 
         -- 3. Insertar todos los conceptos de introducción (tipoConceptoId = 2)
         INSERT INTO PreciosTarifarias (tarifarioId, conceptoTarifariaId, precio)
@@ -39,44 +39,58 @@ BEGIN
             ct.id,
             0
         FROM ConceptosTarifarias ct
-        WHERE ct.tipoConceptoId = 2;
+        WHERE ct.tipoConceptoId = 2 and ct.visibilidad = 1;
 
-        -- 4. Insertar precios para todos los conceptos tipo 'Concesión - Nicho' (tipoConceptoId = 3)
-        INSERT INTO PreciosTarifarias (
-            tarifarioId, conceptoTarifariaId, precio,
-            seccionId, nroFila, aniosConcesion
-        )
+        -- 4. Insertar precios para todos los conceptos tipo 'Concesión - Nicho' (tipoConceptoId = 3) y fosa (tipoConceptoId = 4)
+			INSERT INTO PreciosTarifarias (
+			tarifarioId,
+			conceptoTarifariaId,
+			precio,
+			seccionId,
+			nroFila,
+			aniosConcesion
+		)
+		SELECT
+			@TarifariaId,
+			ct.id,
+			0,
+			s.id,
+			f.NumFila,
+			ac.id
+		FROM
+			ConceptosTarifarias ct
+		INNER JOIN
+			Secciones s ON
+				((s.tipoParcela = 1 AND ct.tipoConceptoId = 3) OR -- Asegura que este OR se evalúe primero
+				 (s.tipoParcela = 2 AND ct.tipoConceptoId = 4))
+				AND s.visibilidad = 1 -- Y esta condición se aplica a todo el resultado del OR
+		CROSS APPLY (
+			SELECT TOP(s.filas) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS NumFila
+			FROM sys.all_objects
+		) f
+		CROSS JOIN
+			AniosConcesion ac
+		WHERE
+			(ct.tipoConceptoId = 3 OR ct.tipoConceptoId = 4)
+			AND ct.visibilidad = 1;
+
+		-- 5. Insertar todos los conceptos de registro Civil (tipoConceptoId = 5)
+        INSERT INTO PreciosTarifarias (tarifarioId, conceptoTarifariaId, precio)
         SELECT 
             @TarifariaId,
             ct.id,
-            0,
-            s.id,
-            f.NumFila,
-            ca.id
+            0
         FROM ConceptosTarifarias ct
-        INNER JOIN Secciones s ON s.tipoParcela = 1
-        CROSS APPLY (
-            SELECT TOP(s.filas) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS NumFila
-            FROM sys.all_objects
-        ) f
-        CROSS JOIN AniosConcesion ca
-        WHERE ct.tipoConceptoId = 3;
+        WHERE ct.tipoConceptoId = 5 and ct.visibilidad = 1;
 
-        -- 5. Insertar precios para todos los conceptos tipo 'Concesión - Fosa' (tipoConceptoId = 4)
-        INSERT INTO PreciosTarifarias (
-            tarifarioId, conceptoTarifariaId, precio,
-            seccionId, aniosConcesion
-        )
+		-- 6. Insertar todos los conceptos de derecho de oficina (tipoConceptoId = 6)
+        INSERT INTO PreciosTarifarias (tarifarioId, conceptoTarifariaId, precio)
         SELECT 
             @TarifariaId,
             ct.id,
-            0,
-            s.id,
-            ca.id
+            0
         FROM ConceptosTarifarias ct
-        INNER JOIN Secciones s ON s.tipoParcela = 2
-        CROSS JOIN AniosConcesion ca
-        WHERE ct.tipoConceptoId = 4;
+        WHERE ct.tipoConceptoId = 6 and ct.visibilidad = 1;
 
         COMMIT TRANSACTION;
     END TRY
