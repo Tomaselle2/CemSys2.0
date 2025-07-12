@@ -87,17 +87,17 @@ namespace CemSys2.Controllers
         [HttpGet]
         public IActionResult AdministrarTarifaria(TarifariaInicioVM model)
         {
-            return RedirectToAction("Administrar", new { Id = model.Id });
+            return RedirectToAction("Administrar", new { Id = model.Id, Nombre = model.Nombre});
         }
 
-        public async Task<IActionResult> Administrar(int Id)
+        public async Task<IActionResult> Administrar(int Id, string Nombre)
         {
             AdministrarTarifariaVM model = new()
             {
                 IdTarifaria = Id,
                 Redirigir = "Administrar",
                 EsEdicion = false,
-                NombreTarifaria = string.Empty
+                NombreTarifaria = Nombre
             };
             await ListarPreciosTarifaria(model);
             return View(model);
