@@ -117,7 +117,8 @@ namespace CemSys2.Controllers
 
         // Método actualizado para AJAX
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> ActualizarPreciosTarifaria([FromBody] List<PrecioActualizarDto> precios)
         {
             try

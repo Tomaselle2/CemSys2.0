@@ -614,6 +614,123 @@
    
 </div>
 
+<!-- Formulario precios Fosa-->
+<div class="accordion" id="accordionFosa">
+    @* ID único para el acordeón principal *@
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsFosa-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsFosa-collapseOne" aria-expanded="false" aria-controls="panelsFosa-collapseOne">
+                Secciones - Fosas
+            </button>
+        </h2>
+        <div id="panelsFosa-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsFosa-headingOne" data-bs-parent="#accordionFosa">
+            <div class="accordion-body">
+                <form id="formPreciosFosa" class="form-box">
+                    <input type="hidden" id="tarifarioIdFosa" value="@Model.IdTarifaria" />
+                    @Html.AntiForgeryToken()
+
+                    @{
+                        // Obtener todas las secciones de fosas para verificar que existan
+                        var seccionesFosa = Model.ListaPreciosTarifaria
+                        .Where(p => p.Seccion != null && p.Seccion.TipoParcela == 2)
+                        .Select(p => p.Seccion)
+                        .Distinct()
+                        .OrderBy(s => s.Nombre)
+                        .ToList();
+
+                        // Obtener precios ejemplo para mostrar (tomamos el primer precio de cada tipo)
+                        var precio15Ejemplo = Model.ListaPreciosTarifaria
+                        .FirstOrDefault(p => p.AniosConcesion == 4 && p.Seccion != null && p.Seccion.TipoParcela == 2);
+
+                        var precio25Ejemplo = Model.ListaPreciosTarifaria
+                        .FirstOrDefault(p => p.AniosConcesion == 5 && p.Seccion != null && p.Seccion.TipoParcela == 2);
+                    }
+
+                    @if (seccionesFosa != null && seccionesFosa.Any())
+                    {
+                        <!-- Inputs ocultos para TODOS los precios de fosas (los usará el JavaScript) -->
+                        @foreach (var precio in Model.ListaPreciosTarifaria.Where(p => p.Seccion?.TipoParcela == 2))
+                        {
+                            <input type="hidden"
+                                   class="precio-input"
+                                   data-precio-id="@precio.Id"
+                                   data-concepto-id="@precio.ConceptoTarifariaId"
+                                   data-anios-concesion="@precio.AniosConcesion"
+                                   value="@(precio.AniosConcesion == 4 ? precio15Ejemplo?.Precio ?? 0 :
+                           precio.AniosConcesion == 5 ? precio25Ejemplo?.Precio ?? 0 :
+                           0)" />
+                        }
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title mb-4">Precios para todas las secciones de Fosas</h5>
+                                <p class="text-muted mb-4">Los precios se aplicarán a todas las secciones de fosas (@seccionesFosa.Count secciones)</p>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Precio 15 años de concesión</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number"
+                                                       id="precio15Fosa"
+                                                       class="form-control precio-input"
+                                                       data-anios-concesion="4"
+                                                       value="@(precio15Ejemplo?.Precio ?? 0)"
+                                                       data-concepto-id="@precio15Ejemplo.ConceptoTarifariaId"
+                                                       step="0.01"
+                                                       min="0"
+                                                       placeholder="0.00" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Precio 25 años de concesión</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number"
+                                                       id="precio25Fosa"
+                                                       class="form-control precio-input"
+                                                       data-anios-concesion="5"
+                                                       value="@(precio25Ejemplo?.Precio ?? 0)"
+                                                       data-concepto-id="@precio15Ejemplo.ConceptoTarifariaId"
+                                                       step="0.01"
+                                                       min="0"
+                                                       placeholder="0.00" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Secciones que se actualizarán:</strong>
+                                    @string.Join(", ", seccionesFosa.Select(s => s.Nombre.ToUpper()))
+                                </div>
+                            </div>
+
+                            <div class="card-footer">
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-success btn-guardar-precios" data-form-id="formPreciosFosa">
+                                        <i class="fas fa-save"></i> Guardar Precios para todas las Secciones
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>
+                            No hay secciones de fosas configuradas para esta tarifaria.
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Estilos adicionales para la tabla de nichos -->
 <style>
     .table td, .table th {
@@ -1045,5 +1162,132 @@
                 }
             }, 5000);
         }
+    </script>
+
+
+
+    <script>
+                document.addEventListener('DOMContentLoaded', function () {
+            const btnGuardarFosas = document.querySelector('.btn-guardar-precios[data-form-id="formPreciosFosa"]');
+
+            if (btnGuardarFosas) {
+                btnGuardarFosas.addEventListener('click', async function (event) {
+                    event.preventDefault();
+
+                    const formElement = document.getElementById('formPreciosFosa');
+                    const tarifarioId = parseInt(formElement.querySelector('#tarifarioIdFosa').value);
+
+                    // Obtener los precios ingresados
+                    const precio15Input = formElement.querySelector('#precio15Fosa');
+                    const precio25Input = formElement.querySelector('#precio25Fosa');
+
+                    const precio15 = parseFloat(precio15Input.value) || 0;
+                    const precio25 = parseFloat(precio25Input.value) || 0;
+
+                    // Validar los precios
+                    let todosValidos = true;
+                    if (precio15 < 0) {
+                        todosValidos = false;
+                        precio15Input.classList.add('is-invalid');
+                    } else {
+                        precio15Input.classList.remove('is-invalid');
+                    }
+
+                    if (precio25 < 0) {
+                        todosValidos = false;
+                        precio25Input.classList.add('is-invalid');
+                    } else {
+                        precio25Input.classList.remove('is-invalid');
+                    }
+
+                    if (!todosValidos) {
+                        mostrarMensaje('Por favor, ingrese valores válidos para todos los precios.', 'danger');
+                        return;
+                    }
+                    const precios = [];
+                    // Recopilar las secciones de fosas
+                    // const preciosParaGuardar = Array.from(document.querySelectorAll('.precio-input[data-anios-concesion="4"], .precio-input[data-anios-concesion="5"]'))
+                    //     .map(input => ({
+
+                    //         Id: parseInt(input.dataset.precioId),
+                    //         ConceptoTarifariaId: parseInt(input.dataset.conceptoId),
+                    //         Precio: input.dataset.aniosConcesion === "4" ? precio15 : precio25
+
+
+                    //         //SeccionId: parseInt(input.dataset.seccionId),
+                    //        // AniosConcesion: parseInt(input.dataset.aniosConcesion),
+                    //        // Precio: input.dataset.aniosConcesion === "4" ? precio15 : precio25
+                    //     }));
+                    //     console.log(preciosParaGuardar);
+
+                    // Crear el objeto con los precios para enviar
+                    // const preciosParaGuardar = {
+                    //     TarifarioId: tarifarioId,
+                    //     Precios: seccionesFosa
+                    // };
+
+
+                    // Recopilar solo los precios de los inputs dentro de ESTE formulario
+                    const inputsPrecios = formElement.querySelectorAll('input[type="hidden"].precio-input');
+
+                    inputsPrecios.forEach(input => {
+                        const anios = input.dataset.aniosConcesion;
+                        let precio = 0;
+
+                        // Asignar el precio correspondiente para 15 o 25, el resto queda en 0
+                        if (anios === "4") {
+                            precio = precio15;
+                        } else if (anios === "5") {
+                            precio = precio25;
+                        }
+
+                        precios.push({
+                            Id: parseInt(input.dataset.precioId),
+                            ConceptoTarifariaId: parseInt(input.dataset.conceptoId),
+                            Precio: precio
+                        });
+                        console.log(precios);
+                    });
+
+                    const requestVerificationToken = formElement.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+                    // Mostrar loading en el botón específico que fue clickeado
+                    btnGuardarFosas.disabled = true;
+                    btnGuardarFosas.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+                    try {
+                        // Realizar la llamada con fetch
+                        const response = await fetch('@Url.Action("ActualizarPreciosTarifaria", "Tarifaria")', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': requestVerificationToken
+                            },
+                            body: JSON.stringify(precios)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            mostrarMensaje(result.message, 'success');
+                        } else {
+                            mostrarMensaje(result.message, 'danger');
+                        }
+                    } catch (error) {
+                        mostrarMensaje('Error de conexión. Por favor, intente nuevamente.', 'danger');
+                        console.error('Error:', error);
+                    } finally {
+                        // Restaurar el botón clickeado
+                        btnGuardarFosas.disabled = false;
+                        btnGuardarFosas.innerHTML = '<i class="fas fa-save"></i> Guardar Precios para todas las Secciones';
+                    }
+                });
+            }
+        });
+
     </script>
 }
