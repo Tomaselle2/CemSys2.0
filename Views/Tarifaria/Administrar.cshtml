@@ -83,7 +83,7 @@
                                                         class="form-control precio-input" @* Clase común *@
                                                         data-precio-id="@precio.Id"
                                                         data-concepto-id="@precio.ConceptoTarifariaId"
-                                                        value="@precio.Precio"
+                                                        value="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                                         step="0.01"
                                                         min="0"
                                                         placeholder="0.00" />
@@ -193,7 +193,7 @@
                                                                         class="form-control precio-input"
                                                                         data-precio-id="@precio.Id"
                                                                         data-concepto-id="@precio.ConceptoTarifariaId"
-                                                                        value="@precio.Precio"
+                                                                        value="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                                                         step="0.01"
                                                                         min="0"
                                                                         placeholder="0.00" />
@@ -283,7 +283,7 @@
                                                                         class="form-control precio-input"
                                                                         data-precio-id="@precio.Id"
                                                                         data-concepto-id="@precio.ConceptoTarifariaId"
-                                                                        value="@precio.Precio"
+                                                                        value="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                                                         step="0.01"
                                                                         min="0"
                                                                         placeholder="0.00" />
@@ -373,7 +373,7 @@
                                                                         class="form-control precio-input"
                                                                         data-precio-id="@precio.Id"
                                                                         data-concepto-id="@precio.ConceptoTarifariaId"
-                                                                        value="@precio.Precio"
+                                                                        value="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                                                         step="0.01"
                                                                         min="0"
                                                                         placeholder="0.00" />
@@ -552,7 +552,7 @@
                                                                                                        data-seccion-id="@seccionId"
                                                                                                        data-nro-fila="@nroFila"
                                                                                                        data-anios-concesion="@anio"
-                                                                                                       value="@(precioFila?.Precio ?? 0)"
+                                                                                                       value="@(precioFila?.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))"
                                                                                                        step="0.01"
                                                                                                        min="0"
                                                                                                        placeholder="0.00"
@@ -675,7 +675,7 @@
                                                        id="precio15Fosa"
                                                        class="form-control precio-input"
                                                        data-anios-concesion="4"
-                                                       value="@(precio15Ejemplo?.Precio ?? 0)"
+                                                       value="@(precio15Ejemplo?.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))"
                                                        data-concepto-id="@precio15Ejemplo.ConceptoTarifariaId"
                                                        step="0.01"
                                                        min="0"
@@ -692,7 +692,7 @@
                                                        id="precio25Fosa"
                                                        class="form-control precio-input"
                                                        data-anios-concesion="5"
-                                                       value="@(precio25Ejemplo?.Precio ?? 0)"
+                                                       value="@(precio25Ejemplo?.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture))"
                                                        data-concepto-id="@precio15Ejemplo.ConceptoTarifariaId"
                                                        step="0.01"
                                                        min="0"
@@ -782,10 +782,6 @@
         </div>
     </div>
 </div>
-
-
-
-
 
 
 
@@ -922,23 +918,11 @@
             document.getElementById('contenedorTablaCombinarPrecios').innerHTML = html;
         }
 
-
-        // Función para obtener el nombre de la sección desde el DOM
-        // function obtenerNombreSeccion(idSeccion) {
-        //     // Busca el botón de la sección y extrae el texto
-        //     let btn = document.querySelector(`#panelsSeccion${idSeccion}-headingOne .accordion-button`);
-        //     return btn ? btn.textContent.trim() : `Sección ${idSeccion}`;
-        // }
-
         //guardar los precios seleccionados
         document.getElementById('btnGuardarPreciosCombinados').addEventListener('click', function() {
             let precios = [];
             let todosValidos = true;
             let seccionesSeleccionadas = obtenerSeccionesSeleccionadas();
-
-
-
-            
 
             document.querySelectorAll('.precio-input-modal').forEach(input => {
                 let precio = parseFloat(input.value) || 0;
@@ -1205,26 +1189,6 @@
                         return;
                     }
                     const precios = [];
-                    // Recopilar las secciones de fosas
-                    // const preciosParaGuardar = Array.from(document.querySelectorAll('.precio-input[data-anios-concesion="4"], .precio-input[data-anios-concesion="5"]'))
-                    //     .map(input => ({
-
-                    //         Id: parseInt(input.dataset.precioId),
-                    //         ConceptoTarifariaId: parseInt(input.dataset.conceptoId),
-                    //         Precio: input.dataset.aniosConcesion === "4" ? precio15 : precio25
-
-
-                    //         //SeccionId: parseInt(input.dataset.seccionId),
-                    //        // AniosConcesion: parseInt(input.dataset.aniosConcesion),
-                    //        // Precio: input.dataset.aniosConcesion === "4" ? precio15 : precio25
-                    //     }));
-                    //     console.log(preciosParaGuardar);
-
-                    // Crear el objeto con los precios para enviar
-                    // const preciosParaGuardar = {
-                    //     TarifarioId: tarifarioId,
-                    //     Precios: seccionesFosa
-                    // };
 
 
                     // Recopilar solo los precios de los inputs dentro de ESTE formulario
