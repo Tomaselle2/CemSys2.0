@@ -80,13 +80,13 @@
                                                     <div class="input-group">
                                                         <span class="input-group-text">$</span>
                                                         <input type="number"
-                                                               class="form-control precio-input" @* Clase común *@
-                                                               data-precio-id="@precio.Id"
-                                                               data-concepto-id="@precio.ConceptoTarifariaId"
-                                                               value="@precio.Precio"
-                                                               step="0.01"
-                                                               min="0"
-                                                               placeholder="0.00" />
+                                                        class="form-control precio-input" @* Clase común *@
+                                                        data-precio-id="@precio.Id"
+                                                        data-concepto-id="@precio.ConceptoTarifariaId"
+                                                        value="@precio.Precio"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="0.00" />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -190,13 +190,13 @@
                                                                     <div class="input-group">
                                                                         <span class="input-group-text">$</span>
                                                                         <input type="number"
-                                                                               class="form-control precio-input"
-                                                                               data-precio-id="@precio.Id"
-                                                                               data-concepto-id="@precio.ConceptoTarifariaId"
-                                                                               value="@precio.Precio"
-                                                                               step="0.01"
-                                                                               min="0"
-                                                                               placeholder="0.00" />
+                                                                        class="form-control precio-input"
+                                                                        data-precio-id="@precio.Id"
+                                                                        data-concepto-id="@precio.ConceptoTarifariaId"
+                                                                        value="@precio.Precio"
+                                                                        step="0.01"
+                                                                        min="0"
+                                                                        placeholder="0.00" />
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -280,13 +280,13 @@
                                                                     <div class="input-group">
                                                                         <span class="input-group-text">$</span>
                                                                         <input type="number"
-                                                                               class="form-control precio-input"
-                                                                               data-precio-id="@precio.Id"
-                                                                               data-concepto-id="@precio.ConceptoTarifariaId"
-                                                                               value="@precio.Precio"
-                                                                               step="0.01"
-                                                                               min="0"
-                                                                               placeholder="0.00" />
+                                                                        class="form-control precio-input"
+                                                                        data-precio-id="@precio.Id"
+                                                                        data-concepto-id="@precio.ConceptoTarifariaId"
+                                                                        value="@precio.Precio"
+                                                                        step="0.01"
+                                                                        min="0"
+                                                                        placeholder="0.00" />
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -370,13 +370,13 @@
                                                                     <div class="input-group">
                                                                         <span class="input-group-text">$</span>
                                                                         <input type="number"
-                                                                               class="form-control precio-input"
-                                                                               data-precio-id="@precio.Id"
-                                                                               data-concepto-id="@precio.ConceptoTarifariaId"
-                                                                               value="@precio.Precio"
-                                                                               step="0.01"
-                                                                               min="0"
-                                                                               placeholder="0.00" />
+                                                                        class="form-control precio-input"
+                                                                        data-precio-id="@precio.Id"
+                                                                        data-concepto-id="@precio.ConceptoTarifariaId"
+                                                                        value="@precio.Precio"
+                                                                        step="0.01"
+                                                                        min="0"
+                                                                        placeholder="0.00" />
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -425,7 +425,7 @@
     </div>
 </div>
 
-
+<div id="mensajeAdvertenciaDiferentesFilas"></div>
 <!-- Formulario precios nichos -->
 <div class="accordion" id="accordionNichos">
     <div class="accordion-item">
@@ -456,15 +456,17 @@
                         @foreach (var seccionGroup in seccionesNichos)
                         {
                             var seccionId = seccionGroup.Seccion.Id;
+                            var filasSeccion = seccionGroup.Seccion.Filas;
                             var nombreSeccion = seccionGroup.Seccion.Nombre;
 
                             <div class="d-flex align-items-stretch mb-2">
-                                <div class="d-flex align-items-center me-3">
+                                <div class="d-flex align-items-center me-3"> <!--Checkbox-->
                                     <input type="checkbox"
                                            class="form-check-input"
                                            id="checkSeccion@(seccionId)"
                                            name="seccionesSeleccionadas"
-                                           value="@seccionId" />
+                                           data-id-seccion="@seccionId"
+                                           data-filas-seccion="@filasSeccion"/>
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="accordion-item">
@@ -534,7 +536,7 @@
                                                                                     </td>
                                                                                     @foreach (var anio in aniosDisponibles)
                                                                                     {
-                                                                                        // CORRECCIÓN: Usar AniosConcesionNavigation.Anios en lugar de AniosConcesion
+                                                                                      
                                                                                         var precioFila = preciosSeccion
                                                                                         .FirstOrDefault(p => p.NroFila == nroFila &&
                                                                                         p.AniosConcesionNavigation != null &&
@@ -641,6 +643,33 @@
 
 
 
+<!-- Modal para combinar precios -->
+<div class="modal fade" id="modalCombinarPrecios" tabindex="-1" aria-labelledby="modalCombinarPreciosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCombinarPreciosLabel">Combinar precios de secciones seleccionadas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="contenedorTablaCombinarPrecios">
+                    <!-- Aquí se inyectará la tabla dinámica -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarPreciosCombinados">
+                    <i class="fas fa-save"></i> Guardar precios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
 
 
 
@@ -648,39 +677,254 @@
 
 @section Scripts {
     <script>
-        //funcion para combinar los precios
+        // Ejecutar al cargar para validar estado inicial del botón
+        actualizarEstadoBotonCombinar();
+
+         //funcion para combinar los precios
             document.addEventListener('DOMContentLoaded', function() {
             const btnCombinar = document.getElementById('btnCombinarPrecios');
+
             if (btnCombinar) {
                 btnCombinar.addEventListener('click', function(event) {
                     event.stopImmediatePropagation(); // Detiene TODOS los eventos
                     event.preventDefault();
                     console.log('Botón Combinar precios presionado');
-                    // Tu lógica aquí
+
+                    var listaSeccionesSeleccionadas = obtenerSeccionesSeleccionadas();
+                    console.log(listaSeccionesSeleccionadas);
+
+                    const mensajeAdvertenciaDiferentesFilas = document.getElementById('mensajeAdvertenciaDiferentesFilas');
+
+
+                    if(todasLasFilasSonIguales(listaSeccionesSeleccionadas)){
+                        console.log("todas son iguales"); //tengo que abrir un modal con la tabla de precios, el boton guardar y cancelar
+                        mensajeAdvertenciaDiferentesFilas.innerHTML = '';
+
+                        // Generar la tabla y mostrar el modal
+                        generarTablaModalPrecios(listaSeccionesSeleccionadas);
+                        var modal = new bootstrap.Modal(document.getElementById('modalCombinarPrecios'));
+                        modal.show();
+                    }else{
+                        // mostrar el mesaje con la vista
+                        mensajeAdvertenciaDiferentesFilas.innerHTML = '';
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = `alert alert-warning alert-dismissible fade show alerta-contenedor`;
+                        alertDiv.setAttribute('role', 'alert');
+                        alertDiv.innerHTML = `
+                            Las secciones deben tener la misma cantidad de filas para combinar precios
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        `;
+
+                        mensajeAdvertenciaDiferentesFilas.appendChild(alertDiv);
+                    }
+
                 });
             }
         });
+
+        //verifica que todas las filas sean iguales
+        function todasLasFilasSonIguales(listaSecciones) {
+            if (listaSecciones.length === 0) return false;
+
+            const filasReferencia = listaSecciones[0].filas;
+
+            return listaSecciones.every(seccion => seccion.filas === filasReferencia);
+        }
 
 
         // Función para obtener las secciones seleccionadas
         function obtenerSeccionesSeleccionadas() {
             var seccionesSeleccionadas = document.querySelectorAll('input[name="seccionesSeleccionadas"]:checked');
-            var ids = Array.from(seccionesSeleccionadas).map(cb => cb.value);
-            console.log('Secciones seleccionadas:', ids);
-            return ids;
+            var datosSeccion = Array.from(seccionesSeleccionadas).map(cb => {
+                return {
+                    id: parseInt(cb.dataset.idSeccion),
+                    filas: parseInt(cb.dataset.filasSeccion)
+                }
+            });
+            //console.log('Secciones seleccionadas:', datosSeccion);
+            return datosSeccion;
+        }
+
+        // Habilita o deshabilita el botón según la cantidad de secciones seleccionadas
+        function actualizarEstadoBotonCombinar() {
+            const btnCombinar = document.getElementById('btnCombinarPrecios');
+            const lista = obtenerSeccionesSeleccionadas();
+
+            if (btnCombinar) {
+                btnCombinar.disabled = (lista.length < 2);
+            }
         }
 
         // Agregar el evento a todos los checkboxes
         document.querySelectorAll('input[name="seccionesSeleccionadas"]').forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                console.log('Checkbox cambió:', this.value, 'Marcado:', this.checked);
-                obtenerSeccionesSeleccionadas();
+            checkbox.addEventListener('change', actualizarEstadoBotonCombinar)
+        });
+
+
+
+        function generarTablaModalPrecios(seccionesSeleccionadas) {
+            // Todas las secciones tienen la misma cantidad de filas
+            let filas = seccionesSeleccionadas[0].filas;
+            let anios = [25, 15, 10, 5];
+            let inputOriginal = document.querySelector(`.precio-input[data-seccion-id="${seccionesSeleccionadas[0].id}"]`);
+            let conceptoTarifariaId = inputOriginal ? inputOriginal.dataset.conceptoId : 0;
+
+            // Construye la tabla
+            let html = `<table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fila</th>`;
+            anios.forEach(anio => html += `<th>${anio} años</th>`);
+            html += `</tr></thead><tbody>`;
+
+            for(let fila = filas; fila >= 1; fila--) {
+                html += `<tr>
+                    <td>Fila ${fila}</td>`;
+                anios.forEach(anio => {
+                    html += `<td>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">$</span>
+                            <input type="number"
+                                class="form-control precio-input-modal text-center"
+                                data-nro-fila="${fila}"
+                                data-anios-concesion="${anio}"
+                                data-concepto-id="${conceptoTarifariaId}"
+                                value="0"
+                                step="0.01"
+                                min="0"
+                                placeholder="0.00"
+                                style="font-size: 0.875rem;" />
+                        </div>
+                    </td>`;
+                });
+                html += `</tr>`;
+            }
+
+            html += `</tbody></table>`;
+
+            document.getElementById('contenedorTablaCombinarPrecios').innerHTML = html;
+        }
+
+
+        // Función para obtener el nombre de la sección desde el DOM
+        // function obtenerNombreSeccion(idSeccion) {
+        //     // Busca el botón de la sección y extrae el texto
+        //     let btn = document.querySelector(`#panelsSeccion${idSeccion}-headingOne .accordion-button`);
+        //     return btn ? btn.textContent.trim() : `Sección ${idSeccion}`;
+        // }
+
+        //guardar los precios seleccionados
+        document.getElementById('btnGuardarPreciosCombinados').addEventListener('click', function() {
+            let precios = [];
+            let todosValidos = true;
+            let seccionesSeleccionadas = obtenerSeccionesSeleccionadas();
+
+
+
+            
+
+            document.querySelectorAll('.precio-input-modal').forEach(input => {
+                let precio = parseFloat(input.value) || 0;
+                // if (precio < 0) {
+                //     todosValidos = false;
+                //     input.classList.add('is-invalid');
+                // } else {
+                //     input.classList.remove('is-invalid');
+                // }
+                let nroFila = parseInt(input.dataset.nroFila);
+                let aniosConcesion = parseInt(input.dataset.aniosConcesion);
+                let conceptoTarifariaId = parseInt(input.dataset.conceptoId || 0);
+                // Para cada sección seleccionada, agrega un precio
+                seccionesSeleccionadas.forEach(seccion => {
+
+                    let inputOriginal = document.querySelector(`.precio-input[data-seccion-id="${seccion.id}"][data-nro-fila="${nroFila}"][data-anios-concesion="${aniosConcesion}"]`);
+                    let idPrecio = inputOriginal ? parseInt(inputOriginal.dataset.precioId) : 0;
+
+                    precios.push({
+                        Id: idPrecio,
+                        SeccionId: seccion.id,
+                        NroFila: nroFila,
+                        AniosConcesion: aniosConcesion,
+                        Precio: precio,
+                        ConceptoTarifariaId: conceptoTarifariaId
+                    });
+                    console.log(precios);
+                });
+            });
+
+            // if (!todosValidos) {
+            //     mostrarMensaje('Por favor, ingrese valores válidos para todos los precios.', 'danger');
+            //     return;
+            // }
+
+            fetch('@Url.Action("ActualizarPreciosTarifaria", "Tarifaria")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify(precios)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    mostrarMensaje(result.message, 'success');
+
+                    // Actualizar los inputs originales con los nuevos valores
+                    actualizarInputsOriginales(precios);
+
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('modalCombinarPrecios'));
+                    modal.hide();
+
+                 // Opcional: Limpiar las selecciones de checkboxes
+                 document.querySelectorAll('input[name="seccionesSeleccionadas"]:checked').forEach(checkbox => {
+                     checkbox.checked = false;
+                 });
+
+                 // Actualizar estado del botón
+                 actualizarEstadoBotonCombinar();
+
+                } else {
+                    mostrarMensaje(result.message, 'danger');
+                }
+                console.log(result);
+            })
+            .catch(error => {
+                mostrarMensaje('Error de conexión. Por favor, intente nuevamente.', 'danger');
+                console.error('Error:', error);
             });
         });
 
-        // Ejecutar una vez al cargar para ver el estado inicial
-        obtenerSeccionesSeleccionadas();
+        
+        // Actualizar los inputs originales en la página
+        function actualizarInputsOriginales(preciosActualizados) {
+            preciosActualizados.forEach(precio => {
+                // Buscar el input original correspondiente
+                let inputOriginal = document.querySelector(
+                    `.precio-input[data-seccion-id="${precio.SeccionId}"][data-nro-fila="${precio.NroFila}"][data-anios-concesion="${precio.AniosConcesion}"]`
+                );
 
+                if (inputOriginal) {
+                    // Actualizar el valor del input
+                    inputOriginal.value = precio.Precio.toFixed(2);
+
+                    // Opcional: Agregar un efecto visual para indicar que se actualizó
+                    inputOriginal.classList.add('border-success');
+                    setTimeout(() => {
+                        inputOriginal.classList.remove('border-success');
+                    }, 2000);
+                }
+            });
+        }
+
+
+
+
+    </script>
+
+
+
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Selecciona todos los botones con la clase 'btn-guardar-precios'
             const btnsGuardar = document.querySelectorAll('.btn-guardar-precios');
@@ -707,6 +951,7 @@
         async function actualizarPrecios(formElement, clickedButton) {
             const precios = [];
             let todosValidos = true;
+
 
             // Recopilar solo los precios de los inputs dentro de ESTE formulario
             const inputsPrecios = formElement.querySelectorAll('.precio-input');
