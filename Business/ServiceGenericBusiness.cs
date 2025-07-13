@@ -63,7 +63,7 @@ namespace CemSys2.Business
         {
             try
             {
-                return await _contextDB.ObtenerPaginadoAsync(pageNumber, pageSize, filtro);
+                return await _contextDB.ObtenerPaginadoAsync(pageNumber, pageSize, filtro, orderBy);
             }
             catch (Exception) { throw; }
         }
