@@ -72,38 +72,6 @@ namespace CemSys2.Business
         //precios tarifaria------------------------
 
 
-        public Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        public Task<List<AniosConcesion>> EmitirListadoAniosConcesion()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<ConceptosTarifaria>> EmitirListadoConceptoTarifaria()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<PreciosTarifaria>> EmitirListadoPrecioTarifaria(PreciosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> ModificarConceptoTarifaria(ConceptosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> ModificarPrecioTarifaria(PreciosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
 
         public async Task RegistrarConceptoTarifaria(ConceptosTarifaria nuevoConcepto)
         {
@@ -116,17 +84,6 @@ namespace CemSys2.Business
                 var mensajeDetallado = $"Error registrar concepto tarifaria: {ex.Message}";
                 throw new Exception(mensajeDetallado, ex);
             }
-        }
-
-        public Task<int> RegistrarPrecioTarifaria(PreciosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public Task<int> RegistrarTipoConceptoTarifaria(TiposConceptoTarifarium modelo)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task ActualizarPreciosTarifaria(List<PrecioActualizarDto> preciosActualizar)

@@ -100,36 +100,6 @@ namespace CemSys2.Data
         //precios tarifaria------------------------
 
 
-        public Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<AniosConcesion>> EmitirListadoAniosConcesion()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<ConceptosTarifaria>> EmitirListadoConceptoTarifaria()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<PreciosTarifaria>> EmitirListadoPrecioTarifaria(PreciosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> ModificarConceptoTarifaria(ConceptosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> ModificarPrecioTarifaria(PreciosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
       
 
         public async Task RegistrarConceptoTarifaria(ConceptosTarifaria nuevoConcepto)
@@ -167,19 +137,6 @@ namespace CemSys2.Data
                 throw new Exception("Error al crear el concepto tarifario.", ex);
             }
         }
-
-        public Task<int> RegistrarPrecioTarifaria(PreciosTarifaria modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-      
-
-        public Task<int> RegistrarTipoConceptoTarifaria(TiposConceptoTarifarium modelo)
-        {
-            throw new NotImplementedException();
-        }
-
 
 
 

@@ -9,21 +9,8 @@ namespace CemSys2.Interface.Tarifaria
         Task<int> ModificarTarifaria(CemSys2.Models.Tarifaria modelo);
         Task<List<CemSys2.Models.Tarifaria>> EmitirListadoTarifaria();
         Task<CemSys2.Models.Tarifaria> ConsultarTarifaria(int id);
-
-        Task<int> RegistrarTipoConceptoTarifaria(TiposConceptoTarifarium modelo);
-
-        Task RegistrarConceptoTarifaria(ConceptosTarifaria nuevoConcepto);
-        Task<List<ConceptosTarifaria>> EmitirListadoConceptoTarifaria();
-        Task<ConceptosTarifaria> ConsultarConceptoTarifaria(int id);
-        Task<int> ModificarConceptoTarifaria(ConceptosTarifaria modelo);
-
-        Task<List<AniosConcesion>> EmitirListadoAniosConcesion();
-
-        Task<int> RegistrarPrecioTarifaria(PreciosTarifaria modelo);
-        Task<List<PreciosTarifaria>> EmitirListadoPrecioTarifaria(PreciosTarifaria modelo);
         Task<List<PreciosTarifaria>> ConsultarPrecioTarifaria(int id);
-        Task<int> ModificarPrecioTarifaria(PreciosTarifaria modelo);
-        Task ActualizarPreciosTarifaria(List<PrecioActualizarDto> preciosActualizar); //usando
-
+        Task RegistrarConceptoTarifaria(ConceptosTarifaria nuevoConcepto);
+        Task ActualizarPreciosTarifaria(List<PrecioActualizarDto> preciosActualizar);
     }
 }
