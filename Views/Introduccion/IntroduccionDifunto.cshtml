@@ -1,0 +1,118 @@
+﻿@using CemSys2.ViewModel
+@model IntroduccionDifuntoVM
+
+<a asp-action="Index" asp-controller="Tarifaria" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
+<h1 class="tituloDePagina">Introducción de difunto</h1>
+
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Formulario datos del difunto-->
+<div class="accordion" id="accordionDatosDifunto">
+    @* ID único para el acordeón principal *@
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsDatosDifunto-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsDatosDifunto-collapseOne" aria-expanded="false" aria-controls="panelsDatosDifunto-collapseOne">
+                Datos del difunto
+            </button>
+        </h2>
+        <div id="panelsDatosDifunto-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsDatosDifunto-headingOne" data-bs-parent="#accordionDatosDifunto">
+            @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
+            <div class="accordion-body">
+                <form id="formPreciosGenerales" class="form-box">
+                    @* ID único para el formulario *@
+                    <input type="hidden" id="tarifarioIdGenerales" value="@Model.IdTarifaria" /> @* ID único para el campo oculto *@
+                    @Html.AntiForgeryToken()
+
+                    @if (Model.ListaPreciosTarifaria != null && Model.ListaPreciosTarifaria.Any())
+                    {
+                        <div class="card shadow-sm">
+                            <div class="card-body p-0">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th>Precio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var conceptosGenerales = Model.ListaPreciosTarifaria
+                                            .Where(p => p.ConceptoTarifaria.TipoConceptoId == 1 && p.ConceptoTarifaria.Visibilidad == true)
+                                            .OrderBy(p => p.ConceptoTarifaria.Nombre)
+                                            .ToList();
+                                        }
+
+                                        @foreach (var precio in conceptosGenerales)
+                                        {
+                                            <tr>
+                                                <td>@precio.ConceptoTarifaria.Nombre.ToUpper()</td>
+                                                <td>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number"
+                                                               class="form-control precio-input" @* Clase común *@
+                                                               data-precio-id="@precio.Id"
+                                                               data-concepto-id="@precio.ConceptoTarifariaId"
+                                                               value="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                               step="0.01"
+                                                               min="0"
+                                                               placeholder="0.00" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                        @if (!conceptosGenerales.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="2" class="text-center text-muted py-4">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    No hay conceptos generales configurados para esta tarifaria.
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if (conceptosGenerales.Any())
+                            {
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-success btn-guardar-precios" data-form-id="formPreciosGenerales">
+                                            @* Clase común y data-form-id *@
+                                            <i class="fas fa-save"></i> Guardar Cambios
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>
+                            No hay precios configurados para esta tarifaria.
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

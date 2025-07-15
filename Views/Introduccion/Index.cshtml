@@ -1,0 +1,146 @@
+﻿@using CemSys2.ViewModel
+@model IntroduccionIndexVM
+
+<h1 class="tituloDePagina">Introducciones</h1>
+
+
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+<form action="/" method="post">
+    <input type="submit" name="name" value="+ Introducir difunto" />
+</form>
+
+<!-- formulario -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+               Buscador
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            <div class="accordion-body">
+                <form asp-action="#" method="get">
+                    <div class="">
+                        <div class="">
+                            <fieldset class="">
+                                <legend>Buscador</legend>
+                                <div class="">
+                                    <div class="">
+                                        <input type="radio" name="tipoFiltro" value="todas" id="tipoFiltroTodas" checked />
+                                        <label for="tipoFiltroTodas">Todas</label>
+                                    </div>
+
+                                    <div class="">
+                                        <input type="radio" name="tipoFiltro" value="desde" id="FiltroDesde" />
+
+
+                                        <label for="FiltroDesde">Desde</label>
+                                        <input type="date" name="desdeFecha" />
+
+                                        <label for="FiltroHasta">Hasta</label>
+                                        <input type="date" name="hastaFecha" id="FiltroHasta" />
+                                    </div>
+                                </div>
+
+                                <!-- Botón Buscar dentro del bloque -->
+                                <div class="text-center mt-3">
+                                    <button type="submit" class="" id="btnBuscar">Buscar</button>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+<!-- Tabla -->
+
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Introducciones Registradas
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaIntroducciones.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Fecha</th>
+                                    <th>Difunto</th>
+                                    <th>Sección</th>
+                                    <th>Parcela</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @* @foreach (var opc in Model.Secciones)
+                                {
+                                    if (opc.Visibilidad != false)
+                                    {
+                                        <tr>
+                                            
+                                        </tr>
+                                    }
+                                } *@
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @* Paginador *@
+                @if (Model.TotalPaginas > 1)
+                {
+                    @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+       {
+           PaginaActual = Model.PaginaActual,
+           TotalPaginas = Model.TotalPaginas,
+           TotalRegistros = Model.TotalRegistros,
+           Accion = "InicioSeccionesNichos",
+           Controlador = "Secciones"
+       })
+                }
+
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+
+@* Modal de confirmación *@
+@await Html.PartialAsync("_ModalConfirmacionEliminacion")
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
