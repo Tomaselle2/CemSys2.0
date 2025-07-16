@@ -176,7 +176,7 @@
                     <div class="form-columns-container3">
                         <div>
                             <label>Tipo de parcela</label>
-                            <select class="form-select" asp-for="TipoParcelaID" asp-items="@(new SelectList(Model.ListaTipoParcela, "Id", "TipoParcela1"))" required>
+                            <select id="tipoParcelaSelect" class="form-select" asp-for="TipoParcelaID" asp-items="@(new SelectList(Model.ListaTipoParcela, "Id", "TipoParcela1"))" required>
                                 <option value="">--Elija una opción--</option>
                             </select>
                             <span asp-validation-for="TipoParcelaID" class="text-danger"></span>
@@ -185,7 +185,7 @@
 
                         <div>
                             <label>Sección<span class="obligatorio"> * </span></label>
-                            <select class="form-select" asp-for="SeccionID" asp-items="@(new SelectList(Model.ListaSecciones, "Id", "Nombre"))" required>
+                            <select id="seccionSelect" class="form-select" asp-for="SeccionID" asp-items="@(new SelectList(Model.ListaSecciones, "Id", "Nombre"))" required>
                                 <option value="">--Elija una opción--</option>
                             </select>
                             <span asp-validation-for="SeccionID" class="text-danger"></span>
@@ -194,7 +194,7 @@
 
                         <div>
                             <label>Parcela<span class="obligatorio"> * </span></label>
-                            <select class="form-select" asp-for="ParcelaID" asp-items="@(new SelectList(Model.ListaParcelas, "Id", "NroParcela"))" required>
+                            <select id="parcelaSelect" class="form-select" asp-for="ParcelaID" asp-items="@(new SelectList(Model.ListaParcelas, "Id", "NroParcela"))" required>
                                 <option value="">--Elija una opción--</option>
                             </select>
                         </div>
@@ -209,5 +209,68 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script> //logica de select ubicacion
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const tipoParcelaSelect = document.getElementById('tipoParcelaSelect');
+            const seccionSelect = document.getElementById('seccionSelect');
+            const parcelaSelect = document.getElementById('parcelaSelect');
+
+            //selecciona las secciones
+            tipoParcelaSelect.addEventListener('change', async function() {
+                const tipoParcelaId = this.value;
+
+                // Limpiar selects
+                seccionSelect.innerHTML = '<option value="">--Elija una opción--</option>';
+                parcelaSelect.innerHTML = '<option value="">--Elija una opción--</option>';
+
+                if (tipoParcelaId) {
+                    const response = await fetch(`/Introduccion/ObtenerSeccionesPorTipo?tipoParcelaId=${tipoParcelaId}`);
+                    const secciones = await response.json();
+
+                    secciones.forEach(seccion => {
+                        const option = document.createElement('option');
+                        option.value = seccion.id;
+                        option.textContent = seccion.nombre.toUpperCase();
+                        seccionSelect.appendChild(option);
+                    });
+                }
+            });
+
+            //selecciona las parcelas
+            seccionSelect.addEventListener('change', async function() {
+                const seccionId = this.value;
+                const tipoParcelaId = tipoParcelaSelect.value; // ← corrección clave
+
+                // Limpiar parcelas
+                parcelaSelect.innerHTML = '<option value="">--Elija una opción--</option>';
+
+                if (seccionId) {
+                    const response = await fetch(`/Introduccion/ObtenerParcelasPorSeccion?seccionId=${seccionId}`);
+                    const parcelas = await response.json();
+
+                    parcelas.forEach(parcela => {
+                        const option = document.createElement('option');
+                        option.value = parcela.id;
+
+                        if(tipoParcelaId == 1){
+                            option.textContent = `Nicho ${parcela.nroParcela} Fila ${parcela.nroFila}`;
+                        }else if(tipoParcelaId == 2){
+                            option.textContent = `Fosa ${parcela.nroParcela}`;
+                        }else if(tipoParcelaId == 3){
+                            option.textContent = `Lote ${parcela.nroParcela}`;
+                        }
+                        
+                        parcelaSelect.appendChild(option);
+
+                    });
+                }
+            });
+
+        });
+    </script>
+
 }
 

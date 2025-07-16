@@ -40,5 +40,19 @@ namespace CemSys2.Controllers
                 viewModel.MensajeError = "Error al cargar los estados de difunto: " + ex.Message;
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerSeccionesPorTipo(int tipoParcelaId)
+        {
+            var secciones = await _introduccionBusiness.ListaSecciones(tipoParcelaId);
+            return Json(secciones);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerParcelasPorSeccion(int seccionId)
+        {
+            var parcelas = await _introduccionBusiness.ListaParcelas(seccionId);
+            return Json(parcelas);
+        }
     }
 }
