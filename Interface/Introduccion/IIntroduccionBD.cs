@@ -1,4 +1,5 @@
-﻿using CemSys2.Models;
+﻿using CemSys2.DTO.Introduccion;
+using CemSys2.Models;
 
 namespace CemSys2.Interface.Introduccion
 {
@@ -17,5 +18,10 @@ namespace CemSys2.Interface.Introduccion
         Task<int> RegistrarIntroduccion(Introduccione model);
         Task<int> RegistrarParcelaDifunto(ParcelaDifunto model);
         Task<int> RegistrarHistorialEstadoTramite(HistorialEstadoTramite model);
+
+        Task<List<EstadoDifunto>> ListaEstadoDifunto();
+        Task<List<TipoParcela>> ListaTipoParcela();
+        Task<List<DTO_SeccionIntroduccion>> ListaSecciones(int idTipoParcela);
+        Task<List<DTO_parcelaIntroduccion>> ListaParcelas(int idSeccion);
     }
 }

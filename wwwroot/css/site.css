@@ -214,6 +214,7 @@ body {
         display: flex; 
         flex-wrap: wrap;
         gap: 1.5rem;
+        margin-bottom: 15px;
     }
 
     /* Estilo para cada div que contiene un campo de formulario */
@@ -225,6 +226,7 @@ body {
     */
         flex: 1 1 calc(33.333% - (2 * 1.5rem / 3));
         min-width: 250px; /* Ancho mínimo antes de que el elemento salte a la siguiente línea */
+        
     }
 
     .form-button-registrar {
@@ -232,6 +234,38 @@ body {
         text-align: center; /* Alinea el botón a la derecha */
         margin-top: 1rem; /* Espacio superior para separarlo de los campos */
     }
+
+    /*    ocupa todo ellipse  disponible*/
+    .full-width {
+        flex: 1 1 100%;
+        margin-bottom: 15px;
+    }
+
+    /*para los radio buttons*/
+    .inputFormularioEnLinea{
+        margin-right: 10px;
+    }
+
+    .obligatorio{
+        color: #ff1b13;
+    }
+
+
+    .form-columns-container5 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    /* Estilo para cada div que contiene un campo de formulario */
+        .form-columns-container5 > div {
+            flex: 1 1 calc(20% - (4 * 1.5rem / 5)); /* 100% ÷ 5 columnas - compensación de gap */
+            min-width: 200px; /* Ancho mínimo antes de que el elemento salte a la siguiente línea */
+        }
+
+
+
 /*fin formularios*/
 
 

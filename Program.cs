@@ -4,6 +4,7 @@ using CemSys2.Interface;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using Microsoft.EntityFrameworkCore;
+using CemSys2.Interface.Introduccion;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,12 +26,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //contenedor de capa de datos
 builder.Services.AddScoped(typeof(IRepositoryDB<>), typeof(ServiceGenericDB<>));
 builder.Services.AddScoped<ITarifariaBD, TarifariaBD>();
+builder.Services.AddScoped<IIntroduccionBD, IntroduccionBD>();
 
 //contenedor de capa de negocio
 builder.Services.AddScoped(typeof(IRepositoryBusiness<>), typeof(ServiceGenericBusiness<>));
 builder.Services.AddScoped<ISeccionesBusiness, SeccionesBusiness>();
 builder.Services.AddScoped<IParcelasBusiness, ParcelasBusiness>();
 builder.Services.AddScoped<ITarifariaBusiness, TarifariaBusiness>();
+builder.Services.AddScoped<IIntroduccionBusiness, IntroduccionBusiness>();
 
 var app = builder.Build();
 
