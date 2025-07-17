@@ -13,6 +13,11 @@ namespace CemSys2.Business
             _introduccionBD = introduccionBD;
         }
 
+        public async Task<Persona?> ConsultarDifunto(string dni)
+        {
+            return await _introduccionBD.ConsultarDifunto(dni);
+        }
+
         public async Task<List<DTO_UsuarioIntroduccion>> ListaEmpleados()
         {
             return await _introduccionBD.ListaEmpleados();

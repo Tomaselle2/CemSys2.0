@@ -20,7 +20,7 @@
 @* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
 @if (!string.IsNullOrEmpty(Model.MensajeError))
 {
-    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
         @Model.MensajeError
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -198,8 +198,8 @@
                                 <select id="parcelaSelect" class="form-select" asp-for="ParcelaID" asp-items="@(new SelectList(Model.ListaParcelas, "Id", "NroParcela"))" required>
                                     <option value="">--Elija una opción--</option>
                                 </select>
+                                <span asp-validation-for="ParcelaID" class="text-danger"></span>
                             </div>
-                            <span asp-validation-for="ParcelaID" class="text-danger"></span>
 
                         </div>
                     </div>
@@ -335,6 +335,7 @@
             const seccionSelect = document.getElementById('seccionSelect');
             const parcelaSelect = document.getElementById('parcelaSelect');
             const estadoDifuntoSelect = document.getElementById('estadoDelDifunto');
+
 
             //selecciona las secciones
             tipoParcelaSelect.addEventListener('change', async function() {

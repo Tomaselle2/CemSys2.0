@@ -44,8 +44,28 @@ namespace CemSys2.Controllers
             if (!ModelState.IsValid)
             {
                 await CargarCombos(viewModel);
+                viewModel.MensajeError = "Revise los campos incompletos o las advertencias";
                 return View(viewModel);
             }
+
+            try
+            {
+                if (viewModel.Dni.HasValue) //si DNI tiene algo
+                {
+                    Persona? difunto =  await _introduccionBusiness.ConsultarDifunto(viewModel.Dni.ToString()); //consulto el dni
+                    if(difunto != null) //si el resultado es != null esta en la base de datos
+                    {
+                        viewModel.MensajeError = $"El DNI {viewModel.Dni.ToString()} ya esta registrado";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = "Error al consultar el difunto: " + ex.Message;
+                await CargarCombos(viewModel);
+                return View(viewModel);
+            }
+
 
             return RedirectToAction("Index");
         }
@@ -58,6 +78,9 @@ namespace CemSys2.Controllers
                 viewModel.ListaTipoParcela = await _introduccionBusiness.ListaTipoParcela();
                 viewModel.ListaEmpresasSepelio = await _introduccionBusiness.ListaEmpresasFunebres();
                 viewModel.ListaEmpleados = await _introduccionBusiness.ListaEmpleados();
+
+             
+            
             }
             catch (Exception ex)
             {

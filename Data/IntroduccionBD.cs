@@ -137,5 +137,10 @@ namespace CemSys2.Data
         {
             return await _empresaFunebreBD.Registrar(model);
         }
+
+        public async Task<Persona?> ConsultarDifunto(string dni)
+        {
+           return await _context.Personas.Where(p => p.Visibilidad == true && p.Dni == dni).FirstOrDefaultAsync();
+        }
     }
 }

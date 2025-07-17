@@ -99,6 +99,9 @@ namespace CemSys2.ViewModel
 
             if (FechaHoraIngreso.HasValue && FechaHoraIngreso > hoy)
                 yield return new ValidationResult("La fecha y hora de ingreso no puede ser posterior a la fecha y hora actual", new[] { nameof(FechaHoraIngreso) });
+            
+            if(FechaHoraIngreso.HasValue && FechaDefuncion.HasValue && FechaDefuncion > DateOnly.FromDateTime(FechaHoraIngreso.Value))
+                yield return new ValidationResult("La fecha de defunción no puede ser posterior a la fecha y hora de ingreso", new[] { nameof(FechaDefuncion), nameof(FechaHoraIngreso) });
 
             // Solo validar Nombre y DNI si NN es false
             if (!NN)

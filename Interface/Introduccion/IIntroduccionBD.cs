@@ -21,6 +21,7 @@ namespace CemSys2.Interface.Introduccion
 
         Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model);
 
+        Task<Persona?> ConsultarDifunto(string dni);
         Task<List<EstadoDifunto>> ListaEstadoDifunto();
         Task<List<TipoParcela>> ListaTipoParcela();
         Task<List<DTO_SeccionIntroduccion>> ListaSecciones(int idTipoParcela);
