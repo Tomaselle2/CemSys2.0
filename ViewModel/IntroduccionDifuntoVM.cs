@@ -65,11 +65,14 @@ namespace CemSys2.ViewModel
         [Required(ErrorMessage = "La fecha y hora de ingreso es obligatoria")]
         public DateTime? FechaHoraIngreso { get; set; }
 
+        public string? NombreEmpresa { get; set; }
+
         public List<EstadoDifunto> ListaEstadoDifunto { get; set; } = new();
         public List<TipoParcela> ListaTipoParcela { get; set; } = new();
         public List<DTO_SeccionIntroduccion> ListaSecciones { get; set; } = new();
         public List<DTO_parcelaIntroduccion> ListaParcelas { get; set; } = new();
         public List<EmpresaFunebre> ListaEmpresasSepelio { get; set; } = new();
+        public List<DTO_UsuarioIntroduccion> ListaEmpleados { get; set; } = new();
 
 
         public string? MensajeError { get; set; }
@@ -97,11 +100,15 @@ namespace CemSys2.ViewModel
             if (FechaHoraIngreso.HasValue && FechaHoraIngreso > hoy)
                 yield return new ValidationResult("La fecha y hora de ingreso no puede ser posterior a la fecha y hora actual", new[] { nameof(FechaHoraIngreso) });
 
-            if (!NN && string.IsNullOrWhiteSpace(Nombre))
-                yield return new ValidationResult("El nombre es obligatorio", new[] { nameof(Nombre) });
+            // Solo validar Nombre y DNI si NN es false
+            if (!NN)
+            {
+                if (string.IsNullOrWhiteSpace(Nombre))
+                    yield return new ValidationResult("El nombre es obligatorio", new[] { nameof(Nombre) });
 
-            if (!NN && Dni == null)
-                yield return new ValidationResult("El DNI es obligatorio", new[] { nameof(Dni) });
+                if (Dni == null)
+                    yield return new ValidationResult("El DNI es obligatorio", new[] { nameof(Dni) });
+            }
 
         }
     }

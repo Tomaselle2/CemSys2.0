@@ -11,11 +11,14 @@ namespace CemSys2.Data
         private readonly AppDbContext _context;
         private readonly IRepositoryDB<EstadoDifunto> _estadoDifuntoBD;
         private readonly IRepositoryDB<TipoParcela> _tipoParcelaBD;
-        public IntroduccionBD(AppDbContext context, IRepositoryDB<EstadoDifunto> estadoDifuntoBD, IRepositoryDB<TipoParcela> tipoParcelaBD)
+        private readonly IRepositoryDB<EmpresaFunebre> _empresaFunebreBD;
+
+        public IntroduccionBD(AppDbContext context, IRepositoryDB<EstadoDifunto> estadoDifuntoBD, IRepositoryDB<TipoParcela> tipoParcelaBD, IRepositoryDB<EmpresaFunebre> empresaFunebreBD)
         {
             _context = context;
             _estadoDifuntoBD = estadoDifuntoBD;
             _tipoParcelaBD = tipoParcelaBD;
+            _empresaFunebreBD = empresaFunebreBD;
         }
 
 
@@ -73,10 +76,37 @@ namespace CemSys2.Data
                 }).ToListAsync();
         }
 
-        public async Task<List<DTO_parcelaIntroduccion>> ListaParcelas(int idSeccion)
+        public async Task<List<DTO_parcelaIntroduccion>> ListaParcelas(int idSeccion, int estadoDifuntoId)
         {
-            return await _context.Parcelas
-                .Where(p => p.Seccion == idSeccion && p.Visibilidad == true)
+            var tipoParcela = await _context.Secciones
+                .Where(s => s.Id == idSeccion)
+                .Select(s => s.TipoParcela)
+                .FirstOrDefaultAsync();
+
+            var parcelasQuery = _context.Parcelas
+                .Where(p => p.Seccion == idSeccion && p.Visibilidad == true);
+
+            if (estadoDifuntoId == 1)
+            {
+                if (tipoParcela == 1)
+                {
+                    parcelasQuery = parcelasQuery.Where(p => p.CantidadDifuntos == 0);
+                }
+                // si tipoParcela != 1 no aplicamos más filtros
+            }
+            else
+            {
+                if (tipoParcela == 1 || tipoParcela == 2)
+                {
+                    parcelasQuery = parcelasQuery.Where(p => p.CantidadDifuntos < 5);
+                }
+                else if (tipoParcela == 3)
+                {
+                    parcelasQuery = parcelasQuery.Where(p => p.CantidadDifuntos < 20);
+                }
+            }
+
+            return await parcelasQuery
                 .Select(p => new DTO_parcelaIntroduccion
                 {
                     Id = p.Id,
@@ -85,6 +115,27 @@ namespace CemSys2.Data
                     SeccionId = p.Seccion,
                     CantidadDifuntos = p.CantidadDifuntos
                 }).ToListAsync();
+        }
+
+        public async Task<List<EmpresaFunebre>> ListaEmpresasFunebres()
+        {
+            return await _empresaFunebreBD.EmitirListado();
+        }
+
+        public async Task<List<DTO_UsuarioIntroduccion>> ListaEmpleados()
+        {
+            return await _context.Usuarios
+                .Where(u => u.Visibilidad == true) 
+                .Select(u => new DTO_UsuarioIntroduccion
+                {
+                    Id = u.Id,
+                    Nombre = u.Nombre,
+                }).ToListAsync();
+        }
+
+        public async Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model)
+        {
+            return await _empresaFunebreBD.Registrar(model);
         }
     }
 }

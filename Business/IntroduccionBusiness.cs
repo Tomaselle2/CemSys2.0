@@ -13,14 +13,24 @@ namespace CemSys2.Business
             _introduccionBD = introduccionBD;
         }
 
+        public async Task<List<DTO_UsuarioIntroduccion>> ListaEmpleados()
+        {
+            return await _introduccionBD.ListaEmpleados();
+        }
+
+        public async Task<List<EmpresaFunebre>> ListaEmpresasFunebres()
+        {
+            return await _introduccionBD.ListaEmpresasFunebres();
+        }
+
         public Task<List<EstadoDifunto>> ListaEstadoDifunto()
         {
             return _introduccionBD.ListaEstadoDifunto();
         }
 
-        public async Task<List<DTO_parcelaIntroduccion>> ListaParcelas(int idSeccion)
+        public async Task<List<DTO_parcelaIntroduccion>> ListaParcelas(int idSeccion, int estadoDifuntoId)
         {
-            return await _introduccionBD.ListaParcelas(idSeccion);
+            return await _introduccionBD.ListaParcelas(idSeccion, estadoDifuntoId);
         }
 
         public async Task<List<DTO_SeccionIntroduccion>> ListaSecciones(int idTipoParcela)
@@ -31,6 +41,11 @@ namespace CemSys2.Business
         public Task<List<TipoParcela>> ListaTipoParcela()
         {
             return _introduccionBD.ListaTipoParcela();
+        }
+
+        public async Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model)
+        {
+            return await _introduccionBD.RegistrarEmpresaSepelio(model);
         }
     }
 }

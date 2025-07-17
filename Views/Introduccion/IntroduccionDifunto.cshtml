@@ -3,6 +3,7 @@
 @{
     string fecha = DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
     DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
+    var fechaMax = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
 }
 <a asp-action="Index" asp-controller="Introduccion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
 <h1 class="tituloDePagina">Introducción de difunto</h1>
@@ -25,198 +26,315 @@
     </div>
 }
 
-<!-- Formulario datos del difunto-->
-<div class="accordion" id="accordionDatosDifunto">
-    @* ID único para el acordeón principal *@
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsDatosDifunto-headingOne">
-            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsDatosDifunto-collapseOne" aria-expanded="false" aria-controls="panelsDatosDifunto-collapseOne">
-                Datos del difunto
-            </button>
-        </h2>
-        <div id="panelsDatosDifunto-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsDatosDifunto-headingOne" data-bs-parent="#accordionDatosDifunto">
-            @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
-            <div class="accordion-body">
-                <form id="" class="form-box">
-                    <div>
-                        <label class="form-label">N.N</label>
-                        <input class="" type="checkbox" asp-for="NN" />
+
+
+<form asp-action="IntroduccionDifunto" asp-controller="Introduccion" class="form-box" method="post">
+    <!-- Formulario datos del difunto-->
+    <div class="accordion" id="accordionDatosDifunto">
+        @* ID único para el acordeón principal *@
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsDatosDifunto-headingOne">
+                <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsDatosDifunto-collapseOne" aria-expanded="false" aria-controls="panelsDatosDifunto-collapseOne">
+                    Datos del difunto
+                </button>
+            </h2>
+            <div id="panelsDatosDifunto-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsDatosDifunto-headingOne" data-bs-parent="#accordionDatosDifunto">
+                @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
+                <div class="accordion-body">
+                    <div class="form-box">
+                        <div>
+                            <label class="form-label">N.N</label>
+                            <input class="" type="checkbox" asp-for="NN" id="NN"/>
+                        </div>
+
+                        <div class="form-columns-container3">
+
+                            <div>
+                                <label for="dni">DNI<span class="obligatorio" id="dniObligatorio"> * </span></label>
+                                <input class="form-control" id="dniInput" type="text" asp-for="Dni" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                <span asp-validation-for="Dni" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="nombreDifunto">Nombre<span class="obligatorio" id="nombreObligatorio"> * </span></label>
+                                <input class="form-control" id="nombreInput" type="text" asp-for="Nombre" maxlength="60" minlength="2" />
+                                <span asp-validation-for="Nombre" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="apellidoDifunto">Apellido<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="text" asp-for="Apellido" required maxlength="60" minlength="2" />
+                                <span asp-validation-for="Apellido" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="fechaDefuncion">Defunción<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="date" asp-for="FechaDefuncion" max="@fecha" required />
+                                <span asp-validation-for="FechaDefuncion" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="fechaNacimiento">Nacimiento</label>
+                                <input class="form-control" type="date" asp-for="FechaNacimiento" max="@fecha" />
+                                <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="sexoDifunto">Sexo<span class="obligatorio"> * </span></label>
+                                <select class="form-select" asp-for="Sexo" required>
+                                    <option value="">--Elija una opción--</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="femenino">Femenino</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                                <span asp-validation-for="Sexo" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label>Estado del difunto<span class="obligatorio"> * </span></label>
+                                <select class="form-select" asp-for="EstadoDifuntoId" id="estadoDelDifunto" asp-items="@(new SelectList(Model.ListaEstadoDifunto, "Id", "Estado"))" required>
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+                        <h5>Datos acta de defunción</h5>
+                        <div class="form-columns-container5">
+                            <div>
+                                <label for="acta">Acta</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Acta" min="1" />
+                            </div>
+                            <div>
+                                <label>Tomo</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Tomo" min="1" />
+                            </div>
+                            <div>
+                                <label>Folio</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Folio" min="1" />
+                            </div>
+                            <div>
+                                <label>Serie</label>
+                                <input type="text" class="form-control" asp-for="ActaDefuncion.Serie" min="1" />
+                            </div>
+                            <div>
+                                <label>Año</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Age" min="1800" max="@fechaActual.Year" />
+                            </div>
+                        </div>
+                        <!-- Datos adicionales -->
+                        <div class="full-width">
+                            <label for="datosAdicionales">Datos adicionales</label>
+                            <textarea class="form-control" asp-for="InformacionAdicional"></textarea>
+                        </div>
+
+                        <!--Preguntas-->
+                        <div class="full-width">
+                            <h6>¿El difunto tenía domicilio en Colonia Tirolesa?<span class="obligatorio"> * </span></h6>
+                            <div>
+                                <label for="domicilioSi">Si</label>
+                                <input type="radio" asp-for="DomicilioEnTirolesa" value="true" id="domicilioSi" class="inputFormularioEnLinea" />
+
+                                <label for="domicilioNo">No</label>
+                                <input type="radio" asp-for="DomicilioEnTirolesa" value="false" id="domicilioNo" class="inputFormularioEnLinea" />
+                            </div>
+                            <span asp-validation-for="DomicilioEnTirolesa" class="text-danger"></span>
+                        </div>
+
+                        <div class="full-width">
+                            <h6>¿El difunto falleció en Colonia Tirolesa?<span class="obligatorio"> * </span></h6>
+                            <div>
+                                <label for="falelcioSi">si</label>
+                                <input type="radio" asp-for="FallecioEnTirolesa" value="true" id="falelcioSi" class="inputFormularioEnLinea" />
+
+                                <label for="fallecioNo">no</label>
+                                <input type="radio" asp-for="FallecioEnTirolesa" value="false" id="fallecioNo" class="inputFormularioEnLinea" />
+                            </div>
+                            <span asp-validation-for="FallecioEnTirolesa" class="text-danger"></span>
+                        </div>
                     </div>
-                    
-                    <div class="form-columns-container3">
-
-                        <div>
-                            <label for="dni">DNI<span class="obligatorio"> * </span></label>
-                            <input class="form-control" type="text" asp-for="Dni" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
-                            <span asp-validation-for="Dni" class="text-danger"></span>
-                        </div>
-
-                        <div>
-                            <label for="nombreDifunto">Nombre<span class="obligatorio"> * </span></label>
-                            <input class="form-control" type="text" asp-for="Nombre" maxlength="60" minlength="2" />
-                            <span asp-validation-for="Nombre" class="text-danger"></span>
-                        </div>
-
-                        <div>
-                            <label for="apellidoDifunto">Apellido<span class="obligatorio"> * </span></label>
-                            <input class="form-control" type="text" asp-for="Apellido" required maxlength="60" minlength="2" />
-                            <span asp-validation-for="Apellido" class="text-danger"></span>
-                        </div>
-
-                        <div>
-                            <label for="fechaDefuncion">Defunción<span class="obligatorio"> * </span></label>
-                            <input class="form-control" type="date" asp-for="FechaDefuncion" max="@fecha" required />
-                            <span asp-validation-for="FechaDefuncion" class="text-danger"></span>
-                        </div>
-
-                        <div>
-                            <label for="fechaNacimiento">Nacimiento</label>
-                            <input class="form-control" type="date" asp-for="FechaNacimiento" max="@fecha" />
-                            <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
-                        </div>
-
-                        <div>
-                            <label for="sexoDifunto">Sexo<span class="obligatorio"> * </span></label>
-                            <select class="form-select" asp-for="Sexo" required>
-                                <option value="">--Elija una opción--</option>
-                                <option value="masculino">Masculino</option>
-                                <option value="femenino">Femenino</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                            <span asp-validation-for="Sexo" class="text-danger"></span>
-                        </div>
-
-                        <div>
-                            <label>Estado del difunto<span class="obligatorio"> * </span></label>
-                            <select class="form-select" asp-for="EstadoDifuntoId" asp-items="@(new SelectList(Model.ListaEstadoDifunto, "Id", "Estado"))" required>
-                                <option value="">--Elija una opción--</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    
-
-                    <h5>Datos acta de defunción</h5>
-                    <div class="form-columns-container5">
-                        <div>
-                            <label for="acta">Acta</label>
-                            <input type="number" class="form-control" asp-for="ActaDefuncion.Acta" min="1" />        
-                        </div>
-                        <div>
-                            <label>Tomo</label>
-                            <input type="number" class="form-control" asp-for="ActaDefuncion.Tomo" min="1" />
-                        </div>
-                        <div>
-                            <label>Folio</label>
-                            <input type="number" class="form-control" asp-for="ActaDefuncion.Folio" min="1" />
-                        </div>
-                        <div>
-                            <label>Serie</label>
-                            <input type="text" class="form-control" asp-for="ActaDefuncion.Serie" min="1" />
-                        </div>
-                        <div>
-                            <label>Año</label>
-                            <input type="number" class="form-control" asp-for="ActaDefuncion.Age" min="1800" max="@fechaActual.Year" />
-                        </div>
-                    </div>
-                    <!-- Datos adicionales -->
-                    <div class="full-width">
-                        <label for="datosAdicionales">Datos adicionales</label>
-                        <textarea class="form-control" asp-for="InformacionAdicional"></textarea>
-                    </div>
-
-                    <!--Preguntas-->
-                    <div class="full-width">
-                        <h6>¿El difunto tenía domicilio en Colonia Tirolesa?<span class="obligatorio"> * </span></h6>
-                        <div>
-                            <label for="domicilioSi">Si</label>
-                            <input type="radio" asp-for="DomicilioEnTirolesa" value="true" id="domicilioSi" class="inputFormularioEnLinea" />
-                            
-                            <label for="domicilioNo">No</label>
-                            <input type="radio" asp-for="DomicilioEnTirolesa" value="false" id="domicilioNo" class="inputFormularioEnLinea" />                            
-                        </div>
-                        <span asp-validation-for="DomicilioEnTirolesa" class="text-danger"></span>
-                    </div>
-
-                    <div class="full-width">
-                        <h6>¿El difunto falleció en Colonia Tirolesa?<span class="obligatorio"> * </span></h6>
-                        <div>
-                            <label for="falelcioSi">si</label>
-                            <input type="radio" asp-for="FallecioEnTirolesa" value="true" id="falelcioSi" class="inputFormularioEnLinea" />
-
-                            <label for="fallecioNo">no</label>
-                            <input type="radio" asp-for="FallecioEnTirolesa" value="false" id="fallecioNo" class="inputFormularioEnLinea" />
-                        </div>
-                        <span asp-validation-for="FallecioEnTirolesa" class="text-danger"></span>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
+    <!-- Formulario Ubicación-->
+    <div class="accordion" id="accordionUbicacion">
+        @* ID único para el acordeón principal *@
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsUbicacion-headingOne">
+                <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsUbicacion-collapseOne" aria-expanded="false" aria-controls="panelsUbicacion-collapseOne">
+                    Ubicación
+                </button>
+            </h2>
+            <div id="panelsUbicacion-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsUbicacion-headingOne" data-bs-parent="#accordionUbicacion">
+                @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
+                <div class="accordion-body">
+                    <div class="form-box">
+                        <!--parcelas-->
+                        <div class="form-columns-container3">
+                            <div>
+                                <label>Tipo de parcela<span class="obligatorio"> * </span></label>
+                                <select id="tipoParcelaSelect" class="form-select" asp-for="TipoParcelaID" asp-items="@(new SelectList(Model.ListaTipoParcela, "Id", "TipoParcela1"))" required>
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                                <span asp-validation-for="TipoParcelaID" class="text-danger"></span>
 
+                            </div>
 
+                            <div>
+                                <label>Sección<span class="obligatorio"> * </span></label>
+                                <select id="seccionSelect" class="form-select" asp-for="SeccionID" asp-items="@(new SelectList(Model.ListaSecciones, "Id", "Nombre"))" required>
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                                <span asp-validation-for="SeccionID" class="text-danger"></span>
 
-<!-- Formulario Ubicación-->
-<div class="accordion" id="accordionUbicacion">
-    @* ID único para el acordeón principal *@
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsUbicacion-headingOne">
-            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsUbicacion-collapseOne" aria-expanded="false" aria-controls="panelsUbicacion-collapseOne">
-                Ubicación
-            </button>
-        </h2>
-        <div id="panelsUbicacion-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsUbicacion-headingOne" data-bs-parent="#accordionUbicacion">
-            @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
-            <div class="accordion-body">
-                <form id="" class="form-box">
-                    <!--parcelas-->
-                    <div class="form-columns-container3">
-                        <div>
-                            <label>Tipo de parcela</label>
-                            <select id="tipoParcelaSelect" class="form-select" asp-for="TipoParcelaID" asp-items="@(new SelectList(Model.ListaTipoParcela, "Id", "TipoParcela1"))" required>
-                                <option value="">--Elija una opción--</option>
-                            </select>
-                            <span asp-validation-for="TipoParcelaID" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label>Parcela<span class="obligatorio"> * </span></label>
+                                <select id="parcelaSelect" class="form-select" asp-for="ParcelaID" asp-items="@(new SelectList(Model.ListaParcelas, "Id", "NroParcela"))" required>
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="ParcelaID" class="text-danger"></span>
 
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        <div>
-                            <label>Sección<span class="obligatorio"> * </span></label>
-                            <select id="seccionSelect" class="form-select" asp-for="SeccionID" asp-items="@(new SelectList(Model.ListaSecciones, "Id", "Nombre"))" required>
-                                <option value="">--Elija una opción--</option>
-                            </select>
-                            <span asp-validation-for="SeccionID" class="text-danger"></span>
+
+
+    <!-- mensaje exito de la empresa de sepelio-->
+    <div id="alertContainer" class="mt-2"></div>
+
+    <!-- Detalle del ingreso-->
+    <div class="accordion" id="accordionIngreso">
+        @* ID único para el acordeón principal *@
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsIngreso-headingOne">
+                <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsIngreso-collapseOne" aria-expanded="false" aria-controls="panelsIngreso-collapseOne">
+                    Detalle del ingreso
+                </button>
+            </h2>
+            <div id="panelsIngreso-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsIngreso-headingOne" data-bs-parent="#accordionIngreso">
+                <div class="accordion-body">
+                    <div class="form-box">
+                        <div class="form-columns-container3">
+                            <div>
+                                <label>Empleado responsable<span class="obligatorio"> * </span></label>
+                                <select id="" class="form-select" asp-for="EmpleadoID" asp-items="@(new SelectList(Model.ListaEmpleados, "Id", "Nombre"))" required>
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                                <span asp-validation-for="EmpleadoID" class="text-danger"></span>
+
+                            </div>
+
+                            <div>
+                                <label>Empresa de sepelio responsable<span class="obligatorio"> * </span></label>
+                                <select id="empresaSepelio" class="form-select" asp-for="EmpresaFunebreID" asp-items="@(new SelectList(Model.ListaEmpresasSepelio, "Id", "Nombre"))" required>
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                                <span asp-validation-for="EmpresaFunebreID" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <button id="agregarEmpresaButton" data-bs-toggle="modal" data-bs-target="#EmpresaModal" class="btn btn-registrar">Agregar empresa</button>
+                            </div>
+
+                            <div>
+                                <label>Fecha y hora<span class="obligatorio"> * </span></label>
+                                <input type="datetime-local" asp-for="FechaHoraIngreso" class="form-control" required max="@fechaMax" />
+                                <span asp-validation-for="FechaHoraIngreso" class="text-danger"></span>
+                            </div>
 
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        <div>
-                            <label>Parcela<span class="obligatorio"> * </span></label>
-                            <select id="parcelaSelect" class="form-select" asp-for="ParcelaID" asp-items="@(new SelectList(Model.ListaParcelas, "Id", "NroParcela"))" required>
-                                <option value="">--Elija una opción--</option>
-                            </select>
-                        </div>
-                        <span asp-validation-for="ParcelaID" class="text-danger"></span>
+    <input type="submit" class="btn btn-success" value="Introducir difunto" />
+</form>
 
+
+
+
+<!-- Modal de agregar empresa -->
+<div class="modal fade" id="EmpresaModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Nueva empresa de sepelio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEmpresa" class="needs-validation" novalidate>
+                    <label for="nombreEmpresa">Nombre<span class="obligatorio"> * </span></label>
+                    <input id="nombreEmpresa" class="form-control" type="text" required />
+                    <div class="invalid-feedback">
+                        El nombre es obligatorio.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="registrarEmpresaBtn">Registrar</button>
                     </div>
                 </form>
             </div>
+            
         </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>//logica del nn
+        document.addEventListener('DOMContentLoaded', function() {
+            const nnCheckbox = document.getElementById('NN');
+            const dniObligatorio = document.getElementById('dniObligatorio');
+            const nombreObligatorio = document.getElementById('nombreObligatorio');
+            const dniInput = document.getElementById('dniInput');
+            const nombreInput = document.getElementById('nombreInput');
 
-    <script> //logica de select ubicacion
+            function toggleRequiredFields() {
+                if (nnCheckbox.checked) {
+                    dniObligatorio.style.display = 'none';
+                    nombreObligatorio.style.display = 'none';
+                    dniInput.removeAttribute('required');
+                    nombreInput.removeAttribute('required');
+                    nombreInput.setAttribute('disabled', 'disabled'); // ⬅️ Desactiva el input Nombre
+                            dniInput.setAttribute('disabled', 'disabled');
+                } else {
+                    dniObligatorio.style.display = 'inline';
+                    nombreObligatorio.style.display = 'inline';
+                    dniInput.setAttribute('required', 'required');
+                    nombreInput.setAttribute('required', 'required');
+                    dniInput.removeAttribute('disabled'); // ⬅️ Reactiva el input DNI
+                    nombreInput.removeAttribute('disabled');
+                }
+            }
+
+            // Inicializar estado
+            toggleRequiredFields();
+
+            // Escuchar cambios en el checkbox
+            nnCheckbox.addEventListener('change', toggleRequiredFields);
+        });
+    </script>
+
+    <script> //logica de los select ubicacion
 
         document.addEventListener('DOMContentLoaded', function() {
 
             const tipoParcelaSelect = document.getElementById('tipoParcelaSelect');
             const seccionSelect = document.getElementById('seccionSelect');
             const parcelaSelect = document.getElementById('parcelaSelect');
+            const estadoDifuntoSelect = document.getElementById('estadoDelDifunto');
 
             //selecciona las secciones
             tipoParcelaSelect.addEventListener('change', async function() {
@@ -240,15 +358,16 @@
             });
 
             //selecciona las parcelas
-            seccionSelect.addEventListener('change', async function() {
-                const seccionId = this.value;
-                const tipoParcelaId = tipoParcelaSelect.value; // ← corrección clave
-
+            async function actualizarParcelas(){
+                const seccionId = seccionSelect.value;
+                const tipoParcelaId = tipoParcelaSelect.value;
+                const estadoDelDifuntoId = estadoDifuntoSelect.value;
+                
                 // Limpiar parcelas
                 parcelaSelect.innerHTML = '<option value="">--Elija una opción--</option>';
 
                 if (seccionId) {
-                    const response = await fetch(`/Introduccion/ObtenerParcelasPorSeccion?seccionId=${seccionId}`);
+                    const response = await fetch(`/Introduccion/ObtenerParcelasPorSeccion?seccionId=${seccionId}&estadoDifuntoId=${estadoDelDifuntoId}`);
                     const parcelas = await response.json();
 
                     parcelas.forEach(parcela => {
@@ -262,15 +381,81 @@
                         }else if(tipoParcelaId == 3){
                             option.textContent = `Lote ${parcela.nroParcela}`;
                         }
-                        
+
                         parcelaSelect.appendChild(option);
 
                     });
                 }
-            });
+            }
 
+            // Eventos que disparan el cambio
+            seccionSelect.addEventListener('change', actualizarParcelas);
+            estadoDifuntoSelect.addEventListener('change', actualizarParcelas);
         });
     </script>
+    
+    <script>//logica de agregar empresa
+                const agregarEmpresaButton = document.getElementById('agregarEmpresaButton');
+        const formEmpresa = document.getElementById('formEmpresa');
+        const nombreEmpresaInput = document.getElementById('nombreEmpresa');
+        const empresaSepelioSelect = document.getElementById('empresaSepelio');
 
+        // Abre el modal y limpia el formulario
+        agregarEmpresaButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            formEmpresa.reset();
+            formEmpresa.classList.remove('was-validated');
+            $('#EmpresaModal').modal('show');
+        });
+
+        // Validación y envío con fetch
+        formEmpresa.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!formEmpresa.checkValidity()) {
+                formEmpresa.classList.add('was-validated');
+                return;
+            }
+
+            const nombre = nombreEmpresaInput.value.trim();
+
+            function mostrarAlertaExito(mensaje) {
+                const alertContainer = document.getElementById('alertContainer');
+                alertContainer.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+                        ${mensaje}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                `;
+            }
+
+            try {
+                const response = await fetch(`/Introduccion/AgregarEmpresa?nombreEmpresa=${encodeURIComponent(nombre)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    mostrarAlertaExito(result.message);
+                    $('#EmpresaModal').modal('hide');
+
+                    if (empresaSepelioSelect) {
+                        const option = document.createElement('option');
+                        option.value = result.idEmpresa;
+                        option.text = nombre;
+                        option.selected = true;
+                        empresaSepelioSelect.appendChild(option);
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert("Error al enviar la solicitud.");
+            }
+        });
+
+
+    </script>
+
+    
 }
 
