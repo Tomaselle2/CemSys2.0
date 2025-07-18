@@ -48,9 +48,24 @@ namespace CemSys2.Business
             return _introduccionBD.ListaTipoParcela();
         }
 
+        public async Task<int> RegistrarActaDefuncion(ActaDefuncion model)
+        {
+            return await _introduccionBD.RegistrarActaDefuncion(model);
+        }
+
+        public async Task<int> RegistrarDifunto(Persona model)
+        {
+            return await _introduccionBD.RegistrarDifunto(model);
+        }
+
         public async Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model)
         {
             return await _introduccionBD.RegistrarEmpresaSepelio(model);
+        }
+
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId)
+        {
+            return await _introduccionBD.RegistrarIntroduccionCompleta(actaDefuncion, difunto, empleadoId, empresaSepelioId, ParcelaId);
         }
     }
 }

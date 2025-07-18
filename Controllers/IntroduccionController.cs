@@ -52,11 +52,43 @@ namespace CemSys2.Controllers
             {
                 if (viewModel.Dni.HasValue) //si DNI tiene algo
                 {
-                    Persona? difunto =  await _introduccionBusiness.ConsultarDifunto(viewModel.Dni.ToString()); //consulto el dni
-                    if(difunto != null) //si el resultado es != null esta en la base de datos
+                    Persona? difunto = await _introduccionBusiness.ConsultarDifunto(viewModel.Dni.ToString()); //consulto el dni
+                    if (difunto != null) //si el resultado es != null esta en la base de datos
                     {
                         viewModel.MensajeError = $"El DNI {viewModel.Dni.ToString()} ya esta registrado";
+                        await CargarCombos(viewModel);
+                        return View(viewModel);
                     }
+                }
+
+                //Si llega hasta aquí, el difunto no existe, se puede registrar
+                //acta defuncion
+                ActaDefuncion actaDefuncion = viewModel.ActaDefuncion;
+
+                // difunto
+                Persona difuntoNuevo = new Persona //crea el difunto
+                {
+                    Visibilidad = true,
+                    Dni = viewModel.Dni.HasValue ? viewModel.Dni.Value.ToString() : "nn",
+                    Nombre = string.IsNullOrWhiteSpace(viewModel.Nombre) ? "nn" : viewModel.Nombre.Trim(),
+                    Apellido = viewModel.Apellido.Trim(),
+                    FechaNacimiento = viewModel.FechaNacimiento,
+                    FechaDefuncion = viewModel.FechaDefuncion,
+                    CategoriaPersona = 2, //id fallecido
+                    Sexo = viewModel.Sexo,
+                    EstadoDifunto = viewModel.EstadoDifuntoId,
+                    InformacionAdicional = viewModel.InformacionAdicional,
+                    DomicilioEnTirolesa = viewModel.DomicilioEnTirolesa,
+                    FallecioEnTirolesa = viewModel.FallecioEnTirolesa
+                };
+
+
+                int introduccion = await _introduccionBusiness.RegistrarIntroduccionCompleta(actaDefuncion, difuntoNuevo, viewModel.EmpleadoID.Value, viewModel.EmpresaFunebreID.Value, viewModel.ParcelaID.Value);
+                if (introduccion == 0)
+                {
+                    viewModel.MensajeError = "No se pudo registrar la introducción. Intente nuevamente.";
+                    await CargarCombos(viewModel);
+                    return View(viewModel);
                 }
             }
             catch (Exception ex)

@@ -19,6 +19,8 @@ namespace CemSys2.Interface.Introduccion
         Task<int> RegistrarParcelaDifunto(ParcelaDifunto model);
         Task<int> RegistrarHistorialEstadoTramite(HistorialEstadoTramite model);
 
+        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId);
+
         Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model);
 
         Task<Persona?> ConsultarDifunto(string dni);

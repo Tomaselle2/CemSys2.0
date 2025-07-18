@@ -38,11 +38,11 @@ INSERT INTO TipoParcela (tipoParcela) VALUES
 
 -- INSERT para TipoTramite
 INSERT INTO TipoTramite (tipo) VALUES 
-('Introduccion'),
-('Autorizacion para cremacion'),
-('Autorizacion para reduccion'),
+('Introducción'),
+('Autorización para cremación'),
+('Autorización para reducción'),
 ('Contrato de concesión'),
-('Autorizacion para traslado'),
+('Autorización para traslado'),
 ('Cambio de titularidad');
 
 -- INSERT para TiposConceptoTarifaria
@@ -72,4 +72,12 @@ INSERT INTO CantidadCuotas (cuota) VALUES
 (5),
 (6);
 
+INSERT INTO EstadoTramite (tipoTramiteId, estado)
+VALUES 
+(1, 'Registrado'),
+(1, 'Impago'),
+(1, 'Cobrado'),
+(1, 'Finalizado');
+
 INSERT INTO Usuarios (nombre, correo, usuario, clave, visibilidad, rol) values ('Tomas Carreras', 'tomaselle2@gmail.com', 'tomaselle2', '1234', 1, 2);
+

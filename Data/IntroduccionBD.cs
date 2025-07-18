@@ -142,5 +142,103 @@ namespace CemSys2.Data
         {
            return await _context.Personas.Where(p => p.Visibilidad == true && p.Dni == dni).FirstOrDefaultAsync();
         }
+
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Registrar Acta de Defunción
+                _context.ActaDefuncions.Add(actaDefuncion);
+                await _context.SaveChangesAsync();
+
+                var estadoDifunto = await _context.EstadoDifuntos
+                    .Where(x => x.Id == difunto.EstadoDifunto)
+                    .Select(x => x.Estado)
+                    .FirstOrDefaultAsync();
+
+                // Asignar el acta al difunto
+                difunto.ActaDefuncion = actaDefuncion.Id;
+                _context.Personas.Add(difunto);
+                await _context.SaveChangesAsync();
+
+
+                int tipoTramiteId = 1; // fijo
+                int estadoTramiteId = 1; // estado inicial, "Registrado"
+
+                // Registrar Trámite
+                Tramite tramite = new Tramite
+                {
+                    Id = await ObtenerProximoIdTramite(),
+                    TipoTramiteId = tipoTramiteId,
+                    FechaCreacion = DateTime.Now,
+                    Usuario = empleadoId, 
+                    Visibilidad = true,
+                    EstadoActualId = estadoTramiteId
+                };
+
+                _context.Tramites.Add(tramite);
+                await _context.SaveChangesAsync();
+
+
+                // Registrar Historial Estado Trámite
+                HistorialEstadoTramite historial = new HistorialEstadoTramite
+                {
+                    TramiteId = tramite.Id,
+                    EstadoTramiteId = estadoTramiteId,
+                    Fecha = DateTime.Now
+                };
+                _context.HistorialEstadoTramites.Add(historial);
+
+                // Registrar Introducción
+                Introduccione introduccion = new Introduccione
+                {
+                    IdTramite = tramite.Id,
+                    Visibilidad = true,
+                    FechaIngreso = DateTime.Now,
+                    Empleado = tramite.Usuario,
+                    EmpresaFunebre = empresaSepelioId, 
+                    ParcelaId = ParcelaId, 
+                    DifuntoId = difunto.IdPersona,
+                    EstadoDifunto = estadoDifunto,
+                    IntroduccionNueva = true,
+                    FechaRetiro = null
+                };
+                _context.Introducciones.Add(introduccion);
+
+                Parcela? parcela = await _context.Parcelas.FirstOrDefaultAsync(p => p.Id == ParcelaId);
+                if(parcela != null)
+                    parcela.CantidadDifuntos++; //suma uno a cantidad de difuntos
+
+                await _context.SaveChangesAsync();
+                
+                // Registrar ParcelaDifuntos
+                ParcelaDifunto parcelaDifunto = new ParcelaDifunto
+                {
+                    ParcelaId = introduccion.ParcelaId,
+                    DifuntoId = difunto.IdPersona,
+                    FechaIngreso = DateTime.Now,
+                    EstadoActual = true,
+                    TramiteIngresoId = tramite.Id
+                };
+                _context.ParcelaDifuntos.Add(parcelaDifunto);
+
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return tramite.Id;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        private async Task<int> ObtenerProximoIdTramite()
+        {
+            int? maxId = await _context.Tramites.MaxAsync(t => (int?)t.Id);
+            return (maxId ?? 0) + 1;
+        }
     }
 }
