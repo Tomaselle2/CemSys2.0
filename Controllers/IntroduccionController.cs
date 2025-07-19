@@ -15,15 +15,40 @@ namespace CemSys2.Controllers
             _introduccionBusiness = introduccionBusiness;
         }
 
-        public IActionResult Index(int pagina = 1)
+        public async Task<IActionResult> Index(int pagina = 1, string desdeFecha = null, string hastaFecha = null)
         {
-            IntroduccionIndexVM viewModelIndex = new IntroduccionIndexVM();
+            const int registrosPorPagina = 5;
+
+            // Convertir las fechas de string a DateTime
+            DateTime? fechaDesde = null;
+            DateTime? fechaHasta = null;
+
+            if(!string.IsNullOrEmpty(desdeFecha) && DateTime.TryParse(desdeFecha, out var tempDesde))
+            {
+                fechaDesde = tempDesde;
+            }
+
+            if (!string.IsNullOrEmpty(hastaFecha) && DateTime.TryParse(hastaFecha, out var tempHasta))
+            {
+                fechaHasta = tempHasta;
+            }
+
+
+            var (introducciones, totalRegistros) = await _introduccionBusiness.ListadoIntroducciones(fechaDesde, fechaHasta, registrosPorPagina, pagina);
+
+            var viewModelIndex = new IntroduccionIndexVM
+            {
+                ListaIntroducciones = introducciones,
+                PaginaActual = pagina,
+                TotalRegistros = totalRegistros,
+                TotalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina)
+            };
             return View(viewModelIndex);
         }
 
         [HttpGet]
         public async Task<IActionResult> IntroduccionDifunto()
-        {
+        { 
             IntroduccionDifuntoVM viewModel = new();
             await CargarCombos(viewModel);
 
@@ -83,7 +108,7 @@ namespace CemSys2.Controllers
                 };
 
 
-                int introduccion = await _introduccionBusiness.RegistrarIntroduccionCompleta(actaDefuncion, difuntoNuevo, viewModel.EmpleadoID.Value, viewModel.EmpresaFunebreID.Value, viewModel.ParcelaID.Value);
+                int introduccion = await _introduccionBusiness.RegistrarIntroduccionCompleta(actaDefuncion, difuntoNuevo, viewModel.EmpleadoID.Value, viewModel.EmpresaFunebreID.Value, viewModel.ParcelaID.Value, viewModel.FechaHoraIngreso.Value);
                 if (introduccion == 0)
                 {
                     viewModel.MensajeError = "No se pudo registrar la introducción. Intente nuevamente.";

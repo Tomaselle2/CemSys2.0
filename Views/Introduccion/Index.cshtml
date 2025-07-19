@@ -36,41 +36,24 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-               Buscador
+                Buscador
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
             @* cuerpo del acordion *@
             <div class="accordion-body">
-                <form asp-action="#" method="get">
-                    <div class="">
-                        <div class="">
-                            <fieldset class="">
-                                <legend>Buscador</legend>
-                                <div class="">
-                                    <div class="">
-                                        <input type="radio" name="tipoFiltro" value="todas" id="tipoFiltroTodas" checked />
-                                        <label for="tipoFiltroTodas">Todas</label>
-                                    </div>
+                <form asp-action="Index" method="get">
+                    <div class="text-center p-3">
+                        <label>Desde</label>
+                        <input type="date" class="form-control-sm me-2" name="desdeFecha" value="@Context.Request.Query["desdeFecha"]" />
 
-                                    <div class="">
-                                        <input type="radio" name="tipoFiltro" value="desde" id="FiltroDesde" />
+                        <label>Hasta</label>
+                        <input type="date" class="form-control-sm me-2" name="hastaFecha" value="@Context.Request.Query["hastaFecha"]" />
+                    </div>
 
-
-                                        <label for="FiltroDesde">Desde</label>
-                                        <input type="date" name="desdeFecha" />
-
-                                        <label for="FiltroHasta">Hasta</label>
-                                        <input type="date" name="hastaFecha" id="FiltroHasta" />
-                                    </div>
-                                </div>
-
-                                <!-- Botón Buscar dentro del bloque -->
-                                <div class="text-center mt-3">
-                                    <button type="submit" class="" id="btnBuscar">Buscar</button>
-                                </div>
-                            </fieldset>
-                        </div>
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-success me-2" id="btnBuscar">Buscar</button>
+                        <a asp-action="Index" asp-controller="Introduccion" class="btn btn-primary" id="btnLimpiar">Limpiar filtros</a>
                     </div>
                 </form>
             </div>
@@ -106,15 +89,32 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @* @foreach (var opc in Model.Secciones)
+                                @foreach (var opc in Model.ListaIntroducciones)
                                 {
-                                    if (opc.Visibilidad != false)
+                                    string parcela = "";
+                                    if (opc.Parcela.SeccionNavigation.TipoParcela == 1) //nicho
                                     {
-                                        <tr>
-                                            
-                                        </tr>
+                                        parcela = $"Nicho {opc.Parcela.NroParcela.ToString()} Fila {opc.Parcela.NroFila.ToString()}";
                                     }
-                                } *@
+                                    else if (opc.Parcela.SeccionNavigation.TipoParcela == 2)//fosa
+                                    {
+                                        parcela = $"Fosa {opc.Parcela.NroParcela.ToString()}";
+                                    }
+                                    else if (opc.Parcela.SeccionNavigation.TipoParcela == 2) //panteon
+                                    {
+                                        parcela = $"Lote {opc.Parcela.NroParcela.ToString()}";
+                                    }
+
+                                    <tr>
+                                        <td>@opc.IdTramite</td>
+                                        <td>@(opc.FechaIngreso.HasValue ? opc.FechaIngreso.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                                        <td>@opc.Difunto.Apellido.ToUpper() @opc.Difunto.Nombre.ToUpper()</td>
+                                        <td>@opc.Parcela.SeccionNavigation.Nombre.ToUpper()</td>
+                                        <td>@parcela</td>
+                                        <td>ver</td>
+                                    </tr>
+                                    
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -124,13 +124,13 @@
                 @if (Model.TotalPaginas > 1)
                 {
                     @await Html.PartialAsync("_Paginador", new PaginadorViewModel
-       {
-           PaginaActual = Model.PaginaActual,
-           TotalPaginas = Model.TotalPaginas,
-           TotalRegistros = Model.TotalRegistros,
-           Accion = "InicioSeccionesNichos",
-           Controlador = "Secciones"
-       })
+                    {
+                        PaginaActual = Model.PaginaActual,
+                        TotalPaginas = Model.TotalPaginas,
+                        TotalRegistros = Model.TotalRegistros,
+                        Accion = "Index",
+                        Controlador = "Introduccion"
+                    })
                 }
 
             }

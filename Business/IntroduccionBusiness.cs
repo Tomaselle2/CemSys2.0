@@ -18,6 +18,11 @@ namespace CemSys2.Business
             return await _introduccionBD.ConsultarDifunto(dni);
         }
 
+        public async Task<(List<Introduccione> introducciones, int totalRegistros)> ListadoIntroducciones(DateTime? fechaDesde = null, DateTime? fechaHasta = null, int registrosPorPagina = 10, int pagina = 1)
+        {
+            return await _introduccionBD.ListadoIntroducciones(fechaDesde, fechaHasta, registrosPorPagina, pagina);
+        }
+
         public async Task<List<DTO_UsuarioIntroduccion>> ListaEmpleados()
         {
             return await _introduccionBD.ListaEmpleados();
@@ -63,9 +68,9 @@ namespace CemSys2.Business
             return await _introduccionBD.RegistrarEmpresaSepelio(model);
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso)
         {
-            return await _introduccionBD.RegistrarIntroduccionCompleta(actaDefuncion, difunto, empleadoId, empresaSepelioId, ParcelaId);
+            return await _introduccionBD.RegistrarIntroduccionCompleta(actaDefuncion, difunto, empleadoId, empresaSepelioId, ParcelaId, fechaIngreso);
         }
     }
 }

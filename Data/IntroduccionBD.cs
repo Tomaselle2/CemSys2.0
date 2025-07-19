@@ -143,7 +143,7 @@ namespace CemSys2.Data
            return await _context.Personas.Where(p => p.Visibilidad == true && p.Dni == dni).FirstOrDefaultAsync();
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -195,7 +195,7 @@ namespace CemSys2.Data
                 {
                     IdTramite = tramite.Id,
                     Visibilidad = true,
-                    FechaIngreso = DateTime.Now,
+                    FechaIngreso = fechaIngreso,
                     Empleado = tramite.Usuario,
                     EmpresaFunebre = empresaSepelioId, 
                     ParcelaId = ParcelaId, 
@@ -239,6 +239,37 @@ namespace CemSys2.Data
         {
             int? maxId = await _context.Tramites.MaxAsync(t => (int?)t.Id);
             return (maxId ?? 0) + 1;
+        }
+
+        public async Task<(List<Introduccione> introducciones, int totalRegistros)> ListadoIntroducciones(DateTime? fechaDesde = null, DateTime? fechaHasta = null, int registrosPorPagina = 10, int pagina = 1)
+        {
+            var query = _context.Introducciones
+             .Include(d => d.Difunto)
+             .Include(p => p.Parcela)
+             .ThenInclude(s => s.SeccionNavigation)
+             .AsQueryable();
+
+            // Aplicar filtros de fecha si existen
+            if (fechaDesde.HasValue)
+            {
+                query = query.Where(x => x.FechaIngreso >= fechaDesde.Value);
+            }
+
+            if (fechaHasta.HasValue)
+            {
+                // Añadir un día para incluir todo el día hasta
+                query = query.Where(x => x.FechaIngreso < fechaHasta.Value.AddDays(1));
+            }
+
+            var totalRegistros = await query.CountAsync();
+
+            var introducciones = await query
+                .OrderByDescending(x => x.IdTramite) // Ordenar por fecha más reciente primero
+                .Skip((pagina - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            return (introducciones, totalRegistros);
         }
     }
 }
