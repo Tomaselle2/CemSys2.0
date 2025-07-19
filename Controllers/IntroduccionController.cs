@@ -182,8 +182,9 @@ namespace CemSys2.Controllers
             return View();
         }
 
+        //grafico de barras introducciones por mes
         [HttpGet]
-        public async Task<JsonResult> ReportesIntroducciones(string opcion, string desdeFecha, string hastaFecha)
+        public async Task<JsonResult> ReporteGeneralIntroducciones(string opcion, string desdeFecha, string hastaFecha)
         {
             List<DTO_IntroduccionReporte> datos;
 
@@ -203,6 +204,8 @@ namespace CemSys2.Controllers
 
             return Json(new { success = true, data = datos });
         }
+
+
 
         //reportesGraficos
         [HttpPost]

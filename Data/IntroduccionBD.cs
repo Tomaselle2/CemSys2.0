@@ -273,32 +273,78 @@ namespace CemSys2.Data
             return (introducciones, totalRegistros);
         }
 
-        public async Task<List<DTO_IntroduccionReporte>> ReporteIntroduccionesPorFecha(DateTime fechaDesde, DateTime fechaHasta)
+
+
+
+
+        //reportes
+
+        public async Task<List<DTO_IntroduccionReporte>> ReporteIntroduccionesPorFecha(DateTime desde, DateTime hasta)
         {
-            return await _context.Introducciones
-                .Where(i => i.FechaIngreso >= fechaDesde && i.FechaIngreso <= fechaHasta)
+            var query = _context.Introducciones
+                .Include(i => i.Parcela)
+                    .ThenInclude(p => p.SeccionNavigation)
+                        .ThenInclude(s => s.TipoParcelaNavigation)
+                .Where(i => i.FechaIngreso.HasValue && i.FechaIngreso >= desde && i.FechaIngreso <= hasta);
+
+            var introduccionesPorMes = await query
                 .GroupBy(i => new { i.FechaIngreso.Value.Month, i.FechaIngreso.Value.Year })
                 .Select(g => new DTO_IntroduccionReporte
                 {
-                    Mes = g.Key.Month,
                     Año = g.Key.Year,
-                    Cantidad = g.Count()
-                })
-                .ToListAsync();
+                    Mes = g.Key.Month,
+                    Cantidad = g.Count(),
+                    TipoParcela = null,
+                    CantidadPorTipo = 0
+                }).ToListAsync();
+
+            var introduccionesPorTipo = await query
+                .GroupBy(i => i.Parcela.SeccionNavigation.TipoParcelaNavigation.TipoParcela1)
+                .Select(g => new DTO_IntroduccionReporte
+                {
+                    Año = 0,
+                    Mes = 0,
+                    Cantidad = 0,
+                    TipoParcela = g.Key,
+                    CantidadPorTipo = g.Count()
+                }).ToListAsync();
+
+            return introduccionesPorMes.Concat(introduccionesPorTipo).ToList();
         }
 
         public async Task<List<DTO_IntroduccionReporte>> ReporteTodasIntroducciones()
         {
-            return await _context.Introducciones
-            .Where(i => i.FechaIngreso.HasValue) // FILTRAR NULOS
-            .GroupBy(i => new { i.FechaIngreso.Value.Month, i.FechaIngreso.Value.Year })
-            .Select(g => new DTO_IntroduccionReporte
-            {
-                Mes = g.Key.Month,
-                Año = g.Key.Year,
-                Cantidad = g.Count()
-            })
-            .ToListAsync();
-            }
+            var query = _context.Introducciones
+                .Include(i => i.Parcela)
+                    .ThenInclude(p => p.SeccionNavigation)
+                        .ThenInclude(s => s.TipoParcelaNavigation)
+                .Where(i => i.FechaIngreso.HasValue);
+
+            var introduccionesPorMes = await query
+                .GroupBy(i => new { i.FechaIngreso.Value.Month, i.FechaIngreso.Value.Year })
+                .Select(g => new DTO_IntroduccionReporte
+                {
+                    Año = g.Key.Year,
+                    Mes = g.Key.Month,
+                    Cantidad = g.Count(),
+                    TipoParcela = null,
+                    CantidadPorTipo = 0
+                }).ToListAsync();
+
+            var introduccionesPorTipo = await query
+                .GroupBy(i => i.Parcela.SeccionNavigation.TipoParcelaNavigation.TipoParcela1)
+                .Select(g => new DTO_IntroduccionReporte
+                {
+                    Año = 0,
+                    Mes = 0,
+                    Cantidad = 0,
+                    TipoParcela = g.Key,
+                    CantidadPorTipo = g.Count()
+                }).ToListAsync();
+
+            return introduccionesPorMes.Concat(introduccionesPorTipo).ToList();
+        }
+
+
     }
 }

@@ -84,6 +84,7 @@ namespace CemSys2.Business
             return await _introduccionBD.ReporteIntroduccionesPorFecha(fechaDesde, fechaHasta);
         }
 
+
         public async Task<List<DTO_IntroduccionReporte>> ReporteTodasIntroducciones()
         {
             return await _introduccionBD.ReporteTodasIntroducciones();

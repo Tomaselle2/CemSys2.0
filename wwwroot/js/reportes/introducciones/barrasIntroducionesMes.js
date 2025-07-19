@@ -17,7 +17,7 @@ $(document).ready(function () {
         const hastaFecha = $('input[name="hastaFecha"]').val();
 
         $.ajax({
-            url: urlBase + '/Introduccion/ReportesIntroducciones',
+            url: urlBase + '/Introduccion/ReporteGeneralIntroducciones',
             type: 'GET',
             data: { opcion, desdeFecha, hastaFecha },
             success: function (response) {
@@ -37,11 +37,20 @@ $(document).ready(function () {
 function BarrasIntroduccionesMes(data) {
     if (data.length === 0) {
         alert("No hay datos para mostrar.");
+        document.getElementById('contenedorBtnPdf').style.display = 'none';
         return;
     }
 
-    const etiquetas = data.map(x => `${x.mes}/${x.año}`);
-    const cantidades = data.map(x => x.cantidad);
+    const datosMes = data.filter(x => x.cantidad > 0);
+
+    if (datosMes.length === 0) {
+        alert("No hay datos para mostrar.");
+        document.getElementById('contenedorBtnPdf').style.display = 'none';
+        return;
+    }
+
+    const etiquetas = datosMes.map(x => `${x.mes}/${x.año}`);
+    const cantidades = datosMes.map(x => x.cantidad);
 
     const ctx = document.getElementById('graficoPorMes').getContext('2d');
 
@@ -80,4 +89,9 @@ function BarrasIntroduccionesMes(data) {
             }
         }
     });
+
+    document.querySelectorAll('.contenedor-btn-descargar').forEach(div => {
+        div.style.display = 'flex';
+    });
 }
+

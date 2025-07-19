@@ -42,61 +42,110 @@
             @* Fin cuerpo del acordeon *@
         </div>
     </div>
+
+    <canvas id="graficoPorMes" class="reporte-width"></canvas>
+    <div class="contenedor-btn-descargar" id="contenedorBtnPdfBarraMes" style="display:none;">
+        <form method="post" asp-action="ReporteGraficosPDF" id="formPdfBarraMes" class="form-pdf" data-canvas-id="graficoPorMes" data-input-id="imagenBase64BarraMes" data-chart="chartBarraMes">
+            <input type="hidden" id="imagenBase64BarraMes" name="imagenBase64">
+            <input type="hidden" name="fechaDesde">
+            <input type="hidden" name="fechaHasta">
+            <button type="submit" class="btn-pdf">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </button>
+        </form>
+    </div>
+
+    <canvas id="graficoTortaParcela" class="reporte-width"></canvas>
+    <div class="contenedor-btn-descargar" id="contenedorBtnPdfPorcentajeTorta" style="display:none;">
+        <form method="post" asp-action="ReporteGraficosPDF" id="formPdfPorcentajeTorta" class="form-pdf" data-canvas-id="graficoTortaParcela" data-input-id="imagenBase64PorcentajeTorta" data-chart="chartPorcentajeTorta">
+            <input type="hidden" id="imagenBase64PorcentajeTorta" name="imagenBase64">
+            <input type="hidden" name="fechaDesde">
+            <input type="hidden" name="fechaHasta">
+            <button type="submit" class="btn-pdf">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </button>
+        </form>
+    </div>
 </div>
 
 
-<canvas id="graficoPorMes" class="reporte-width"></canvas>
-<div>
-    <form id="formPdfBarraMes" method="post" asp-action="ReporteGraficosPDF">
-        <input type="hidden" id="imagenBase64BarraMes" name="imagenBase64" />
-        <input type="hidden" name="fechaDesde" value="" />
-        <input type="hidden" name="fechaHasta" value="" />
-        <button type="submit" class="btn-pdf">
-            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
-        </button>
-    </form>
-</div>
+
 
 
 
 @section Scripts {
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
     <script>
         var urlBase = 'https://' + '@Context.Request.Host';
     </script>
     <script src="~/js/reportes/introducciones/barrasIntroducionesMes.js"></script> @* grafico de barras cantidad de introducciones por mes *@
+    <script src="~/js/reportes/introducciones/reportesIntroduccionesPorTipoParcelaTorta.js"></script>
+
     <script>
-        const meses = [
+                const meses = [
             'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
         ];
 
-        document.getElementById('formPdfBarraMes').addEventListener('submit', function (e) {
-            const canvas = document.getElementById("graficoPorMes");
-            const imagen = canvas.toDataURL("image/png");
-            document.getElementById("imagenBase64BarraMes").value = imagen;
+        document.querySelectorAll('.form-pdf').forEach(formulario => {
+            formulario.addEventListener('submit', function (e) {
+                const canvasId = this.dataset.canvasId;
+                const inputBase64Id = this.dataset.inputId;
+                const chartVariable = this.dataset.chart;
 
-            if (chart && chart.data.labels.length > 0) {
-                const labels = chart.data.labels;
+                const canvas = document.getElementById(canvasId);
+                const inputBase64 = document.getElementById(inputBase64Id);
+                const chart = window[chartVariable];
 
-                const ordenadas = labels.slice().sort((a, b) => {
-                    const [mesA, anioA] = a.split('/').map(Number);
-                    const [mesB, anioB] = b.split('/').map(Number);
-                    return new Date(anioA, mesA - 1) - new Date(anioB, mesB - 1);
-                });
-
-                function formatoMesAnio(fecha) {
-                    const [mes, anio] = fecha.split('/').map(Number);
-                    return `${meses[mes - 1]} ${anio}`;
+                if (canvas && inputBase64) {
+                    inputBase64.value = canvas.toDataURL("image/png");
                 }
 
-                const fechaDesde = formatoMesAnio(ordenadas[0]);
-                const fechaHasta = formatoMesAnio(ordenadas[ordenadas.length - 1]);
+                const inputDesde = this.querySelector('input[name="fechaDesde"]');
+                const inputHasta = this.querySelector('input[name="fechaHasta"]');
 
-                document.querySelector('input[name="fechaDesde"]').value = fechaDesde;
-                document.querySelector('input[name="fechaHasta"]').value = fechaHasta;
-            }
+                if (chart && chart.data.labels.length > 0) {
+                    const labels = chart.data.labels;
+                    const inputDesde = this.querySelector('input[name="fechaDesde"]');
+                    const inputHasta = this.querySelector('input[name="fechaHasta"]');
+
+                    try {
+                        const labelsConBarra = labels.filter(x => x.includes('/'));
+                        if (labelsConBarra.length > 0) {
+                            const ordenadas = labelsConBarra.slice().sort((a, b) => {
+                                const [mesA, anioA] = a.split('/').map(Number);
+                                const [mesB, anioB] = b.split('/').map(Number);
+                                return new Date(anioA, mesA - 1) - new Date(anioB, mesB - 1);
+                            });
+
+                            function formatoMesAnio(fecha) {
+                                const [mes, anio] = fecha.split('/').map(Number);
+                                return `${meses[mes - 1]} ${anio}`;
+                            }
+
+                            inputDesde.value = formatoMesAnio(ordenadas[0]);
+                            inputHasta.value = formatoMesAnio(ordenadas[ordenadas.length - 1]);
+                        } else {
+                            inputDesde.value = "Todos";
+                            inputHasta.value = "Todos";
+                        }
+                    } catch (error) {
+                        console.error("Error procesando fechas:", error);
+                        inputDesde.value = "Sin datos";
+                        inputHasta.value = "Sin datos";
+                    }
+                } else {
+                    console.warn("Chart vacío o sin labels");
+                    this.querySelector('input[name="fechaDesde"]').value = "Sin datos";
+                    this.querySelector('input[name="fechaHasta"]').value = "Sin datos";
+                }
+
+            });
         });
+
     </script>
+
 }

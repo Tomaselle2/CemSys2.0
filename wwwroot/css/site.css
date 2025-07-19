@@ -368,9 +368,35 @@ body {
             color: #ffffff;
         }
 
+/*BOTON PDF*/
+
+.btn-pdf {
+    background-color: #e53935;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+    .btn-pdf:hover {
+        background-color: #b71c1c;
+    }
+
 /*reportes*/
 .reporte-width {
     width: 1000px;
     margin-left: auto;
     margin-right: auto;
+    max-height: 600px;
+}
+
+.contenedor-btn-descargar {
+    display: flex;
+    flex-direction: column; /* Apila los elementos verticalmente */
+    justify-content: center; /* Centra verticalmente el contenido */
+    align-items: center; /* Centra horizontalmente el contenido */
+    gap: 0.5rem; /* Espacio entre elementos si hay más de uno */
+    min-height: 50px; /* Altura mínima para que el centrado sea visible */
 }
