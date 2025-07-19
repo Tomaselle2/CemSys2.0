@@ -5,6 +5,7 @@ using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using Microsoft.EntityFrameworkCore;
 using CemSys2.Interface.Introduccion;
+using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,11 @@ builder.Services.AddScoped<ITarifariaBusiness, TarifariaBusiness>();
 builder.Services.AddScoped<IIntroduccionBusiness, IntroduccionBusiness>();
 
 var app = builder.Build();
+
+
+// Configura Rotativa con la ruta de wkhtmltopdf
+string wwwroot = app.Environment.WebRootPath;
+RotativaConfiguration.Setup(wwwroot, "rotativa");
 
 app.UseSession();
 

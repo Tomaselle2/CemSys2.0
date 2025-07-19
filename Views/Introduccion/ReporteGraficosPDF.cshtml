@@ -1,0 +1,97 @@
+﻿@{
+    Layout = "";
+    var imagenReporte = ViewData["ImagenBase64"] as string;
+    var baseUrl = ViewData["BaseUrl"] as string;
+    var imageUrlCompleto = $"{baseUrl}/fotos/completo.png";
+    var imageUrlLogoLargo = $"{baseUrl}/fotos/logolargo.png";
+    var fechaDesde = ViewData["FechaDesde"] as string;
+    var fechaHasta = ViewData["FechaHasta"] as string;
+    var fechaHoyGeneraciondereporte = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+    var usuarioNavegando = ViewData["UsuarioLogueado"] as string;
+}
+
+<style>
+    html {
+        font-size: 14px;
+        font-family: 'Montserrat', sans-serif;
+        background-color: #faf9f6;
+        color: #0a3330;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .header-membrete {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+        .header-membrete img {
+            max-height: 100px;
+            object-fit: contain;
+        }
+
+    h1 {
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .fechas {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 600;
+    }
+
+    .grafico-container {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+        .grafico-container img {
+            max-width: 600px;
+            width: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+    .final-info {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+        .final-info img {
+            max-height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .final-info p {
+            margin: 5px 0;
+            font-weight: 600;
+            font-size: 15px;
+        }
+</style>
+
+<!-- Membrete -->
+<div class="header-membrete">
+    <img src="@imageUrlCompleto" alt="Logo Municipalidad" />
+</div>
+
+<h1>Reporte Gráfico</h1>
+
+<div class="fechas">
+    <p>Fecha desde: @fechaDesde?.Replace('-', '/')</p>
+    <p>Fecha hasta: @fechaHasta?.Replace('-', '/')</p>
+</div>
+
+<div class="grafico-container">
+    <img src="@imagenReporte" alt="Gráfico" />
+</div>
+
+<!-- Info final + logo -->
+<div class="final-info">
+    <img src="@imageUrlLogoLargo" alt="Logo Largo" />
+    <p>Fecha de generación del reporte: @fechaHoyGeneraciondereporte</p>
+    <p>Usuario: @usuarioNavegando</p>
+</div>

@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Introduccion;
+using CemSys2.DTO.Reportes;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
 
@@ -71,6 +72,21 @@ namespace CemSys2.Business
         public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso)
         {
             return await _introduccionBD.RegistrarIntroduccionCompleta(actaDefuncion, difunto, empleadoId, empresaSepelioId, ParcelaId, fechaIngreso);
+        }
+
+
+
+
+        //reportes
+
+        public async Task<List<DTO_IntroduccionReporte>> ReporteIntroduccionesPorFecha(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return await _introduccionBD.ReporteIntroduccionesPorFecha(fechaDesde, fechaHasta);
+        }
+
+        public async Task<List<DTO_IntroduccionReporte>> ReporteTodasIntroducciones()
+        {
+            return await _introduccionBD.ReporteTodasIntroducciones();
         }
     }
 }

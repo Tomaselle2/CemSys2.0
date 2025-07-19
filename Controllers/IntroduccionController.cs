@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using CemSys2.Interface.Introduccion;
 using System.Threading.Tasks;
 using CemSys2.Models;
+using CemSys2.ViewModel.Reportes;
+using CemSys2.DTO.Reportes;
+using Rotativa.AspNetCore;
 
 namespace CemSys2.Controllers
 {
@@ -171,6 +174,56 @@ namespace CemSys2.Controllers
             {
                 return Json(new { success = false, message = "Error al agregar empresa: " + ex.Message });
             }
+        }
+
+        [HttpGet]
+        public IActionResult VistaReportesIntroducciones()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> ReportesIntroducciones(string opcion, string desdeFecha, string hastaFecha)
+        {
+            List<DTO_IntroduccionReporte> datos;
+
+            if (opcion == "fecha")
+            {
+                if (!DateTime.TryParse(desdeFecha, out var desde) || !DateTime.TryParse(hastaFecha, out var hasta))
+                {
+                    return Json(new { success = false, message = "Fechas inválidas." });
+                }
+
+                datos = await _introduccionBusiness.ReporteIntroduccionesPorFecha(desde, hasta);
+            }
+            else
+            {
+                datos = await _introduccionBusiness.ReporteTodasIntroducciones();
+            }
+
+            return Json(new { success = true, data = datos });
+        }
+
+        //reportesGraficos
+        [HttpPost]
+        public IActionResult ReporteGraficosPDF(string imagenBase64, string fechaDesde, string fechaHasta)
+        {
+            var pdf = new ViewAsPdf("ReporteGraficosPDF")
+            {
+                PageMargins = new Rotativa.AspNetCore.Options.Margins(10, 5, 5, 10),
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                FileName = $"Reporte.pdf"
+            };
+
+            // Agregá el valor directamente a su ViewData actual
+            pdf.ViewData["ImagenBase64"] = imagenBase64;
+            pdf.ViewData["BaseUrl"] = $"{Request.Scheme}://{Request.Host}";
+            pdf.ViewData["FechaDesde"] = fechaDesde;
+            pdf.ViewData["FechaHasta"] = fechaHasta;
+            pdf.ViewData["UsuarioLogueado"] = HttpContext.Session.GetString("nombreUsuario");
+
+
+            return pdf;
         }
     }
 }

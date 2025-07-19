@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Introduccion;
+using CemSys2.DTO.Reportes;
 using CemSys2.Interface;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
@@ -264,12 +265,40 @@ namespace CemSys2.Data
             var totalRegistros = await query.CountAsync();
 
             var introducciones = await query
-                .OrderByDescending(x => x.IdTramite) // Ordenar por fecha más reciente primero
+                .OrderByDescending(x => x.IdTramite)
                 .Skip((pagina - 1) * registrosPorPagina)
                 .Take(registrosPorPagina)
                 .ToListAsync();
 
             return (introducciones, totalRegistros);
         }
+
+        public async Task<List<DTO_IntroduccionReporte>> ReporteIntroduccionesPorFecha(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return await _context.Introducciones
+                .Where(i => i.FechaIngreso >= fechaDesde && i.FechaIngreso <= fechaHasta)
+                .GroupBy(i => new { i.FechaIngreso.Value.Month, i.FechaIngreso.Value.Year })
+                .Select(g => new DTO_IntroduccionReporte
+                {
+                    Mes = g.Key.Month,
+                    Año = g.Key.Year,
+                    Cantidad = g.Count()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<DTO_IntroduccionReporte>> ReporteTodasIntroducciones()
+        {
+            return await _context.Introducciones
+            .Where(i => i.FechaIngreso.HasValue) // FILTRAR NULOS
+            .GroupBy(i => new { i.FechaIngreso.Value.Month, i.FechaIngreso.Value.Year })
+            .Select(g => new DTO_IntroduccionReporte
+            {
+                Mes = g.Key.Month,
+                Año = g.Key.Year,
+                Cantidad = g.Count()
+            })
+            .ToListAsync();
+            }
     }
 }

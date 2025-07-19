@@ -367,3 +367,10 @@ body {
             background-color: #0d524c;
             color: #ffffff;
         }
+
+/*reportes*/
+.reporte-width {
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}

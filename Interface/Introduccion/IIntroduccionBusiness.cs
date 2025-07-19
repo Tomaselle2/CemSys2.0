@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Introduccion;
+using CemSys2.DTO.Reportes;
 using CemSys2.Models;
 
 namespace CemSys2.Interface.Introduccion
@@ -23,6 +24,13 @@ namespace CemSys2.Interface.Introduccion
         Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso);
 
         Task<(List<Introduccione> introducciones, int totalRegistros)> ListadoIntroducciones(DateTime? fechaDesde = null, DateTime? fechaHasta = null, int registrosPorPagina = 10,  int pagina = 1);
+
+
+        //reportes
+        //cantidad de introducciones por mes
+        Task<List<DTO_IntroduccionReporte>> ReporteIntroduccionesPorFecha(DateTime fechaDesde, DateTime fechaHasta);
+        Task<List<DTO_IntroduccionReporte>> ReporteTodasIntroducciones();
+
 
 
 
