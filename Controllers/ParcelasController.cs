@@ -30,7 +30,20 @@ namespace CemSys2.Controllers
             {
                 return View(seccion.Redirigir, "Secciones");
             }
-            
+
+        }
+
+        //metodo para ver el historial de la parcela recibe un id de la parcela
+        //interface de negocio y bd de parcelas
+        //capa de datos de parcelas
+        //tabla contrato de concesion, parcela difunto -> si fecharetiro es null quiere decir que esta vigente
+        //parcela difunto, include a difunto
+        //tramites 
+        public IActionResult HistorialParcela(int id)
+        {
+            // Implementar lógica para obtener el historial de la parcela
+            // y devolver la vista correspondiente.
+            return View();
         }
     }
 }
