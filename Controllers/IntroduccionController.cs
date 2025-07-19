@@ -6,6 +6,8 @@ using CemSys2.Models;
 using CemSys2.ViewModel.Reportes;
 using CemSys2.DTO.Reportes;
 using Rotativa.AspNetCore;
+using Microsoft.Extensions.Hosting;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CemSys2.Controllers
 {
@@ -182,29 +184,99 @@ namespace CemSys2.Controllers
             return View();
         }
 
-        //grafico de barras introducciones por mes
         [HttpGet]
         public async Task<JsonResult> ReporteGeneralIntroducciones(string opcion, string desdeFecha, string hastaFecha)
         {
-            List<DTO_IntroduccionReporte> datos;
-
-            if (opcion == "fecha")
+            try
             {
-                if (!DateTime.TryParse(desdeFecha, out var desde) || !DateTime.TryParse(hastaFecha, out var hasta))
+                List<Introduccione> introducciones;
+
+                if (opcion == "fecha")
                 {
-                    return Json(new { success = false, message = "Fechas inválidas." });
+                    if (!DateTime.TryParse(desdeFecha, out var desde) || !DateTime.TryParse(hastaFecha, out var hasta))
+                    {
+                        return Json(new { success = false, message = "Fechas inválidas." });
+                    }
+
+                    introducciones = await _introduccionBusiness.ReporteIntroducciones(desde, hasta);
+                }
+                else
+                {
+                    introducciones = await _introduccionBusiness.ReporteIntroducciones();
                 }
 
-                datos = await _introduccionBusiness.ReporteIntroduccionesPorFecha(desde, hasta);
+                if (introducciones == null || introducciones.Count == 0)
+                {
+                    return Json(new { success = false, message = "No se encontraron introducciones." });
+                }
+
+                // Procesamiento para el gráfico por mes (barras)
+                var datosPorMes = introducciones
+                    .Where(i => i.FechaIngreso.HasValue)
+                    .GroupBy(i => new {
+                        Mes = i.FechaIngreso.Value.Month,
+                        Año = i.FechaIngreso.Value.Year
+                    })
+                    .Select(g => new {
+                        mes = g.Key.Mes,
+                        año = g.Key.Año,
+                        cantidad = g.Count()
+                    })
+                    .OrderBy(x => x.año)
+                    .ThenBy(x => x.mes)
+                    .ToList();
+                // Calcular el total general
+                int total = introducciones.Count;
+
+
+                // Procesamiento para el gráfico por tipo de parcela (torta)
+                var datosPorTipo = introducciones
+                    .Where(i => i.Parcela?.SeccionNavigation?.TipoParcelaNavigation != null)
+                    .GroupBy(i => i.Parcela.SeccionNavigation.TipoParcelaNavigation.TipoParcela1)
+                    .Select(g => new {
+                        tipoParcela = g.Key,
+                        cantidadPorTipo = g.Count()
+                    })
+                    .OrderByDescending(x => x.cantidadPorTipo)
+                    .ToList();
+
+                // Calcular fechas mínima y máxima
+                var fechasIngreso = introducciones
+                    .Where(i => i.FechaIngreso.HasValue)
+                    .Select(i => i.FechaIngreso.Value)
+                    .ToList();
+
+                // Nuevo: Datos para el gráfico de lista
+                var datosLista = datosPorTipo.Select(x => new {
+                    tipo = x.tipoParcela,
+                    cantidad = x.cantidadPorTipo,
+                    porcentaje = Math.Round((x.cantidadPorTipo / (double)total) * 100, 1)
+                }).ToList();
+
+                var fechaMinima = fechasIngreso.Any() ? fechasIngreso.Min().ToString("dd-MM-yyyy") : null;
+                var fechaMaxima = fechasIngreso.Any() ? fechasIngreso.Max().ToString("dd-MM-yyyy") : null;
+
+                return Json(new
+                {
+                    success = true,
+                    dataBarra= datosPorMes,    // Para el gráfico de barras
+                    dataTorta= datosPorTipo,   // Para el gráfico de torta
+                    fechaDesde = fechaMinima,
+                    fechaHasta = fechaMaxima,
+                    dataLista = datosLista,  // ← Nuevo conjunto de datos
+                    total = total,          // ← Total general
+                    message = "Datos obtenidos correctamente"
+                });
             }
-            else
+            catch (Exception ex)
             {
-                datos = await _introduccionBusiness.ReporteTodasIntroducciones();
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error al generar el reporte: {ex.Message}"
+                });
             }
-
-            return Json(new { success = true, data = datos });
         }
-
 
 
         //reportesGraficos

@@ -1,5 +1,4 @@
-﻿let chartTorta = null;
-
+﻿var chartTorta = null;
 $('#btnBuscar').click(function (e) {
     e.preventDefault();
 
@@ -13,7 +12,10 @@ $('#btnBuscar').click(function (e) {
         data: { opcion, desdeFecha, hastaFecha },
         success: function (response) {
             if (response.success) {
-                GraficoTorta(response.data);
+                BarrasIntroduccionesMes(response.dataBarra);
+                GraficoTorta(response.dataTorta);
+                $('input[name="fechaDesde"]').val(response.fechaDesde);
+                $('input[name="fechaHasta"]').val(response.fechaHasta);
             } else {
                 alert(response.message);
             }
@@ -24,6 +26,7 @@ $('#btnBuscar').click(function (e) {
     });
 });
 
+// Modificación en la función GraficoTorta
 function GraficoTorta(data) {
     if (data.length === 0) {
         alert("No hay datos para mostrar.");
@@ -31,35 +34,25 @@ function GraficoTorta(data) {
         return;
     }
 
-    const datosTipo = data.filter(x => x.cantidadPorTipo > 0);
-
-    if (datosTipo.length === 0) {
-        alert("No hay datos para mostrar.");
-        $('#contenedorBtnPdf').hide();
-        return;
-    }
-
-    const labels = datosTipo.map(x => x.tipoParcela);
-    const cantidades = datosTipo.map(x => x.cantidadPorTipo);
-
     const ctxTorta = document.getElementById('graficoTortaParcela').getContext('2d');
-    if (chartTorta) chartTorta.destroy();
+    if (window.chartTorta) window.chartTorta.destroy();
 
-    chartTorta = new Chart(ctxTorta, {
+    // Calcular el total para los porcentajes
+    const total = data.reduce((sum, item) => sum + item.cantidadPorTipo, 0);
+
+    window.chartTorta = new Chart(ctxTorta, {
         type: 'pie',
         data: {
-            labels: labels,
+            labels: data.map(x => x.tipoParcela),
             datasets: [{
-                data: cantidades,
+                data: data.map(x => x.cantidadPorTipo),
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
                     'rgba(255, 206, 86, 0.7)',
-                    'rgba(75, 192, 192, 0.7)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)'
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
                 ],
                 borderWidth: 1
             }]
@@ -69,27 +62,43 @@ function GraficoTorta(data) {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Porcentaje de introducciones por tipo de parcela',
-                    font: { size: 24 }
+                    text: 'Distribución por tipo de parcela',
+                    font: { size: 16 }
+                },
+                legend: {
+                    position: 'right',
+                    labels: { font: { size: 14 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
                 },
                 datalabels: {
                     color: '#000',
-                    font: { weight: 'bold', size: 30 },
-                    formatter: (value, context) => {
-                        const sum = cantidades.reduce((a, b) => a + b, 0);
-                        return ((value * 100) / sum).toFixed(2) + '%';
-                    }
-                },
-                legend: {
-                    position: 'top',
-                    labels: { font: { size: 18 } }
+                    font: {
+                        weight: 'bold',
+                        size: 30
+                    },
+                    formatter: (value) => {
+                        const percentage = (value / total) * 100;
+                        return percentage % 1 === 0 ?
+                            `${percentage.toFixed(0)}%` :  // Muestra "67%"
+                            `${percentage.toFixed(2)}%`;   // Muestra "66.67%"
+                    },
+                    anchor: 'center',
+                    align: 'center',
+                    offset: 0
                 }
             }
         },
-        plugins: [ChartDataLabels]
+        plugins: [ChartDataLabels] // Registra el plugin
     });
 
-    document.querySelectorAll('.contenedor-btn-descargar').forEach(div => {
-        div.style.display = 'flex';
-    }); }
-
+    $('.contenedor-btn-descargar').show();
+}

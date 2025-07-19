@@ -22,7 +22,9 @@ $(document).ready(function () {
             data: { opcion, desdeFecha, hastaFecha },
             success: function (response) {
                 if (response.success) {
-                    BarrasIntroduccionesMes(response.data);
+                    BarrasIntroduccionesMes(response.dataBarra);
+                    $('input[name="fechaDesde"]').val(response.fechaDesde);
+                    $('input[name="fechaHasta"]').val(response.fechaHasta);
                 } else {
                     alert(response.message);
                 }
@@ -35,7 +37,7 @@ $(document).ready(function () {
 });
 
 function BarrasIntroduccionesMes(data) {
-    if (data.length === 0) {
+    if (data.length == 0) {
         alert("No hay datos para mostrar.");
         document.getElementById('contenedorBtnPdf').style.display = 'none';
         return;
@@ -81,7 +83,7 @@ function BarrasIntroduccionesMes(data) {
                 }
             },
             scales: {
-                x: { ticks: { font: { size: 15 } } },
+                x: { ticks: { font: { size: 20 } } },
                 y: {
                     beginAtZero: true,
                     ticks: { stepSize: 1 }

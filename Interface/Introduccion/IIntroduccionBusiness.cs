@@ -27,10 +27,7 @@ namespace CemSys2.Interface.Introduccion
 
 
         //reportes
-        //cantidad de introducciones por mes
-        Task<List<DTO_IntroduccionReporte>> ReporteIntroduccionesPorFecha(DateTime fechaDesde, DateTime fechaHasta); //fecha
-        Task<List<DTO_IntroduccionReporte>> ReporteTodasIntroducciones(); //todas las introducciones
-  
+        Task<List<Introduccione>> ReporteIntroducciones(DateTime? desde = null, DateTime? hasta = null);
 
 
 
