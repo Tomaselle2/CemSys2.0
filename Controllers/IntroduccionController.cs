@@ -158,6 +158,36 @@ namespace CemSys2.Controllers
             }
         }
 
+        //imprime en PDF el resumen del tramite
+        [HttpGet]
+        public async Task<IActionResult> ResumenIntroduccionEnPDF(int idtramite)
+        {
+            var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(idtramite);
+            if (resumen == null || resumen.Count == 0)
+            {
+                return NotFound("No se encontraron datos para el trámite especificado.");
+            }
+
+            var viewModel = new ResumenIntroduccionVM
+            {
+                ResumenIntroduccion = resumen,
+            };
+
+            var pdf = new ViewAsPdf("ResumenIntroduccionEnPDF", viewModel)
+            {
+                PageMargins = new Rotativa.AspNetCore.Options.Margins(10, 5, 5, 10),
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                FileName = $"Tramite introduccion {viewModel.ResumenIntroduccion[0].Id}.pdf"
+            };
+
+            // Agregá el valor directamente a su ViewData actual
+            pdf.ViewData["BaseUrl"] = $"{Request.Scheme}://{Request.Host}";
+            pdf.ViewData["UsuarioLogueado"] = HttpContext.Session.GetString("nombreUsuario");
+
+
+            return pdf;
+        }
+
         private async Task CargarCombos(IntroduccionDifuntoVM viewModel)
         {
             try

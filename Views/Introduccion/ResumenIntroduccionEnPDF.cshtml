@@ -1,0 +1,223 @@
+﻿@using CemSys2.ViewModel
+@model ResumenIntroduccionVM
+@{
+    Layout = "";
+    var baseUrl = ViewData["BaseUrl"] as string;
+    var imageUrlCompleto = $"{baseUrl}/fotos/completo.png";
+    var imageUrlLogoLargo = $"{baseUrl}/fotos/logolargo.png";
+    var usuarioNavegando = ViewData["UsuarioLogueado"] as string;
+    var fechaHoyGeneraciondereporte = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+}
+
+<style>
+    html {
+        font-size: 14px;
+        font-family: 'Montserrat', sans-serif;
+        background-color: #faf9f6;
+        color: #333;
+    }
+
+    .header-membrete {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 30px;
+        width: 100%;
+        flex-wrap: nowrap;
+    }
+
+        .header-membrete img {
+            max-height: 100px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .header-membrete .info {
+            flex-grow: 1;
+            min-width: 0;
+            font-size: 14px;
+            color: #444;
+        }
+
+            .header-membrete .info p {
+                margin: 4px 0;
+            }
+
+            .header-membrete .info strong {
+                color: #222;
+            }
+
+            .header-membrete .info a {
+                color: #338b85;
+                text-decoration: none;
+            }
+
+                .header-membrete .info a:hover {
+                    text-decoration: underline;
+                }
+
+    h1.titulo-principal {
+        text-align: center;
+        font-weight: 700;
+        margin: 20px 0 30px 0;
+        font-size: 2.5rem; /* aumenté de 1.8rem a 2.5rem */
+        color: #145c57;
+    }
+
+    .contenedor-resumen {
+        max-width: 700px;
+        margin: 0 auto 50px auto;
+        padding: 20px 30px;
+        background: white;
+        border: 2px solid #145c57;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgb(20 92 87 / 0.1);
+        font-size: 16px; /* aumenté para que el texto sea más grande */
+    }
+
+        .contenedor-resumen h2 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #338b85;
+        }
+
+        .contenedor-resumen p {
+            margin: 6px 0;
+            line-height: 1.3;
+            font-size: 16px; /* tamaño un poco más grande para párrafos */
+        }
+
+    .separador {
+        height: 1px;
+        background: #ddd;
+        margin: 20px 0;
+        border-radius: 1px;
+    }
+
+    .footer-bar {
+        display: flex;
+        justify-content: space-between; /* texto a la izquierda, logo a la derecha */
+        align-items: center; /* alineación vertical centrada */
+        max-width: 700px;
+        margin: 0 auto 20px auto;
+        padding: 10px 25px;
+        font-size: 13px;
+        color: #666;
+        border-top: 1px solid #ccc;
+    }
+
+
+        .footer-bar img {
+            height: 70px;
+            object-fit: contain;
+        }
+
+        .footer-bar p {
+            margin: 2px 0;
+        }
+
+</style>
+
+<!-- Membrete -->
+<div class="header-membrete">
+    <img src="@imageUrlCompleto" alt="Logo Municipalidad" />
+</div>
+
+<h1 class="tituloDePagina">Resumen de la introducción</h1>
+
+<div class="contenedor-resumen">
+    @{
+        // Variables para mostrar datos (tomadas del foreach)
+        string nroTramite = "";
+        string dni = "";
+        string nombreCompleto = "";
+        string fechaDefuncion = "";
+        string fechaNacimiento = "";
+
+        string actaDefuncion = "";
+        string tomo = "";
+        string folio = "";
+        string serie = "";
+        string age = "";
+        string estadoDifunto = "";
+        string empresa = "";
+        string usuario = "";
+
+        string seccion = "";
+        string ubicacion = "";
+        string fechaIngreso = "";
+        string datosAdicionales = "";
+
+        @foreach (var tramite in Model.ResumenIntroduccion)
+        {
+            nroTramite = tramite.Id.ToString();
+
+
+            dni = (tramite.dni == "nn") ? "--------" : tramite.dni;
+            nombreCompleto = $"{tramite.Apellido.ToUpper()} {tramite.Nombre?.ToUpper()}";
+            seccion = tramite.Seccion.ToUpper();
+            if (tramite.TipoParcela == 1)
+            {
+                ubicacion = $"Nicho {tramite.NroParcela} Fila {tramite.NroFila}";
+            }
+            else if (tramite.TipoParcela == 2)
+            {
+                ubicacion = $"Fosa {tramite.NroParcela}";
+            }
+            else if (tramite.TipoParcela == 3)
+            {
+                ubicacion = $"Lote {tramite.NroParcela}";
+            }
+
+            fechaIngreso = tramite.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
+            fechaDefuncion = tramite.FechaDefuncion.ToString("dd/MM/yyyy");
+            fechaNacimiento = (tramite.FechaNacimiento != null) ? tramite.FechaNacimiento?.ToString("dd/MM/yyyy") : "--------";
+            actaDefuncion = (tramite.Acta != null) ? tramite.Acta.ToString() : "";
+            tomo = (tramite.Tomo != null) ? tramite.Tomo.ToString() : "";
+            folio = (tramite.Folio != null) ? tramite.Folio.ToString() : "";
+            serie = (tramite.Serie != null) ? tramite.Serie : "";
+            age = (tramite.Age != null) ? tramite.Age.ToString() : "";
+            estadoDifunto = tramite.EstadoDifunto;
+            empresa = tramite.Empresa;
+            usuario = tramite.Empleado;
+            datosAdicionales = (tramite.InformacionAdicional != null) ? tramite.InformacionAdicional : "";
+        }
+
+    }
+
+    <h2>Trámite: @nroTramite</h2>
+    <p><strong>Ingreso:</strong> @fechaIngreso</p>
+    <p><strong>Empresa:</strong> @empresa.ToUpper()</p>
+
+    <div class="separador"></div>
+
+    <p><strong>DNI:</strong> @dni</p>
+    <p><strong>Apellido y Nombre:</strong> @nombreCompleto.ToUpper()</p>
+    <p><strong>Fecha de nacimiento:</strong> @fechaNacimiento</p>
+    <p><strong>Fecha de defunción:</strong> @fechaDefuncion</p>
+    <p><strong>Estado del difunto:</strong> @estadoDifunto</p>
+    <p><strong>Datos adicionales:</strong> @datosAdicionales</p>
+
+    <div class="separador"></div>
+
+    <p><strong>Acta:</strong> @actaDefuncion</p>
+    <p><strong>Tomo:</strong> @tomo</p>
+    <p><strong>Folio:</strong> @folio</p>
+    <p><strong>Serie:</strong> @serie</p>
+    <p><strong>Año:</strong> @age</p>
+
+    <div class="separador"></div>
+
+    <p><strong>Empleado responsable:</strong> @usuario.ToUpper()</p>
+    <p><strong>Sección:</strong> @seccion.ToUpper()</p>
+    <p><strong>Parcela:</strong> @ubicacion</p>
+</div>
+
+<!-- Pie de página -->
+<div class="footer-bar">
+    <div>
+        <p>Fecha de generación del reporte: @fechaHoyGeneraciondereporte</p>
+        <p>Usuario: @usuarioNavegando</p>
+    </div>
+    <img src="@imageUrlLogoLargo" alt="Logo Pie" />
+</div>
