@@ -111,7 +111,14 @@
                                         <td>@opc.Difunto.Apellido.ToUpper() @opc.Difunto.Nombre.ToUpper()</td>
                                         <td>@opc.Parcela.SeccionNavigation.Nombre.ToUpper()</td>
                                         <td>@parcela</td>
-                                        <td>ver</td>
+                                        <td>
+                                            <form asp-action="ResumenIntroduccion" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="tramiteId" value="@opc.IdTramite" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="ver resumen">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        </td>
                                     </tr>
                                     
                                 }

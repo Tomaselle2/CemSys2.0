@@ -33,7 +33,7 @@ namespace CemSys2.Interface.Introduccion
         Task<List<DTO_UsuarioIntroduccion>> ListaEmpleados();
 
         Task<(List<Introduccione> introducciones, int totalRegistros)> ListadoIntroducciones(DateTime? fechaDesde = null, DateTime? fechaHasta = null, int registrosPorPagina = 10, int pagina = 1);
-
+        Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite);
         //reportes
         Task<List<Introduccione>> ReporteIntroducciones(DateTime? desde = null, DateTime? hasta = null);
     }

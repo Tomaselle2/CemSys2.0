@@ -1,0 +1,126 @@
+﻿@using CemSys2.ViewModel
+@model ResumenIntroduccionVM
+
+
+
+
+<a asp-action="Index" asp-controller="Introduccion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
+<h1 class="tituloDePagina">Resumen de la introducción</h1>
+
+<style>
+    .contenedor-resumen {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #338b85; /* borde verde */
+    }
+
+    .titulo-principal {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    }
+</style>
+
+<div class="contenedor-resumen">
+
+    <form asp-action="ResumenIntroduccionEnPDF" asp-controller="Introduccion" method="get">
+        @* Contenido del formulario *@
+
+        <input type="hidden" name="idTramite" value="@Model.ResumenIntroduccion.FirstOrDefault()?.Id.ToString()" />
+    </form>
+
+    @{
+        int nroTramite = 0;
+        string dni = "";
+        string nombreCompleto = "";
+        string fechaDefuncion = "";
+        string fechaNacimiento = "";
+        string actaDefuncion = "";
+        string tomo = "";
+        string folio = "";
+        string serie = "";
+        string age = "";
+        string estadoDifunto = "";
+        string empresa = "";
+        string usuario = "";
+        string seccion = "";
+        string ubicacion = "";
+        string fechaIngreso = "";
+        string datosAdicionales = "";
+    }
+
+    @foreach (var tramite in Model.ResumenIntroduccion)
+    {
+        nroTramite = tramite.Id;
+
+
+        dni = (tramite.dni == "nn") ? "--------" : tramite.dni;
+        nombreCompleto = $"{tramite.Apellido.ToUpper()} {tramite.Nombre?.ToUpper()}";
+        seccion = tramite.Seccion.ToUpper();
+        if(tramite.TipoParcela == 1)
+        {
+            ubicacion = $"Nicho {tramite.NroParcela} Fila {tramite.NroFila}";
+        }else if(tramite.TipoParcela == 2)
+        {
+            ubicacion = $"Fosa {tramite.NroParcela}";
+        }else if (tramite.TipoParcela == 3)
+        {
+            ubicacion = $"Lote {tramite.NroParcela}";
+        }
+            
+        fechaIngreso = tramite.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
+        fechaDefuncion = tramite.FechaDefuncion.ToString("dd/MM/yyyy");
+        fechaNacimiento = (tramite.FechaNacimiento != null) ? tramite.FechaNacimiento?.ToString("dd/MM/yyyy") : "--------";
+        actaDefuncion = (tramite.Acta != null) ? tramite.Acta.ToString() : "";
+        tomo = (tramite.Tomo != null) ? tramite.Tomo.ToString() : "";
+        folio = (tramite.Folio != null) ? tramite.Folio.ToString() : "";
+        serie = (tramite.Serie != null) ? tramite.Serie : "";
+        age = (tramite.Age != null) ? tramite.Age.ToString() : "";
+        estadoDifunto = tramite.EstadoDifunto;
+        empresa = tramite.Empresa;
+        usuario = tramite.Empleado;
+        datosAdicionales = (tramite.InformacionAdicional != null) ?tramite.InformacionAdicional : "";
+    }
+    
+
+    <h2>Trámite @nroTramite</h2>
+    <p><strong>Ingreso:</strong> @fechaIngreso</p>
+    <p><strong>Empresa:</strong> @empresa.ToUpper()</p>
+
+    <p><strong>DNI:</strong> @dni</p>
+    <p><strong>Apellido y nombre:</strong> @nombreCompleto</p>
+    <p><strong>Fecha nacimiento:</strong> @fechaNacimiento</p>
+    <p><strong>Fecha defunción:</strong> @fechaDefuncion</p>
+    <p><strong>Estado del difunto:</strong> @estadoDifunto</p>
+    <p><strong>Datos adicionales:</strong> @datosAdicionales</p>
+
+    <p><strong>Acta:</strong> @actaDefuncion</p>
+    <p><strong>Tomo:</strong> @tomo</p>
+    <p><strong>Folio:</strong> @folio</p>
+    <p><strong>Serie:</strong> @serie</p>
+    <p><strong>Año:</strong> @age</p>
+
+    <p><strong>Empleado responsable:</strong> @usuario.ToUpper()</p>
+    <p><strong>Sección:</strong> @seccion.ToUpper()</p>
+    <p><strong>Parcela:</strong> @ubicacion</p>
+
+</div>
+
+<div class="contenedor-btn-descargar text-center mt-4">
+    <form asp-action="ResumenIntroduccionEnPDF" asp-controller="introduccion" method="get">
+        <input type="hidden" name="idTramite" value="@nroTramite" />
+        <button type="submit" class="btn-pdf">
+            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+        </button>
+    </form>
+
+</div>
+
+
+
+

@@ -22,7 +22,7 @@ namespace CemSys2.Controllers
 
         public async Task<IActionResult> Index(int pagina = 1, string desdeFecha = null, string hastaFecha = null)
         {
-            const int registrosPorPagina = 5;
+            const int registrosPorPagina = 15;
 
             // Convertir las fechas de string a DateTime
             DateTime? fechaDesde = null;
@@ -63,7 +63,7 @@ namespace CemSys2.Controllers
         [HttpPost]
         public async Task<IActionResult> IntroduccionDifunto(IntroduccionDifuntoVM viewModel)
         {
-
+            int tramiteId = 0; //inicializo el tramiteId en 0
             if (viewModel.NN)
             {
                 // Si es NN, limpiar DNI y Nombre para evitar conflictos
@@ -113,13 +113,14 @@ namespace CemSys2.Controllers
                 };
 
 
-                int introduccion = await _introduccionBusiness.RegistrarIntroduccionCompleta(actaDefuncion, difuntoNuevo, viewModel.EmpleadoID.Value, viewModel.EmpresaFunebreID.Value, viewModel.ParcelaID.Value, viewModel.FechaHoraIngreso.Value);
-                if (introduccion == 0)
+                tramiteId = await _introduccionBusiness.RegistrarIntroduccionCompleta(actaDefuncion, difuntoNuevo, viewModel.EmpleadoID.Value, viewModel.EmpresaFunebreID.Value, viewModel.ParcelaID.Value, viewModel.FechaHoraIngreso.Value);
+                if (tramiteId == 0)
                 {
                     viewModel.MensajeError = "No se pudo registrar la introducción. Intente nuevamente.";
                     await CargarCombos(viewModel);
                     return View(viewModel);
                 }
+
             }
             catch (Exception ex)
             {
@@ -128,8 +129,33 @@ namespace CemSys2.Controllers
                 return View(viewModel);
             }
 
+            return RedirectToAction("ResumenIntroduccion", new { tramiteId = tramiteId });
 
-            return RedirectToAction("Index");
+        }
+
+        //pantalla de resumen
+        [HttpGet]
+        public async Task<IActionResult> ResumenIntroduccion(int tramiteId)
+        {
+            try
+            {
+                var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
+                if (resumen == null || resumen.Count == 0)
+                {
+                    return NotFound("No se encontraron datos para el trámite especificado.");
+                }
+
+                var viewModel = new ResumenIntroduccionVM
+                {
+                    ResumenIntroduccion = resumen,
+                };
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores, podrías redirigir a una vista de error o mostrar un mensaje
+                return BadRequest("Error al obtener el resumen de introducción: " + ex.Message);
+            }
         }
 
         private async Task CargarCombos(IntroduccionDifuntoVM viewModel)

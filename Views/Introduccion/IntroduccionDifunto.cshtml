@@ -28,7 +28,7 @@
 
 
 
-<form asp-action="IntroduccionDifunto" asp-controller="Introduccion" class="form-box" method="post">
+<form asp-action="IntroduccionDifunto" asp-controller="Introduccion" class="form-box" method="post" id="formularioRegistrar">
     <!-- Formulario datos del difunto-->
     <div class="accordion" id="accordionDatosDifunto">
         @* ID único para el acordeón principal *@
@@ -63,7 +63,7 @@
 
                             <div>
                                 <label for="apellidoDifunto">Apellido<span class="obligatorio"> * </span></label>
-                                <input class="form-control" type="text" asp-for="Apellido" required maxlength="60" minlength="2" />
+                                <input class="form-control" type="text" id="apellidoInput" asp-for="Apellido" required maxlength="60" minlength="2" />
                                 <span asp-validation-for="Apellido" class="text-danger"></span>
                             </div>
 
@@ -260,7 +260,7 @@
     </div>
 
     <div style="display: flex; justify-content: center;">
-        <input type="submit" class="btn btn-success" value="Introducir difunto" />
+        <input type="button" class="btn btn-success" onclick="confirmarEnvio()" value="Introducir difunto" />
     </div>
 </form>
 
@@ -289,6 +289,26 @@
                 </form>
             </div>
             
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmacion de difunto -->
+<div class="modal fade" tabindex="-1" id="modalConfirmacion">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar introducción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Desea introducir el difunto <strong id="apellidoModal"></strong> <strong id="nombreModal"></strong> ?</p>
+                <p>En la ubicación <strong>"sección </strong><strong id="seccionElegidaModal"></strong> <strong id="parcelaElegidaModal"></strong><strong>"</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="cerrarModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="enviarFormulario()">Introducir</button>
+            </div>
         </div>
     </div>
 </div>
@@ -459,6 +479,48 @@
 
     </script>
 
+    <script> //logica de modal de confirmacion
+           function confirmarEnvio() {
+               const form = document.getElementById("formularioRegistrar");
+
+               if (form.checkValidity()) {
+                   const modal = new bootstrap.Modal(document.getElementById("modalConfirmacion"));
+
+                   const nombre = document.getElementById("nombreInput").value;
+                   const apellido = document.getElementById("apellidoInput").value;
+
+                   const selectSeccion = document.getElementById("seccionSelect");
+                   const textoSeccion = selectSeccion.options[selectSeccion.selectedIndex].text;
+
+                   const selectParcela = document.getElementById("parcelaSelect");
+                   const textoParcela = selectParcela.options[selectParcela.selectedIndex].text;
+
+                   //se inserta en el modal
+                   document.getElementById("nombreModal").textContent = nombre;
+                   document.getElementById("apellidoModal").textContent = apellido;
+                   document.getElementById("seccionElegidaModal").textContent = textoSeccion;
+                   document.getElementById("parcelaElegidaModal").textContent = textoParcela;
+                   modal.show();
+               } else {
+                   form.reportValidity();
+               }
+           }
+
+           function cerrarModal() {
+               document.getElementById("modalConfirmacion").style.display = "none";
+           }
+
+           function enviarFormulario() {
+               const form = document.getElementById("formularioRegistrar");
+
+               if (form.checkValidity()) {
+                   form.submit(); // Sólo se envía si el formulario es válido
+               } else {
+                   form.reportValidity(); // Muestra los mensajes de error del navegador
+                   cerrarModal(); // Opcional: cerrá el modal si querés forzar al usuario a revisar
+               }
+           }
+    </script>
     
 }
 

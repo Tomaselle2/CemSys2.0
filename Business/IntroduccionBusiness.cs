@@ -54,6 +54,11 @@ namespace CemSys2.Business
             return _introduccionBD.ListaTipoParcela();
         }
 
+        public async Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite)
+        {
+            return await _introduccionBD.ObtenerResumenIntroduccion(idTramite);
+        }
+
         public async Task<int> RegistrarActaDefuncion(ActaDefuncion model)
         {
             return await _introduccionBD.RegistrarActaDefuncion(model);

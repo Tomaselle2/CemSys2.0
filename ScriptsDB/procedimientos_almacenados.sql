@@ -146,6 +146,45 @@ BEGIN
         pt.nroFila,
         ac.anios DESC;
 END
+go
 ----------------------------FIN Procedimiento almacenado para obtener todos los precios de una tarifaria específica-------------------------
+---------------------------- Procedimiento almacenado para obtener los datos de una introduccion-------------------------
+create PROCEDURE ResumenIntroduccion
+    @IdTramite INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        i.idTramite AS id, 
+        i.fechaIngreso AS FechaIngreso, 
+        e.nombre AS Empresa, 
+		p.dni As dni,
+        p.nombre AS nombre, 
+        p.apellido AS apellido, 
+        p.fechaNacimiento, 
+        p.fechaDefuncion,
+        i.estadoDifunto AS EstadoDifunto, 
+        p.informacionAdicional, 
+        ac.acta, 
+        ac.tomo, 
+        ac.folio, 
+        ac.serie, 
+        ac.age, 
+        u.nombre AS Empleado, 
+        par.NroParcela, 
+        par.NroFila, 
+        sec.nombre AS Seccion,
+		sec.tipoParcela as TipoParcela
+    FROM Introducciones i
+    INNER JOIN EmpresaFunebre e ON i.empresaFunebre = e.id
+    INNER JOIN Personas p ON i.difuntoID = p.idPersona
+    INNER JOIN ActaDefuncion ac ON p.actaDefuncion = ac.id
+    INNER JOIN Usuarios u ON i.empleado = u.id
+    INNER JOIN Parcela par ON i.parcelaID = par.id
+    INNER JOIN Secciones sec ON par.seccion = sec.id
+    WHERE i.idTramite = @IdTramite;
+END
+----------------------------fin  Procedimiento almacenado para obtener los datos de una introduccion-------------------------
 
 

@@ -1,4 +1,5 @@
-﻿var chartTorta = null;
+﻿
+var chartTorta = null;
 
 // Modificación en la función GraficoTorta
 function GraficoTorta(data) {

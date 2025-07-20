@@ -4,6 +4,7 @@ using CemSys2.Interface;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace CemSys2.Data
 {
@@ -296,6 +297,63 @@ namespace CemSys2.Data
             return await query.ToListAsync();
         }
 
+        //public async Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite)
+        //{
+        //    var resultado = await _context.Set<DTO_Resumen_Introduccion>()
+        //        .FromSqlRaw("EXEC ResumenIntroduccion @IdTramite = {0}", idTramite)
+        //        .ToListAsync();
 
+        //    return resultado;
+        //}
+
+        public async Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite)
+        {
+            var resultado = new List<DTO_Resumen_Introduccion>();
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "ResumenIntroduccion";
+                    command.CommandType = CommandType.StoredProcedure;
+                    var parametro = command.CreateParameter();
+                    parametro.ParameterName = "@IdTramite";
+                    parametro.Value = idTramite;
+                    command.Parameters.Add(parametro);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var dto = new DTO_Resumen_Introduccion
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("id")),
+                                FechaIngreso = reader.GetDateTime(reader.GetOrdinal("FechaIngreso")),
+                                Empresa = reader.GetString(reader.GetOrdinal("Empresa")),
+                                dni = reader.IsDBNull(reader.GetOrdinal("dni")) ? null : reader.GetString(reader.GetOrdinal("dni")),
+                                Nombre = reader.IsDBNull(reader.GetOrdinal("nombre")) ? null : reader.GetString(reader.GetOrdinal("nombre")),
+                                Apellido = reader.GetString(reader.GetOrdinal("apellido")),
+                                FechaNacimiento = reader.IsDBNull(reader.GetOrdinal("fechaNacimiento")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("fechaNacimiento")),
+                                FechaDefuncion = reader.GetDateTime(reader.GetOrdinal("fechaDefuncion")),
+                                EstadoDifunto = reader.GetString(reader.GetOrdinal("EstadoDifunto")),
+                                InformacionAdicional = reader.IsDBNull(reader.GetOrdinal("informacionAdicional")) ? null : reader.GetString(reader.GetOrdinal("informacionAdicional")),
+                                Acta = reader.IsDBNull(reader.GetOrdinal("acta")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("acta")),
+                                Tomo = reader.IsDBNull(reader.GetOrdinal("tomo")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("tomo")),
+                                Folio = reader.IsDBNull(reader.GetOrdinal("folio")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("folio")),
+                                Serie = reader.IsDBNull(reader.GetOrdinal("serie")) ? null : reader.GetString(reader.GetOrdinal("serie")),
+                                Age = reader.IsDBNull(reader.GetOrdinal("age")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("age")),
+                                Empleado = reader.GetString(reader.GetOrdinal("Empleado")),
+                                NroParcela = reader.GetInt32(reader.GetOrdinal("NroParcela")).ToString(),
+                                NroFila = reader.GetInt32(reader.GetOrdinal("NroFila")).ToString(),
+                                Seccion = reader.GetString(reader.GetOrdinal("Seccion")),
+                                TipoParcela = reader.GetInt32(reader.GetOrdinal("TipoParcela"))
+                            };
+                            resultado.Add(dto);
+                        }
+                    }
+                }
+            }
+            return resultado;
+        }
     }
 }
