@@ -185,6 +185,56 @@ BEGIN
     INNER JOIN Secciones sec ON par.seccion = sec.id
     WHERE i.idTramite = @IdTramite;
 END
+go
 ----------------------------fin  Procedimiento almacenado para obtener los datos de una introduccion-------------------------
-
+---------------------------  Procedimiento almacenado para obtener los datos de personas en Personas Index-------------------------
+CREATE PROCEDURE sp_BuscarPersonas
+    @DNI VARCHAR(20) = NULL,
+    @Nombre VARCHAR(100) = NULL,
+    @Apellido VARCHAR(100) = NULL,
+    @CategoriaId INT = NULL,
+    @RegistrosPorPagina INT = 10,
+    @Pagina INT = 1
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Consulta base con conteo total
+    ;WITH PersonasFiltradas AS (
+        SELECT 
+            p.idPersona,
+            p.nombre,
+            p.apellido,
+            p.dni,
+            p.sexo,
+            cp.categoria,
+            cp.id AS categoriaPersona
+        FROM Personas p
+        INNER JOIN CategoriaPersonas cp ON p.categoriaPersona = cp.id
+        WHERE 
+            (@DNI IS NULL OR p.dni LIKE '%' + @DNI + '%') AND
+            (@Nombre IS NULL OR p.nombre LIKE '%' + @Nombre + '%') AND
+            (@Apellido IS NULL OR p.apellido LIKE '%' + @Apellido + '%') AND
+            (@CategoriaId IS NULL OR p.categoriaPersona = @CategoriaId)
+    ),
+    ConteoTotal AS (
+        SELECT COUNT(*) AS TotalRegistros FROM PersonasFiltradas
+    )
+    
+    -- Consulta paginada
+    SELECT 
+        p.idPersona AS IdPersona,
+        p.nombre AS Nombre,
+        p.apellido AS Apellido,
+        p.dni AS Dni,
+        p.sexo AS Sexo,
+        p.categoriaPersona AS CategoriaPersona,
+        p.categoria AS CategoriaNombre,
+        c.TotalRegistros
+    FROM PersonasFiltradas p
+    CROSS JOIN ConteoTotal c
+    ORDER BY p.apellido, p.nombre
+    OFFSET (@Pagina - 1) * @RegistrosPorPagina ROWS
+    FETCH NEXT @RegistrosPorPagina ROWS ONLY;
+END
 

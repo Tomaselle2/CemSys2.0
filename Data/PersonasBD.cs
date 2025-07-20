@@ -16,6 +16,42 @@ namespace CemSys2.Data
             _context = context;
         }
 
+        public async Task<Persona> ConsultarPersona(int idPersona)
+        {
+            return await _context.Personas
+                .Include(p => p.ActaDefuncionNavigation)
+                .Include(p => p.EstadoDifuntoNavigation)
+                .FirstOrDefaultAsync(p => p.IdPersona == idPersona);
+        }
+
+        public async Task<DTO_Persona_Historial> DatosPersonalesPersona(int idPersona)
+        {
+            return await _context.Personas.Where(p => p.IdPersona == idPersona)
+                .Include(p => p.ActaDefuncionNavigation)
+                .Include(p => p.EstadoDifuntoNavigation)
+                .Select(p => new DTO_Persona_Historial
+                {
+                    IdPersona = p.IdPersona,
+                    Nombre = p.Nombre,
+                    Apellido = p.Apellido,
+                    Dni = p.Dni,
+                    Visibilidad = p.Visibilidad,
+                    FechaNacimiento = p.FechaNacimiento,
+                    FechaDefuncion = p.FechaDefuncion,
+                    EstadoDifunto = p.EstadoDifuntoNavigation.Estado,
+                    ActaDefuncion = p.ActaDefuncionNavigation,
+                    InformacionAdicional = p.InformacionAdicional,
+                    CategoriaPersona = p.CategoriaPersona,
+                    Sexo = p.Sexo,
+                    Correo = p.Correo,
+                    Celular = p.Celular,
+                    Domicilio = p.Domicilio,
+                    DomicilioEnTirolesa = p.DomicilioEnTirolesa,
+                    FallecioEnTirolesa = p.FallecioEnTirolesa
+                })
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<CategoriaPersona>> ListaCategoriaPersonas()
         {
             return await _context.CategoriaPersonas.ToListAsync();
@@ -75,6 +111,18 @@ namespace CemSys2.Data
                 .ToListAsync();
 
             return (personas, totalRegistros);
+        }
+
+        public async Task<int> ModificarPersona(Persona model)
+        {
+            if (model == null) return 0;
+
+            // Verificar si la entidad existe
+            var existe = await _context.Personas.AnyAsync(p => p.IdPersona == model.IdPersona);
+            if (!existe) return 0;
+
+            _context.Update(model);
+            return await _context.SaveChangesAsync();
         }
     }
 }

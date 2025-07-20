@@ -1,0 +1,172 @@
+﻿@using CemSys2.ViewModel
+@model Persona_Historial_VM
+@{
+    string fecha = DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+    DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
+    var fechaMax = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+}
+<h1 class="tituloDePagina">Historial</h1>
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="accordion" id="accordionDatosDifunto">
+    @* ID único para el acordeón principal *@
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsDatosDifunto-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsDatosDifunto-collapseOne" aria-expanded="false" aria-controls="panelsDatosDifunto-collapseOne">
+                Datos del difunto
+            </button>
+        </h2>
+        <div id="panelsDatosDifunto-collapseOne" class="accordion-collapse  show" aria-labelledby="panelsDatosDifunto-headingOne" data-bs-parent="#accordionDatosDifunto">
+            @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
+            <div class="accordion-body">
+                <div class="form-box">
+                    <form asp-action="ModificarPersona" asp-controller="Personas" method="post">
+                        
+                        <input  type="hidden" asp-for="NN"/>
+                       
+
+                        <div class="form-columns-container3">
+                            <div>
+                                <label for="dni">DNI<span class="obligatorio" id="dniObligatorio"> * </span></label>
+                                <input class="form-control" id="dniInput" type="text" asp-for="Dni" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                <span asp-validation-for="Dni" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="nombreDifunto">Nombre<span class="obligatorio" id="nombreObligatorio"> * </span></label>
+                                <input class="form-control" id="nombreInput" type="text" asp-for="Nombre" maxlength="60" minlength="2" />
+                                <span asp-validation-for="Nombre" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="apellidoDifunto">Apellido<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="text" id="apellidoInput" asp-for="Apellido" required maxlength="60" minlength="2" />
+                                <span asp-validation-for="Apellido" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="fechaDefuncion">Defunción<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="date" asp-for="FechaDefuncion" max="@fecha" required />
+                                <span asp-validation-for="FechaDefuncion" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="fechaNacimiento">Nacimiento<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="date" asp-for="FechaNacimiento" max="@fecha" />
+                                <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="sexoDifunto">Sexo<span class="obligatorio"> * </span></label>
+                                <select class="form-select" asp-for="Sexo" required>
+                                    <option value="">--Elija una opción--</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="femenino">Femenino</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                                <span asp-validation-for="Sexo" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label>Estado del difunto<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="text" asp-for="EstadoDifunto" readonly />
+                            </div>
+                        </div>
+
+
+
+                        <h5>Datos acta de defunción</h5>
+                        <div class="form-columns-container5">
+                            <div>
+                                <label for="acta">Acta</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Acta" min="1" />
+                            </div>
+                            <div>
+                                <label>Tomo</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Tomo" min="1" />
+                            </div>
+                            <div>
+                                <label>Folio</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Folio" min="1" />
+                            </div>
+                            <div>
+                                <label>Serie</label>
+                                <input type="text" class="form-control" asp-for="ActaDefuncion.Serie" />
+                            </div>
+                            <div>
+                                <label>Año</label>
+                                <input type="number" class="form-control" asp-for="ActaDefuncion.Age" min="1800" max="@fechaActual.Year" />
+                            </div>
+                        </div>
+                        <!-- Datos adicionales -->
+                        <div class="full-width">
+                            <label for="datosAdicionales">Datos adicionales</label>
+                            <textarea class="form-control" asp-for="InformacionAdicional"></textarea>
+                        </div>
+
+                        <!--Preguntas-->
+                        <div class="full-width">
+                            <h6>¿El difunto tenía domicilio en Colonia Tirolesa?</h6>
+                            <div>
+                                <label for="domicilioSi">Si</label>
+                                <input type="radio" asp-for="DomicilioEnTirolesa" value="true" id="domicilioSi" class="inputFormularioEnLinea" disabled />
+
+                                <label for="domicilioNo">No</label>
+                                <input type="radio" asp-for="DomicilioEnTirolesa" value="false" id="domicilioNo" class="inputFormularioEnLinea" disabled />
+                            </div>
+                        </div>
+
+                        <div class="full-width">
+                            <h6>¿El difunto falleció en Colonia Tirolesa?</h6>
+                            <div>
+                                <label for="falelcioSi">si</label>
+                                <input type="radio" asp-for="FallecioEnTirolesa" value="true" id="falelcioSi" class="inputFormularioEnLinea" disabled />
+
+                                <label for="fallecioNo">no</label>
+                                <input type="radio" asp-for="FallecioEnTirolesa" value="false" id="fallecioNo" class="inputFormularioEnLinea" disabled />
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: center;">
+                            <input type="hidden" asp-for="Id" />
+                            <input type="submit" class="btn btn-success" value="Modificar" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        
+   
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const dniInput = document.getElementById('dniInput');
+        const nombreInput = document.getElementById('nombreInput');
+
+        if (dniInput.value === "") dniInput.disabled = true;
+        if (nombreInput.value === "") nombreInput.disabled = true;
+        
+    </script>
+}

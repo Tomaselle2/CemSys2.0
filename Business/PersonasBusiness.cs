@@ -13,6 +13,16 @@ namespace CemSys2.Business
             _personasBD = personasBD;
         }
 
+        public async Task<Persona> ConsultarPersona(int idPersona)
+        {
+            return await _personasBD.ConsultarPersona(idPersona);
+        }
+
+        public async Task<DTO_Persona_Historial> DatosPersonalesPersona(int idPersona)
+        {
+            return await _personasBD.DatosPersonalesPersona(idPersona);
+        }
+
         public async Task<List<CategoriaPersona>> ListaCategoriaPersonas()
         {
             return await _personasBD.ListaCategoriaPersonas();
@@ -21,6 +31,11 @@ namespace CemSys2.Business
         public async Task<(List<DTO_Difunto_Persona_Index> personas, int totalRegistros)> ListaPersonasIndex(string? dni = null, string? nombre = null, string? apellido = null, int? categoriaId = null, int registrosPorPagina = 10, int pagina = 1)
         {
             return await _personasBD.ListaPersonasIndex(dni, nombre, apellido, categoriaId, registrosPorPagina, pagina);
+        }
+
+        public async Task<int> ModificarPersona(Persona model)
+        {
+            return await _personasBD.ModificarPersona(model);
         }
     }
 }

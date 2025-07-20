@@ -14,5 +14,9 @@ namespace CemSys2.Interface.Personas
              int? categoriaId = null,
              int registrosPorPagina = 10,
              int pagina = 1);
+
+        Task<DTO_Persona_Historial> DatosPersonalesPersona (int idPersona);
+        Task<int> ModificarPersona(Persona model);
+        Task<Persona> ConsultarPersona (int idPersona);
     }
 }
