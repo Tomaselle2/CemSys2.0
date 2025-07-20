@@ -43,43 +43,69 @@
         </div>
     </div>
 
-    <canvas id="graficoPorMes" class="reporte-width"></canvas>
-    <div class="contenedor-btn-descargar" id="contenedorBtnPdfBarraMes" style="display:none;">
-        <form method="post" asp-action="ReporteGraficosPDF" id="formPdfBarraMes" class="form-pdf" >
-            <input type="hidden" id="imagenBase64BarraMes" name="imagenBase64">
-            <input type="hidden" name="fechaDesde">
-            <input type="hidden" name="fechaHasta">
-            <button type="submit" class="btn-pdf">
-                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
-            </button>
-        </form>
+
+    <div class="contenedor-reporte" style="display:none;">
+        <canvas id="graficoPorMes" class="reporte-width"></canvas>
+        <div class="contenedor-btn-descargar" id="contenedorBtnPdfBarraMes">
+            <form method="post" asp-action="ReporteGraficosPDF" id="formPdfBarraMes" class="form-pdf">
+                <input type="hidden" id="imagenBase64BarraMes" name="imagenBase64">
+                <input type="hidden" name="fechaDesde">
+                <input type="hidden" name="fechaHasta">
+                <button type="submit" class="btn-pdf">
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                </button>
+            </form>
+        </div>
     </div>
 
-    <canvas id="graficoTortaParcela" class="reporte-width"></canvas>
-    <div class="contenedor-btn-descargar" id="contenedorBtnPdfPorcentajeTorta" style="display:none;">
-        <form method="post" asp-action="ReporteGraficosPDF" id="formPdfPorcentajeTorta" class="form-pdf">
-            <input type="hidden" id="imagenBase64PorcentajeTorta" name="imagenBase64">
-            <input type="hidden" name="fechaDesde">
-            <input type="hidden" name="fechaHasta">
-            <button type="submit" class="btn-pdf">
-                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
-            </button>
-        </form>
+    <div class="contenedor-reporte" style="display:none;">
+        <canvas id="graficoTortaParcela" class="reporte-width"></canvas>
+        <div class="contenedor-btn-descargar" id="contenedorBtnPdfPorcentajeTorta" >
+            <form method="post" asp-action="ReporteGraficosPDF" id="formPdfPorcentajeTorta" class="form-pdf">
+                <input type="hidden" id="imagenBase64PorcentajeTorta" name="imagenBase64">
+                <input type="hidden" name="fechaDesde">
+                <input type="hidden" name="fechaHasta">
+                <button type="submit" class="btn-pdf">
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                </button>
+            </form>
+        </div>
     </div>
 
-    <canvas id="graficoBarraParcela" class="reporte-width"></canvas>
-    <div class="contenedor-btn-descargar" id="contenedorBtnPdfBarrasTipoParcela" style="display:none;">
-        <form id="formPdfBarraParcela" method="post" asp-action="ReporteGraficosPDF" class="form-pdf">
-            <input type="hidden" id="imagenBase64BarrasTipoParcela" name="imagenBase64">
-            <input type="hidden" name="fechaDesde">
-            <input type="hidden" name="fechaHasta">
-            <button type="submit" class="btn-pdf">
-                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
-            </button>
-        </form>
+
+    
+    <div class="contenedor-reporte" style="display:none;">
+        <canvas id="graficoBarraParcela" class="reporte-width"></canvas>
+        <div class="contenedor-btn-descargar" id="contenedorBtnPdfBarrasTipoParcela" >
+            <form id="formPdfBarraParcela" method="post" asp-action="ReporteGraficosPDF" class="form-pdf">
+                <input type="hidden" id="imagenBase64BarrasTipoParcela" name="imagenBase64">
+                <input type="hidden" name="fechaDesde">
+                <input type="hidden" name="fechaHasta">
+                <button type="submit" class="btn-pdf">
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                </button>
+            </form>
+        </div>
     </div>
+
+    <div class="contenedor-reporte" style="display:none;">
+        <canvas id="graficoBarrasEmpleados" class="reporte-width"></canvas>
+        <div class="contenedor-btn-descargar" id="contenedorBtnPdfBarrasEmpleados" >
+            <form id="formPdfBarrasEmpleados" method="post" asp-action="ReporteGraficosPDF" class="form-pdf">
+                <input type="hidden" id="imagenBase64BarrasEmpleados" name="imagenBase64">
+                <input type="hidden" name="fechaDesde">
+                <input type="hidden" name="fechaHasta">
+                <button type="submit" class="btn-pdf">
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                </button>
+            </form>
+        </div>
+    </div>
+
     
 </div>
+
+
 
 
 
@@ -94,9 +120,55 @@
     <script>
         var urlBase = 'https://' + '@Context.Request.Host';
     </script>
+    <script>
+
+        $(document).ready(function () {
+            $('#btnBuscar').click(function (e) {
+                e.preventDefault();
+
+                const opcion = $('input[name="opcion"]:checked').val();
+                const desdeFecha = $('input[name="desdeFecha"]').val();
+                const hastaFecha = $('input[name="hastaFecha"]').val();
+
+                $.ajax({
+                    url: urlBase + '/Introduccion/ReporteGeneralIntroducciones',
+                    type: 'GET',
+                    data: { opcion, desdeFecha, hastaFecha },
+                    success: function (response) {
+                        if (response.success) {
+                            // Gráfico de barras (por mes)
+                            BarrasIntroduccionesMes(response.dataBarra);
+
+                            // Gráfico de torta (por tipo de parcela)
+                            GraficoTorta(response.dataTorta);
+
+                            // Nuevo gráfico de lista (por tipo de parcela)
+                            mostrarListaTiposParcela(response.dataLista, response.total);
+
+                            // Gráfico de barras horizontales (por empleado)
+                            GraficoBarrasEmpleados(response.dataEmpleados);
+
+                            // Actualizar fechas en todos los formularios PDF
+                            $('input[name="fechaDesde"]').val(response.fechaDesde);
+                            $('input[name="fechaHasta"]').val(response.fechaHasta);
+
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Error al consultar los datos');
+                    }
+                });
+            });
+        });
+    </script>
     <script src="~/js/reportes/introducciones/barrasIntroducionesMes.js"></script> @* grafico de barras cantidad de introducciones por mes *@
-    <script src="~/js/reportes/introducciones/reportesIntroduccionesPorTipoParcelaTorta.js"></script>
     <script src="~/js/reportes/introducciones/graficobarraparcela.js"></script>
+    <script src="~/js/reportes/introducciones/graficoempleadosbarrahorizontal.js"></script>
+    <script src="~/js/reportes/introducciones/reportesIntroduccionesPorTipoParcelaTorta.js"></script>
+
+    
     <script>
         // Botones para descargar en PDF
         document.getElementById('formPdfBarraMes').addEventListener('submit', function (e) {
@@ -115,6 +187,12 @@
             var canvas = document.getElementById("graficoBarraParcela");
             var imagen = canvas.toDataURL("image/png");
             document.getElementById("imagenBase64BarrasTipoParcela").value = imagen;
+        });
+
+        document.getElementById('formPdfBarrasEmpleados').addEventListener('submit', function (e) {
+            var canvas = document.getElementById("graficoBarrasEmpleados");
+            var imagen = canvas.toDataURL("image/png");
+            document.getElementById("imagenBase64BarrasEmpleados").value = imagen;
         });
     </script>
 

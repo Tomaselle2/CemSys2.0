@@ -253,6 +253,21 @@ namespace CemSys2.Controllers
                     porcentaje = Math.Round((x.cantidadPorTipo / (double)total) * 100, 1)
                 }).ToList();
 
+                // Nuevo: Procesamiento para el gráfico por empleado
+                var datosPorEmpleado = introducciones
+                .Where(i => i.EmpleadoNavigation != null) // Asumiendo que hay una relación con Empleado
+                .GroupBy(i => new {
+                    Id = i.EmpleadoNavigation.Id,
+                    Nombre = i.EmpleadoNavigation.Nombre // Ajusta según tu modelo
+                })
+                .Select(g => new {
+                    empleadoId = g.Key.Id,
+                    nombreEmpleado = g.Key.Nombre,
+                    cantidad = g.Count()
+                })
+                .OrderByDescending(x => x.cantidad)
+                .ToList();
+
                 var fechaMinima = fechasIngreso.Any() ? fechasIngreso.Min().ToString("dd-MM-yyyy") : null;
                 var fechaMaxima = fechasIngreso.Any() ? fechasIngreso.Max().ToString("dd-MM-yyyy") : null;
 
@@ -262,6 +277,7 @@ namespace CemSys2.Controllers
                     dataBarra= datosPorMes,    // Para el gráfico de barras
                     dataTorta= datosPorTipo,   // Para el gráfico de torta
                     fechaDesde = fechaMinima,
+                    dataEmpleados = datosPorEmpleado,
                     fechaHasta = fechaMaxima,
                     dataLista = datosLista,  // ← Nuevo conjunto de datos
                     total = total,          // ← Total general

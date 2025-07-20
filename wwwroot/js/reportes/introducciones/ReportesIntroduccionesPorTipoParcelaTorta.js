@@ -1,30 +1,4 @@
 ﻿var chartTorta = null;
-$('#btnBuscar').click(function (e) {
-    e.preventDefault();
-
-    const opcion = $('input[name="opcion"]:checked').val();
-    const desdeFecha = $('input[name="desdeFecha"]').val();
-    const hastaFecha = $('input[name="hastaFecha"]').val();
-
-    $.ajax({
-        url: urlBase + '/Introduccion/ReporteGeneralIntroducciones',
-        type: 'GET',
-        data: { opcion, desdeFecha, hastaFecha },
-        success: function (response) {
-            if (response.success) {
-                BarrasIntroduccionesMes(response.dataBarra);
-                GraficoTorta(response.dataTorta);
-                $('input[name="fechaDesde"]').val(response.fechaDesde);
-                $('input[name="fechaHasta"]').val(response.fechaHasta);
-            } else {
-                alert(response.message);
-            }
-        },
-        error: function () {
-            alert('Error al consultar los datos');
-        }
-    });
-});
 
 // Modificación en la función GraficoTorta
 function GraficoTorta(data) {
@@ -63,11 +37,11 @@ function GraficoTorta(data) {
                 title: {
                     display: true,
                     text: 'Distribución por tipo de parcela',
-                    font: { size: 16 }
+                    font: { size: 24 }
                 },
                 legend: {
                     position: 'right',
-                    labels: { font: { size: 14 } }
+                    labels: { font: { size: 20 } }
                 },
                 tooltip: {
                     callbacks: {
@@ -100,5 +74,5 @@ function GraficoTorta(data) {
         plugins: [ChartDataLabels] // Registra el plugin
     });
 
-    $('.contenedor-btn-descargar').show();
+    $('.contenedor-reporte').show();
 }
