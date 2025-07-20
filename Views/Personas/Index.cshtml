@@ -1,0 +1,130 @@
+﻿@using CemSys2.ViewModel
+@model PersonasVM
+
+<h1 class="tituloDePagina">Personas</h1>
+
+<div class="accordion" id="accordionDatosDifunto">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsBuscardor-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-target="#panelsBuscardor-collapseOne" aria-expanded="false" aria-controls="panelsBuscardor-collapseOne">
+                Buscador
+            </button>
+        </h2>
+        <div id="panelsBuscardor-collapseOne" class="accordion-collapse show" aria-labelledby="panelsBuscardor-headingOne" data-bs-parent="#accordionBuscardor">
+            <div class="accordion-body">
+                <div class="form-box">
+                    <form asp-action="BuscarPersona" method="post">
+                        <div class="form-columns-container3">
+
+                            <div>
+                                <label for="dni">DNI</label>
+                                <input class="form-control" id="dniInput" type="text" asp-for="Dni" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                            </div>
+
+                            <div>
+                                <label for="nombreDifunto">Nombre</label>
+                                <input class="form-control" id="nombreInput" type="text" asp-for="Nombre" maxlength="60" minlength="2" />
+                            </div>
+
+                            <div>
+                                <label for="apellidoDifunto">Apellido</label>
+                                <input class="form-control" type="text" id="apellidoInput" asp-for="Apellido" maxlength="60" minlength="2" />
+                            </div>
+
+                            <div>
+                                <label>Condición</label>
+                                <select class="form-select" asp-for="CondicionPersonaId" id="condicionPersona" asp-items="@(new SelectList(Model.ListaCondicionPersona, "Id", "Categoria"))">
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-success me-2" id="btnBuscar">Buscar</button>
+                                <a asp-action="Index" asp-controller="Personas" class="btn btn-primary" id="btnLimpiar">Limpiar filtros</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Tabla -->
+
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Resultados
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaPersonasIndex.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>DNI</th>
+                                    <th>Apellido</th>
+                                    <th>Nombre</th>
+                                    <th>Sexo</th>
+                                    <th>Condición</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaPersonasIndex)
+                                {
+                                    <tr>
+                                        <td>@(@opc.Dni == "nn" ? "--------" : opc.Dni)</td>
+                                        <td>@opc.Apellido?.ToUpper()</td>
+                                        <td>@opc.Nombre?.ToUpper()</td>
+                                        <td>@opc.Sexo</td>
+                                        @if(opc.CategoriaPersona == 1)
+                                        {
+                                            <td>Titular</td>
+                                        }
+                                        else
+                                        {
+                                            <td>Fallecido</td>
+                                        }
+
+                                        <td>
+                                            <form asp-action="" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="personaId" value="@opc.IdPersona" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="ver resumen">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @* Paginador *@
+                @if (Model.TotalPaginas > 1)
+                {
+                    @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+                    {
+                        PaginaActual = Model.PaginaActual,
+                        TotalPaginas = Model.TotalPaginas,
+                        TotalRegistros = Model.TotalRegistros,
+                        Accion = "BuscarPersona",
+                        Controlador = "Personas"
+                    })
+                }
+
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>

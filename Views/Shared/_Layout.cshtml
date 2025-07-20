@@ -37,37 +37,13 @@
 
                 <li class="nav-item">
                     <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-house-door"></i> <span class="nav-text">Parcelas</span>
+                        <i class="bi bi-house-door"></i> <span class="nav-text">Concesiones</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link text-dark icono-menu" asp-controller="Introduccion" asp-action="Index">
-                        <i class="bi bi-person-up"></i></i> <span class="nav-text">Introducción</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Difuntos" asp-action="Index">
-                        <i class="bi bi-person-vcard"></i> <span class="nav-text">Difuntos</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-shield-lock"></i> <span class="nav-text">Autorizaciones</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-arrow-repeat"></i> <span class="nav-text">Cambio Titularidad</span>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-bell"></i> <span class="nav-text">Notificaciones</span>
+                        <i class="bi bi-person-up"></i></i> <span class="nav-text">Introducciones</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -77,19 +53,24 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Personas" asp-action="Index">
+                        <i class="bi bi-person-vcard"></i> <span class="nav-text">Personas</span>
+                    </a>
+                </li>               
+
                 @if (Context.Session.GetInt32("Rol") == 2)
                 {
-                    <li class="nav-item">
-                        <a class="nav-link text-dark icono-menu" asp-controller="Configuracion" asp-action="Index">
-                            <i class="bi bi-gear"></i> <span class="nav-text">Configuración</span>
-                        </a>
-                    </li>
-
                     <li class="nav-item">
                         <a class="nav-link text-dark icono-menu" asp-controller="Reportes" asp-action="Index">
                             <i class="bi bi-file-bar-graph"></i> <span class="nav-text">Reportes</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Configuracion" asp-action="Index">
+                            <i class="bi bi-gear"></i> <span class="nav-text">Configuración</span>
+                        </a>
+                    </li>                 
                 }
 
                 <li class="nav-item">

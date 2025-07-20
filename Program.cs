@@ -5,6 +5,7 @@ using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using Microsoft.EntityFrameworkCore;
 using CemSys2.Interface.Introduccion;
+using CemSys2.Interface.Personas;
 using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped(typeof(IRepositoryDB<>), typeof(ServiceGenericDB<>));
 builder.Services.AddScoped<ITarifariaBD, TarifariaBD>();
 builder.Services.AddScoped<IIntroduccionBD, IntroduccionBD>();
+builder.Services.AddScoped<IPersonasBD, PersonasBD>();
 
 //contenedor de capa de negocio
 builder.Services.AddScoped(typeof(IRepositoryBusiness<>), typeof(ServiceGenericBusiness<>));
@@ -35,6 +37,7 @@ builder.Services.AddScoped<ISeccionesBusiness, SeccionesBusiness>();
 builder.Services.AddScoped<IParcelasBusiness, ParcelasBusiness>();
 builder.Services.AddScoped<ITarifariaBusiness, TarifariaBusiness>();
 builder.Services.AddScoped<IIntroduccionBusiness, IntroduccionBusiness>();
+builder.Services.AddScoped<IPersonasBusiness, PersonasBusiness>();
 
 var app = builder.Build();
 
