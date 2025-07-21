@@ -85,10 +85,12 @@ namespace CemSys2.Controllers
 
             DTO_Persona_Historial personaHistorial = new DTO_Persona_Historial();
             List<DTO_Persona_Historial_Parcelas> historialParcelas = new List<DTO_Persona_Historial_Parcelas>();
+            List<DTO_Persona_Historial_Tramites> historialTramites = new List<DTO_Persona_Historial_Tramites>();
             try
             {
                 personaHistorial = await _personasBusiness.DatosPersonalesPersona(personaId);
                 historialParcelas = await _personasBusiness.ListaHistorialParcelas(personaId);
+                historialTramites = await _personasBusiness.ListaHistorialTramites(personaId);
 
             }
             catch(Exception ex)
@@ -117,6 +119,7 @@ namespace CemSys2.Controllers
 
 
             viewModel.ListaHistorialParcelas = historialParcelas;
+            viewModel.ListaHistorialTramites = historialTramites;
             return View(viewModel);
         }
 

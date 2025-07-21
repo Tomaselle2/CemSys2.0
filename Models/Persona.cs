@@ -55,5 +55,5 @@ public partial class Persona
 
     public virtual ICollection<TitularesContratoConcesion> TitularesContratoConcesions { get; set; } = new List<TitularesContratoConcesion>();
 
-    public virtual ICollection<Tramite> Tramites { get; set; } = new List<Tramite>();
+    public virtual ICollection<TramitePersona> TramitePersonas { get; set; } = new List<TramitePersona>();
 }

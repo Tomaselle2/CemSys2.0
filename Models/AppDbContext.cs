@@ -77,6 +77,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Tramite> Tramites { get; set; }
 
+    public virtual DbSet<TramitePersona> TramitePersonas { get; set; }
+
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -772,25 +774,27 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.Usuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Tramite__usuario__70DDC3D8");
+        });
 
-            entity.HasMany(d => d.Personas).WithMany(p => p.Tramites)
-                .UsingEntity<Dictionary<string, object>>(
-                    "TramitePersona",
-                    r => r.HasOne<Persona>().WithMany()
-                        .HasForeignKey("PersonaId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__TramitePe__perso__0D7A0286"),
-                    l => l.HasOne<Tramite>().WithMany()
-                        .HasForeignKey("TramiteId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__TramitePe__trami__0C85DE4D"),
-                    j =>
-                    {
-                        j.HasKey("TramiteId", "PersonaId").HasName("PK__TramiteP__770E40CABA4F0FA1");
-                        j.ToTable("TramitePersonas");
-                        j.IndexerProperty<int>("TramiteId").HasColumnName("tramiteId");
-                        j.IndexerProperty<int>("PersonaId").HasColumnName("personaId");
-                    });
+        modelBuilder.Entity<TramitePersona>(entity =>
+        {
+            entity.HasKey(e => new { e.TramiteId, e.PersonaId }).HasName("PK__TramiteP__770E40CABA4F0FA1");
+
+            entity.Property(e => e.TramiteId).HasColumnName("tramiteId");
+            entity.Property(e => e.PersonaId).HasColumnName("personaId");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Persona).WithMany(p => p.TramitePersonas)
+                .HasForeignKey(d => d.PersonaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TramitePe__perso__0D7A0286");
+
+            entity.HasOne(d => d.Tramite).WithMany(p => p.TramitePersonas)
+                .HasForeignKey(d => d.TramiteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TramitePe__trami__0C85DE4D");
         });
 
         modelBuilder.Entity<Usuario>(entity =>

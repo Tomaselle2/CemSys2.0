@@ -317,6 +317,7 @@ CREATE TABLE TitularesContratoConcesion (
 CREATE TABLE TramitePersonas (
     tramiteId INT NOT NULL,
     personaId INT NOT NULL,
+	FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
     PRIMARY KEY (tramiteId, personaId),
     FOREIGN KEY (tramiteId) REFERENCES Tramite(id),
     FOREIGN KEY (personaId) REFERENCES Personas(idPersona)

@@ -35,7 +35,7 @@ public partial class Tramite
 
     public virtual TipoTramite TipoTramite { get; set; } = null!;
 
-    public virtual Usuario UsuarioNavigation { get; set; } = null!;
+    public virtual ICollection<TramitePersona> TramitePersonas { get; set; } = new List<TramitePersona>();
 
-    public virtual ICollection<Persona> Personas { get; set; } = new List<Persona>();
+    public virtual Usuario UsuarioNavigation { get; set; } = null!;
 }

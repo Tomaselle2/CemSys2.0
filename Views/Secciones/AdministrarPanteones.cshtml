@@ -58,7 +58,7 @@
                                             }
                                             <td>@opc.TipoPanteon</td>
                                             @{
-                                                string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado @{opc.CantidadDifuntos} difuntos/s";
+                                                string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado {opc.CantidadDifuntos} difunto/s";
                                             }
                                             <td>@estado</td>
 

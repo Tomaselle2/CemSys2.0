@@ -33,6 +33,11 @@ namespace CemSys2.Business
             return await _personasBD.ListaHistorialParcelas(idPersona);
         }
 
+        public async Task<List<DTO_Persona_Historial_Tramites>> ListaHistorialTramites(int idPersona)
+        {
+            return await _personasBD.ListaHistorialTramites(idPersona);
+        }
+
         public async Task<(List<DTO_Difunto_Persona_Index> personas, int totalRegistros)> ListaPersonasIndex(string? dni = null, string? nombre = null, string? apellido = null, int? categoriaId = null, int registrosPorPagina = 10, int pagina = 1)
         {
             return await _personasBD.ListaPersonasIndex(dni, nombre, apellido, categoriaId, registrosPorPagina, pagina);

@@ -51,7 +51,7 @@
                                                 }
                                             }
                                             <td>@opc.TipoNicho</td>
-                                            @{string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado @{opc.CantidadDifuntos} difuntos/s";}
+                                            @{string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado {opc.CantidadDifuntos} difunto/s";}
                                             <td>@estado</td>
                                             @* <form asp-action="AdministrarNichos" method="get" style="display: inline-block;">
                                                     <input type="hidden" asp-for="Id" value="@opc.Id" />

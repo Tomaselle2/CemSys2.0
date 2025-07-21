@@ -182,6 +182,15 @@ namespace CemSys2.Data
                 _context.Tramites.Add(tramite);
                 await _context.SaveChangesAsync();
 
+                // Relacionar persona con trámite
+                TramitePersona tramitePersona = new TramitePersona
+                {
+                    TramiteId = tramite.Id,
+                    PersonaId = difunto.IdPersona
+                };
+                _context.TramitePersonas.Add(tramitePersona);
+                await _context.SaveChangesAsync();
+
 
                 // Registrar Historial Estado Trámite
                 HistorialEstadoTramite historial = new HistorialEstadoTramite
@@ -296,15 +305,6 @@ namespace CemSys2.Data
 
             return await query.ToListAsync();
         }
-
-        //public async Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite)
-        //{
-        //    var resultado = await _context.Set<DTO_Resumen_Introduccion>()
-        //        .FromSqlRaw("EXEC ResumenIntroduccion @IdTramite = {0}", idTramite)
-        //        .ToListAsync();
-
-        //    return resultado;
-        //}
 
         public async Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite)
         {

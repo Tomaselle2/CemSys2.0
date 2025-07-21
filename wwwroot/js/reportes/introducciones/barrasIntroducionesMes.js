@@ -31,8 +31,8 @@ function BarrasIntroduccionesMes(data) {
             datasets: [{
                 label: 'Cantidad de Introducciones',
                 data: cantidades,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'yellow', // Nombre de color simple
+                borderColor: 'black',
                 borderWidth: 1
             }]
         },
@@ -56,5 +56,10 @@ function BarrasIntroduccionesMes(data) {
         }
     });
 
+    chartPorMes.update();
+
+
 }
+
+
 

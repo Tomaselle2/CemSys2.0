@@ -19,5 +19,6 @@ namespace CemSys2.Interface.Personas
         Task<int> ModificarPersona(Persona model);
         Task<Persona> ConsultarPersona (int idPersona);
         Task<List<DTO_Persona_Historial_Parcelas>> ListaHistorialParcelas (int idPersona);
+        Task<List<DTO_Persona_Historial_Tramites>> ListaHistorialTramites(int idPersona);
     }
 }

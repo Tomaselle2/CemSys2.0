@@ -25,7 +25,7 @@ function GraficoBarrasEmpleados(data) {
             datasets: [{
                 label: 'Introducciones',
                 data: valoresEmpleados,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                backgroundColor: 'violet',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             }]

@@ -61,7 +61,7 @@ namespace CemSys2.Data
         {
             var resultado = new List<DTO_Persona_Historial_Parcelas>();
 
-            using (var connection = _context.Database.GetDbConnection())
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -88,6 +88,44 @@ namespace CemSys2.Data
                                 NroFila = reader.IsDBNull(reader.GetOrdinal("NroFila")) ? null : reader.GetInt32(reader.GetOrdinal("NroFila")),
                                 NombreSeccion = reader.IsDBNull(reader.GetOrdinal("Seccion")) ? null : reader.GetString(reader.GetOrdinal("Seccion")),
                                 TipoParcela = reader.IsDBNull(reader.GetOrdinal("tipoParcela")) ? null : reader.GetInt32(reader.GetOrdinal("tipoParcela"))
+                            };
+                            resultado.Add(dto);
+                        }
+                    }
+                }
+            }
+
+            return resultado;
+        }
+
+        public async Task<List<DTO_Persona_Historial_Tramites>> ListaHistorialTramites(int idPersona)
+        {
+            var resultado = new List<DTO_Persona_Historial_Tramites>();
+
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "PersonasHistorialTramites";
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    var parametro = command.CreateParameter();
+                    parametro.ParameterName = "@idPersona";
+                    parametro.Value = idPersona;
+                    command.Parameters.Add(parametro);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var dto = new DTO_Persona_Historial_Tramites
+                            {
+                                TramiteId = reader.GetInt32(reader.GetOrdinal("TramiteId")),
+                                PersonaId = reader.GetInt32(reader.GetOrdinal("PersonaId")),
+                                FechaInicio = reader.GetDateTime(reader.GetOrdinal("FechaInicio")),
+                                TipoTramite = reader.IsDBNull(reader.GetOrdinal("TipoTramite")) ? null : reader.GetString(reader.GetOrdinal("TipoTramite"))
                             };
                             resultado.Add(dto);
                         }

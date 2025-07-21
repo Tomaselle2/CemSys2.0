@@ -267,3 +267,27 @@ BEGIN
     ORDER BY
         pd.fechaIngreso;
 END
+go
+--------------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE PersonasHistorialTramites
+    @idPersona INT
+AS
+BEGIN
+    SELECT 
+        t.id AS TramiteId,
+        per.idPersona AS PersonaId,
+        t.fechaCreacion AS FechaInicio,
+        tipo.tipo AS TipoTramite
+    FROM 
+        TramitePersonas tp
+    INNER JOIN 
+        Tramite t ON t.id = tp.tramiteId
+    INNER JOIN 
+        TipoTramite tipo ON t.tipoTramiteID = tipo.id
+    INNER JOIN 
+        Personas per ON per.idPersona = tp.personaId
+    WHERE 
+        per.idPersona = @idPersona
+    ORDER BY
+        t.fechaCreacion DESC;
+END

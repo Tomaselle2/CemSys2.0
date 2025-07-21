@@ -23,7 +23,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-
+<!-- Datos del difunto -->
 <div class="accordion" id="accordionDatosDifunto">
     @* ID único para el acordeón principal *@
     <div class="accordion-item">
@@ -207,8 +207,62 @@
                                         <td>
                                             <form asp-action="/" method="get" style="display: inline-block;">
                                                 <input type="hidden" value="@opc.Id" />
-                                                <button type="submit" class="btn-modificar btn-sm" title="Modificar">
-                                                    <i class="bi bi-pencil"></i>
+                                                <button type="submit" class="btn-modificar btn-sm" title="ver">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+
+<!-- Tabla de historial de tramites -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Historial de trámites
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaHistorialTramites.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nro trámite</th>
+                                    <th>Fecha inicio</th>
+                                    <th>Tipo de trámite</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaHistorialTramites)
+                                {
+                                    string fechaInicio = opc.FechaInicio.ToString("dd/MM/yyyy HH:mm");
+
+                                    <tr>
+                                        <td>@opc.TramiteId.ToString()</td>
+                                        <td>@fechaInicio</td>
+                                        <td>@opc.TipoTramite</td>
+                                        <td>
+                                            <form asp-action="ResumenIntroduccion" asp-controller="Introduccion" target="_blank" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="ver">
+                                                    <i class="bi bi-eye"></i>
                                                 </button>
                                             </form>
                                         </td>
