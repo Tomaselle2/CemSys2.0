@@ -100,14 +100,14 @@
                                     {
                                         parcela = $"Fosa {opc.Parcela.NroParcela.ToString()}";
                                     }
-                                    else if (opc.Parcela.SeccionNavigation.TipoParcela == 2) //panteon
+                                    else if (opc.Parcela.SeccionNavigation.TipoParcela == 3) //panteon
                                     {
                                         parcela = $"Lote {opc.Parcela.NroParcela.ToString()}";
                                     }
 
                                     <tr>
                                         <td>@opc.IdTramite</td>
-                                        <td>@(opc.FechaIngreso.HasValue ? opc.FechaIngreso.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                                        <td>@(opc.FechaIngreso.HasValue ? opc.FechaIngreso.Value.ToString("dd/MM/yyyy HH:mm") : "N/A")</td>
                                         <td>@opc.Difunto.Apellido.ToUpper() @opc.Difunto.Nombre.ToUpper()</td>
                                         <td>@opc.Parcela.SeccionNavigation.Nombre.ToUpper()</td>
                                         <td>@parcela</td>

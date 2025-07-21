@@ -45,6 +45,7 @@ namespace CemSys2.ViewModel
         public bool? FallecioEnTirolesa { get; set; }
 
         public DTO_Persona_Historial PersonaHistorial { get; set; } = new();
+        public List<DTO_Persona_Historial_Parcelas> ListaHistorialParcelas { get; set; } = new();
 
         public string? MensajeError { get; set; }
 

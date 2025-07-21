@@ -37,9 +37,9 @@
             <div class="accordion-body">
                 <div class="form-box">
                     <form asp-action="ModificarPersona" asp-controller="Personas" method="post">
-                        
+
                         <input  type="hidden" asp-for="NN"/>
-                       
+
 
                         <div class="form-columns-container3">
                             <div>
@@ -84,7 +84,7 @@
                             </div>
 
                             <div>
-                                <label>Estado del difunto<span class="obligatorio"> * </span></label>
+                                <label>Estado del difunto</label>
                                 <input class="form-control" type="text" asp-for="EstadoDifunto" readonly />
                             </div>
                         </div>
@@ -152,11 +152,79 @@
             </div>
         </div>
     </div>
-    
-        
-   
-
 </div>
+
+
+<!-- Tabla de historial de parcelas -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Historial de parcelas
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaHistorialParcelas.Count != 0)
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ingreso</th>
+                                    <th>Retiro</th>
+                                    <th>Sección</th>
+                                    <th>Parcela</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaHistorialParcelas)
+                                {
+                                    string parcela = "";
+                                    if (opc.TipoParcela == 1) //nicho
+                                    {
+                                        parcela = $"Nicho {opc.NroParcela.ToString()} Fila {opc.NroFila.ToString()}";
+                                    }
+                                    else if (opc.TipoParcela == 2)//fosa
+                                    {
+                                        parcela = $"Fosa {opc.NroParcela.ToString()}";
+                                    }
+                                    else if (opc.TipoParcela == 3) //panteon
+                                    {
+                                        parcela = $"Lote {opc.NroParcela.ToString()}";
+                                    }
+
+                                    string fechaIngreso = opc.FechaIngresoId.HasValue ? @opc.FechaIngresoId.Value.ToString("dd/MM/yyyy HH:mm") : "-----";
+                                    string fechaRetiro = opc.FechaRetiroId.HasValue ? @opc.FechaRetiroId.Value.ToString("dd/MM/yyyy HH:mm") : "-----";
+
+                                    <tr>
+                                        <td>@fechaIngreso</td>
+                                        <td>@fechaRetiro</td>
+                                        <td>@opc.NombreSeccion?.ToUpper()</td>
+                                        <td>@parcela</td>
+                                        <td>
+                                            <form asp-action="/" method="get" style="display: inline-block;">
+                                                <input type="hidden" value="@opc.Id" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="Modificar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

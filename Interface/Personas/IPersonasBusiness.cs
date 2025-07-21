@@ -18,6 +18,8 @@ namespace CemSys2.Interface.Personas
         Task<DTO_Persona_Historial> DatosPersonalesPersona(int idPersona);
         Task<int> ModificarPersona(Persona model);
         Task<Persona> ConsultarPersona(int idPersona);
+        Task<List<DTO_Persona_Historial_Parcelas>> ListaHistorialParcelas(int idPersona);
+
 
 
 

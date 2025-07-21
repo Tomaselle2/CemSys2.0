@@ -82,12 +82,16 @@ namespace CemSys2.Controllers
 
             Persona_Historial_VM viewModel = new Persona_Historial_VM();
             ModelState.Clear(); // Limpia errores de validación
+
             DTO_Persona_Historial personaHistorial = new DTO_Persona_Historial();
+            List<DTO_Persona_Historial_Parcelas> historialParcelas = new List<DTO_Persona_Historial_Parcelas>();
             try
             {
                 personaHistorial = await _personasBusiness.DatosPersonalesPersona(personaId);
+                historialParcelas = await _personasBusiness.ListaHistorialParcelas(personaId);
 
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
                 viewModel.MensajeError = $"Error al obtener los datos de la persona: {ex.Message}";
             }
@@ -110,6 +114,9 @@ namespace CemSys2.Controllers
             viewModel.DomicilioEnTirolesa = personaHistorial.DomicilioEnTirolesa;
             viewModel.FallecioEnTirolesa = personaHistorial.FallecioEnTirolesa;
             viewModel.NN = (personaHistorial.Dni == "nn") ? true : false;
+
+
+            viewModel.ListaHistorialParcelas = historialParcelas;
             return View(viewModel);
         }
 

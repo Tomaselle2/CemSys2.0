@@ -237,4 +237,33 @@ BEGIN
     OFFSET (@Pagina - 1) * @RegistrosPorPagina ROWS
     FETCH NEXT @RegistrosPorPagina ROWS ONLY;
 END
+go
+---------------------------  Procedimiento almacenado para obtener los datos del historial de parcelas en Personas-------------------------
 
+create PROCEDURE PersonasHistorialParcelas
+    @idPersona INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+		p.id,
+        pd.fechaIngreso,
+        pd.fechaRetiro,
+        p.NroParcela,
+        p.NroFila,
+        s.nombre AS Seccion,
+		s.tipoParcela
+    FROM 
+        ParcelaDifuntos pd
+    INNER JOIN 
+        Parcela p ON pd.parcelaId = p.id
+    INNER JOIN 
+        Secciones s ON p.seccion = s.id
+    INNER JOIN 
+        Personas per ON pd.difuntoId = per.idPersona
+    WHERE 
+        per.idPersona = @idPersona
+    ORDER BY
+        pd.fechaIngreso;
+END

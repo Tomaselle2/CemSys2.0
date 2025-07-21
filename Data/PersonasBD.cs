@@ -57,6 +57,47 @@ namespace CemSys2.Data
             return await _context.CategoriaPersonas.ToListAsync();
         }
 
+        public async Task<List<DTO_Persona_Historial_Parcelas>> ListaHistorialParcelas(int idPersona)
+        {
+            var resultado = new List<DTO_Persona_Historial_Parcelas>();
+
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "PersonasHistorialParcelas";
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    var parametro = command.CreateParameter();
+                    parametro.ParameterName = "@idPersona";
+                    parametro.Value = idPersona;
+                    command.Parameters.Add(parametro);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var dto = new DTO_Persona_Historial_Parcelas
+                            {
+                                Id = reader.IsDBNull(reader.GetOrdinal("id")) ? null : reader.GetInt32(reader.GetOrdinal("id")),
+                                FechaIngresoId = reader.IsDBNull(reader.GetOrdinal("fechaIngreso")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("fechaIngreso")),
+                                FechaRetiroId = reader.IsDBNull(reader.GetOrdinal("fechaRetiro")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("fechaRetiro")),
+                                NroParcela = reader.IsDBNull(reader.GetOrdinal("NroParcela")) ? null : reader.GetInt32(reader.GetOrdinal("NroParcela")),
+                                NroFila = reader.IsDBNull(reader.GetOrdinal("NroFila")) ? null : reader.GetInt32(reader.GetOrdinal("NroFila")),
+                                NombreSeccion = reader.IsDBNull(reader.GetOrdinal("Seccion")) ? null : reader.GetString(reader.GetOrdinal("Seccion")),
+                                TipoParcela = reader.IsDBNull(reader.GetOrdinal("tipoParcela")) ? null : reader.GetInt32(reader.GetOrdinal("tipoParcela"))
+                            };
+                            resultado.Add(dto);
+                        }
+                    }
+                }
+            }
+
+            return resultado;
+        }
+
         public async Task<(List<DTO_Difunto_Persona_Index> personas, int totalRegistros)> ListaPersonasIndex(
         string? dni = null,
         string? nombre = null,
