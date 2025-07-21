@@ -1,0 +1,161 @@
+﻿@using CemSys2.ViewModel
+@model ParcelaHistorialVM
+@{
+    string fecha = DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+    DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
+    var fechaMax = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+}
+@{
+    string parcela = "";
+    if (Model.EncabezadoParcela.TipoParcela == 1) //nicho
+    {
+        parcela = $"Nicho {Model.EncabezadoParcela.NroParcela.ToString()} Fila {Model.EncabezadoParcela.NroFila.ToString()}";
+    }
+    else if (Model.EncabezadoParcela.TipoParcela == 2)//fosa
+    {
+        parcela = $"Fosa {Model.EncabezadoParcela.NroParcela.ToString()}";
+    }
+    else if (Model.EncabezadoParcela.TipoParcela == 3) //panteon
+    {
+        parcela = $"Lote {Model.EncabezadoParcela.NroParcela.ToString()}";
+    }
+}
+<h1 class="tituloDePagina">Historial</h1>
+<h2 class="tituloDePagina">@parcela sección @Model.EncabezadoParcela.NombreSeccion.ToUpper()</h2>
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+
+<!-- Tabla de historial de difuntos actuales -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+               Difuntos actuales (@Model.ListaDifuntosActuales.Count())
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaDifuntosActuales.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ingreso</th>
+                                    <th>DNI</th>
+                                    <th>Apellido</th>
+                                    <th>Nombre</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaDifuntosActuales)
+                                {
+                                    string fechaInicio = opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
+                                    string dni = (opc.Dni == "nn") ? "--------" : opc.Dni; // Manejo de DNI nulo
+                                    <tr>
+                                        <td>@fechaInicio</td>
+                                        <td>@dni</td>
+                                        <td>@opc.Apellido?.ToUpper()</td>
+                                        <td>@opc.Nombre?.ToUpper()</td>
+                                        <td>
+                                            <form asp-action="HistorialPersona" asp-controller="Personas" target="_blank" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="personaId" value="@opc.DifuntoId" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="ver">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay difuntos actuales en esta parcela.
+                </div>
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+
+<!-- Tabla de historial de difuntos historicos -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Historial de difuntos (@Model.ListaDifuntosHistoricos.Count())
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaDifuntosHistoricos.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ingreso</th>
+                                    <th>DNI</th>
+                                    <th>Apellido</th>
+                                    <th>Nombre</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaDifuntosHistoricos)
+                                {
+                                    string fechaInicio = opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
+                                    string dni = (opc.Dni == "nn") ? "--------" : opc.Dni; // Manejo de DNI nulo
+                                    <tr>
+                                        <td>@fechaInicio</td>
+                                        <td>@dni</td>
+                                        <td>@opc.Apellido?.ToUpper()</td>
+                                        <td>@opc.Nombre?.ToUpper()</td>
+                                        <td>
+                                            <form asp-action="HistorialPersona" asp-controller="Personas" target="_blank" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="personaId" value="@opc.DifuntoId" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="ver">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay historial de difuntos en esta parcela.
+                </div>
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+

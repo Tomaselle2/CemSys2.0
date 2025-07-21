@@ -291,3 +291,64 @@ BEGIN
     ORDER BY
         t.fechaCreacion DESC;
 END
+go
+---------------------------------------------------------------------------------------------
+create PROCEDURE ObtenerDifuntosEnParcela
+    @parcelaId INT
+AS
+BEGIN
+    SELECT 
+        pd.difuntoId AS DifuntoId, 
+        pd.fechaIngreso, 
+        p.nombre, 
+        p.apellido,
+		p.dni AS Dni,  -- Agregado este campo
+        pd.parcelaId
+    FROM 
+        ParcelaDifuntos pd
+    INNER JOIN 
+        Personas p ON p.idPersona = pd.difuntoId
+    WHERE 
+        p.categoriaPersona = 2 
+        AND pd.fechaRetiro IS NULL 
+        AND pd.parcelaId = @parcelaId;
+END
+go
+-----------------------------------------------------------------------------------
+CREATE PROCEDURE ObtenerEncabezadoParcela
+    @parcelaId INT
+AS
+BEGIN
+    SELECT 
+        p.id AS ParcelaId, 
+        p.NroParcela, 
+        p.NroFila, 
+        s.nombre AS NombreSeccion, 
+        s.tipoParcela AS TipoParcela
+    FROM 
+        Parcela p
+    INNER JOIN 
+        Secciones s ON s.id = p.seccion
+    WHERE 
+        p.id = @parcelaId;
+END
+go
+--------------------------------------------------------------------------------
+CREATE PROCEDURE ObtenerDifuntosHistoricosEnParcela
+    @parcelaId INT
+AS
+BEGIN
+    SELECT 
+        pd.difuntoId AS DifuntoId, 
+        pd.fechaIngreso, 
+        p.nombre, 
+        p.apellido,
+        p.dni AS Dni
+    FROM 
+        ParcelaDifuntos pd
+    INNER JOIN 
+        Personas p ON p.idPersona = pd.difuntoId
+    WHERE 
+        p.categoriaPersona = 2 
+        AND pd.parcelaId = @parcelaId;
+END

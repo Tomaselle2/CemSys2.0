@@ -95,7 +95,7 @@
                                         }
 
                                         <td>
-                                                    <form asp-action="HistorialPersona" method="get" style="display: inline-block;" target="_blank">
+                                            <form asp-action="HistorialPersona" method="get" style="display: inline-block;" target="_blank">
                                                 <input type="hidden" name="personaId" value="@opc.IdPersona" />
                                                 <button type="submit" class="btn-modificar btn-sm" title="historial">
                                                     <i class="bi bi-clock-history"></i>
@@ -123,6 +123,13 @@
                     })
                 }
 
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    Realice una búsqueda para ver los resultados. 
+                </div>
             }
             @* Fin cuerpo del acordeon *@
         </div>

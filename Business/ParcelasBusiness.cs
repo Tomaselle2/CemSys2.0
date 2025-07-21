@@ -1,5 +1,7 @@
 ﻿using CemSys2.DTO;
+using CemSys2.DTO.Parcelas;
 using CemSys2.Interface;
+using CemSys2.Interface.Parcelas;
 using CemSys2.Models;
 using System.Diagnostics;
 namespace CemSys2.Business
@@ -7,10 +9,12 @@ namespace CemSys2.Business
     public class ParcelasBusiness : IParcelasBusiness
     {
         private readonly IRepositoryBusiness<Parcela> _parcelaRepository;
+        private readonly IParcelaBD _parcelaBD;
 
-        public ParcelasBusiness(IRepositoryBusiness<Parcela> parcelaRepository)
+        public ParcelasBusiness(IRepositoryBusiness<Parcela> parcelaRepository, IParcelaBD parcelaBD)
         {
             _parcelaRepository = parcelaRepository;
+            _parcelaBD = parcelaBD;
         }
 
         public async Task RegistrarParcelas(DTO_secciones seccion)
@@ -133,6 +137,21 @@ namespace CemSys2.Business
                     throw;
                 }
             }
+        }
+
+        public async Task<List<DTO_Historial_Parcelas>> ListaHistorialDifuntosActuales(int parcelaId)
+        {
+            return await _parcelaBD.ListaHistorialDifuntosActuales(parcelaId);
+        }
+
+        public async Task<DTO_Parcelas_Encabezado> EncabezadoParcela(int parcelaId)
+        {
+            return await _parcelaBD.EncabezadoParcela(parcelaId);
+        }
+
+        public async Task<List<DTO_Historial_Parcelas>> ListaHistorialDifuntosHistoricos(int parcelaId)
+        {
+            return await _parcelaBD.ListaHistorialDifuntosHistoricos(parcelaId);
         }
     }
 }

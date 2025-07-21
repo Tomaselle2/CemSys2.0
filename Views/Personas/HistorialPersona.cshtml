@@ -205,8 +205,8 @@
                                         <td>@opc.NombreSeccion?.ToUpper()</td>
                                         <td>@parcela</td>
                                         <td>
-                                            <form asp-action="/" method="get" style="display: inline-block;">
-                                                <input type="hidden" value="@opc.Id" />
+                                            <form asp-action="HistorialParcela" asp-controller="Parcelas" method="get" target="_blank" style="display: inline-block;">
+                                                <input type="hidden" name="parcelaId" value="@opc.Id" />
                                                 <button type="submit" class="btn-modificar btn-sm" title="ver">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
@@ -218,6 +218,13 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay parcelas registradas.
                 </div>
             }
             @* Fin cuerpo del acordeon *@
@@ -272,6 +279,13 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay tramites registrados.
                 </div>
             }
             @* Fin cuerpo del acordeon *@
