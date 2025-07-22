@@ -7,10 +7,6 @@ namespace CemSys2.Interface.Introduccion
     public interface IIntroduccionBusiness
     {
 
-        Task<int> RegistrarActaDefuncion(ActaDefuncion model);
-        Task<int> RegistrarDifunto(Persona model);
-
-
         Task<List<EstadoDifunto>> ListaEstadoDifunto();
         Task<List<TipoParcela>> ListaTipoParcela();
         Task<List<DTO_SeccionIntroduccion>> ListaSecciones(int idTipoParcela);
@@ -28,15 +24,6 @@ namespace CemSys2.Interface.Introduccion
 
         //reportes
         Task<List<Introduccione>> ReporteIntroducciones(DateTime? desde = null, DateTime? hasta = null);
-
-
-
-
-
-
-
-
-
 
 
     }

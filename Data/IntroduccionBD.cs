@@ -3,6 +3,7 @@ using CemSys2.DTO.Reportes;
 using CemSys2.Interface;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
@@ -21,37 +22,6 @@ namespace CemSys2.Data
             _estadoDifuntoBD = estadoDifuntoBD;
             _tipoParcelaBD = tipoParcelaBD;
             _empresaFunebreBD = empresaFunebreBD;
-        }
-
-
-        public Task<int> RegistrarActaDefuncion(ActaDefuncion model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> RegistrarDifunto(Persona model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> RegistrarHistorialEstadoTramite(HistorialEstadoTramite model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> RegistrarIntroduccion(Introduccione model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> RegistrarParcelaDifunto(ParcelaDifunto model)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> RegistrarTramite(Tramite model)
-        {
-            throw new NotImplementedException();
         }
 
 
@@ -317,7 +287,7 @@ namespace CemSys2.Data
         public async Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite)
         {
             var resultado = new List<DTO_Resumen_Introduccion>();
-            using (var connection = _context.Database.GetDbConnection())
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
             {
                 await connection.OpenAsync();
                 using (var command = connection.CreateCommand())

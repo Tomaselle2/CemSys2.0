@@ -24,48 +24,48 @@
 }
 
 
+@if (Context.Session.GetInt32("Rol") == 2)
+{
+    <!-- formulario -->
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                    Nueva sección
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                @* cuerpo del acordion *@
+                <div class="accordion-body">
+                    <form asp-action="RegistrarSeccionFosa" method="post">
+                        <input type="hidden" asp-for="Id" />
 
-<!-- formulario -->
-<div class="accordion" id="accordionPanelsStayOpenExample">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Nueva sección
-            </button>
-        </h2>
-        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-            @* cuerpo del acordion *@
-            <div class="accordion-body">
-                <form asp-action="RegistrarSeccionFosa" method="post">
-                    <input type="hidden" asp-for="Id" />
+                        <div class="form-columns-container3">
+                            <div>
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input class="form-control" type="text" asp-for="Nombre" required maxlength="50" id="nombre" />
+                                <span asp-validation-for="Nombre" class="text-danger"></span>
+                            </div>
 
-                    <div class="form-columns-container3">
-                        <div>
-                            <label for="nombre" class="form-label">Nombre</label>
-                            <input class="form-control" type="text" asp-for="Nombre" required maxlength="50" id="nombre" />
-                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                            <div>
+                                <label for="nroNichos" class="form-label">Cantidad de fosas</label>
+                                <input class="form-control" type="number" asp-for="NroParcelas" required id="nroNichos" min="1" />
+                                <span asp-validation-for="NroParcelas" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-button-registrar">
+                                <input type="hidden" asp-for="Redirigir" value="InicioSeccionesFosas" />
+                                <input class="btn-registrar" type="submit" value="Registrar" />
+                            </div>
                         </div>
-
-                        <div>
-                            <label for="nroNichos" class="form-label">Cantidad de fosas</label>
-                            <input class="form-control" type="number" asp-for="NroParcelas" required id="nroNichos" min="1" />
-                            <span asp-validation-for="NroParcelas" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-button-registrar">
-                            <input type="hidden" asp-for="Redirigir" value="InicioSeccionesFosas" />
-                            <input class="btn-registrar" type="submit" value="Registrar" />
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                @* Fin cuerpo del acordeon *@
             </div>
-            @* Fin cuerpo del acordeon *@
         </div>
     </div>
-</div>
-
+}
 <!-- Tabla -->
-
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">

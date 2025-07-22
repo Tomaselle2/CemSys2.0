@@ -1,5 +1,6 @@
 ﻿using CemSys2.Data;
 using CemSys2.DTO.Personas;
+using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
 using CemSys2.Models;
 using CemSys2.ViewModel;
@@ -18,9 +19,14 @@ namespace CemSys2.Controllers
             _personasBusiness = personasBusiness;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(PersonasVM? viewModel = null)
         {
-            PersonasVM viewModel = new PersonasVM();
+            if(viewModel == null)
+            {
+                viewModel = new PersonasVM();
+                await CargarCombo(viewModel);
+            }
+            
             await CargarCombo(viewModel);
 
             return View(viewModel);
@@ -40,7 +46,7 @@ namespace CemSys2.Controllers
         }
 
         //funcion que reciba el DNI, nombre, apellido o condicion, puede ser null todos los campos
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> BuscarPersona(PersonasVM viewModel, int pagina = 1)
         {
             try
@@ -50,8 +56,8 @@ namespace CemSys2.Controllers
                     viewModel.Dni,
                     viewModel.Nombre,
                     viewModel.Apellido,
-                    viewModel.CondicionPersonaId,
-                    registrosPorPagina,
+                    viewModel.CondicionPersonaId, 
+                    registrosPorPagina, 
                     pagina);
 
                 // Actualizar el ViewModel con los resultados
@@ -74,14 +80,16 @@ namespace CemSys2.Controllers
         [HttpGet]
         public async Task<IActionResult> HistorialPersona(int personaId, Persona_Historial_VM model = null)
         {
-            if (model != null && model.Id.HasValue)
-            {
-                // Si viene del POST con errores, mantener el modelo existente
-                return View(model);
-            }
-
-            Persona_Historial_VM viewModel = new Persona_Historial_VM();
+            // Inicializa el viewModel correctamente
+            Persona_Historial_VM viewModel = model ?? new Persona_Historial_VM();
             ModelState.Clear(); // Limpia errores de validación
+
+            // Recuperar mensajes de TempData
+            if (TempData.TryGetValue("MensajeError", out object mensajeError))
+            {
+                viewModel.MensajeError = mensajeError.ToString();
+                TempData.Remove("MensajeError");
+            }
 
             DTO_Persona_Historial personaHistorial = new DTO_Persona_Historial();
             List<DTO_Persona_Historial_Parcelas> historialParcelas = new List<DTO_Persona_Historial_Parcelas>();
@@ -129,12 +137,14 @@ namespace CemSys2.Controllers
             if (!ModelState.IsValid)
             {
                 // Si el modelo no es válido, retornar a la vista con los errores
-                viewModel.MensajeError = "Por favor, corrija los errores en el formulario.";
+                TempData["MensajeError"] = "Por favor, corrija los errores en el formulario.";
                 return View("HistorialPersona", viewModel);
             }
 
             try
             {
+                Persona? difunto = new Persona();
+
                 Persona model = await _personasBusiness.ConsultarPersona(viewModel.Id.Value);
                 model.Dni = (viewModel.NN) ? "nn" : viewModel.Dni?.ToString() ?? "nn";
                 model.Nombre = viewModel.Nombre?.Trim() ?? "nn";
@@ -155,7 +165,7 @@ namespace CemSys2.Controllers
 
                 if (resultado == 0)
                 {
-                    viewModel.MensajeError = "No se pudo modificar. Por favor, inténtelo de nuevo.";
+                    TempData["MensajeError"]  = "No se pudo modificar. Por favor, inténtelo de nuevo.";
                     return View("HistorialPersona", viewModel);
                 }
 
@@ -165,7 +175,7 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                viewModel.MensajeError = $"Error al modificar la persona: {ex.Message}";
+                TempData["MensajeError"] = $"Error al modificar la persona: {ex.Message}";
                 return View("HistorialPersona", viewModel);
             }
         }

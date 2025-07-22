@@ -59,16 +59,6 @@ namespace CemSys2.Business
             return await _introduccionBD.ObtenerResumenIntroduccion(idTramite);
         }
 
-        public async Task<int> RegistrarActaDefuncion(ActaDefuncion model)
-        {
-            return await _introduccionBD.RegistrarActaDefuncion(model);
-        }
-
-        public async Task<int> RegistrarDifunto(Persona model)
-        {
-            return await _introduccionBD.RegistrarDifunto(model);
-        }
-
         public async Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model)
         {
             return await _introduccionBD.RegistrarEmpresaSepelio(model);
