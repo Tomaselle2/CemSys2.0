@@ -159,3 +159,62 @@
 </div>
 
 
+<!-- Tabla de historial de tramites -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Historial de trámites (@Model.ListaTramites.Count())
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaTramites.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nro trámite</th>
+                                    <th>Fecha inicio</th>
+                                    <th>Tipo trámite</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaTramites)
+                                {
+                                    string fechaInicio = opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm");
+                                    <tr>
+                                        <td>@opc.TramiteId</td>
+                                        <td>@fechaInicio</td>
+                                        <td>@opc.TipoTramite</td>
+                                        <td>
+                                            <form asp-action="ResumenIntroduccion" asp-controller="Introduccion" target="_blank" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="ver">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay historial de tramites en esta parcela.
+                </div>
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+

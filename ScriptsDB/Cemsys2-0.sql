@@ -401,6 +401,16 @@ CREATE TABLE ArchivosDocumentacion (
     )
 );
 
+CREATE TABLE TramiteParcela (
+    tramiteId INT NOT NULL,
+    parcelaId INT NOT NULL,
+    fechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    PRIMARY KEY (tramiteId, parcelaId),
+    FOREIGN KEY (tramiteId) REFERENCES Tramite(id),
+    FOREIGN KEY (parcelaId) REFERENCES Parcela(id)
+);
+
+
 -- Agregar la FK de RecibosFactura a ArchivosDocumentacion
 ALTER TABLE RecibosFactura 
 ADD CONSTRAINT FK_RecibosFactura_ArchivosDocumentacion 

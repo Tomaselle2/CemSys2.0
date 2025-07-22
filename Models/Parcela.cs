@@ -32,4 +32,6 @@ public partial class Parcela
     public virtual TipoNicho? TipoNichoNavigation { get; set; }
 
     public virtual TipoPanteon? TipoPanteon { get; set; }
+
+    public virtual ICollection<TramiteParcela> TramiteParcelas { get; set; } = new List<TramiteParcela>();
 }

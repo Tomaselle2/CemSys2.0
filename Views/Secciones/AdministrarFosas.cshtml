@@ -17,7 +17,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Parcelas Registradas
+                Parcelas Registradas (@Model.TotalRegistros.ToString())
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
@@ -45,13 +45,14 @@
                                                 string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado {opc.CantidadDifuntos} difunto/s";
                                             }
                                             <td>@estado</td>
-                                            @* <form asp-action="AdministrarNichos" method="get" style="display: inline-block;">
-                                                    <input type="hidden" asp-for="Id" value="@opc.Id" />
-                                                    <input type="hidden" asp-for="Redirigir" value="InicioSeccionesNichos" />
-                                                    <button type="submit" class="btn-modificar btn-sm" title="Administrar">
-                                                        <i class="bi bi-gear"></i>
+                                            <td>
+                                                <form asp-action="HistorialParcela" asp-controller="Parcelas" method="get" target="_blank" style="display: inline-block;">
+                                                    <input type="hidden" name="parcelaId" value="@opc.Id" />
+                                                    <button type="submit" class="btn-modificar btn-sm" title="ver">
+                                                        <i class="bi bi-clock-history"></i>
                                                     </button>
-                                                </form> *@
+                                                </form>
+                                            </td>
 
                                         </tr>
                                     }

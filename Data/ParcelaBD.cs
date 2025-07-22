@@ -133,5 +133,45 @@ namespace CemSys2.Data
 
             return resultado;
         }
+
+        public async Task<List<DTO_Parcela_Tramites>> ListaParcelasTramites(int parcelaId)
+        {
+            var resultado = new List<DTO_Parcela_Tramites>();
+
+            using (var connection = _context.Database.GetDbConnection())
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "ObtenerTramitesPorParcela";
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    var parametro = command.CreateParameter();
+                    parametro.ParameterName = "@parcelaId";
+                    parametro.Value = parcelaId;
+                    command.Parameters.Add(parametro);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var dto = new DTO_Parcela_Tramites
+                            {
+                                TramiteId = reader.GetInt32(reader.GetOrdinal("TramiteId")),
+                                FechaCreacion = reader.GetDateTime(reader.GetOrdinal("FechaCreacion")),
+                                TipoTramite = reader.IsDBNull(reader.GetOrdinal("TipoTramite"))
+                                            ? string.Empty
+                                            : reader.GetString(reader.GetOrdinal("TipoTramite")),
+                                ParcelaId = reader.GetInt32(reader.GetOrdinal("ParcelaId"))
+                            };
+                            resultado.Add(dto);
+                        }
+                    }
+                }
+            }
+
+            return resultado;
+        }
     }
 }

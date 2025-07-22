@@ -46,6 +46,7 @@ namespace CemSys2.Controllers
                 viewModel.ListaDifuntosActuales = await _parcelasBusiness.ListaHistorialDifuntosActuales(parcelaId);
                 viewModel.EncabezadoParcela = await _parcelasBusiness.EncabezadoParcela(parcelaId);
                 viewModel.ListaDifuntosHistoricos = await _parcelasBusiness.ListaHistorialDifuntosHistoricos(parcelaId);
+                viewModel.ListaTramites = await _parcelasBusiness.ListaParcelasTramites(parcelaId);
             }
             catch (Exception ex)
             {

@@ -352,3 +352,23 @@ BEGIN
         p.categoriaPersona = 2 
         AND pd.parcelaId = @parcelaId;
 END
+go
+--------------------------------------------------------------------------------------
+CREATE PROCEDURE ObtenerTramitesPorParcela
+    @parcelaId INT
+AS
+BEGIN
+    SELECT 
+        t.id AS TramiteId, 
+        t.fechaCreacion AS FechaCreacion, 
+        tipo.tipo AS TipoTramite, 
+        tp.parcelaId AS ParcelaId
+    FROM 
+        TramiteParcela tp
+    INNER JOIN 
+        Tramite t ON t.id = tp.tramiteId
+    INNER JOIN 
+        TipoTramite tipo ON tipo.id = t.tipoTramiteID
+    WHERE 
+        tp.parcelaId = @parcelaId;
+END

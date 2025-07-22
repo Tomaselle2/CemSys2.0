@@ -77,6 +77,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Tramite> Tramites { get; set; }
 
+    public virtual DbSet<TramiteParcela> TramiteParcelas { get; set; }
+
     public virtual DbSet<TramitePersona> TramitePersonas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
@@ -774,6 +776,30 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.Usuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Tramite__usuario__70DDC3D8");
+        });
+
+        modelBuilder.Entity<TramiteParcela>(entity =>
+        {
+            entity.HasKey(e => new { e.TramiteId, e.ParcelaId }).HasName("PK__TramiteP__47EF37AD5ADDD453");
+
+            entity.ToTable("TramiteParcela");
+
+            entity.Property(e => e.TramiteId).HasColumnName("tramiteId");
+            entity.Property(e => e.ParcelaId).HasColumnName("parcelaId");
+            entity.Property(e => e.FechaRegistro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaRegistro");
+
+            entity.HasOne(d => d.Parcela).WithMany(p => p.TramiteParcelas)
+                .HasForeignKey(d => d.ParcelaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TramitePa__parce__56E8E7AB");
+
+            entity.HasOne(d => d.Tramite).WithMany(p => p.TramiteParcelas)
+                .HasForeignKey(d => d.TramiteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__TramitePa__trami__55F4C372");
         });
 
         modelBuilder.Entity<TramitePersona>(entity =>

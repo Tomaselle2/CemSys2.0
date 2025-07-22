@@ -191,6 +191,14 @@ namespace CemSys2.Data
                 _context.TramitePersonas.Add(tramitePersona);
                 await _context.SaveChangesAsync();
 
+                // Relacionar parcela con trámite
+                TramiteParcela tramiteParcela = new TramiteParcela
+                {
+                    TramiteId = tramite.Id,
+                    ParcelaId = ParcelaId
+                };
+                _context.TramiteParcelas.Add(tramiteParcela);
+                await _context.SaveChangesAsync();
 
                 // Registrar Historial Estado Trámite
                 HistorialEstadoTramite historial = new HistorialEstadoTramite

@@ -153,5 +153,10 @@ namespace CemSys2.Business
         {
             return await _parcelaBD.ListaHistorialDifuntosHistoricos(parcelaId);
         }
+
+        public async Task<List<DTO_Parcela_Tramites>> ListaParcelasTramites(int parcelaId)
+        {
+            return await _parcelaBD.ListaParcelasTramites(parcelaId);
+        }
     }
 }
