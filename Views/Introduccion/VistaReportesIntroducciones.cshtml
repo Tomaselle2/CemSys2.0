@@ -59,6 +59,20 @@
     </div>
 
     <div class="contenedor-reporte" style="display:none;">
+        <canvas id="graficoTortaPorMes" class="reporte-width"></canvas>
+        <div class="contenedor-btn-descargar" id="contenedorBtnPdfTortaMes">
+            <form method="post" asp-action="ReporteGraficosPDF" id="formPdfTortaMes" class="form-pdf">
+                <input type="hidden" id="imagenBase64TortaMes" name="imagenBase64">
+                <input type="hidden" name="fechaDesde">
+                <input type="hidden" name="fechaHasta">
+                <button type="submit" class="btn-pdf">
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="contenedor-reporte" style="display:none;">
         <canvas id="graficoTortaParcela" class="reporte-width"></canvas>
         <div class="contenedor-btn-descargar" id="contenedorBtnPdfPorcentajeTorta" >
             <form method="post" asp-action="ReporteGraficosPDF" id="formPdfPorcentajeTorta" class="form-pdf">
@@ -93,6 +107,20 @@
         <div class="contenedor-btn-descargar" id="contenedorBtnPdfBarrasEmpleados" >
             <form id="formPdfBarrasEmpleados" method="post" asp-action="ReporteGraficosPDF" class="form-pdf">
                 <input type="hidden" id="imagenBase64BarrasEmpleados" name="imagenBase64">
+                <input type="hidden" name="fechaDesde">
+                <input type="hidden" name="fechaHasta">
+                <button type="submit" class="btn-pdf">
+                    <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="contenedor-reporte" style="display:none;">
+        <canvas id="graficoTortaEmpleados" class="reporte-width"></canvas>
+        <div class="contenedor-btn-descargar" id="contenedorBtnPdfTortaEmpleados">
+            <form method="post" asp-action="ReporteGraficosPDF" id="formPdfTortaEmpleados" class="form-pdf">
+                <input type="hidden" id="imagenBase64TortaEmpleados" name="imagenBase64">
                 <input type="hidden" name="fechaDesde">
                 <input type="hidden" name="fechaHasta">
                 <button type="submit" class="btn-pdf">
@@ -139,6 +167,9 @@
                             // Gráfico de barras (por mes)
                             BarrasIntroduccionesMes(response.dataBarra);
 
+                            // gráfico de torta (por mes)
+                            GraficoTortaPorMes(response.dataBarra); 
+
                             // Gráfico de torta (por tipo de parcela)
                             GraficoTorta(response.dataTorta);
 
@@ -147,6 +178,9 @@
 
                             // Gráfico de barras horizontales (por empleado)
                             GraficoBarrasEmpleados(response.dataEmpleados);
+
+                            // gráfico de torta (por empleado)
+                            GraficoTortaEmpleados(response.dataEmpleados);
 
                             // Actualizar fechas en todos los formularios PDF
                             $('input[name="fechaDesde"]').val(response.fechaDesde);
@@ -164,9 +198,12 @@
         });
     </script>
     <script src="~/js/reportes/introducciones/barrasIntroducionesMes.js"></script> @* grafico de barras cantidad de introducciones por mes *@
+    <script src="~/js/reportes/introducciones/graficoTortaPorMes.js"></script>
     <script src="~/js/reportes/introducciones/graficobarraparcela.js"></script>
     <script src="~/js/reportes/introducciones/graficoempleadosbarrahorizontal.js"></script>
     <script src="~/js/reportes/introducciones/reportesIntroduccionesPorTipoParcelaTorta.js"></script>
+    <script src="~/js/reportes/introducciones/graficoTortaEmpleados.js"></script>
+
 
     
     <script>
@@ -193,6 +230,18 @@
             var canvas = document.getElementById("graficoBarrasEmpleados");
             var imagen = canvas.toDataURL("image/png");
             document.getElementById("imagenBase64BarrasEmpleados").value = imagen;
+        });
+
+        document.getElementById('formPdfTortaMes').addEventListener('submit', function (e) {
+            var canvas = document.getElementById("graficoTortaPorMes");
+            var imagen = canvas.toDataURL("image/png");
+            document.getElementById("imagenBase64TortaMes").value = imagen;
+        });
+
+        document.getElementById('formPdfTortaEmpleados').addEventListener('submit', function (e) {
+            var canvas = document.getElementById("graficoTortaEmpleados");
+            var imagen = canvas.toDataURL("image/png");
+            document.getElementById("imagenBase64TortaEmpleados").value = imagen;
         });
     </script>
 
