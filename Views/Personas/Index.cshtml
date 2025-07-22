@@ -37,6 +37,18 @@
                                     <option value="">--Elija una opción--</option>
                                 </select>
                             </div>
+                            <div id="selectTipoParcela" style="display:none;">
+                                <label>Tipo de parcela</label>
+                                <select asp-for="TipoParcelaId" id="tipoParcela" class="form-select" asp-items="@(new SelectList(Model.ListaTipoParcela, "Id", "TipoParcela1"))">
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                            </div>
+                            <div id="selectSeccion" style="display:none;">
+                                <label>Sección</label>
+                                <select asp-for="SeccionId" id="seccion" class="form-select" asp-items="@(new SelectList(Model.ListaSecciones, "Id", "Nombre"))">
+                                    <option value="">--Elija una opción--</option>
+                                </select>
+                            </div>
 
                             <div class="text-center mt-3">
                                 <button type="submit" class="btn btn-success me-2" id="btnBuscar">Buscar</button>
@@ -135,3 +147,124 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    //maneja la aparicion y desaparicion de los select de tipo parcela y seccion
+    document.getElementById('condicionPersona').addEventListener('change', function () {
+        const condicion = this.value;
+        const tipoParcela = document.getElementById('selectTipoParcela');
+        const seccion = document.getElementById('selectSeccion');
+
+        if (condicion === "2") {
+            tipoParcela.style.display = 'block';
+            seccion.style.display = 'block';
+        } else {
+            tipoParcela.style.display = 'none';
+            seccion.style.display = 'none';
+        }
+    });
+</script>
+@* <script>
+    document.getElementById('tipoParcela').addEventListener('change', async function () {
+        const tipoParcelaId = this.value;
+        const seccionSelect = document.getElementById('seccion');
+
+        // Limpiar select de secciones
+        seccionSelect.innerHTML = '<option value="">--Seleccione una sección--</option>';
+
+        if (tipoParcelaId) {
+            try {
+                const response = await fetch(`/Personas/ObtenerSeccionesPorTipo?tipoParcelaId=${tipoParcelaId}`);
+                if (response.ok) {
+                    const secciones = await response.json();
+
+                    if (secciones.length > 0) {
+                        secciones.forEach(seccion => {
+                            const option = document.createElement('option');
+                            option.value = seccion.id;
+                            option.text = seccion.nombre.toUpperCase();
+                            seccionSelect.appendChild(option);
+                        });
+                    } else {
+                        const option = document.createElement('option');
+                        option.text = 'No hay secciones disponibles';
+                        seccionSelect.appendChild(option);
+                    }
+                } else {
+                    console.error('Error al obtener secciones');
+                }
+            } catch (error) {
+                console.error('Error en la petición AJAX:', error);
+            }
+        }
+    });
+</script> *@
+
+<script>
+    const condicionSelect = document.getElementById('condicionPersona');
+    const tipoParcelaDiv = document.getElementById('selectTipoParcela');
+    const seccionDiv = document.getElementById('selectSeccion');
+    const tipoParcelaSelect = document.getElementById('tipoParcela');
+    const seccionSelect = document.getElementById('seccion');
+
+    // Función reutilizable para mostrar/ocultar
+    function toggleCamposTipoParcela() {
+        const condicion = condicionSelect.value;
+        if (condicion === "2") {
+            tipoParcelaDiv.style.display = 'block';
+            seccionDiv.style.display = 'block';
+        } else {
+            tipoParcelaDiv.style.display = 'none';
+            seccionDiv.style.display = 'none';
+        }
+    }
+
+    condicionSelect.addEventListener('change', function () {
+        toggleCamposTipoParcela();
+    });
+
+    tipoParcelaSelect.addEventListener('change', async function () {
+        const tipoParcelaId = this.value;
+        seccionSelect.innerHTML = '<option value="">--Seleccione una sección--</option>';
+
+        if (tipoParcelaId) {
+            try {
+                const response = await fetch(`/Personas/ObtenerSeccionesPorTipo?tipoParcelaId=${tipoParcelaId}`);
+                if (response.ok) {
+                    const secciones = await response.json();
+
+                    if (secciones.length > 0) {
+                        secciones.forEach(seccion => {
+                            const option = document.createElement('option');
+                            option.value = seccion.id;
+                            option.text = seccion.nombre.toUpperCase();
+                            seccionSelect.appendChild(option);
+                        });
+                        // ✅ Si tenías un SeccionId seleccionado, mantenerlo seleccionado:
+                        const seccionId = '@Model.SeccionId';
+                        if (seccionId && seccionId !== "0") {
+                            seccionSelect.value = seccionId;
+                        }
+                    } else {
+                        const option = document.createElement('option');
+                        option.text = 'No hay secciones disponibles';
+                        seccionSelect.appendChild(option);
+                    }
+                }
+            } catch (error) {
+                console.error('Error al obtener secciones:', error);
+            }
+        }
+    });
+
+    // ✅ Al cargar la página
+    document.addEventListener('DOMContentLoaded', function () {
+        toggleCamposTipoParcela();
+        // Si ya hay un tipoParcela seleccionado, dispará el cambio para cargar secciones:
+        const tipoParcelaId = tipoParcelaSelect.value;
+        if (condicionSelect.value === "2" && tipoParcelaId) {
+            tipoParcelaSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>

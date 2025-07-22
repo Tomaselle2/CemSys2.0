@@ -1,4 +1,5 @@
-﻿using CemSys2.Data;
+﻿using CemSys2.Business;
+using CemSys2.Data;
 using CemSys2.DTO.Personas;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
@@ -12,11 +13,13 @@ namespace CemSys2.Controllers
     public class PersonasController : Controller
     {
         private readonly IPersonasBusiness _personasBusiness;
+        private readonly IIntroduccionBusiness _introduccionBusiness;
         private int registrosPorPagina = 15; 
 
-        public PersonasController(IPersonasBusiness personasBusiness)
+        public PersonasController(IPersonasBusiness personasBusiness, IIntroduccionBusiness introduccionBusiness)
         {
             _personasBusiness = personasBusiness;
+            _introduccionBusiness = introduccionBusiness;
         }
 
         public async Task<IActionResult> Index(PersonasVM? viewModel = null)
@@ -37,6 +40,7 @@ namespace CemSys2.Controllers
             try
             {
                 viewModel.ListaCondicionPersona = await _personasBusiness.ListaCategoriaPersonas();
+                viewModel.ListaTipoParcela = await _introduccionBusiness.ListaTipoParcela();
             }
             catch (Exception ex)
             {
@@ -56,7 +60,9 @@ namespace CemSys2.Controllers
                     viewModel.Dni,
                     viewModel.Nombre,
                     viewModel.Apellido,
-                    viewModel.CondicionPersonaId, 
+                    viewModel.CondicionPersonaId,
+                    viewModel.TipoParcelaId,
+                    viewModel.SeccionId,
                     registrosPorPagina, 
                     pagina);
 
@@ -178,6 +184,13 @@ namespace CemSys2.Controllers
                 TempData["MensajeError"] = $"Error al modificar la persona: {ex.Message}";
                 return View("HistorialPersona", viewModel);
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerSeccionesPorTipo(int tipoParcelaId)
+        {
+            var secciones = await _introduccionBusiness.ListaSecciones(tipoParcelaId);
+            return Json(secciones);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Personas;
+﻿using CemSys2.DTO.Introduccion;
+using CemSys2.DTO.Personas;
 using CemSys2.Models;
 
 namespace CemSys2.ViewModel
@@ -10,10 +11,16 @@ namespace CemSys2.ViewModel
         public string? Apellido { get; set; }
         public string? Dni { get; set; }
         public int? CondicionPersonaId { get; set; }
+        public int? SeccionId   { get; set; }
+        public int? TipoParcelaId { get; set; }
 
         // Resultados
         public List<DTO_Difunto_Persona_Index> ListaPersonasIndex { get; set; } = new();
         public List<CategoriaPersona> ListaCondicionPersona { get; set; } = new();
+
+        //combos
+        public List<DTO_SeccionIntroduccion> ListaSecciones { get; set; } = new();
+        public List<TipoParcela> ListaTipoParcela { get; set; } = new();
 
         // Paginación
         public int PaginaActual { get; set; } = 1;

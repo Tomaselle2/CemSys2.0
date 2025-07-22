@@ -12,6 +12,8 @@ namespace CemSys2.Interface.Personas
              string? nombre = null,
              string? apellido = null,
              int? categoriaId = null,
+             int? tipoParcelaId = null,
+             int? seccionId = null,
              int registrosPorPagina = 10,
              int pagina = 1);
 

@@ -141,12 +141,17 @@ namespace CemSys2.Data
         string? nombre = null,
         string? apellido = null,
         int? categoriaId = null,
+        int? tipoParcelaId = null,
+        int? seccionId = null,
         int registrosPorPagina = 10,
         int pagina = 1)
         {
             // Consulta base
             var query = from p in _context.Personas
                         join cp in _context.CategoriaPersonas on p.CategoriaPersona equals cp.Id
+                        join intro in _context.Introducciones on p.IdPersona equals intro.DifuntoId
+                        join parcela in _context.Parcelas on intro.ParcelaId equals parcela.Id
+                        join seccion in _context.Secciones on parcela.Seccion equals seccion.Id
                         select new DTO_Difunto_Persona_Index
                         {
                             IdPersona = p.IdPersona,
@@ -154,7 +159,9 @@ namespace CemSys2.Data
                             Apellido = p.Apellido,
                             Dni = p.Dni,
                             Sexo = p.Sexo,
-                            CategoriaPersona = p.CategoriaPersona
+                            CategoriaPersona = p.CategoriaPersona,
+                            TipoParcelaId = seccion.TipoParcela,
+                            SeccionId = seccion.Id
                         };
 
             // Aplicar filtros
@@ -177,6 +184,12 @@ namespace CemSys2.Data
             {
                 query = query.Where(p => p.CategoriaPersona == categoriaId.Value);
             }
+
+            if (tipoParcelaId.HasValue)
+                query = query.Where(p => p.TipoParcelaId == tipoParcelaId.Value);
+
+            if (seccionId.HasValue)
+                query = query.Where(p => p.SeccionId == seccionId.Value);
 
             // Obtener el total de registros antes de paginar
             var totalRegistros = await query.CountAsync();

@@ -8,12 +8,14 @@ namespace CemSys2.Interface.Personas
         Task<List<CategoriaPersona>> ListaCategoriaPersonas();
 
         Task<(List<DTO_Difunto_Persona_Index> personas, int totalRegistros)> ListaPersonasIndex(
-            string? dni = null,
-            string? nombre = null,
-            string? apellido = null,
-            int? categoriaId = null,
-            int registrosPorPagina = 10,
-            int pagina = 1);
+              string? dni = null,
+              string? nombre = null,
+              string? apellido = null,
+              int? categoriaId = null,
+              int? tipoParcelaId = null,
+              int? seccionId = null,
+              int registrosPorPagina = 10,
+              int pagina = 1);
 
         Task<DTO_Persona_Historial> DatosPersonalesPersona(int idPersona);
         Task<int> ModificarPersona(Persona model);
