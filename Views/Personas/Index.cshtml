@@ -56,6 +56,16 @@
                             </div>
                         </div>
                     </form>
+                    <form asp-action="ResultadosDifuntosExcel" asp-controller="Personas" method="get">
+                        <input type="hidden" name="Dni" value="@Model.Dni" />
+                        <input type="hidden" name="Nombre" value="@Model.Nombre" />
+                        <input type="hidden" name="Apellido" value="@Model.Apellido" />
+                        <input type="hidden" name="CondicionPersonaId" value="@Model.CondicionPersonaId" />
+                        <input type="hidden" name="TipoParcelaId" value="@Model.TipoParcelaId" />
+                        <input type="hidden" name="SeccionId" value="@Model.SeccionId" />
+
+                        <button type="submit" class="btn btn-info">Exportar Excel</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -165,41 +175,6 @@
         }
     });
 </script>
-@* <script>
-    document.getElementById('tipoParcela').addEventListener('change', async function () {
-        const tipoParcelaId = this.value;
-        const seccionSelect = document.getElementById('seccion');
-
-        // Limpiar select de secciones
-        seccionSelect.innerHTML = '<option value="">--Seleccione una sección--</option>';
-
-        if (tipoParcelaId) {
-            try {
-                const response = await fetch(`/Personas/ObtenerSeccionesPorTipo?tipoParcelaId=${tipoParcelaId}`);
-                if (response.ok) {
-                    const secciones = await response.json();
-
-                    if (secciones.length > 0) {
-                        secciones.forEach(seccion => {
-                            const option = document.createElement('option');
-                            option.value = seccion.id;
-                            option.text = seccion.nombre.toUpperCase();
-                            seccionSelect.appendChild(option);
-                        });
-                    } else {
-                        const option = document.createElement('option');
-                        option.text = 'No hay secciones disponibles';
-                        seccionSelect.appendChild(option);
-                    }
-                } else {
-                    console.error('Error al obtener secciones');
-                }
-            } catch (error) {
-                console.error('Error en la petición AJAX:', error);
-            }
-        }
-    });
-</script> *@
 
 <script>
     const condicionSelect = document.getElementById('condicionPersona');

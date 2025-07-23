@@ -54,6 +54,26 @@ INSERT INTO TiposConceptoTarifaria (nombre) VALUES
 ('Registro Civil'),
 ('Derecho de Oficina');
 
+-- INSERT para conceptos
+INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
+(1, 'Apertura de nicho con placa', 1),
+(1, 'Apertura de nicho sin placa', 1),
+(1, 'Apertura de fosa', 1),
+(1, 'Cierre de nicho', 1),
+(1, 'Cierre de fosa', 1),
+(1, 'Inscripción fuera de hora', 1),
+(1, 'Permiso para colocar placa', 1),
+(1, 'Permiso de refacciones', 1),
+(1, 'Reducción', 1),
+(1, 'Eventuales e imprevistos', 1),
+(2, 'Inhumación', 1),
+(5, 'Defunción', 1),
+(5, 'Transcripción', 1),
+(6, 'Introducción de féretro', 1),
+(6, 'Introducción de urna', 1),
+(3, 'Concesión Nicho', 1),
+(4, 'Concesión Fosa', 1);
+
 
 -- INSERT para AniosConcesion (años típicos de concesión)
 INSERT INTO AniosConcesion (anios) VALUES 

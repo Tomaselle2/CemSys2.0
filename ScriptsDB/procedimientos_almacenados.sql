@@ -372,3 +372,45 @@ BEGIN
     WHERE 
         tp.parcelaId = @parcelaId;
 END
+--------------------------------------------------------------------------------------
+create PROCEDURE difuntosExel
+    @idPersona INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        per.dni,
+        per.nombre,
+        per.apellido,
+        per.sexo,
+        est.estado,
+        per.fechaDefuncion,
+        per.fechaNacimiento,
+        pd.fechaIngreso,
+        pd.fechaRetiro,
+        p.NroParcela,
+        p.NroFila,
+        s.nombre AS nombreSeccion,
+        ad.acta,
+        ad.tomo,
+        ad.folio,
+        ad.serie,
+        ad.age,
+        per.informacionAdicional,
+        s.tipoParcela AS TipoParcela
+    FROM 
+        ParcelaDifuntos pd
+    INNER JOIN 
+        Parcela p ON pd.parcelaId = p.id
+    INNER JOIN 
+        Secciones s ON p.seccion = s.id
+    INNER JOIN 
+        Personas per ON pd.difuntoId = per.idPersona
+    INNER JOIN 
+        ActaDefuncion ad ON ad.id = per.actaDefuncion
+    INNER JOIN 
+        EstadoDifunto est ON est.id = per.estadoDifunto
+    WHERE 
+        per.idPersona = @idPersona;
+END;

@@ -6,7 +6,8 @@ using CemSys2.Interface.Personas;
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using ClosedXML.Excel;
+
 
 namespace CemSys2.Controllers
 {
@@ -192,5 +193,164 @@ namespace CemSys2.Controllers
             var secciones = await _introduccionBusiness.ListaSecciones(tipoParcelaId);
             return Json(secciones);
         }
+
+        //recibe una lista de personas de la vista (viewModel.ListaPersonasIndex) y manda al metodo un lista con los id de las personas
+        //[HttpGet]
+        //public async Task<IActionResult> ResultadosDifuntosExcel(PersonasVM viewModel)
+        //{
+        //    // Volvés a obtener la lista filtrada desde la base de datos
+        //    try
+        //    {
+        //        var idsLista = await _personasBusiness.ListaIdsPersonasFiltradasParaExcel(
+        //        viewModel.Dni,
+        //        viewModel.Nombre,
+        //        viewModel.Apellido,
+        //        viewModel.CondicionPersonaId,
+        //        viewModel.TipoParcelaId,
+        //        viewModel.SeccionId
+
+        //    );
+
+        //        if (idsLista == null || !idsLista.Any())
+        //        {
+        //            TempData["MensajeError"] = "No se encontraron resultados para exportar.";
+        //            return RedirectToAction("Index");
+        //        }
+
+        //        var excelData = await _personasBusiness.ListaDifuntosExcel(idsLista);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["MensajeError"] = $"Error al obtener los IDs de las personas: {ex.Message}";
+        //        return RedirectToAction("Index");
+        //    }
+
+
+
+
+        //    return RedirectToAction("Index");
+        //}
+
+        [HttpGet]
+        public async Task<IActionResult> ResultadosDifuntosExcel(PersonasVM viewModel)
+        {
+            try
+            {
+                var idsLista = await _personasBusiness.ListaIdsPersonasFiltradasParaExcel(
+                    viewModel.Dni,
+                    viewModel.Nombre,
+                    viewModel.Apellido,
+                    viewModel.CondicionPersonaId,
+                    viewModel.TipoParcelaId,
+                    viewModel.SeccionId
+                );
+
+                if (idsLista == null || !idsLista.Any())
+                {
+                    TempData["MensajeError"] = "No se encontraron resultados para exportar.";
+                    return RedirectToAction("Index");
+                }
+
+                var excelData = await _personasBusiness.ListaDifuntosExcel(idsLista);
+
+                // Crear el archivo Excel con ClosedXML
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Difuntos");
+
+                    // Encabezados
+                    worksheet.Cell(1, 1).Value = "DNI";
+                    worksheet.Cell(1, 2).Value = "Apellido y Nombre";
+                    worksheet.Cell(1, 3).Value = "Estado";
+                    worksheet.Cell(1, 4).Value = "Tipo";
+                    worksheet.Cell(1, 5).Value = "Sección";
+                    worksheet.Cell(1, 6).Value = "Parcela";
+                    worksheet.Cell(1, 7).Value = "Fecha Defunción";
+                    worksheet.Cell(1, 8).Value = "Fecha Nacimiento";
+                    worksheet.Cell(1, 9).Value = "Acta";
+                    worksheet.Cell(1, 10).Value = "Tomo";
+                    worksheet.Cell(1, 11).Value = "Folio";
+                    worksheet.Cell(1, 12).Value = "Serie";
+                    worksheet.Cell(1, 13).Value = "Año";
+                    worksheet.Cell(1, 14).Value = "Datos adicional";
+
+                    // Formato de encabezados
+                    var headerRange = worksheet.Range(1, 1, 1, 14);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    // Datos
+                    int row = 2;
+                    foreach (var difunto in excelData)
+                    {
+                        string nombreCompleto = $"{difunto.Apellido} {difunto.Nombre}";
+                        string parcela = GetParcelaDescription(difunto);
+
+                        worksheet.Cell(row, 1).Value = string.IsNullOrEmpty(difunto.Dni) ? "---" : difunto.Dni;
+                        worksheet.Cell(row, 2).Value = nombreCompleto;
+                        worksheet.Cell(row, 3).Value = difunto.Estado ?? "---";
+                        worksheet.Cell(row, 4).Value = GetTipoParcelaNombre(difunto.TipoParcela);
+                        worksheet.Cell(row, 5).Value = difunto.NombreSeccion ?? "---";
+                        worksheet.Cell(row, 6).Value = parcela;
+                        worksheet.Cell(row, 7).Value = difunto.FechaDefuncion?.ToString("dd/MM/yyyy") ?? "---";
+                        worksheet.Cell(row, 8).Value = difunto.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "---";
+                        worksheet.Cell(row, 9).Value = difunto.ActaDefuncion?.Acta?.ToString() ?? "---";
+                        worksheet.Cell(row, 10).Value = difunto.ActaDefuncion?.Tomo?.ToString() ?? "---";
+                        worksheet.Cell(row, 11).Value = difunto.ActaDefuncion?.Folio?.ToString() ?? "---";
+                        worksheet.Cell(row, 12).Value = difunto.ActaDefuncion?.Serie ?? "---";
+                        worksheet.Cell(row, 13).Value = difunto.ActaDefuncion?.Age?.ToString() ?? "---";
+                        worksheet.Cell(row, 14).Value = difunto.InformacionAdicional ?? "---";
+
+                        row++;
+                    }
+
+                    // Autoajustar columnas
+                    worksheet.Columns().AdjustToContents();
+
+                    // Preparar la respuesta
+                    var stream = new MemoryStream();
+                    workbook.SaveAs(stream);
+                    stream.Position = 0;
+
+                    string excelName = $"Difuntos_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+
+                    return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al generar el archivo Excel: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+        }
+
+        private string GetParcelaDescription(DTO_Excel_Difuntos opc)
+        {
+            if (opc == null) return "---";
+
+            return opc.TipoParcela switch
+            {
+                1 => $"Nicho {opc.NroParcela} Fila {opc.NroFila}",
+                2 => $"Fosa {opc.NroParcela}",
+                3 => $"Lote {opc.NroParcela}",
+                _ => "---"
+            };
+        }
+
+        private string GetTipoParcelaNombre(int tipoParcela)
+        {
+            return tipoParcela switch
+            {
+                1 => "Nicho",
+                2 => "Fosa",
+                3 => "Panteón",
+                _ => "---"
+            };
+        }
+
+
+
+
     }
 }

@@ -9,6 +9,7 @@ using CemSys2.Interface.Personas;
 using Rotativa.AspNetCore;
 using CemSys2.Interface.Parcelas;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -18,7 +19,6 @@ builder.Services.AddSession(option =>
 {
     option.IdleTimeout = TimeSpan.FromMinutes(60); // Tiempo de expiración por inactividad
 });
-
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

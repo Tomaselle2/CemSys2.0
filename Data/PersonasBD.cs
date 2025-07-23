@@ -57,6 +57,66 @@ namespace CemSys2.Data
             return await _context.CategoriaPersonas.ToListAsync();
         }
 
+        public async Task<List<DTO_Excel_Difuntos>> ListaDifuntosExcel(List<int> idsDifuntos)
+        {
+            var lista = new List<DTO_Excel_Difuntos>();
+
+            using var connection = _context.Database.GetDbConnection();
+            await connection.OpenAsync();
+
+            foreach (var id in idsDifuntos)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "difuntosExel";
+                command.CommandType = CommandType.StoredProcedure;
+
+                var param = command.CreateParameter();
+                param.ParameterName = "@idPersona";
+                param.Value = id;
+                command.Parameters.Add(param);
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    var dto = new DTO_Excel_Difuntos
+                    {
+                        Dni = reader["dni"]?.ToString() ?? "",
+                        Nombre = reader["nombre"]?.ToString() ?? "",
+                        Apellido = reader["apellido"]?.ToString() ?? "",
+                        Sexo = reader["sexo"]?.ToString() ?? "",
+                        Estado = reader["estado"]?.ToString() ?? "",
+                        FechaDefuncion = reader["fechaDefuncion"] as DateTime?,
+                        FechaNacimiento = reader["fechaNacimiento"] as DateTime?,
+                        FechaIngresoId = reader["fechaIngreso"] as DateTime?,
+                        FechaRetiroId = reader["fechaRetiro"] as DateTime?,
+                        NroParcela = Convert.ToInt32(reader["NroParcela"]),
+                        NroFila = Convert.ToInt32(reader["NroFila"]),
+                        NombreSeccion = reader["nombreSeccion"]?.ToString() ?? "",
+                        TipoParcela = Convert.ToInt32(reader["TipoParcela"]),
+                        InformacionAdicional = reader["informacionAdicional"]?.ToString(),
+
+                        // Acta de Defunción
+                        ActaDefuncion = new ActaDefuncion
+                        {
+                            Acta = reader["acta"] as int?,
+                            Tomo = reader["tomo"] as int?,
+                            Folio = reader["folio"] as int?,
+                            Serie = reader["serie"]?.ToString(),
+                            Age = reader["age"] as int?
+                        }
+                    };
+
+                    lista.Add(dto);
+                }
+
+                await reader.CloseAsync();
+            }
+
+            return lista;
+        }
+
+
         public async Task<List<DTO_Persona_Historial_Parcelas>> ListaHistorialParcelas(int idPersona)
         {
             var resultado = new List<DTO_Persona_Historial_Parcelas>();
@@ -135,6 +195,52 @@ namespace CemSys2.Data
 
             return resultado;
         }
+
+        public async Task<List<int>> ListaIdsPersonasFiltradasParaExcel(
+            string? dni = null,
+            string? nombre = null,
+            string? apellido = null,
+            int? categoriaId = null,
+            int? tipoParcelaId = null,
+            int? seccionId = null)
+        {
+            var query = from p in _context.Personas
+                        join cp in _context.CategoriaPersonas on p.CategoriaPersona equals cp.Id
+                        join intro in _context.Introducciones on p.IdPersona equals intro.DifuntoId
+                        join parcela in _context.Parcelas on intro.ParcelaId equals parcela.Id
+                        join seccion in _context.Secciones on parcela.Seccion equals seccion.Id
+                        select new
+                        {
+                            p.IdPersona,
+                            p.Dni,
+                            p.Nombre,
+                            p.Apellido,
+                            p.CategoriaPersona,
+                            TipoParcelaId = seccion.TipoParcela,
+                            SeccionId = seccion.Id
+                        };
+
+            if (!string.IsNullOrEmpty(dni))
+                query = query.Where(p => p.Dni.Contains(dni));
+
+            if (!string.IsNullOrEmpty(nombre))
+                query = query.Where(p => p.Nombre.Contains(nombre));
+
+            if (!string.IsNullOrEmpty(apellido))
+                query = query.Where(p => p.Apellido.Contains(apellido));
+
+            if (categoriaId.HasValue)
+                query = query.Where(p => p.CategoriaPersona == categoriaId.Value);
+
+            if (tipoParcelaId.HasValue)
+                query = query.Where(p => p.TipoParcelaId == tipoParcelaId.Value);
+
+            if (seccionId.HasValue)
+                query = query.Where(p => p.SeccionId == seccionId.Value);
+
+            return await query.Select(p => p.IdPersona).ToListAsync();
+        }
+
 
         public async Task<(List<DTO_Difunto_Persona_Index> personas, int totalRegistros)> ListaPersonasIndex(
         string? dni = null,
