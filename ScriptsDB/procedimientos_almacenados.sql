@@ -372,6 +372,7 @@ BEGIN
     WHERE 
         tp.parcelaId = @parcelaId;
 END
+go
 --------------------------------------------------------------------------------------
 create PROCEDURE difuntosExel
     @idPersona INT
