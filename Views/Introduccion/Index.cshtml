@@ -1,6 +1,8 @@
 ﻿@using CemSys2.ViewModel
 @model IntroduccionIndexVM
-
+@{
+    ViewData["Title"] = "Introducciones";
+}
 <h1 class="tituloDePagina">Introducciones</h1>
 
 
@@ -112,7 +114,7 @@
                                         <td>@opc.Parcela.SeccionNavigation.Nombre.ToUpper()</td>
                                         <td>@parcela</td>
                                         <td>
-                                            <form asp-action="ResumenIntroduccion" method="get" style="display: inline-block;">
+                                            <form asp-action="ResumenIntroduccion" method="get" style="display: inline-block;" target="_blank">
                                                 <input type="hidden" name="tramiteId" value="@opc.IdTramite" />
                                                 <button type="submit" class="btn-modificar btn-sm" title="ver resumen">
                                                     <i class="bi bi-eye"></i>

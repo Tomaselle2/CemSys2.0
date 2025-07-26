@@ -1,6 +1,9 @@
 ﻿@using CemSys2.ViewModel
 @model IntroduccionDifuntoVM
 @{
+    ViewData["Title"] = "Introducir difunto";
+}
+@{
     string fecha = DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
     DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
     var fechaMax = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");

@@ -1,6 +1,8 @@
 ﻿@using CemSys2.ViewModel
 @model TipoTramiteViewModel
-
+@{
+    ViewData["Title"] = "Tipos de trámite";
+}
 <a asp-action="Index" asp-controller="Configuracion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
 @{
     string accion = (Model.EsEdicion ? "Modificar" : "Registrar");

@@ -1,6 +1,8 @@
 ﻿@using CemSys2.ViewModel
 @model UsuariosViewModel
-
+@{
+    ViewData["Title"] = "Usuarios";
+}
 <a asp-action="Index" asp-controller="Configuracion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
 @{
     string accion = (Model.EsEdicion ? "Modificar" : "Registrar");
@@ -72,11 +74,21 @@
                             <label class="form-label" for="clave">Contraseña</label>
                             @if (!Model.EsEdicion)
                             {
-                                <input class="form-control" type="password" asp-for="Clave" maxlength="300" id="clave" />
+                                <div class="input-group">
+                                    <input class="form-control" type="password" asp-for="Clave" maxlength="300" id="clave" />
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye" id="iconPassword"></i>
+                                    </button>
+                                </div>
                             }
                             else
                             {
-                                <input class="form-control" type="password" asp-for="Clave" maxlength="300" id="clave" placeholder="Dejar vacío para mantener la contraseña actual" />
+                                <div class="input-group">
+                                    <input class="form-control" type="password" asp-for="Clave" maxlength="300" id="clave" placeholder="Dejar vacío para mantener la contraseña actual" />
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye" id="iconPassword"></i>
+                                    </button>
+                                </div>
                             }
                             <span asp-validation-for="Clave" class="text-danger"></span>
                         </div>
@@ -190,4 +202,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('clave');
+            const icon = document.getElementById('iconPassword');
+
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+
+            // Cambiar ícono
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+    </script>
 }

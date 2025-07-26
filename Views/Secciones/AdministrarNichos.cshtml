@@ -1,5 +1,8 @@
 ﻿@using CemSys2.ViewModel
 @model ParcelasViewModel
+@{
+    ViewData["Title"] = $"Administrar Nichos {Model.NombreSeccion?.ToUpper()}";
+}
 <a asp-action="@Model.Redirigir" asp-controller="Secciones" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
 
 <h1 class="tituloDePagina">Administrar nichos de la sección @Model.NombreSeccion?.ToUpper()</h1>

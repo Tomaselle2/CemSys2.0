@@ -1,5 +1,9 @@
 ﻿@using CemSys2.ViewModel
 @model Persona_Historial_VM
+
+@{
+    ViewData["Title"] = "Historial persona";
+}
 @{
     string fecha = DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
     DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
