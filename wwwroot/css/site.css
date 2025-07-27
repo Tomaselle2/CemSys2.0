@@ -406,3 +406,19 @@ body {
     margin-bottom: 30px;
     padding: 10px;
 }
+
+.nroTramite {
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #338b85;
+    font-size: 1.7rem;
+}
+
+.separador {
+    height: 1px;
+    background: #ddd;
+    margin: 20px 0;
+    border-radius: 1px;
+}
+/*FIn reportes*/
+
