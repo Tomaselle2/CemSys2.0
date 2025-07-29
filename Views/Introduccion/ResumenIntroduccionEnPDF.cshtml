@@ -13,8 +13,9 @@
     html {
         font-size: 14px;
         font-family: 'Montserrat', sans-serif;
-        background-color: #faf9f6;
+/*         background-color: #faf9f6;*/ 
         color: #333;
+        background-color: #fff;
     }
 
     .header-membrete {
@@ -61,7 +62,7 @@
         font-weight: 700;
         margin: 20px 0 30px 0;
         font-size: 2.5rem; /* aumenté de 1.8rem a 2.5rem */
-        color: #145c57;
+        color: #000;
     }
 
     .contenedor-resumen {
@@ -108,7 +109,7 @@
 
 
         .footer-bar img {
-            height: 70px;
+            height: 90px;
             object-fit: contain;
         }
 
@@ -123,7 +124,7 @@
     <img src="@imageUrlCompleto" alt="Logo Municipalidad" />
 </div>
 
-<h1 class="tituloDePagina">Resumen de la introducción</h1>
+<h1 class="titulo-principal">Resumen de la introducción</h1>
 
 <div class="contenedor-resumen">
     @{
@@ -147,6 +148,9 @@
         string ubicacion = "";
         string fechaIngreso = "";
         string datosAdicionales = "";
+
+        string domicilioEnTiorlesa = "";
+        string fallecioEnTirolesa = "";
 
         @foreach (var tramite in Model.ResumenIntroduccion)
         {
@@ -181,6 +185,9 @@
             empresa = tramite.Empresa;
             usuario = tramite.Empleado;
             datosAdicionales = (tramite.InformacionAdicional != null) ? tramite.InformacionAdicional : "";
+
+            domicilioEnTiorlesa = (tramite.DomicilioEnTirolesa) ? "Sí, tenia domicilio en Tirolesa" : "No tenia domicilio en Tirolesa";
+            fallecioEnTirolesa = (tramite.FallecioEnTirolesa) ? "Sí, falleció en Tirolesa" : "No falleció en Tirolesa";
         }
 
     }
@@ -211,6 +218,13 @@
     <p><strong>Empleado responsable:</strong> @usuario.ToUpper()</p>
     <p><strong>Sección:</strong> @seccion.ToUpper()</p>
     <p><strong>Parcela:</strong> @ubicacion</p>
+
+    <div class="separador"></div>
+
+    <p><strong>¿El difunto tenía domicilio en Colonia Tirolesa?</strong></p>
+    <p>@domicilioEnTiorlesa</p>
+    <p><strong>¿El difunto falleció en Colonia Tirolesa?</strong></p>
+    <p>@fallecioEnTirolesa</p>
 </div>
 
 <!-- Pie de página -->

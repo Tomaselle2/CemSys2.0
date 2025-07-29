@@ -22,5 +22,7 @@
         public string NroFila { get; set; }
         public string Seccion { get; set; }
         public int TipoParcela { get; set; }
+        public bool DomicilioEnTirolesa { get; set; }
+        public bool FallecioEnTirolesa { get; set; }
     }
 }

@@ -54,6 +54,8 @@
         string ubicacion = "";
         string fechaIngreso = "";
         string datosAdicionales = "";
+        string domicilioEnTiorlesa = "";
+        string fallecioEnTirolesa = "";
     }
 
     @foreach (var tramite in Model.ResumenIntroduccion)
@@ -74,7 +76,7 @@
         {
             ubicacion = $"Lote {tramite.NroParcela}";
         }
-            
+
         fechaIngreso = tramite.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
         fechaDefuncion = tramite.FechaDefuncion.ToString("dd/MM/yyyy");
         fechaNacimiento = (tramite.FechaNacimiento != null) ? tramite.FechaNacimiento?.ToString("dd/MM/yyyy") : "--------";
@@ -87,6 +89,10 @@
         empresa = tramite.Empresa;
         usuario = tramite.Empleado;
         datosAdicionales = (tramite.InformacionAdicional != null) ?tramite.InformacionAdicional : "";
+
+        domicilioEnTiorlesa = (tramite.DomicilioEnTirolesa) ? "Sí, tenia domicilio en Tirolesa" : "No tenia domicilio en Tirolesa";
+        fallecioEnTirolesa = (tramite.FallecioEnTirolesa) ? "Sí, falleció en Tirolesa" : "No falleció en Tirolesa";
+
     }
     
 
@@ -116,6 +122,12 @@
     <p><strong>Empleado responsable:</strong> @usuario.ToUpper()</p>
     <p><strong>Sección:</strong> @seccion.ToUpper()</p>
     <p><strong>Parcela:</strong> @ubicacion</p>
+
+    <div class="separador"></div>
+    <p><strong>¿El difunto tenía domicilio en Colonia Tirolesa?</strong></p>
+    <p>@domicilioEnTiorlesa</p>
+    <p><strong>¿El difunto falleció en Colonia Tirolesa?</strong></p>
+    <p>@fallecioEnTirolesa</p>
 
 </div>
 

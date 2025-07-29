@@ -84,7 +84,9 @@ namespace CemSys2.Data
                                 FechaIngreso = reader.GetDateTime(reader.GetOrdinal("fechaIngreso")),
                                 Nombre = reader.IsDBNull(reader.GetOrdinal("nombre")) ? null : reader.GetString(reader.GetOrdinal("nombre")),
                                 Apellido = reader.IsDBNull(reader.GetOrdinal("apellido")) ? null : reader.GetString(reader.GetOrdinal("apellido")),
-                                Dni = reader.IsDBNull(reader.GetOrdinal("Dni")) ? null : reader.GetString(reader.GetOrdinal("Dni"))
+                                Dni = reader.IsDBNull(reader.GetOrdinal("Dni")) ? null : reader.GetString(reader.GetOrdinal("Dni")),
+                                EstadoDifunto = reader.GetInt32(reader.GetOrdinal("estadoDifunto"))
+
                             };
                             resultado.Add(dto);
                         }
@@ -123,7 +125,10 @@ namespace CemSys2.Data
                                 FechaIngreso = reader.GetDateTime(reader.GetOrdinal("fechaIngreso")),
                                 Nombre = reader.IsDBNull(reader.GetOrdinal("nombre")) ? null : reader.GetString(reader.GetOrdinal("nombre")),
                                 Apellido = reader.IsDBNull(reader.GetOrdinal("apellido")) ? null : reader.GetString(reader.GetOrdinal("apellido")),
-                                Dni = reader.IsDBNull(reader.GetOrdinal("Dni")) ? null : reader.GetString(reader.GetOrdinal("Dni"))
+                                Dni = reader.IsDBNull(reader.GetOrdinal("Dni")) ? null : reader.GetString(reader.GetOrdinal("Dni")),
+                                FechaRetiro = reader.IsDBNull(reader.GetOrdinal("fechaRetiro"))
+                                              ? (DateTime?)null
+                                              : reader.GetDateTime(reader.GetOrdinal("fechaRetiro")),
                             };
                             resultado.Add(dto);
                         }

@@ -42,7 +42,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-               Difuntos actuales (@Model.ListaDifuntosActuales.Count())
+                Difuntos actuales (@Model.ListaDifuntosActuales.Count())
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
@@ -58,6 +58,7 @@
                                     <th>DNI</th>
                                     <th>Apellido</th>
                                     <th>Nombre</th>
+                                    <th>Estado</th>
                                     <th>Acción</th>
                                 </tr>
                             </thead>
@@ -66,12 +67,20 @@
                                 {
                                     string fechaInicio = opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
                                     string dni = (opc.Dni == "nn") ? "--------" : opc.Dni; // Manejo de DNI nulo
+                                    string estadoDifunto = opc.EstadoDifunto switch
+                                    {
+                                        1 => "Cuerpo Completo",
+                                        2 => "Reducido",
+                                        3 => "Cremado",
+                                        _ => "Desconocido"
+                                    };
                                     <tr>
                                         <td>@fechaInicio</td>
                                         <td>@dni</td>
                                         <td>@opc.Apellido?.ToUpper()</td>
                                         <td>@opc.Nombre?.ToUpper()</td>
-                                        <td>
+                                        <td>@estadoDifunto</td>
+                                       <td>
                                             <form asp-action="HistorialPersona" asp-controller="Personas" target="_blank" method="get" style="display: inline-block;">
                                                 <input type="hidden" name="personaId" value="@opc.DifuntoId" />
                                                 <button type="submit" class="btn-modificar btn-sm" title="ver">
@@ -117,6 +126,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Ingreso</th>
+                                    <th>Retiro</th>
                                     <th>DNI</th>
                                     <th>Apellido</th>
                                     <th>Nombre</th>
@@ -127,9 +137,11 @@
                                 @foreach (var opc in Model.ListaDifuntosHistoricos)
                                 {
                                     string fechaInicio = opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
+                                    string fechaRetiro = (opc.FechaRetiro != null) ? opc.FechaRetiro?.ToString("dd/MM/yyyy HH:mm") : "-----";
                                     string dni = (opc.Dni == "nn") ? "--------" : opc.Dni; // Manejo de DNI nulo
                                     <tr>
                                         <td>@fechaInicio</td>
+                                        <td>@fechaRetiro</td>
                                         <td>@dni</td>
                                         <td>@opc.Apellido?.ToUpper()</td>
                                         <td>@opc.Nombre?.ToUpper()</td>

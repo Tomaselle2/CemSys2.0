@@ -194,42 +194,6 @@ namespace CemSys2.Controllers
             return Json(secciones);
         }
 
-        //recibe una lista de personas de la vista (viewModel.ListaPersonasIndex) y manda al metodo un lista con los id de las personas
-        //[HttpGet]
-        //public async Task<IActionResult> ResultadosDifuntosExcel(PersonasVM viewModel)
-        //{
-        //    // Volvés a obtener la lista filtrada desde la base de datos
-        //    try
-        //    {
-        //        var idsLista = await _personasBusiness.ListaIdsPersonasFiltradasParaExcel(
-        //        viewModel.Dni,
-        //        viewModel.Nombre,
-        //        viewModel.Apellido,
-        //        viewModel.CondicionPersonaId,
-        //        viewModel.TipoParcelaId,
-        //        viewModel.SeccionId
-
-        //    );
-
-        //        if (idsLista == null || !idsLista.Any())
-        //        {
-        //            TempData["MensajeError"] = "No se encontraron resultados para exportar.";
-        //            return RedirectToAction("Index");
-        //        }
-
-        //        var excelData = await _personasBusiness.ListaDifuntosExcel(idsLista);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TempData["MensajeError"] = $"Error al obtener los IDs de las personas: {ex.Message}";
-        //        return RedirectToAction("Index");
-        //    }
-
-
-
-
-        //    return RedirectToAction("Index");
-        //}
 
         [HttpGet]
         public async Task<IActionResult> ResultadosDifuntosExcel(PersonasVM viewModel)
@@ -273,9 +237,11 @@ namespace CemSys2.Controllers
                     worksheet.Cell(1, 12).Value = "Serie";
                     worksheet.Cell(1, 13).Value = "Año";
                     worksheet.Cell(1, 14).Value = "Datos adicional";
+                    worksheet.Cell(1, 15).Value = "Fecha Ingreso";
+                    worksheet.Cell(1, 16).Value = "Fecha retiro";
 
                     // Formato de encabezados
-                    var headerRange = worksheet.Range(1, 1, 1, 14);
+                    var headerRange = worksheet.Range(1, 1, 1, 16);
                     headerRange.Style.Font.Bold = true;
                     headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                     headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
@@ -301,6 +267,9 @@ namespace CemSys2.Controllers
                         worksheet.Cell(row, 12).Value = difunto.ActaDefuncion?.Serie ?? "---";
                         worksheet.Cell(row, 13).Value = difunto.ActaDefuncion?.Age?.ToString() ?? "---";
                         worksheet.Cell(row, 14).Value = difunto.InformacionAdicional ?? "---";
+                        worksheet.Cell(row, 15).Value = difunto.FechaIngresoId?.ToString("dd/MM/yyyy") ?? "---";
+                        worksheet.Cell(row, 16).Value = difunto.FechaRetiroId?.ToString("dd/MM/yyyy") ?? "---";
+
 
                         row++;
                     }
@@ -314,15 +283,18 @@ namespace CemSys2.Controllers
                     stream.Position = 0;
 
                     string excelName = $"Difuntos_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
-
+                    TempData["MensajeFinExcel"]= "Excel generado";
                     return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
                 }
+
             }
             catch (Exception ex)
             {
                 TempData["MensajeError"] = $"Error al generar el archivo Excel: {ex.Message}";
                 return RedirectToAction("Index");
             }
+
+
         }
 
         private string GetParcelaDescription(DTO_Excel_Difuntos opc)

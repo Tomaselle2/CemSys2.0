@@ -175,7 +175,9 @@ BEGIN
         par.NroParcela, 
         par.NroFila, 
         sec.nombre AS Seccion,
-		sec.tipoParcela as TipoParcela
+		sec.tipoParcela as TipoParcela,
+		p.domicilioEnTirolesa,
+		p.fallecioEnTirolesa
     FROM Introducciones i
     INNER JOIN EmpresaFunebre e ON i.empresaFunebre = e.id
     INNER JOIN Personas p ON i.difuntoID = p.idPersona
@@ -292,7 +294,7 @@ BEGIN
         t.fechaCreacion DESC;
 END
 go
----------------------------------------------------------------------------------------------
+------------------------------------------sp para parcelas, obtiene los difuntos actuales de la parcela---------------------------------------------------
 create PROCEDURE ObtenerDifuntosEnParcela
     @parcelaId INT
 AS
@@ -303,7 +305,8 @@ BEGIN
         p.nombre, 
         p.apellido,
 		p.dni AS Dni,  -- Agregado este campo
-        pd.parcelaId
+        pd.parcelaId,
+		p.estadoDifunto
     FROM 
         ParcelaDifuntos pd
     INNER JOIN 
@@ -334,7 +337,7 @@ BEGIN
 END
 go
 --------------------------------------------------------------------------------
-CREATE PROCEDURE ObtenerDifuntosHistoricosEnParcela
+create PROCEDURE ObtenerDifuntosHistoricosEnParcela
     @parcelaId INT
 AS
 BEGIN
@@ -343,7 +346,8 @@ BEGIN
         pd.fechaIngreso, 
         p.nombre, 
         p.apellido,
-        p.dni AS Dni
+        p.dni AS Dni,
+		pd.fechaRetiro
     FROM 
         ParcelaDifuntos pd
     INNER JOIN 

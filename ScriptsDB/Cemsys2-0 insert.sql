@@ -49,8 +49,8 @@ INSERT INTO TipoTramite (tipo) VALUES
 INSERT INTO TiposConceptoTarifaria (nombre) VALUES 
 ('General'),
 ('Contribucion'),
-('Concesion nicho'),
-('Concesion fosa'),
+('Concesión nicho'),
+('Concesión fosa'),
 ('Registro Civil'),
 ('Derecho de Oficina');
 
