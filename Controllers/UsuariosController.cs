@@ -2,8 +2,10 @@
 using CemSys2.Interface;
 using CemSys2.Models;
 using CemSys2.ViewModel;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using System.Security.Cryptography;
 
 namespace CemSys2.Controllers
 {
@@ -78,6 +80,24 @@ namespace CemSys2.Controllers
             }
         }
 
+        public static string HashPassword(string password)
+        {
+            byte[] salt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
+
+            return $"{Convert.ToBase64String(salt)}.{hashed}";
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Registrar(UsuariosViewModel model)
@@ -97,6 +117,7 @@ namespace CemSys2.Controllers
                     if (!string.IsNullOrEmpty(model.Clave))
                     {
                         usuarioExistente.Clave = model.Clave;
+                        usuarioExistente.Clave = HashPassword(model.Clave); // Hashear la nueva contraseña
                     }
 
                     int modificacion = await _usuarioRepositoryBusiness.Modificar(usuarioExistente);
@@ -115,7 +136,7 @@ namespace CemSys2.Controllers
                         Rol = model.Rol.Value
                     };
 
-                    usuario.Clave = model.Clave; // Asegúrate de hashear la contraseña al crear
+                    usuario.Clave = HashPassword(model.Clave!); //  hashear la contraseña al crear
                     await _usuarioRepositoryBusiness.Registrar(usuario);
                     TempData["MensajeExito"] = "Usuario registrado correctamente.";
                 }

@@ -91,7 +91,12 @@ namespace CemSys2.Data
 
         public async Task<List<EmpresaFunebre>> ListaEmpresasFunebres()
         {
-            return await _empresaFunebreBD.EmitirListado();
+            // Filtrar empresas que están marcadas como visibles
+            List<EmpresaFunebre> listadoVisible = new List<EmpresaFunebre>();
+            listadoVisible =  await _empresaFunebreBD.EmitirListado();
+            return listadoVisible
+                .Where(e => e.Visibilidad == true)
+                .ToList();
         }
 
         public async Task<List<DTO_UsuarioIntroduccion>> ListaEmpleados()
@@ -107,6 +112,7 @@ namespace CemSys2.Data
 
         public async Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model)
         {
+            model.Visibilidad = true;
             return await _empresaFunebreBD.Registrar(model);
         }
 

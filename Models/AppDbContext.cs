@@ -176,6 +176,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .HasColumnName("nombre");
+            entity.Property(e => e.Visibilidad)
+                .HasDefaultValue(true)
+                .HasColumnName("visibilidad");
         });
 
         modelBuilder.Entity<ConceptosFactura>(entity =>
@@ -306,6 +309,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(30)
                 .HasColumnName("nombre");
+            entity.Property(e => e.Visibilidad)
+                .HasDefaultValue(true)
+                .HasColumnName("visibilidad");
         });
 
         modelBuilder.Entity<EstadoDifunto>(entity =>
@@ -443,6 +449,9 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CantidadDifuntos).HasColumnName("cantidadDifuntos");
+            entity.Property(e => e.NombrePanteon)
+                .HasMaxLength(100)
+                .HasColumnName("nombrePanteon");
             entity.Property(e => e.Seccion).HasColumnName("seccion");
             entity.Property(e => e.Visibilidad).HasColumnName("visibilidad");
 
@@ -713,6 +722,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Tipo)
                 .HasMaxLength(30)
                 .HasColumnName("tipo");
+            entity.Property(e => e.Visibilidad)
+                .HasDefaultValue(true)
+                .HasColumnName("visibilidad");
         });
 
         modelBuilder.Entity<TiposConceptoTarifarium>(entity =>

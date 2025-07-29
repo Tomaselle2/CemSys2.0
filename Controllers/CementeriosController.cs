@@ -2,6 +2,7 @@
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace CemSys2.Controllers
 {
@@ -37,8 +38,8 @@ namespace CemSys2.Controllers
             try
             {
                 // Definir filtro una sola vez
-                //Expression<Func<Usuario, bool>> filtro = s => s.Visibilidad == true;
-                //Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = q => q.OrderByDescending(s => s.Id);
+                Expression<Func<Cementerio, bool>> filtro = s => s.Visibilidad == true;
+                Func<IQueryable<Cementerio>, IOrderedQueryable<Cementerio>> orderBy = q => q.OrderByDescending(s => s.Id);
 
                 // Obtener total de registros
                 int totalRegistros = await _cementerioRepositoryBusiness.ContarTotalAsync();
@@ -48,7 +49,7 @@ namespace CemSys2.Controllers
                 if (pagina > totalPaginas && totalPaginas > 0)
                     pagina = totalPaginas;
 
-                viewModel.ListaCementerios = await _cementerioRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA);
+                viewModel.ListaCementerios = await _cementerioRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA, filtro, orderBy);
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
                 viewModel.TotalRegistros = totalRegistros;
@@ -81,6 +82,7 @@ namespace CemSys2.Controllers
                     {
                         Id = model.Id ?? 0, // Si es nuevo, Id será 0
                         Nombre = model.Nombre,
+                        Visibilidad = true // Por defecto, al registrar un nuevo cementerio, se establece como visible
                     };
 
                     await _cementerioRepositoryBusiness.Registrar(cementerio);
@@ -98,7 +100,9 @@ namespace CemSys2.Controllers
         {
             try
             {
-                await _cementerioRepositoryBusiness.Eliminar(model.Id.Value);
+                Cementerio cementerio = await _cementerioRepositoryBusiness.Consultar(model.Id.Value);
+                cementerio.Visibilidad = false; // Cambiar visibilidad a false en lugar de eliminar
+                await _cementerioRepositoryBusiness.Modificar(cementerio);
                 TempData["MensajeExito"] = "Cementerio eliminado correctamente";
             }
             catch (Exception ex)

@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CemSys2.Models;
+﻿using CemSys2.Business;
 using CemSys2.Interface;
-using CemSys2.ViewModel;
-using CemSys2.Business;
 using CemSys2.Interface.Tarifaria;
+using CemSys2.Models;
+using CemSys2.ViewModel;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 namespace CemSys2.Controllers
 {
     public class ConceptoTarifariaController : Controller
@@ -43,6 +44,10 @@ namespace CemSys2.Controllers
         {
             try
             {
+                // Definir filtro una sola vez
+                Expression<Func<ConceptosTarifaria, bool>> filtro = s => s.Visibilidad == true;
+                Func<IQueryable<ConceptosTarifaria>, IOrderedQueryable<ConceptosTarifaria>> orderBy = q => q.OrderByDescending(s => s.Id);
+
                 await CargarCombo(viewModel);
                 // Obtener total de registros
                 int totalRegistros = await _conceptoTarifariaRepositoryBusiness.ContarTotalAsync();
@@ -52,7 +57,7 @@ namespace CemSys2.Controllers
                 if (pagina > totalPaginas && totalPaginas > 0)
                     pagina = totalPaginas;
 
-                viewModel.ListaConceptos = await _conceptoTarifariaRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA);
+                viewModel.ListaConceptos = await _conceptoTarifariaRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA, filtro, orderBy);
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
                 viewModel.TotalRegistros = totalRegistros;

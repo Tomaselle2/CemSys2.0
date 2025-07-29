@@ -2,6 +2,7 @@
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace CemSys2.Controllers
 {
@@ -38,8 +39,9 @@ namespace CemSys2.Controllers
             try
             {
                 // Definir filtro una sola vez
-                //Expression<Func<Usuario, bool>> filtro = s => s.Visibilidad == true;
-                //Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = q => q.OrderByDescending(s => s.Id);
+                Expression<Func<TipoTramite, bool>> filtro = s => s.Visibilidad == true;
+                Func<IQueryable<TipoTramite>, IOrderedQueryable<TipoTramite>> orderBy = q => q.OrderByDescending(s => s.Id);
+
 
                 // Obtener total de registros
                 int totalRegistros = await _tipoTramiteRepositoryBusiness.ContarTotalAsync();
@@ -49,7 +51,7 @@ namespace CemSys2.Controllers
                 if (pagina > totalPaginas && totalPaginas > 0)
                     pagina = totalPaginas;
 
-                viewModel.ListaTipoTramite = await _tipoTramiteRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA);
+                viewModel.ListaTipoTramite = await _tipoTramiteRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA, filtro, orderBy);
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
                 viewModel.TotalRegistros = totalRegistros;
@@ -67,7 +69,6 @@ namespace CemSys2.Controllers
             {
                 if (model.EsEdicion) // Es una edición
                 {
-                    // Cargar el usuario existente para obtener la contraseña actual si no se cambió
                     var tipoTramite = await _tipoTramiteRepositoryBusiness.Consultar(model.Id.Value);
                     tipoTramite.Tipo = model.Nombre.ToLower();
 
@@ -81,6 +82,7 @@ namespace CemSys2.Controllers
                     {
                         Id = model.Id ?? 0, // Si es nuevo, Id será 0
                         Tipo = model.Nombre.ToLower(),
+                        Visibilidad = true // Por defecto, al registrar es visible
                     };
 
                     await _tipoTramiteRepositoryBusiness.Registrar(tipoTramite);
@@ -98,7 +100,9 @@ namespace CemSys2.Controllers
         {
             try
             {
-                await _tipoTramiteRepositoryBusiness.Eliminar(model.Id.Value);
+                TipoTramite tipoTramite = await _tipoTramiteRepositoryBusiness.Consultar(model.Id.Value);
+                tipoTramite.Visibilidad = false; // Cambiar visibilidad a false en lugar de eliminar
+                await _tipoTramiteRepositoryBusiness.Modificar(tipoTramite);
                 TempData["MensajeExito"] = "Tipo de trámite eliminado correctamente";
             }
             catch (Exception ex)

@@ -9,6 +9,8 @@ public partial class TipoTramite
 
     public string Tipo { get; set; } = null!;
 
+    public bool Visibilidad { get; set; }
+
     public virtual ICollection<EstadoTramite> EstadoTramites { get; set; } = new List<EstadoTramite>();
 
     public virtual ICollection<Tramite> Tramites { get; set; } = new List<Tramite>();

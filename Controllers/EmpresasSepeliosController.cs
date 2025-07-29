@@ -38,8 +38,8 @@ namespace CemSys2.Controllers
             try
             {
                 // Definir filtro una sola vez
-                //Expression<Func<Usuario, bool>> filtro = s => s.Visibilidad == true;
-                //Func<IQueryable<Seccione>, IOrderedQueryable<Seccione>> orderBy = q => q.OrderByDescending(s => s.Id);
+                Expression<Func<EmpresaFunebre, bool>> filtro = s => s.Visibilidad == true;
+                Func<IQueryable<EmpresaFunebre>, IOrderedQueryable<EmpresaFunebre>> orderBy = q => q.OrderByDescending(s => s.Id);
 
                 // Obtener total de registros
                 int totalRegistros = await _empresaSepelioRepositoryBusiness.ContarTotalAsync();
@@ -49,7 +49,7 @@ namespace CemSys2.Controllers
                 if (pagina > totalPaginas && totalPaginas > 0)
                     pagina = totalPaginas;
 
-                viewModel.ListaEmpresasSepelio = await _empresaSepelioRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA);
+                viewModel.ListaEmpresasSepelio = await _empresaSepelioRepositoryBusiness.ObtenerPaginadoAsync(pagina, CANTIDAD_POR_PAGINA, filtro,  orderBy);
                 viewModel.PaginaActual = pagina;
                 viewModel.TotalPaginas = totalPaginas;
                 viewModel.TotalRegistros = totalRegistros;
@@ -68,7 +68,6 @@ namespace CemSys2.Controllers
             {
                 if (model.EsEdicion) // Es una edición
                 {
-                    // Cargar el usuario existente para obtener la contraseña actual si no se cambió
                     var empresa = await _empresaSepelioRepositoryBusiness.Consultar(model.Id.Value);
                     empresa.Nombre = model.Nombre;
 
@@ -82,6 +81,7 @@ namespace CemSys2.Controllers
                     {
                         Id = model.Id ?? 0, // Si es nuevo, Id será 0
                         Nombre = model.Nombre,
+                        Visibilidad = true // Por defecto, al registrar una nueva empresa, se establece como visible
                     };
 
                     await _empresaSepelioRepositoryBusiness.Registrar(empresa);
@@ -99,7 +99,9 @@ namespace CemSys2.Controllers
         {
             try
             {
-                await _empresaSepelioRepositoryBusiness.Eliminar(model.Id.Value);
+                EmpresaFunebre empresa = await _empresaSepelioRepositoryBusiness.Consultar(model.Id.Value);
+                empresa.Visibilidad = false; // Marcar como no visible
+                await _empresaSepelioRepositoryBusiness.Modificar(empresa);
                 TempData["MensajeExito"] = "Empresa eliminada correctamente";
             }
             catch (Exception ex)

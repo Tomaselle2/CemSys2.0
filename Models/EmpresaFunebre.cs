@@ -9,5 +9,7 @@ public partial class EmpresaFunebre
 
     public string Nombre { get; set; } = null!;
 
+    public bool Visibilidad { get; set; }
+
     public virtual ICollection<Introduccione> Introducciones { get; set; } = new List<Introduccione>();
 }
