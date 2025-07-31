@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Parcelas;
+using CemSys2.Models;
 
 namespace CemSys2.ViewModel
 {
@@ -9,6 +10,8 @@ namespace CemSys2.ViewModel
         public DTO_Parcelas_Encabezado EncabezadoParcela { get; set; } = new();
         public List<DTO_Historial_Parcelas> ListaDifuntosHistoricos { get; set; } = new();
         public List<DTO_Parcela_Tramites> ListaTramites { get; set; } = new();
-
+        public List<TipoNicho> ListaTiposNicho { get; set; } = new();
+        public List<TipoPanteon> ListaTiposPanteon { get; set; } = new();
+        public bool esEdicion { get; set; } = false;
     }
 }

@@ -7,6 +7,7 @@
     string fecha = DateOnly.FromDateTime(DateTime.Now).ToString("yyyy-MM-dd");
     DateOnly fechaActual = DateOnly.FromDateTime(DateTime.Now);
     var fechaMax = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+    string ocupacionParcela = (Model.ListaDifuntosActuales.Count() > 0) ? "ocupado" : "desocupado";
 }
 @{
     string parcela = "";
@@ -24,7 +25,7 @@
     }
 }
 <h1 class="tituloDePagina">Historial</h1>
-<h2 class="tituloDePagina">@parcela sección @Model.EncabezadoParcela.NombreSeccion.ToUpper()</h2>
+
 
 @* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
 @if (!string.IsNullOrEmpty(Model.MensajeError))
@@ -36,7 +37,54 @@
 }
 
 
+<div class="contenedor-de-datos">
+    <h2 class="tituloDePagina">@parcela sección @Model.EncabezadoParcela.NombreSeccion.ToUpper()</h2>
 
+    <div class="separador"></div>
+
+    <p class="datoEncabezadoHistorialParcela">Estado: <span class="@ocupacionParcela">@ocupacionParcela</span></p>
+    <form asp-action="Editar" asp-controller="Parcelas" method="post">
+        @if (Model.EncabezadoParcela.TipoParcela == 1)
+        {
+            <div class="mb-2">
+                <label class="form-label datoEncabezadoHistorialParcela">Tipo de nicho</label>
+                <select class="form-select" asp-for="EncabezadoParcela.TipoNicho" asp-items="@(new SelectList(Model.ListaTiposNicho, "Id", "Tipo", Model.EncabezadoParcela.TipoNicho))">
+                </select>
+
+            </div>
+        }
+
+        @if (Model.EncabezadoParcela.TipoParcela == 3)
+        {
+            <div class="mb-2">
+                <label class="datoEncabezadoHistorialParcela">Tipo de panteón</label>
+                <select class="form-select" asp-for="EncabezadoParcela.TipoPanteon" asp-items="@(new SelectList(Model.ListaTiposPanteon, "Id", "Tipo", Model.EncabezadoParcela.TipoPanteon))">
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="datoEncabezadoHistorialParcela">Nombre del panteón</label>
+                <input class="form-control" type="text" asp-for="EncabezadoParcela.NombrePanteon" />
+            </div>
+        }
+
+        <div>
+            @if (Model.EncabezadoParcela.TipoParcela != 2) //es nicho o panteon
+            {
+                <input type="hidden" asp-for="EncabezadoParcela.ParcelaId" />
+                <input type="hidden" asp-for="EncabezadoParcela.TipoParcela" />
+                <input type="submit" class="btn btn-success" value="Modificar" />
+            }
+        </div>
+       
+    </form>
+</div>
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <!-- Tabla de historial de difuntos actuales -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
@@ -232,4 +280,3 @@
         </div>
     </div>
 </div>
-

@@ -21,5 +21,7 @@
         public int? IdTipoPanteon { get; set; }
 
         public string? TipoPanteon { get; set; }
+
+        public string? NombrePanteon { get; set; }
     }
 }

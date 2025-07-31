@@ -158,5 +158,25 @@ namespace CemSys2.Business
         {
             return await _parcelaBD.ListaParcelasTramites(parcelaId);
         }
+
+        public Task<List<TipoNicho>> ListaTiposNicho()
+        {
+            return _parcelaBD.ListaTiposNicho();
+        }
+
+        public Task<List<TipoPanteon>> ListaTipoPanteon()
+        {
+            return _parcelaBD.ListaTipoPanteon();
+        }
+
+        public async Task<Parcela> BuscarParcelaPorId(int parcelaId)
+        {
+            return await _parcelaBD.BuscarParcelaPorId(parcelaId);
+        }
+
+        public async Task<int> ModificarParcela(Parcela parcela)
+        {
+            return await _parcelaRepository.Modificar(parcela);
+        }
     }
 }

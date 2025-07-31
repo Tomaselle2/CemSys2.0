@@ -40,6 +40,7 @@
                                 <tr>
                                     <th>Parcela</th>
                                     <td>Tipo de panteón</td>
+                                    <th>Nombre panteón</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -64,6 +65,7 @@
                                             @{
                                                 string estado = (@opc.CantidadDifuntos == 0) ? "Desocupado" : $"Ocupado {opc.CantidadDifuntos} difunto/s";
                                             }
+                                            <td>@opc.NombrePanteon?.ToUpper()</td>
                                             <td>@estado</td>
                                             <td>
                                                 <form asp-action="HistorialParcela" asp-controller="Parcelas" method="get" target="_blank" style="display: inline-block;">
