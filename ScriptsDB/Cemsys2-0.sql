@@ -78,16 +78,14 @@ CREATE TABLE EmpresaFunebre (
     id INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(30) NOT NULL
 );
-ALTER TABLE EmpresaFunebre
-ADD visibilidad BIT NOT NULL DEFAULT 1;
+
 
 -- Cementerios
 CREATE TABLE Cementerios (
     id INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(50) NOT NULL
 );
-ALTER TABLE Cementerios
-ADD visibilidad BIT NOT NULL DEFAULT 1;
+
 
 -- Acta defunción
 CREATE TABLE ActaDefuncion (
@@ -116,8 +114,7 @@ CREATE TABLE TipoTramite (
     id INT PRIMARY KEY IDENTITY(1,1),
     tipo NVARCHAR(30) NOT NULL
 );
-ALTER TABLE TipoTramite
-ADD visibilidad BIT NOT NULL DEFAULT 1;
+
 
 -- Tarifarias
 CREATE TABLE Tarifarias (
@@ -222,9 +219,7 @@ CREATE TABLE Parcela (
 	FOREIGN KEY (TipoPanteonId) REFERENCES TipoPanteon(id)
 );
 go
-ALTER TABLE Parcela
-add nombrePanteon nvarchar(100)
-go
+
 
 -- Precios tarifarias
 CREATE TABLE PreciosTarifarias (

@@ -318,7 +318,7 @@ BEGIN
 END
 go
 -----------------------------------------------------------------------------------
-CREATE PROCEDURE ObtenerEncabezadoParcela
+create PROCEDURE ObtenerEncabezadoParcela
     @parcelaId INT
 AS
 BEGIN
@@ -327,7 +327,10 @@ BEGIN
         p.NroParcela, 
         p.NroFila, 
         s.nombre AS NombreSeccion, 
-        s.tipoParcela AS TipoParcela
+        s.tipoParcela AS TipoParcela,
+		p.TipoNicho,
+		p.TipoPanteonId,
+		p.nombrePanteon
     FROM 
         Parcela p
     INNER JOIN 

@@ -7,5 +7,9 @@
         public int ParcelaId { get; set; }
         public string NombreSeccion { get; set; } = string.Empty;
         public int TipoParcela { get; set; }
+        public int? TipoNicho { get; set; }
+        public int? TipoPanteon { get; set; }
+        public string? NombrePanteon { get; set; }
+
     }
 }

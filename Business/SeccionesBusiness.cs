@@ -109,7 +109,9 @@ namespace CemSys2.Business
                     CantidadDifuntos = t.CantidadDifuntos,
                     Seccion = t.Seccion,
                     IdTipoNicho = t.TipoNicho,
-                    IdTipoPanteon = t.TipoPanteonId
+                    IdTipoPanteon = t.TipoPanteonId,
+                    NombrePanteon = t.NombrePanteon,
+
                 }).ToList();
             }
             catch (Exception ex)
