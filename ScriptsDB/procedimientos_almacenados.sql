@@ -317,8 +317,8 @@ BEGIN
         AND pd.parcelaId = @parcelaId;
 END
 go
------------------------------------------------------------------------------------
-create PROCEDURE ObtenerEncabezadoParcela
+------------------------------------------Obtiene el encabezado del historial de una parcela-----------------------------------------
+alter PROCEDURE ObtenerEncabezadoParcela
     @parcelaId INT
 AS
 BEGIN
@@ -330,7 +330,8 @@ BEGIN
         s.tipoParcela AS TipoParcela,
 		p.TipoNicho,
 		p.TipoPanteonId,
-		p.nombrePanteon
+		p.nombrePanteon,
+		p.infoAdicional
     FROM 
         Parcela p
     INNER JOIN 
