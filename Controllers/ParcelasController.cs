@@ -64,16 +64,23 @@ namespace CemSys2.Controllers
         public async Task<IActionResult> Editar(ParcelaHistorialVM viewModel)
         {
             Parcela parcela = await _parcelasBusiness.BuscarParcelaPorId(viewModel.EncabezadoParcela.ParcelaId);
-            if (viewModel.EncabezadoParcela.TipoParcela == 1)
-            {
-                parcela.TipoNicho = viewModel.EncabezadoParcela.TipoNicho;
-            }
 
-            if (viewModel.EncabezadoParcela.TipoParcela == 3)
+            switch (viewModel.EncabezadoParcela.TipoParcela)
             {
-                parcela.TipoPanteonId = viewModel.EncabezadoParcela.TipoPanteon;
-                parcela.NombrePanteon = viewModel.EncabezadoParcela.NombrePanteon;
-            }
+                case 1: //nicho
+                    parcela.TipoNicho = viewModel.EncabezadoParcela.TipoNicho;
+                    parcela.InfoAdicional = viewModel.EncabezadoParcela.infoAdicional;
+                    break;
+                case 2: //fosa
+                    parcela.InfoAdicional = viewModel.EncabezadoParcela.infoAdicional;
+                    break;
+                case 3: //panteon
+                    parcela.TipoPanteonId = viewModel.EncabezadoParcela.TipoPanteon;
+                    parcela.NombrePanteon = viewModel.EncabezadoParcela.NombrePanteon;
+                    parcela.InfoAdicional = viewModel.EncabezadoParcela.infoAdicional;
+                    break;
+            }   
+
 
             try
             {

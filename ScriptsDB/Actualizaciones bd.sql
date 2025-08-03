@@ -15,3 +15,8 @@ ALTER TABLE Cementerios
 ADD visibilidad BIT NOT NULL DEFAULT 1;
 
 go
+
+alter table parcela
+add infoAdicional nvarchar(max);
+
+go

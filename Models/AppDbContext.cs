@@ -449,6 +449,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CantidadDifuntos).HasColumnName("cantidadDifuntos");
+            entity.Property(e => e.InfoAdicional).HasColumnName("infoAdicional");
             entity.Property(e => e.NombrePanteon)
                 .HasMaxLength(100)
                 .HasColumnName("nombrePanteon");

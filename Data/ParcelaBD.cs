@@ -64,7 +64,10 @@ namespace CemSys2.Data
                                               : reader.GetInt32(reader.GetOrdinal("TipoPanteonId")),
                                 NombrePanteon = reader.IsDBNull(reader.GetOrdinal("nombrePanteon"))
                                               ? ""
-                                              : reader.GetString(reader.GetOrdinal("nombrePanteon"))
+                                              : reader.GetString(reader.GetOrdinal("nombrePanteon")),
+                                infoAdicional = reader.IsDBNull(reader.GetOrdinal("infoAdicional"))
+                                              ? ""
+                                              : reader.GetString(reader.GetOrdinal("infoAdicional"))
                             };
                         }
                     }

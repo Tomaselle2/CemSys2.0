@@ -23,6 +23,8 @@ public partial class Parcela
 
     public string? NombrePanteon { get; set; }
 
+    public string? InfoAdicional { get; set; }
+
     public virtual ICollection<ContratoConcesion> ContratoConcesions { get; set; } = new List<ContratoConcesion>();
 
     public virtual ICollection<Introduccione> Introducciones { get; set; } = new List<Introduccione>();

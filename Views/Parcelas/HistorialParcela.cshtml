@@ -66,15 +66,16 @@
                 <input class="form-control" type="text" asp-for="EncabezadoParcela.NombrePanteon" />
             </div>
         }
-
-        <div>
-            @if (Model.EncabezadoParcela.TipoParcela != 2) //es nicho o panteon
-            {
-                <input type="hidden" asp-for="EncabezadoParcela.ParcelaId" />
-                <input type="hidden" asp-for="EncabezadoParcela.TipoParcela" />
-                <input type="submit" class="btn btn-success" value="Modificar" />
-            }
+        <div class="full-width">
+            <label class="datoEncabezadoHistorialParcela">Información adicional</label>
+            <textarea id="textareaInfoAdicional" style="overflow:hidden;" oninput="ajustarAltura(this)" class="form-control" asp-for="EncabezadoParcela.infoAdicional"></textarea>
         </div>
+        <div>
+            <input type="hidden" asp-for="EncabezadoParcela.ParcelaId" />
+            <input type="hidden" asp-for="EncabezadoParcela.TipoParcela" />
+            <input type="submit" class="btn btn-success" value="Modificar" />
+        </div>
+
        
     </form>
 </div>
@@ -280,3 +281,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    function ajustarAltura(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const textarea = document.getElementById('textareaInfoAdicional');
+        ajustarAltura(textarea);
+    });
+</script>

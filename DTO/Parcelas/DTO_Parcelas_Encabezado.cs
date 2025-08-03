@@ -10,6 +10,6 @@
         public int? TipoNicho { get; set; }
         public int? TipoPanteon { get; set; }
         public string? NombrePanteon { get; set; }
-
+        public string? infoAdicional { get; set; } 
     }
 }
