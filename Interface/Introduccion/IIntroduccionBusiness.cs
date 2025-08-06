@@ -26,5 +26,8 @@ namespace CemSys2.Interface.Introduccion
         Task<List<Introduccione>> ReporteIntroducciones(DateTime? desde = null, DateTime? hasta = null);
 
 
+        //facturacion
+        Task<List<ConceptosFactura>> ListaConceptoFactura(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int parcelaId, int estadoDifuntoId);
+
     }
 }

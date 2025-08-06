@@ -20,3 +20,8 @@ alter table parcela
 add infoAdicional nvarchar(max);
 
 go
+--del 05/08/2025
+ALTER TABLE ConceptosFactura
+ADD tipoConceptoFacturaId INT NULL,
+CONSTRAINT FK_ConceptosFactura_TiposConceptoTarifaria 
+FOREIGN KEY (tipoConceptoFacturaId) REFERENCES TiposConceptoTarifaria(id);

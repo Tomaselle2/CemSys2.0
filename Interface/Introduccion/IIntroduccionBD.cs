@@ -7,7 +7,7 @@ namespace CemSys2.Interface.Introduccion
     public interface IIntroduccionBD
     {
 
-        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso);
+        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFactura);
 
         Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model);
 
@@ -23,5 +23,11 @@ namespace CemSys2.Interface.Introduccion
         Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite);
         //reportes
         Task<List<Introduccione>> ReporteIntroducciones(DateTime? desde = null, DateTime? hasta = null);
+
+        //facturacion
+        Task<Models.Tarifaria> TarifariaVigente();
+        Task<PreciosTarifaria?> PrecioTarifaria(int tarifariaVigente, int conceptoTarifaria);
+        Task GenerarFactura(List<ConceptosFactura> conceptosFacturas);
+        Task<Parcela> ConsultarParcela(int idParcela);
     }
 }

@@ -12,3 +12,15 @@ WHERE ct.tipoConceptoId = 4
 ORDER BY ct.Nombre;
 
 select * from AniosConcesion
+
+select * from ConceptosTarifarias
+select * from tarifarias
+
+select * from PreciosTarifarias where conceptoTarifariaId = 11 and tarifarioId = 1
+
+select * from Facturas
+select *, tct.nombre from ConceptosFactura cf 
+join ConceptosTarifarias tct on cf.conceptoTarifariaId = tct.id
+
+select * from ConceptosFactura
+select * from TiposConceptoTarifaria

@@ -17,7 +17,11 @@ public partial class ConceptosFactura
 
     public decimal? Subtotal { get; set; }
 
+    public int? TipoConceptoFacturaId { get; set; }
+
     public virtual ConceptosTarifaria ConceptoTarifaria { get; set; } = null!;
 
     public virtual Factura Factura { get; set; } = null!;
+
+    public virtual TiposConceptoTarifarium? TipoConceptoFactura { get; set; }
 }

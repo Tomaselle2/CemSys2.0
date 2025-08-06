@@ -13,7 +13,7 @@ public partial class Usuario
 
     public string Usuario1 { get; set; } = null!;
 
-    public string? Clave { get; set; }
+    public string Clave { get; set; } = null!;
 
     public bool Visibilidad { get; set; }
 

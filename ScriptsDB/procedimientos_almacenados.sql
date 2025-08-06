@@ -318,7 +318,7 @@ BEGIN
 END
 go
 ------------------------------------------Obtiene el encabezado del historial de una parcela-----------------------------------------
-alter PROCEDURE ObtenerEncabezadoParcela
+create PROCEDURE ObtenerEncabezadoParcela
     @parcelaId INT
 AS
 BEGIN

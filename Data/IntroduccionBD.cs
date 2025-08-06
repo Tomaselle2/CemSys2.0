@@ -16,6 +16,13 @@ namespace CemSys2.Data
         private readonly IRepositoryDB<TipoParcela> _tipoParcelaBD;
         private readonly IRepositoryDB<EmpresaFunebre> _empresaFunebreBD;
 
+        private int tipoConceptosTarifariaId_Contribucion = 2;
+        private int tipoConceptosTarifariaId_RegistroCivil = 5;
+        private int tipoConceptosTarifariaId_DerechoDeOficina = 6;
+        private int tipoConceptosTarifariaId_Generales = 1;
+
+        private decimal porcentajeFondo = 0.05m; // 5% del fondo
+
         public IntroduccionBD(AppDbContext context, IRepositoryDB<EstadoDifunto> estadoDifuntoBD, IRepositoryDB<TipoParcela> tipoParcelaBD, IRepositoryDB<EmpresaFunebre> empresaFunebreBD)
         {
             _context = context;
@@ -121,7 +128,7 @@ namespace CemSys2.Data
            return await _context.Personas.Where(p => p.Visibilidad == true && p.Dni == dni).FirstOrDefaultAsync();
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFacturas)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -220,6 +227,71 @@ namespace CemSys2.Data
 
                 await _context.SaveChangesAsync();
 
+                //facturacion
+
+                //separar los conceptos por tipo de conceptoTarifaria
+                List<ConceptosFactura> conceptosContribucion = conceptosFacturas
+                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_Contribucion).ToList();
+
+                List<ConceptosFactura> conceptosRegistroCivil = conceptosFacturas
+                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_RegistroCivil).ToList();
+
+                List<ConceptosFactura> conceptosDerechoDeOficina = conceptosFacturas
+                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_DerechoDeOficina).ToList();
+
+                List<ConceptosFactura> conceptosGenerales = conceptosFacturas
+                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_Generales).ToList();
+
+                //sumar los montos y sumar el 5% del fondo, este debe ser una variable de la tarifaria vigente
+                decimal totalContribucion = conceptosContribucion.Sum(c => c.PrecioUnitario * c.Cantidad);
+                totalContribucion += totalContribucion * porcentajeFondo; //suma el 5%
+
+                decimal totalRegistroCivil = conceptosRegistroCivil.Sum(c => c.PrecioUnitario * c.Cantidad);
+                totalRegistroCivil += totalRegistroCivil * porcentajeFondo; //suma el 5%
+
+                decimal totalDerechoDeOficina = conceptosDerechoDeOficina.Sum(c => c.PrecioUnitario * c.Cantidad);
+                totalDerechoDeOficina += totalDerechoDeOficina * porcentajeFondo; //suma el 5%
+
+                decimal totalGenerales = conceptosGenerales.Sum(c => c.PrecioUnitario * c.Cantidad);
+                totalGenerales += totalGenerales * porcentajeFondo; //suma el 5%
+
+
+                // 1. Calcular total factura
+                decimal totalFactura = totalContribucion + totalRegistroCivil + totalDerechoDeOficina + totalGenerales;
+
+                // 2. Registrar la factura
+                Factura factura = new Factura
+                {
+                    TramiteId = tramite.Id,
+                    FechaCreacion = DateTime.Now,
+                    Total = totalFactura,
+                    Pendiente = totalFactura,
+                    Visibilidad = true
+                };
+                _context.Facturas.Add(factura);
+                await _context.SaveChangesAsync();
+
+                // 3. Obtener el ID generado para la factura
+                int facturaId = factura.Id;
+
+                // 4. Registrar los conceptos de la factura
+                foreach (var concepto in conceptosFacturas)
+                {
+                    ConceptosFactura conceptoFactura = new ConceptosFactura
+                    {
+                        FacturaId = facturaId,
+                        ConceptoTarifariaId = concepto.ConceptoTarifariaId,
+                        PrecioUnitario = concepto.PrecioUnitario,
+                        Cantidad = concepto.Cantidad,
+                        TipoConceptoFacturaId = concepto.TipoConceptoFacturaId,
+
+                    };
+                    _context.ConceptosFacturas.Add(conceptoFactura);
+                }
+
+                await _context.SaveChangesAsync();
+
+
                 await transaction.CommitAsync();
                 return tramite.Id;
             }
@@ -268,6 +340,9 @@ namespace CemSys2.Data
         }
 
 
+
+
+        
 
 
 
@@ -340,6 +415,39 @@ namespace CemSys2.Data
                 }
             }
             return resultado;
+        }
+
+        //facturacion
+
+        public async Task<Tarifaria> TarifariaVigente()
+        {
+            var tarifaria = await _context.Tarifarias
+                .Where(t => t.Visibilidad == true)
+                .OrderByDescending(t => t.FechaCreacionTarifaria)
+                .FirstOrDefaultAsync();
+
+            return tarifaria ?? throw new Exception("No se encontró una tarifaria vigente.");
+        }
+
+        public async Task<PreciosTarifaria?> PrecioTarifaria(int tarifariaVigente, int conceptoTarifaria)
+        {
+            return await _context.PreciosTarifarias
+                .Include(p => p.ConceptoTarifaria)
+                .Where(p => p.TarifarioId == tarifariaVigente && p.ConceptoTarifariaId == conceptoTarifaria)
+                .FirstOrDefaultAsync();
+        }
+
+        public Task GenerarFactura(List<ConceptosFactura> conceptosFacturas)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Parcela> ConsultarParcela(int idParcela)
+        {
+            return await _context.Parcelas
+                .Include(p => p.SeccionNavigation)
+                .ThenInclude(s => s.TipoParcelaNavigation)
+                .FirstOrDefaultAsync(p => p.Id == idParcela && p.Visibilidad == true);
         }
     }
 }
