@@ -22,6 +22,7 @@ namespace CemSys2.Data
         private int tipoConceptosTarifariaId_Generales = 1;
 
         private decimal porcentajeFondo = 0.05m; // 5% del fondo
+        private decimal montoMinimoDeFondo = 500m;
 
         public IntroduccionBD(AppDbContext context, IRepositoryDB<EstadoDifunto> estadoDifuntoBD, IRepositoryDB<TipoParcela> tipoParcelaBD, IRepositoryDB<EmpresaFunebre> empresaFunebreBD)
         {
@@ -65,21 +66,21 @@ namespace CemSys2.Data
             var parcelasQuery = _context.Parcelas
                 .Where(p => p.Seccion == idSeccion && p.Visibilidad == true);
 
-            if (estadoDifuntoId == 1)
+            if (estadoDifuntoId == 1) //cuerpo completo
             {
-                if (tipoParcela == 1)
+                if (tipoParcela == 1) //nicho
                 {
-                    parcelasQuery = parcelasQuery.Where(p => p.CantidadDifuntos == 0);
+                    parcelasQuery = parcelasQuery.Where(p => p.CantidadDifuntos == 0 && p.TipoNicho != 2);
                 }
                 // si tipoParcela != 1 no aplicamos más filtros
             }
             else
             {
-                if (tipoParcela == 1 || tipoParcela == 2)
+                if (tipoParcela == 1 || tipoParcela == 2) //nicho o fosa
                 {
                     parcelasQuery = parcelasQuery.Where(p => p.CantidadDifuntos < 5);
                 }
-                else if (tipoParcela == 3)
+                else if (tipoParcela == 3) //panteon
                 {
                     parcelasQuery = parcelasQuery.Where(p => p.CantidadDifuntos < 20);
                 }
@@ -92,7 +93,10 @@ namespace CemSys2.Data
                     NroParcela = p.NroParcela,
                     NroFila = p.NroFila,
                     SeccionId = p.Seccion,
-                    CantidadDifuntos = p.CantidadDifuntos
+                    CantidadDifuntos = p.CantidadDifuntos,
+                    NombrePanteon = p.NombrePanteon,
+                    TipoNichoId = p.TipoNicho,
+                    TipoPanteonId = p.TipoPanteonId
                 }).ToListAsync();
         }
 
@@ -244,16 +248,53 @@ namespace CemSys2.Data
 
                 //sumar los montos y sumar el 5% del fondo, este debe ser una variable de la tarifaria vigente
                 decimal totalContribucion = conceptosContribucion.Sum(c => c.PrecioUnitario * c.Cantidad);
-                totalContribucion += totalContribucion * porcentajeFondo; //suma el 5%
+                decimal calcular5porciento = totalContribucion * porcentajeFondo;
+                if(calcular5porciento < montoMinimoDeFondo)
+                {
+                    totalContribucion += montoMinimoDeFondo;
+                }
+                else
+                {
+                    totalContribucion += totalContribucion * porcentajeFondo; //suma el 5%
+                }
 
                 decimal totalRegistroCivil = conceptosRegistroCivil.Sum(c => c.PrecioUnitario * c.Cantidad);
-                totalRegistroCivil += totalRegistroCivil * porcentajeFondo; //suma el 5%
+                calcular5porciento = totalRegistroCivil * porcentajeFondo;
+                if (calcular5porciento < montoMinimoDeFondo)
+                {
+                    totalRegistroCivil += montoMinimoDeFondo;
+                }
+                else
+                {
+                    totalRegistroCivil += totalRegistroCivil * porcentajeFondo; //suma el 5%
+                }
+
 
                 decimal totalDerechoDeOficina = conceptosDerechoDeOficina.Sum(c => c.PrecioUnitario * c.Cantidad);
-                totalDerechoDeOficina += totalDerechoDeOficina * porcentajeFondo; //suma el 5%
+                calcular5porciento = totalDerechoDeOficina * porcentajeFondo;
+                if (calcular5porciento < montoMinimoDeFondo)
+                {
+                    totalDerechoDeOficina += montoMinimoDeFondo;
+                }
+                else
+                {
+                    totalDerechoDeOficina += totalDerechoDeOficina * porcentajeFondo; //suma el 5%
+                }
 
                 decimal totalGenerales = conceptosGenerales.Sum(c => c.PrecioUnitario * c.Cantidad);
-                totalGenerales += totalGenerales * porcentajeFondo; //suma el 5%
+                if(totalGenerales != 0)
+                {
+                    calcular5porciento = totalGenerales * porcentajeFondo;
+                    if (calcular5porciento < montoMinimoDeFondo)
+                    {
+                        totalGenerales += montoMinimoDeFondo;
+                    }
+                    else
+                    {
+                        totalGenerales += totalGenerales * porcentajeFondo; //suma el 5%
+                    }
+                }
+                
 
 
                 // 1. Calcular total factura

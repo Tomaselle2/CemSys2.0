@@ -390,6 +390,7 @@
                 const tipoParcelaId = tipoParcelaSelect.value;
                 const estadoDelDifuntoId = estadoDifuntoSelect.value;
                 
+                
                 // Limpiar parcelas
                 parcelaSelect.innerHTML = '<option value="">--Elija una opción--</option>';
 
@@ -400,13 +401,42 @@
                     parcelas.forEach(parcela => {
                         const option = document.createElement('option');
                         option.value = parcela.id;
+                        const cantidadDifuntos = parcela.cantidadDifuntos;
+                        let cantidadTexto = cantidadDifuntos >= 1 ? "- (Ocupado)" : "";
+
+                        let tipoNichoId = parcela.tipoNichoId;
+                        let tipoPanteonId = parcela.tipoPanteonId;
+                        let nombrePanteon = parcela.nombrePanteon;
+
+                        let tipoNichoTexto = "";
+                        if(tipoNichoId != null){
+                            if(tipoNichoId === 2){
+                                tipoNichoTexto = "- urnario";
+                            }else if(tipoNichoId === 3)
+                            {
+                                tipoNichoTexto = "- especial";
+                            }
+                        }
+
+                        let tipoPanteonTexto = "";
+                        if(tipoPanteonId != null){
+                            if(tipoPanteonId === 1){
+                                tipoPanteonTexto = "- con nichos";
+                            }else if(tipoPanteonId === 2)
+                            {
+                                tipoPanteonTexto = "- sin nichos";
+                            }
+                        }
+
+                        nombrePanteon = nombrePanteon != null ? "- "+nombrePanteon : "";
+                        
 
                         if(tipoParcelaId == 1){
-                            option.textContent = `Nicho ${parcela.nroParcela} Fila ${parcela.nroFila}`;
+                            option.textContent = `Nicho ${parcela.nroParcela} Fila ${parcela.nroFila} ${tipoNichoTexto} ${cantidadTexto}`;
                         }else if(tipoParcelaId == 2){
-                            option.textContent = `Fosa ${parcela.nroParcela}`;
+                            option.textContent = `Fosa ${parcela.nroParcela} ${cantidadTexto}`;
                         }else if(tipoParcelaId == 3){
-                            option.textContent = `Lote ${parcela.nroParcela}`;
+                            option.textContent = `Lote ${parcela.nroParcela} ${cantidadTexto} ${tipoPanteonTexto} ${nombrePanteon}`;
                         }
 
                         parcelaSelect.appendChild(option);

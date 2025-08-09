@@ -16,6 +16,7 @@ select * from AniosConcesion
 select * from ConceptosTarifarias
 select * from tarifarias
 
+select * from TipoNichos
 select * from PreciosTarifarias where conceptoTarifariaId = 11 and tarifarioId = 1
 
 select * from Facturas

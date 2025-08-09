@@ -12,6 +12,11 @@
 
         public int CantidadDifuntos { get; set; }
 
+        public string? NombrePanteon { get; set; }
+
+        public int? TipoNichoId { get; set; }
+
+        public int? TipoPanteonId { get; set; }
 
     }
 }

@@ -66,7 +66,7 @@ INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
 (1, 'Permiso de refacciones', 1),
 (1, 'Reducción', 1),
 (1, 'Eventuales e imprevistos', 1),
-(2, 'Inhumación', 1),
+(2, 'Inhumación nicho féretro', 1),
 (5, 'Defunción', 1),
 (5, 'Transcripción', 1),
 (6, 'Introducción de féretro', 1),
@@ -74,6 +74,16 @@ INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
 (3, 'Concesión Nicho', 1),
 (4, 'Concesión Fosa', 1);
 
+INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
+(2, 'Inhumación nicho urna', 1),
+(2, 'Inhumación fosa féretro', 1),
+(2, 'Inhumación fosa urna', 1),
+(2, 'Inhumación panteón féretro', 1),
+(2, 'Inhumación panteón urna', 1);
+
+INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
+(2, 'Cierre de nicho (inhumación)', 1),
+(2, 'Cierre de fosa (inhumación)', 1);
 
 -- INSERT para AniosConcesion (años típicos de concesión)
 INSERT INTO AniosConcesion (anios) VALUES 
