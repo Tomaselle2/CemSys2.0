@@ -204,12 +204,26 @@
                                 </select>
                                 <span asp-validation-for="ParcelaID" class="text-danger"></span>
                             </div>
+                            <!-- Placa -->
+                            <div class="full-width" id="PlacaMarmol">
+                                <h6>¿El nicho tiene placa de mármol?<span class="obligatorio"> * </span></h6>
+                                <div>
+                                    <label for="placaSi">Si</label>
+                                    <input id="placaSi" type="radio" asp-for="Placa" value="true" class="inputFormularioEnLinea" />
 
+                                    <label for="placaNo">No</label>
+                                    <input id="placaNo" type="radio" asp-for="Placa" value="false" class="inputFormularioEnLinea" checked/>
+                                </div>
+                                <span asp-validation-for="Placa" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
+
+                    
                 </div>
             </div>
         </div>
+        
     </div>
 
 
@@ -394,12 +408,22 @@
                 // Limpiar parcelas
                 parcelaSelect.innerHTML = '<option value="">--Elija una opción--</option>';
 
+                // Ocultar siempre al principio
+                document.getElementById("PlacaMarmol").style.display = "none";
+
                 if (seccionId) {
-                    const response = await fetch(`/Introduccion/ObtenerParcelasPorSeccion?seccionId=${seccionId}&estadoDifuntoId=${estadoDelDifuntoId}`);
+                    const response = await fetch(`/Introduccion/ObtenerParcelasPorSeccion?seccionId=${seccionId}&estadoDifuntoId=${estadoDelDifuntoId}&estadoDifuntoId=${estadoDelDifuntoId}`);
                     const parcelas = await response.json();
 
                     parcelas.forEach(parcela => {
+
                         const option = document.createElement('option');
+
+                       // Guardamos los datos necesarios en atributos data-*
+                       option.dataset.tipoParcelaId = tipoParcelaId;
+                       option.dataset.cantidadDifuntos = parcela.cantidadDifuntos;
+                       option.dataset.tipoPanteonId = parcela.tipoPanteonId;
+
                         option.value = parcela.id;
                         const cantidadDifuntos = parcela.cantidadDifuntos;
                         let cantidadTexto = cantidadDifuntos >= 1 ? "- (Ocupado)" : "";
@@ -442,6 +466,8 @@
                         parcelaSelect.appendChild(option);
 
                     });
+
+                    
                 }
             }
 
@@ -449,6 +475,28 @@
             seccionSelect.addEventListener('change', actualizarParcelas);
             estadoDifuntoSelect.addEventListener('change', actualizarParcelas);
         });
+
+               parcelaSelect.addEventListener('change', function () {
+                           const selectedOption = parcelaSelect.options[parcelaSelect.selectedIndex];
+                           const placaDiv = document.getElementById("PlacaMarmol");
+
+                           // Ocultamos siempre al principio
+                           placaDiv.style.display = "none";
+
+                           if (!selectedOption.value) return; // Si no eligió nada, salimos
+
+                           const tipoParcelaId = parseInt(selectedOption.dataset.tipoParcelaId);
+                           const cantidadDifuntos = parseInt(selectedOption.dataset.cantidadDifuntos);
+                           const tipoPanteonId = selectedOption.dataset.tipoPanteonId ? parseInt(selectedOption.dataset.tipoPanteonId) : null;
+
+                           // Mostrar solo si es Nicho ocupado o Panteón con nichos ocupado
+                           if (
+                               (tipoParcelaId === 1 && cantidadDifuntos >= 1) ||
+                               (tipoParcelaId === 3 && tipoPanteonId === 1 && cantidadDifuntos >= 1)
+                           ) {
+                               placaDiv.style.display = "block";
+                           }
+                       });
     </script>
     
     <script>//logica de agregar empresa

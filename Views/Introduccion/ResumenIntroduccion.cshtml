@@ -10,16 +10,6 @@
 <h1 class="tituloDePagina">Resumen de la introducción</h1>
 
 <style>
-    .contenedor-resumen {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 2px solid #338b85; /* borde verde */
-    }
-
     .titulo-principal {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
@@ -56,12 +46,15 @@
         string datosAdicionales = "";
         string domicilioEnTiorlesa = "";
         string fallecioEnTirolesa = "";
+        int estadoTramite = 0;
+        int cantidadDifuntos = 0;
     }
 
     @foreach (var tramite in Model.ResumenIntroduccion)
     {
         nroTramite = tramite.Id;
-
+        estadoTramite = tramite.estadoTramite;
+        cantidadDifuntos = tramite.CantidadDifuntos;
 
         dni = (tramite.dni == "nn") ? "--------" : tramite.dni;
         nombreCompleto = $"{tramite.Apellido.ToUpper()} {tramite.Nombre?.ToUpper()}";
@@ -140,6 +133,8 @@
     </form>
 
 </div>
+
+
 
 
 

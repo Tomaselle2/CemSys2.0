@@ -105,7 +105,6 @@ INSERT INTO CantidadCuotas (cuota) VALUES
 INSERT INTO EstadoTramite (tipoTramiteId, estado)
 VALUES 
 (1, 'Registrado'),
-(1, 'Impago'),
 (1, 'Cobrado'),
 (1, 'Finalizado');
 

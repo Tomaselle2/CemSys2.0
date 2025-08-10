@@ -448,7 +448,9 @@ namespace CemSys2.Data
                                 Seccion = reader.GetString(reader.GetOrdinal("Seccion")),
                                 TipoParcela = reader.GetInt32(reader.GetOrdinal("TipoParcela")),
                                 DomicilioEnTirolesa = reader.IsDBNull(reader.GetOrdinal("domicilioEnTirolesa")) ? false: reader.GetBoolean(reader.GetOrdinal("domicilioEnTirolesa")),
-                                FallecioEnTirolesa = reader.IsDBNull(reader.GetOrdinal("fallecioEnTirolesa")) ? false : reader.GetBoolean(reader.GetOrdinal("fallecioEnTirolesa"))
+                                FallecioEnTirolesa = reader.IsDBNull(reader.GetOrdinal("fallecioEnTirolesa")) ? false : reader.GetBoolean(reader.GetOrdinal("fallecioEnTirolesa")),
+                                CantidadDifuntos = reader.GetInt32(reader.GetOrdinal("cantidadDifuntos")),
+                                estadoTramite = reader.GetInt32(reader.GetOrdinal("estadoActualID"))
                             };
                             resultado.Add(dto);
                         }

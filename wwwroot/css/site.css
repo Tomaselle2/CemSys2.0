@@ -150,6 +150,16 @@ body {
 /* -----------------------------------------------------------------------------------------------------------------------------------*/  
 /*ESTILOS GENERALES*/
 
+.contenedor-resumen {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 2px solid #338b85; /* borde verde */
+}
+
 /*ALERTA*/
 .alerta-contenedor {
     max-width: 1300px;
@@ -204,6 +214,14 @@ body {
             /* Por ejemplo, para hacer una flecha negra blanca o viceversa */
             filter: invert(100%);
         }
+
+        /*Personalizado para facturaas*/
+            .acordeon-fijo-chico {
+                max-width: 700px;
+                margin-left: auto; /* Centrarlo si tiene un max-width */
+                margin-right: auto;
+                margin-bottom: 20px;
+            }
 /*FIN ACORDEON*/
 
 

@@ -177,7 +177,9 @@ BEGIN
         sec.nombre AS Seccion,
 		sec.tipoParcela as TipoParcela,
 		p.domicilioEnTirolesa,
-		p.fallecioEnTirolesa
+		p.fallecioEnTirolesa,
+		par.cantidadDifuntos,
+		tra.estadoActualID
     FROM Introducciones i
     INNER JOIN EmpresaFunebre e ON i.empresaFunebre = e.id
     INNER JOIN Personas p ON i.difuntoID = p.idPersona
@@ -185,6 +187,7 @@ BEGIN
     INNER JOIN Usuarios u ON i.empleado = u.id
     INNER JOIN Parcela par ON i.parcelaID = par.id
     INNER JOIN Secciones sec ON par.seccion = sec.id
+	INNER JOIN Tramite tra ON i.idTramite = tra.id
     WHERE i.idTramite = @IdTramite;
 END
 go

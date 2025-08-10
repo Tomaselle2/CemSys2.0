@@ -47,6 +47,10 @@ namespace CemSys2.ViewModel
         [Required(ErrorMessage = "La opción del lugar del fallecimiento del difunto es obligatoria")]
         public bool? FallecioEnTirolesa { get; set; }
 
+
+        [Required(ErrorMessage = "La opción de placa es obligatoria")]
+        public bool? Placa { get; set; }
+
         [Required(ErrorMessage = "El tipo de parcela es obligatorio")]
         public int? TipoParcelaID { get; set; }
 

@@ -2,6 +2,7 @@
 using CemSys2.DTO.Reportes;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
+using System.Numerics;
 
 namespace CemSys2.Business
 {
@@ -21,6 +22,9 @@ namespace CemSys2.Business
         private int conceptoTarifariaId_introduccionFeretro = 14;
         private int conceptoTarifariaId_introduccionUrna = 15;
         private int conceptoTarifariaId_AperturaFosa = 3;
+        private int conceptoTarifariaId_AperturaNichoConPlaca = 1;
+        private int conceptoTarifariaId_AperturaNichoSinPlaca = 2;
+
 
         public IntroduccionBusiness(IIntroduccionBD introduccionBD)
         {
@@ -79,11 +83,11 @@ namespace CemSys2.Business
             return await _introduccionBD.RegistrarEmpresaSepelio(model);
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, bool? placa = null)
         {
             return await _introduccionBD.RegistrarIntroduccionCompleta(
                 actaDefuncion, difunto, empleadoId, empresaSepelioId, ParcelaId, fechaIngreso, 
-                await ListaConceptoFactura(difunto.DomicilioEnTirolesa, difunto.FallecioEnTirolesa, ParcelaId, difunto.EstadoDifunto.Value)
+                await ListaConceptoFactura(difunto.DomicilioEnTirolesa, difunto.FallecioEnTirolesa, ParcelaId, difunto.EstadoDifunto.Value, placa.Value)
                 );
         }
 
@@ -99,7 +103,7 @@ namespace CemSys2.Business
         }
 
         //genero la lista de conceptos de factura
-        public async Task<List<ConceptosFactura>> ListaConceptoFactura(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int parcelaId, int estadoDifuntoId)
+        public async Task<List<ConceptosFactura>> ListaConceptoFactura(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int parcelaId, int estadoDifuntoId, bool? placa = null)
         {
             List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
 
@@ -110,12 +114,12 @@ namespace CemSys2.Business
                 case 1: //logica de precios de nicho
                     if (estadoDifuntoId == 1 || estadoDifuntoId == 2) //cuerpo completo
                     {
-                        conceptosFactura = await PreciosNichosFeretroYReduccion(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos);
+                        conceptosFactura = await PreciosNichosFeretroYReduccion(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos, placa);
                     }
                     else //cremado
                     {
                         //logica de precios de cenizas
-                        conceptosFactura = await PreciosNichosUrnas(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos);
+                        conceptosFactura = await PreciosNichosUrnas(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos, placa);
                     }
 
                     break;
@@ -135,12 +139,12 @@ namespace CemSys2.Business
                     {
                         if (estadoDifuntoId == 1 || estadoDifuntoId == 2) //cuerpo completo
                         {
-                            conceptosFactura = await PreciosPanteonConNichosFeretroYReduccion(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos);
+                            conceptosFactura = await PreciosPanteonConNichosFeretroYReduccion(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos, placa);
                         }
                         else //cremado
                         {
                             //logica de precios de cenizas
-                            conceptosFactura = await PreciosPanteonConNichosUrna(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos);
+                            conceptosFactura = await PreciosPanteonConNichosUrna(domicilioEnTirolesa, fallecioEnTirolesa, parcela.CantidadDifuntos, placa);
                         }
                     }
                     else if(parcela.TipoPanteonId == 2) //sin nichos
@@ -162,7 +166,7 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFactura>> PreciosNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
             List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
             List<PreciosTarifaria> listaPrecios = new();
@@ -186,7 +190,17 @@ namespace CemSys2.Business
             {
                 if(cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+                    
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación(11)
@@ -221,7 +235,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación(11)
@@ -264,7 +288,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación(11)
@@ -302,7 +336,7 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosNichosUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFactura>> PreciosNichosUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
             List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
             List<PreciosTarifaria> listaPrecios = new();
@@ -325,7 +359,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación(11)
@@ -367,7 +411,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación(11)
@@ -847,7 +901,7 @@ namespace CemSys2.Business
 
         }
 
-        private async Task<List<ConceptosFactura>> PreciosPanteonConNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFactura>> PreciosPanteonConNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
             List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
             List<PreciosTarifaria> listaPrecios = new();
@@ -871,7 +925,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación
@@ -906,7 +970,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación
@@ -950,7 +1024,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación(11)
@@ -988,7 +1072,7 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosPanteonConNichosUrna(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFactura>> PreciosPanteonConNichosUrna(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
             List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
             List<PreciosTarifaria> listaPrecios = new();
@@ -1011,7 +1095,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación
@@ -1053,7 +1147,17 @@ namespace CemSys2.Business
             {
                 if (cantidadDeDifuntos >= 1) //para apertura de nicho
                 {
-                    //se cobra la apertura de nicho
+
+                    if (placa == true)
+                    {
+                        //se cobra la apertura de nicho con placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoConPlaca));
+                    }
+                    else
+                    {
+                        //se cobra la apertura de nicho sin placa
+                        listaPrecios.Add(await _introduccionBD.PrecioTarifaria(tarifaria.Id, conceptoTarifariaId_AperturaNichoSinPlaca));
+                    }
                 }
 
                 //busco el precio de tarifa de inhumación(11)
@@ -1088,5 +1192,9 @@ namespace CemSys2.Business
 
         }
 
+        public async Task<Parcela> ConsultarParcela(int idParcela)
+        {
+            return await _introduccionBD.ConsultarParcela(idParcela);
+        }
     }
 }

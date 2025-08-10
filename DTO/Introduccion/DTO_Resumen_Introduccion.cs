@@ -24,5 +24,8 @@
         public int TipoParcela { get; set; }
         public bool DomicilioEnTirolesa { get; set; }
         public bool FallecioEnTirolesa { get; set; }
+        //nuevos
+        public int CantidadDifuntos { get; set; }
+        public int estadoTramite { get; set; }
     }
 }
