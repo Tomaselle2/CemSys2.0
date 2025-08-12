@@ -30,6 +30,8 @@ namespace CemSys2.Interface.Introduccion
 
         //facturacion
         Task<List<ConceptosFactura>> ListaConceptoFactura(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int parcelaId, int estadoDifuntoId, bool? placa = null);
+        Task<Factura> ConsultarFacturaPorTramiteId(int idTramite);
+        Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura);
 
     }
 }

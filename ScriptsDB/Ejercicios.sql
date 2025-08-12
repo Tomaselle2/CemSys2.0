@@ -19,13 +19,15 @@ select * from tarifarias
 select * from TipoNichos
 select * from PreciosTarifarias where conceptoTarifariaId = 11 and tarifarioId = 1
 
-select * from Facturas
+select * from Facturas where tramiteId = 30
 select *, tct.nombre from ConceptosFactura cf 
 join ConceptosTarifarias tct on cf.conceptoTarifariaId = tct.id
 
-select * from ConceptosFactura
+select * from ConceptosFactura where facturaId = 30
 select * from TiposConceptoTarifaria
 
 select * from Tramite
 select * from EstadoTramite
 select * from HistorialEstadoTramite
+
+select * from Introducciones

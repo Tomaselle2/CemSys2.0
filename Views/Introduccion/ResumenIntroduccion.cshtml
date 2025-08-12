@@ -4,6 +4,15 @@
 
 @{
     ViewData["Title"] = "Resumen introducción";
+    int tipoConceptosTarifariaId_Contribucion = 2;
+    int tipoConceptosTarifariaId_RegistroCivil = 5;
+    int tipoConceptosTarifariaId_DerechoDeOficina = 6;
+    int tipoConceptosTarifariaId_Generales = 1;
+    decimal porcentajeFondo = 0.05m; // 5% del fondo
+    decimal montoMinimoDeFondo = 500m;
+
+
+
 }
 
 <a asp-action="Index" asp-controller="Introduccion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
@@ -134,6 +143,261 @@
 
 </div>
 
+<!-- Apertura -->
+@if(Model.ListaConceptosFactura.Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_Generales).Any())
+{
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item acordeon-fijo-chico">
+            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                <button class="accordion-button nueva-seccion acordeon-fijo acordeon-fijo-chico" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                    Apertura de nicho
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                <div class="accordion-body">
+                    @* cuerpo del acordion *@
+                    @if (Model.ListaConceptosFactura.Any())
+                    {
+                        <div class="card shadow-sm">
+                            <div class="card-body p-0">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th>Precio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            decimal totalConceptosSinFondo = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_Generales)
+                                            .Sum(r => r.PrecioUnitario);
+
+                                            decimal fondoAyuda = ((totalConceptosSinFondo * porcentajeFondo) < montoMinimoDeFondo) ? montoMinimoDeFondo : totalConceptosSinFondo * porcentajeFondo;
+
+
+                                            decimal subtotal = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_Generales)
+                                            .Sum(r => r.PrecioUnitario) + fondoAyuda;
+                                        }
+                                        @foreach (var opc in Model.ListaConceptosFactura)
+                                        {
+                                            if (opc.TipoConceptoFacturaId == tipoConceptosTarifariaId_Generales)
+                                            {
+                                                <tr>
+                                                    <td>@opc.ConceptoTarifaria.Nombre.ToUpper()</td>
+                                                    <td>$ @String.Format("{0:N2}", opc.PrecioUnitario)</td>
+                                                </tr>
+                                            }
+                                        }
+                                        <tr>
+                                            <td>FONDO DE AYUDA CENTRO DE SALUD</td>
+                                            <td>$ @String.Format("{0:N2}", fondoAyuda)</td>
+                                        </tr>
+                                        <tr class="subtotalFactura">
+                                            <td><b>SUBTOTAL</b></td>
+                                            <td><b>$ @String.Format("{0:N2}", subtotal)</b> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                    @* Fin cuerpo del acordeon *@
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Contribucion -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item acordeon-fijo-chico">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo acordeon-fijo-chico" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Contribución
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                @* cuerpo del acordion *@
+                @if (Model.ListaConceptosFactura.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    @{
+                                        decimal totalConceptosSinFondo = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_Contribucion)
+                                        .Sum(r => r.PrecioUnitario);
+
+                                        decimal fondoAyuda = ((totalConceptosSinFondo * porcentajeFondo) < montoMinimoDeFondo) ? montoMinimoDeFondo : totalConceptosSinFondo * porcentajeFondo;
+
+
+                                        decimal subtotal = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_Contribucion)
+                                        .Sum(r => r.PrecioUnitario) + fondoAyuda;
+                                    }
+                                @foreach (var opc in Model.ListaConceptosFactura)
+                                {   
+                                    if (opc.TipoConceptoFacturaId == tipoConceptosTarifariaId_Contribucion)
+                                    {
+                                        <tr>
+                                            <td>@opc.ConceptoTarifaria.Nombre.ToUpper()</td>
+                                            <td>$ @String.Format("{0:N2}", opc.PrecioUnitario)</td>
+                                        </tr>   
+                                    }
+                                }
+                                <tr>
+                                    <td>FONDO DE AYUDA CENTRO DE SALUD</td>
+                                    <td>$ @String.Format("{0:N2}", fondoAyuda)</td>
+                                </tr>
+                                    <tr class="subtotalFactura">
+                                    <td><b>SUBTOTAL</b></td>
+                                    <td><b>$ @String.Format("{0:N2}", subtotal)</b> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+             }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Registro Civil -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item acordeon-fijo-chico">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo acordeon-fijo-chico" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Registro Civil
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                @* cuerpo del acordion *@
+                @if (Model.ListaConceptosFactura.Any())
+                {
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        decimal totalConceptosSinFondo = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_RegistroCivil)
+                                        .Sum(r => r.PrecioUnitario);
+
+                                        decimal fondoAyuda = ((totalConceptosSinFondo * porcentajeFondo) < montoMinimoDeFondo) ? montoMinimoDeFondo : totalConceptosSinFondo * porcentajeFondo;
+
+                                        decimal subtotal = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_RegistroCivil)
+                                        .Sum(r => r.PrecioUnitario) + fondoAyuda;
+                                    }
+                                    @foreach (var opc in Model.ListaConceptosFactura)
+                                    {
+                                        if (opc.TipoConceptoFacturaId == tipoConceptosTarifariaId_RegistroCivil)
+                                        {
+                                            <tr>
+                                                <td>@opc.ConceptoTarifaria.Nombre.ToUpper()</td>
+                                                <td>$ @String.Format("{0:N2}", opc.PrecioUnitario)</td>
+                                            </tr>
+                                        }
+                                    }
+                                    <tr>
+                                        <td>FONDO DE AYUDA CENTRO DE SALUD</td>
+                                        <td>$ @String.Format("{0:N2}", fondoAyuda)</td>
+                                    </tr>
+                                    <tr class="subtotalFactura">
+                                        <td><b>SUBTOTAL</b></td>
+                                        <td><b>$ @String.Format("{0:N2}", subtotal)</b> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Derecho de Oficina -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item acordeon-fijo-chico">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo acordeon-fijo-chico" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Derecho de Oficina
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                @* cuerpo del acordion *@
+                @if (Model.ListaConceptosFactura.Any())
+                {
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        decimal totalConceptosSinFondo = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_DerechoDeOficina)
+                                        .Sum(r => r.PrecioUnitario);
+
+                                        decimal fondoAyuda = ((totalConceptosSinFondo * porcentajeFondo) < montoMinimoDeFondo) ? montoMinimoDeFondo : totalConceptosSinFondo * porcentajeFondo;
+
+                                        decimal subtotal = Model.ListaConceptosFactura.Where(x => x.TipoConceptoFacturaId == tipoConceptosTarifariaId_DerechoDeOficina)
+                                        .Sum(r => r.PrecioUnitario) + fondoAyuda;
+                                    }
+                                    @foreach (var opc in Model.ListaConceptosFactura)
+                                    {
+                                        if (opc.TipoConceptoFacturaId == tipoConceptosTarifariaId_DerechoDeOficina)
+                                        {
+                                            <tr>
+                                                <td>@opc.ConceptoTarifaria.Nombre.ToUpper()</td>
+                                                <td>$ @String.Format("{0:N2}", opc.PrecioUnitario)</td>
+                                            </tr>
+                                        }
+                                    }
+                                    <tr>
+                                        <td>FONDO DE AYUDA CENTRO DE SALUD</td>
+                                        <td>$ @String.Format("{0:N2}", fondoAyuda)</td>
+                                    </tr>
+                                    <tr class="subtotalFactura">
+                                        <td><b>SUBTOTAL</b></td>
+                                        <td><b>$ @String.Format("{0:N2}", subtotal)</b> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table table-hover mb-0 filaTotalFactura">
+    <tr class="totalFactura">
+        <td><b>TOTAL</b></td>
+        <td><b>$ @String.Format("{0:N2}", Model.Factura.Total) </b></td>
+    </tr>
+</table>
 
 
 

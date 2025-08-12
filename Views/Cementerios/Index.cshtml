@@ -131,13 +131,13 @@
                 @if (Model.TotalPaginas > 1)
                 {
                     @await Html.PartialAsync("_Paginador", new PaginadorViewModel
-       {
-           PaginaActual = Model.PaginaActual,
-           TotalPaginas = Model.TotalPaginas,
-           TotalRegistros = Model.TotalRegistros,
-           Accion = redirigir,
-           Controlador = "Cementerios"
-       })
+                   {
+                       PaginaActual = Model.PaginaActual,
+                       TotalPaginas = Model.TotalPaginas,
+                       TotalRegistros = Model.TotalRegistros,
+                       Accion = redirigir,
+                       Controlador = "Cementerios"
+                   })
                 }
 
             }

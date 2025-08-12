@@ -220,20 +220,31 @@ body {
                 max-width: 700px;
                 margin-left: auto; /* Centrarlo si tiene un max-width */
                 margin-right: auto;
-                margin-bottom: 20px;
             }
+
+        /*Fin Estilo Personalizado de resume td de factura */
+        .totalFactura {
+            background-color: #FC9A3F;
+        }
+
+        .subtotalFactura {
+            background-color: #fef43b;
+        }
+
+.filaTotalFactura {
+    max-width: 700px;
+    margin-left: auto; /* Centrarlo si tiene un max-width */
+    margin-right: auto;
+    font-size: 1.2rem;
+}
 /*FIN ACORDEON*/
-
-
-
-
 /*Formularios*/
-    .form-columns-container3 {
-        display: flex; 
-        flex-wrap: wrap;
-        gap: 1.5rem;
-        margin-bottom: 15px;
-    }
+.form-columns-container3 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 15px;
+}
 
     /* Estilo para cada div que contiene un campo de formulario */
     .form-columns-container3 > div {
@@ -464,5 +475,6 @@ body {
     color: #1f946e;
 }
 /*Fin Estilo Personalizado de historial de parcela*/
+
 
 

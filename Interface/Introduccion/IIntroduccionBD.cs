@@ -29,5 +29,7 @@ namespace CemSys2.Interface.Introduccion
         Task<PreciosTarifaria?> PrecioTarifaria(int tarifariaVigente, int conceptoTarifaria);
         Task GenerarFactura(List<ConceptosFactura> conceptosFacturas);
         Task<Parcela> ConsultarParcela(int idParcela);
+        Task<Factura> ConsultarFacturaPorTramiteId(int idTramite);
+        Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura);
     }
 }

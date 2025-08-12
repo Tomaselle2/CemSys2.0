@@ -148,6 +148,8 @@ namespace CemSys2.Controllers
             try
             {
                 var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
+                Factura factura = await _introduccionBusiness.ConsultarFacturaPorTramiteId(tramiteId);
+                var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaPorFactura(factura.Id);
                 if (resumen == null || resumen.Count == 0)
                 {
                     return NotFound("No se encontraron datos para el trámite especificado.");
@@ -156,6 +158,8 @@ namespace CemSys2.Controllers
                 var viewModel = new ResumenIntroduccionVM
                 {
                     ResumenIntroduccion = resumen,
+                    Factura = factura,
+                    ListaConceptosFactura = conceptosFactura
                 };
                 return View(viewModel);
             }
