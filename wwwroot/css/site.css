@@ -442,6 +442,12 @@ body {
     color: #338b85;
     font-size: 1.7rem;
 }
+.estadoTramite {
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #8b26b4;
+    font-size: 1.7rem;
+}
 
 .separador {
     height: 1px;
@@ -449,6 +455,7 @@ body {
     margin: 20px 0;
     border-radius: 1px;
 }
+
 /*FIn reportes*/
 
 /*Estilo Personalizado de historial de parcela*/
