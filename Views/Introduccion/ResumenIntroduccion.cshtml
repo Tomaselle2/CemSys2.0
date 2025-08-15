@@ -25,7 +25,23 @@
     margin-bottom: 1rem;
     }
 </style>
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <div class="contenedor-resumen">
 
     <form asp-action="ResumenIntroduccionEnPDF" asp-controller="Introduccion" method="get">
@@ -100,7 +116,9 @@
         }
 
     }
+
     
+
     <div class="d-flex align-items-center justify-content-between">
         <h2 class="nroTramite">Trámite @nroTramite</h2>
         <h3><strong>Estado: <span class="estadoTramite">@estadoTramiteString</span></strong></h3>
@@ -399,6 +417,7 @@
     </div>
 </div>
 
+<!--Fila de Total-->
 <table class="table table-hover mb-0 filaTotalFactura">
     <tr class="totalFactura">
         <td><b>TOTAL</b></td>
@@ -406,6 +425,141 @@
     </tr>
 </table>
 
+
+
+<!-- Recibos -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Recibos
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                @* cuerpo del acordion *@
+                <table class="table table-hover mb-0">
+                    <tr style="font-size: 1.2rem">
+                        <td><b>Total:  $ @String.Format("{0:N2}", Model.Factura.Total)</b></td>
+                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Factura.Pendiente)</b></td>
+                    </tr>
+                </table>
+                @if (Model.ListaRecibosFactura.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Archivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var opc in Model.ListaRecibosFactura)
+                            {
+                                <tr>
+                                    <td>@opc.FechaPago.ToString("dd/MM/yyyy")</td>
+                                    <td>@opc.Concepto</td>
+                                    <td>@opc.Monto.ToString()</td>
+                                    <td>Editar - Ver</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                
+@if (estadoTramite == (int)EstadosIntroduccion.Registrado)
+{
+    <!-- formulario nuevo recibo -->
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                    Nuevo recibo
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                <div class="accordion-body">
+                    @* cuerpo del acordion *@
+                    <form asp-action="CargarRecibo" method="post" id="formRecibo" class="form-box" enctype="multipart/form-data" onsubmit="handleFormSubmit()">
+                        <div class="form-columns-container3">
+                            <div>
+                                <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
+                                <input asp-for="Concepto" id="conceptoRecibo" class="form-control" type="text" maxlength="100" required />
+                                <span asp-validation-for="Concepto" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="montoRecibo">Monto<span class="obligatorio"> * </span></label>
+                                <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" max="@Model.Factura.Pendiente" required placeholder="0.00" step="0.01" />
+                                <span asp-validation-for="Monto" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="archivoRecibo">Archivo<span class="obligatorio"> * </span></label>
+                            <input asp-for="ArchivoRecibo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" required/>
+                            <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
+                        </div>
+                        <div class="my-3">
+                            <button type="submit" id="btnCargarRecibo" class="my-3 btn btn-success">
+                                <span class="btn-text">Cargar recibo</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span class="loading-text d-none">Cargando...</span>
+                            </button>
+                        </div>
+                        <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
+                        <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
+                    </form>
+                    @* Fin cuerpo del acordeon *@
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function handleFormSubmit(event) {
+            // Primero verificar si el formulario es válido
+            const form = document.getElementById('formRecibo');
+
+            // Usar la validación nativa del navegador
+            if (!form.checkValidity()) {
+                // Si no es válido, mostrar mensajes de validación y detener
+                form.reportValidity();
+                return false;
+            }
+
+            // Si llegamos aquí, la validación pasó
+            const btn = document.getElementById('btnCargarRecibo');
+            const btnText = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.spinner-border');
+            const loadingText = btn.querySelector('.loading-text');
+
+            // Deshabilitar el botón
+            btn.disabled = true;
+
+            // Ocultar texto original y mostrar spinner + texto de carga
+            btnText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+            loadingText.classList.remove('d-none');
+
+            // Permitir que el formulario se envíe
+            return true;
+        }
+    </script>
+
+}
 
 
 

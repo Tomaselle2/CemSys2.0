@@ -150,6 +150,7 @@ namespace CemSys2.Controllers
                 var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
                 Factura factura = await _introduccionBusiness.ConsultarFacturaPorTramiteId(tramiteId);
                 var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaPorFactura(factura.Id);
+                var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
                 if (resumen == null || resumen.Count == 0)
                 {
                     return NotFound("No se encontraron datos para el trámite especificado.");
@@ -159,14 +160,18 @@ namespace CemSys2.Controllers
                 {
                     ResumenIntroduccion = resumen,
                     Factura = factura,
-                    ListaConceptosFactura = conceptosFactura
+                    ListaConceptosFactura = conceptosFactura,
+                    ListaRecibosFactura = listaRecibosFactura
                 };
                 return View(viewModel);
             }
             catch (Exception ex)
             {
-                // Manejo de errores, podrías redirigir a una vista de error o mostrar un mensaje
-                return BadRequest("Error al obtener el resumen de introducción: " + ex.Message);
+                var viewModel = new ResumenIntroduccionVM
+                {
+                    MensajeError = ex.Message,
+                };
+                return View(viewModel);
             }
         }
 
@@ -362,7 +367,100 @@ namespace CemSys2.Controllers
             }
         }
 
+        //recontruye el ViewModel de ResumenIntroduccion cuando hay un error de validacion
+        private async Task<ResumenIntroduccionVM> ReconstruirViewModel(int tramiteId)
+        {
+            var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
+            Factura factura = await _introduccionBusiness.ConsultarFacturaPorTramiteId(tramiteId);
+            var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaPorFactura(factura.Id);
+            var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
 
+            return new ResumenIntroduccionVM
+            {
+                ResumenIntroduccion = resumen,
+                Factura = factura,
+                ListaConceptosFactura = conceptosFactura,
+                ListaRecibosFactura = listaRecibosFactura,
+                IdTramite = tramiteId,
+                IdFactura = factura.Id
+            };
+        }
+
+        //cargar el recibo
+        [HttpPost]
+        public async Task<IActionResult> CargarRecibo(ResumenIntroduccionVM viewModel)
+        {
+            // Desactivar validación automática para Factura
+            ModelState.Remove("Factura.Tramite");
+
+            // Primero validar el archivo específicamente
+
+            if (viewModel.ArchivoRecibo == null || viewModel.ArchivoRecibo.Length == 0)
+            {
+                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Monto = viewModel.Monto;
+                return View("ResumenIntroduccion", vmCompleto);
+            }
+
+            // Validar extensión
+            var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+            var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
+            if (!permitidas.Contains(extension))
+            {
+                ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Monto = viewModel.Monto;
+                return View("ResumenIntroduccion", vmCompleto);
+            }
+
+            // Luego validar el modelo completo
+            if (!ModelState.IsValid)
+            {
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Monto = viewModel.Monto;
+                return View("ResumenIntroduccion", vmCompleto);
+            }
+
+            // Mapear el tipo MIME
+            string mimeType = extension switch
+            {
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".pdf" => "application/pdf",
+                _ => "application/octet-stream"
+            };
+
+            var recibo = new RecibosFactura
+            {
+                FacturaId = viewModel.IdFactura.Value,
+                Concepto = viewModel.Concepto!,
+                Monto = viewModel.Monto.Value
+            };
+
+
+
+            try
+            {
+                await _introduccionBusiness.RegistrarReciboFactura(recibo, viewModel.ArchivoRecibo, mimeType, viewModel.IdTramite.Value);
+                TempData["MensajeExito"] = "Recibo cargado con éxito";
+                return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite } );
+            }
+            catch (Exception ex)
+            {
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Monto = viewModel.Monto;
+                viewModel.MensajeError = ex.Message;
+                return View("ResumenIntroduccion", vmCompleto);
+            }
+
+            
+        }
         //reportesGraficos
         [HttpPost]
         public IActionResult ReporteGraficosPDF(string imagenBase64, string fechaDesde, string fechaHasta)
