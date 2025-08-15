@@ -1216,5 +1216,15 @@ namespace CemSys2.Business
         {
             return await _introduccionBD.ListaRecibosFactura(facturaId);
         }
+
+        public async Task ActualizarInfoAdicionalTramite(int tramiteId, string infoAdicional)
+        {
+            await _introduccionBD.ActualizarInfoAdicionalTramite(tramiteId, infoAdicional);
+        }
+
+        public async Task FinalizarTramite(int tramiteId)
+        {
+            await _introduccionBD.FinalizarTramite(tramiteId);
+        }
     }
 }

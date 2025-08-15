@@ -25,6 +25,8 @@ public partial class Introduccione
 
     public DateTime? FechaRetiro { get; set; }
 
+    public string? InformacionAdicional { get; set; }
+
     public virtual Persona Difunto { get; set; } = null!;
 
     public virtual Usuario? EmpleadoNavigation { get; set; }

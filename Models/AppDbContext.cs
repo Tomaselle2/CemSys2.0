@@ -83,7 +83,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ActaDefuncion>(entity =>
@@ -419,6 +418,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.FechaRetiro)
                 .HasColumnType("datetime")
                 .HasColumnName("fechaRetiro");
+            entity.Property(e => e.InformacionAdicional).HasColumnName("informacionAdicional");
             entity.Property(e => e.IntroduccionNueva).HasColumnName("introduccionNueva");
             entity.Property(e => e.ParcelaId).HasColumnName("parcelaID");
             entity.Property(e => e.Visibilidad).HasColumnName("visibilidad");
@@ -608,6 +608,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Concepto)
                 .HasMaxLength(100)
                 .HasColumnName("concepto");
+            entity.Property(e => e.Decreto).HasColumnName("decreto");
             entity.Property(e => e.FacturaId).HasColumnName("facturaId");
             entity.Property(e => e.FechaPago)
                 .HasColumnType("datetime")

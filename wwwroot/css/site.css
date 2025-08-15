@@ -217,7 +217,7 @@ body {
 
         /*Personalizado para facturaas*/
             .acordeon-fijo-chico {
-                max-width: 700px;
+                max-width: 800px;
                 margin-left: auto; /* Centrarlo si tiene un max-width */
                 margin-right: auto;
             }
@@ -232,7 +232,7 @@ body {
         }
 
 .filaTotalFactura {
-    max-width: 700px;
+    max-width: 800px;
     margin-left: auto; /* Centrarlo si tiene un max-width */
     margin-right: auto;
     font-size: 1.2rem;

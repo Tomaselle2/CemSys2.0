@@ -25,3 +25,11 @@ ALTER TABLE ConceptosFactura
 ADD tipoConceptoFacturaId INT NULL,
 CONSTRAINT FK_ConceptosFactura_TiposConceptoTarifaria 
 FOREIGN KEY (tipoConceptoFacturaId) REFERENCES TiposConceptoTarifaria(id);
+
+--del 15/08/2025
+ALTER TABLE RecibosFactura
+ADD decreto bit not null default 0;
+go
+
+ALTER TABLE Introducciones
+ADD informacionAdicional NVARCHAR(MAX);

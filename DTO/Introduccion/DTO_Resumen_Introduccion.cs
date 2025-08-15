@@ -27,5 +27,6 @@
         //nuevos
         public int CantidadDifuntos { get; set; }
         public int estadoTramite { get; set; }
+        public string? informacionAdicionalTramite { get; set; }
     }
 }

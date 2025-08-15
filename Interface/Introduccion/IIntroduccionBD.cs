@@ -23,6 +23,7 @@ namespace CemSys2.Interface.Introduccion
         Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite);
         //reportes
         Task<List<Introduccione>> ReporteIntroducciones(DateTime? desde = null, DateTime? hasta = null);
+        Task ActualizarInfoAdicionalTramite(int tramiteId, string infoAdicional);
 
         //facturacion
         Task<Models.Tarifaria> TarifariaVigente();
@@ -34,6 +35,7 @@ namespace CemSys2.Interface.Introduccion
 
         Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
         Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId);
+        Task FinalizarTramite(int tramiteId);
 
     }
 }

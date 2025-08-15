@@ -15,7 +15,23 @@
 }
 
 <a asp-action="Index" asp-controller="Introduccion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
-<h1 class="tituloDePagina">Resumen de la introducción</h1>
+<div class="d-flex justify-content-center align-items-center">
+    <div>
+        <h1 class="tituloDePagina">Resumen de la introducción</h1>
+    </div>
+
+    <!--Btn descargar PDF-->
+    <div class="contenedor-btn-descargar">
+        <form asp-action="ResumenIntroduccionEnPDF" asp-controller="introduccion" method="get">
+            <input type="hidden" name="idTramite" value="@Model.ResumenIntroduccion.FirstOrDefault()?.Id.ToString()" />
+            <button type="submit" class="btn-pdf">
+                <i class="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+        </form>
+
+    </div>
+</div>
+
 
 <style>
     .titulo-principal {
@@ -28,7 +44,7 @@
 @* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
 @if (TempData["MensajeExito"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
         @TempData["MensajeExito"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -37,7 +53,7 @@
 @* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
 @if (!string.IsNullOrEmpty(Model.MensajeError))
 {
-    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
         @Model.MensajeError
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -157,16 +173,27 @@
     <p>@fallecioEnTirolesa</p>
 
 </div>
-
-<div class="contenedor-btn-descargar text-center mt-4">
-    <form asp-action="ResumenIntroduccionEnPDF" asp-controller="introduccion" method="get">
-        <input type="hidden" name="idTramite" value="@nroTramite" />
-        <button type="submit" class="btn-pdf">
-            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
-        </button>
+<!--Info adicional-->
+<div class="contenedor-resumen my-2">
+    <form asp-action="ActualizarInfoAdicionalTramite" method="post">
+        <div class="full-width">
+            <label><b>Información adicional del trámite</b></label>
+            <textarea id="textareaInfoAdicional" style="overflow:hidden;"
+                      class="form-control" asp-for="@Model.infoAdicional"></textarea>
+        </div>
+        @if (estadoTramite != (int)EstadosIntroduccion.Finalizado)
+        {
+            <div class="my-1">
+                <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
+                <input type="submit" id="btnActualizar" class="btn btn-success" value="Actualizar" disabled />
+            </div>
+        }
+        
     </form>
-
+    
 </div>
+
+
 
 <!-- Apertura -->
 @if(Model.ListaConceptosFactura.Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_Generales).Any())
@@ -440,7 +467,6 @@
                 @* cuerpo del acordion *@
                 <table class="table table-hover mb-0">
                     <tr style="font-size: 1.2rem">
-                        <td><b>Total:  $ @String.Format("{0:N2}", Model.Factura.Total)</b></td>
                         <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Factura.Pendiente)</b></td>
                     </tr>
                 </table>
@@ -459,7 +485,7 @@
                             @foreach (var opc in Model.ListaRecibosFactura)
                             {
                                 <tr>
-                                    <td>@opc.FechaPago.ToString("dd/MM/yyyy")</td>
+                                    <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Concepto</td>
                                     <td>@opc.Monto.ToString()</td>
                                     <td>Editar - Ver</td>
@@ -475,10 +501,9 @@
 </div>
 
 
-                
+<!-- formulario nuevo recibo -->
 @if (estadoTramite == (int)EstadosIntroduccion.Registrado)
 {
-    <!-- formulario nuevo recibo -->
     <div class="accordion" id="accordionPanelsStayOpenExample">
         <div class="accordion-item">
             <h2 class="accordion-header" id="panelsStayOpen-headingOne">
@@ -490,6 +515,10 @@
                 <div class="accordion-body">
                     @* cuerpo del acordion *@
                     <form asp-action="CargarRecibo" method="post" id="formRecibo" class="form-box" enctype="multipart/form-data" onsubmit="handleFormSubmit()">
+                        <div class="mb-3">
+                            <input type="checkbox" asp-for="Decreto" id="decreto" />
+                            <label for="decreto">Decreto municipal</label>
+                        </div>
                         <div class="form-columns-container3">
                             <div>
                                 <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
@@ -505,7 +534,7 @@
                         </div>
 
                         <div>
-                            <label for="archivoRecibo">Archivo<span class="obligatorio"> * </span></label>
+                            <label for="archivoRecibo">Archivo<span class="obligatorio"> * (.png .jpg .pdf)</span></label>
                             <input asp-for="ArchivoRecibo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" required/>
                             <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
                         </div>
@@ -525,10 +554,23 @@
         </div>
     </div>
 }
+
+
+<!--btn finalizar-->
+@if (estadoTramite == (int)EstadosIntroduccion.Cobrado) //solo si es cobrado
+{
+    <div class="d-flex justify-content-center align-items-center">
+        <form asp-action="FinalizarTramite" method="post">
+            <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
+            <input type="submit" class="btn btn-success" value="Finalizar trámite" />    
+        </form>
+    </div>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
-    <script>
+    <script>//logica de carga de recibo, spiner
         function handleFormSubmit(event) {
             // Primero verificar si el formulario es válido
             const form = document.getElementById('formRecibo');
@@ -557,6 +599,41 @@
             // Permitir que el formulario se envíe
             return true;
         }
+    </script>
+
+    <script> //para el textarea
+
+        var estadoFinalizado = @(estadoTramite == (int)EstadosIntroduccion.Finalizado ? "true" : "false");
+        
+        function ajustarAltura(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // Función para verificar si hay contenido en el textarea
+        function verificarContenido() {
+            const textarea = document.getElementById('textareaInfoAdicional');
+            const btnActualizar = document.getElementById('btnActualizar');
+
+            if (btnActualizar) { // Solo si el botón existe (estado no es Finalizado)
+                btnActualizar.disabled = textarea.value.trim() === '';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('textareaInfoAdicional');
+
+            if (estadoFinalizado) {
+                textarea.disabled = true;
+            } else {
+                textarea.addEventListener('input', function() {
+                    ajustarAltura(this);
+                    verificarContenido();
+                });
+                ajustarAltura(textarea);
+                verificarContenido();
+            }
+        });
     </script>
 
 }

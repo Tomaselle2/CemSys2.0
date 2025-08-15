@@ -161,7 +161,8 @@ namespace CemSys2.Controllers
                     ResumenIntroduccion = resumen,
                     Factura = factura,
                     ListaConceptosFactura = conceptosFactura,
-                    ListaRecibosFactura = listaRecibosFactura
+                    ListaRecibosFactura = listaRecibosFactura,
+                    infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite
                 };
                 return View(viewModel);
             }
@@ -382,7 +383,8 @@ namespace CemSys2.Controllers
                 ListaConceptosFactura = conceptosFactura,
                 ListaRecibosFactura = listaRecibosFactura,
                 IdTramite = tramiteId,
-                IdFactura = factura.Id
+                IdFactura = factura.Id,
+                infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite
             };
         }
 
@@ -439,7 +441,8 @@ namespace CemSys2.Controllers
             {
                 FacturaId = viewModel.IdFactura.Value,
                 Concepto = viewModel.Concepto!,
-                Monto = viewModel.Monto.Value
+                Monto = viewModel.Monto.Value,
+                Decreto = viewModel.Decreto
             };
 
 
@@ -460,6 +463,48 @@ namespace CemSys2.Controllers
             }
 
             
+        }
+
+        //actualiza el info adicional del tramite
+        [HttpPost]
+        public async Task<IActionResult> ActualizarInfoAdicionalTramite(ResumenIntroduccionVM viewModel)
+        {
+
+            try
+            {
+                await _introduccionBusiness.ActualizarInfoAdicionalTramite(viewModel.IdTramite.Value, viewModel.infoAdicional);
+                TempData["MensajeExito"] = "Actualización exitosa";
+            }
+            catch (Exception ex)
+            {
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Monto = viewModel.Monto;
+                viewModel.MensajeError = ex.Message;
+                return View("ResumenIntroduccion", vmCompleto);
+            }
+            return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
+        }
+
+        //finaliza el tramite
+        [HttpPost]
+        public async Task<IActionResult> FinalizarTramite(ResumenIntroduccionVM viewModel)
+        {
+            try
+            {
+                await _introduccionBusiness.FinalizarTramite(viewModel.IdTramite.Value);
+                TempData["MensajeExito"] = "Trámite finalizado";
+            }
+            catch (Exception ex)
+            {
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Monto = viewModel.Monto;
+                viewModel.MensajeError = ex.Message;
+                return View("ResumenIntroduccion", vmCompleto);
+            }
+            return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
+
         }
         //reportesGraficos
         [HttpPost]

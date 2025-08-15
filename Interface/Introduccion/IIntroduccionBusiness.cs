@@ -26,6 +26,7 @@ namespace CemSys2.Interface.Introduccion
 
         //reportes
         Task<List<Introduccione>> ReporteIntroducciones(DateTime? desde = null, DateTime? hasta = null);
+        Task ActualizarInfoAdicionalTramite(int tramiteId, string infoAdicional);
 
 
         //facturacion
@@ -34,6 +35,7 @@ namespace CemSys2.Interface.Introduccion
         Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura);
         Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
         Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId);
+        Task FinalizarTramite(int tramiteId);
 
     }
 }

@@ -31,3 +31,7 @@ select * from EstadoTramite
 select * from HistorialEstadoTramite
 
 select * from Introducciones
+
+select * from ArchivosDocumentacion
+select * from RecibosFactura
+select * from Introducciones where idTramite = 32

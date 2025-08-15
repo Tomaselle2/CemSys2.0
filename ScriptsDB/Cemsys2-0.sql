@@ -283,6 +283,7 @@ CREATE TABLE Introducciones (
     FOREIGN KEY (difuntoID) REFERENCES Personas(idPersona)
 );
 
+
 -- Contrato concesión
 CREATE TABLE ContratoConcesion (
     idTramite INT NOT NULL PRIMARY KEY, -- PK y FK de Tramite
@@ -376,6 +377,8 @@ CREATE TABLE RecibosFactura (
     archivoID UNIQUEIDENTIFIER NULL,
     FOREIGN KEY (facturaId) REFERENCES Facturas(id)
 );
+
+
 
 -- Archivos documentación con FILESTREAM
 CREATE TABLE ArchivosDocumentacion (

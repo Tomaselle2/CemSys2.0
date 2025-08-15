@@ -4,6 +4,7 @@ using CemSys2.Enumerable;
 using CemSys2.Interface;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -382,9 +383,13 @@ namespace CemSys2.Data
         }
 
 
-
-
-        
+        public async Task ActualizarInfoAdicionalTramite(int tramiteId, string infoAdicional)
+        {
+            Introduccione introduccion = await _context.Introducciones.FirstAsync(f=>f.IdTramite == tramiteId);
+            introduccion.InformacionAdicional = infoAdicional;
+            _context.Introducciones.Update(introduccion);
+            await _context.SaveChangesAsync();
+        }
 
 
 
@@ -441,7 +446,7 @@ namespace CemSys2.Data
                                 Acta = reader.IsDBNull(reader.GetOrdinal("acta")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("acta")),
                                 Tomo = reader.IsDBNull(reader.GetOrdinal("tomo")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("tomo")),
                                 Folio = reader.IsDBNull(reader.GetOrdinal("folio")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("folio")),
-                                Serie = reader.IsDBNull(reader.GetOrdinal("serie")) ? null : reader.GetString(reader.GetOrdinal("serie")),
+                                Serie = reader.IsDBNull(reader.GetOrdinal("serie")) ? "" : reader.GetString(reader.GetOrdinal("serie")),
                                 Age = reader.IsDBNull(reader.GetOrdinal("age")) ? (int?)null : reader.GetInt32(reader.GetOrdinal("age")),
                                 Empleado = reader.GetString(reader.GetOrdinal("Empleado")),
                                 NroParcela = reader.GetInt32(reader.GetOrdinal("NroParcela")).ToString(),
@@ -451,7 +456,8 @@ namespace CemSys2.Data
                                 DomicilioEnTirolesa = reader.IsDBNull(reader.GetOrdinal("domicilioEnTirolesa")) ? false: reader.GetBoolean(reader.GetOrdinal("domicilioEnTirolesa")),
                                 FallecioEnTirolesa = reader.IsDBNull(reader.GetOrdinal("fallecioEnTirolesa")) ? false : reader.GetBoolean(reader.GetOrdinal("fallecioEnTirolesa")),
                                 CantidadDifuntos = reader.GetInt32(reader.GetOrdinal("cantidadDifuntos")),
-                                estadoTramite = reader.GetInt32(reader.GetOrdinal("estadoActualID"))
+                                estadoTramite = reader.GetInt32(reader.GetOrdinal("estadoActualID")),
+                                informacionAdicionalTramite = reader.IsDBNull(reader.GetOrdinal("informacionAdicionalTramite")) ? "" : reader.GetString(reader.GetOrdinal("informacionAdicionalTramite"))
                             };
                             resultado.Add(dto);
                         }
@@ -520,7 +526,8 @@ namespace CemSys2.Data
                     FacturaId = recibo.FacturaId,
                     FechaPago = DateTime.Now,
                     Concepto = recibo.Concepto!,
-                    Monto = recibo.Monto
+                    Monto = recibo.Monto,
+                    Decreto = recibo.Decreto
                 };
                 _context.RecibosFacturas.Add(reciboFactura);
                 await _context.SaveChangesAsync();
@@ -610,6 +617,42 @@ namespace CemSys2.Data
         public async Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId)
         {
             return await _context.RecibosFacturas.Where(f=>f.FacturaId == facturaId).OrderByDescending(t=> t.FechaPago).ToListAsync();
+        }
+
+        public async Task FinalizarTramite(int tramiteId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                //busco el tramite
+                Tramite tramite = await _context.Tramites.FirstAsync(t => t.Id == tramiteId);
+
+                int estadoTramiteId = (int)EstadosIntroduccion.Finalizado;
+
+                //se agrega el estado en historial estado
+                HistorialEstadoTramite historial = new HistorialEstadoTramite
+                {
+                    TramiteId = tramite.Id,
+                    EstadoTramiteId = estadoTramiteId,
+                    Fecha = DateTime.Now
+                };
+                _context.HistorialEstadoTramites.Add(historial);
+                await _context.SaveChangesAsync();
+
+                //se actualiza el estado actual en el tramite
+                tramite.EstadoActualId = estadoTramiteId;
+                _context.Tramites.Update(tramite);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

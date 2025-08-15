@@ -23,8 +23,12 @@ namespace CemSys2.ViewModel
 
         public decimal? MontoMaximo { get; set; }
 
+        public string? infoAdicional { get; set; }
+
         [Required(ErrorMessage = "El archivo es obligatorio")]
         public IFormFile? ArchivoRecibo { get; set; }
+
+        public bool Decreto { get; set; } = false;
 
         public string? MensajeError { get; set; }
 

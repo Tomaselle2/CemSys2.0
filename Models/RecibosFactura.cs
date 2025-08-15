@@ -17,6 +17,8 @@ public partial class RecibosFactura
 
     public Guid? ArchivoId { get; set; }
 
+    public bool Decreto { get; set; }
+
     public virtual ArchivosDocumentacion? Archivo { get; set; }
 
     public virtual ICollection<ArchivosDocumentacion> ArchivosDocumentacions { get; set; } = new List<ArchivosDocumentacion>();
