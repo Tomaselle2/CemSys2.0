@@ -38,6 +38,9 @@ namespace CemSys2.Interface.Introduccion
         Task FinalizarTramite(int tramiteId);
         Task<ArchivosDocumentacion> ObtenerArchivo(Guid archivoGuid);
 
+        Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo);
+        Task<Persona> RegistrarContribuyente(Persona contribuyente);
+
 
     }
 }

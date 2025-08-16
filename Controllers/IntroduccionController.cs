@@ -1,9 +1,11 @@
-﻿using CemSys2.Interface.Introduccion;
+﻿using CemSys2.Business;
+using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 using Rotativa.AspNetCore;
-using CemSys2.Business;
+using System.Threading.Tasks;
 
 namespace CemSys2.Controllers
 {
@@ -525,6 +527,7 @@ namespace CemSys2.Controllers
             return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
 
         }
+
         //reportesGraficos
         [HttpPost]
         public IActionResult ReporteGraficosPDF(string imagenBase64, string fechaDesde, string fechaHasta)
@@ -545,6 +548,113 @@ namespace CemSys2.Controllers
 
 
             return pdf;
+        }
+
+        // Método para buscar contribuyente (AJAX)
+        [HttpPost]
+        public async Task<IActionResult> BuscarContribuyente([FromBody] BuscarContribuyenteRequest request)
+        {
+            try
+            {
+                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo))
+                {
+                    return Json(new { success = false, message = "DNI y sexo son obligatorios" });
+                }
+
+                Persona contribuyente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
+
+                if (contribuyente != null)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        contribuyente = new
+                        {
+                            id = contribuyente.IdPersona,
+                            nombre = contribuyente.Nombre,
+                            apellido = contribuyente.Apellido,
+                            dni = request.Dni, // Usar el DNI del request para mantener consistencia
+                            sexo = request.Sexo
+                        }
+                    });
+                }
+                else
+                {
+                    return Json(new { success = true, contribuyente = (object)null,
+                        dni = request.Dni, // Devolver el DNI aunque no se encuentre el contribuyente
+                        sexo = request.Sexo
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Método para registrar nuevo contribuyente (AJAX)
+        [HttpPost]
+        public async Task<IActionResult> RegistrarContribuyente([FromBody] RegistrarContribuyenteRequest request)
+        {
+            try
+            {
+                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo) ||
+                    string.IsNullOrEmpty(request.Nombre) || string.IsNullOrEmpty(request.Apellido))
+                {
+                    return Json(new { success = false, message = "Todos los campos son obligatorios" });
+                }
+
+                // Validar que no exista ya
+                Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
+                if (contribuyenteExistente != null)
+                {
+                    return Json(new { success = false, message = "El contribuyente ya existe en el sistema" });
+                }
+
+                // Crear nuevo contribuyente
+                var nuevoContribuyente = new Persona
+                {
+                    Dni = request.Dni.ToString(),
+                    Nombre = request.Nombre.Trim(),
+                    Apellido = request.Apellido.Trim(),
+                    Sexo = request.Sexo
+                };
+
+                // Guardar en base de datos (ajusta según tu lógica de negocio)
+                var contribuyenteCreado = await _introduccionBusiness.RegistrarContribuyente(nuevoContribuyente);
+
+                return Json(new
+                {
+                    success = true,
+                    contribuyente = new
+                    {
+                        id = contribuyenteCreado.IdPersona,
+                        nombre = contribuyenteCreado.Nombre,
+                        apellido = contribuyenteCreado.Apellido,
+                        dni = request.Dni, // Usar el DNI del request
+                        sexo = contribuyenteCreado.Sexo
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Clases para los requests AJAX
+        public class BuscarContribuyenteRequest
+        {
+            public int? Dni { get; set; }
+            public string Sexo { get; set; }
+        }
+
+        public class RegistrarContribuyenteRequest
+        {
+            public int? Dni { get; set; }
+            public string Sexo { get; set; }
+            public string Nombre { get; set; }
+            public string Apellido { get; set; }
         }
     }
 }

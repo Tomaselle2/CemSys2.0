@@ -17,7 +17,8 @@ INSERT INTO TipoNumeracionParcelas (tipoNumeracion) VALUES
 -- INSERT para CategoriaPersonas
 INSERT INTO CategoriaPersonas (categoria) VALUES 
 ('Titular'),
-('Fallecido');
+('Fallecido'),
+('Contribuyente');
 
 -- INSERT para RolesUsuarios
 INSERT INTO RolesUsuarios (rol) VALUES 

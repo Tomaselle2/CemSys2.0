@@ -659,5 +659,27 @@ namespace CemSys2.Data
         {
             return await _context.ArchivosDocumentacions.FirstOrDefaultAsync(a => a.ArchivoId == archivoGuid);
         }
+
+        public async Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo)
+        {
+            return await _context.Personas.FirstOrDefaultAsync(p => p.Visibilidad == true && p.Dni == DniContribuyente &&
+            p.CategoriaPersona != (int)CategoriaPersonaEnum.Fallecido && p.Sexo == sexo);
+        }
+
+        public async Task<Persona> RegistrarContribuyente(Persona contribuyente)
+        {
+            // Asegurarnos de que la persona tenga visibilidad true al crearse
+            contribuyente.Visibilidad = true;
+            contribuyente.CategoriaPersona = (int)CategoriaPersonaEnum.Contribuyente;
+
+            // Agregar el contribuyente al contexto
+            _context.Personas.Add(contribuyente);
+
+            // Guardar los cambios en la base de datos
+            await _context.SaveChangesAsync();
+
+            // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
+            return contribuyente;
+        }
     }
 }
