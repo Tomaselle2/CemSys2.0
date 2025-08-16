@@ -1,13 +1,9 @@
-﻿using CemSys2.ViewModel;
-using Microsoft.AspNetCore.Mvc;
-using CemSys2.Interface.Introduccion;
-using System.Threading.Tasks;
+﻿using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
-using CemSys2.ViewModel.Reportes;
-using CemSys2.DTO.Reportes;
+using CemSys2.ViewModel;
+using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
-using Microsoft.Extensions.Hosting;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using CemSys2.Business;
 
 namespace CemSys2.Controllers
 {
@@ -484,6 +480,29 @@ namespace CemSys2.Controllers
                 return View("ResumenIntroduccion", vmCompleto);
             }
             return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
+        }
+
+        //ver Recibo archivo
+        public async Task<IActionResult> VerRecibo(Guid archivoId)
+        {
+            var archivo = await _introduccionBusiness.ObtenerArchivo(archivoId);
+
+            if (archivo == null || archivo.Contenido == null)
+                return NotFound("Archivo no encontrado.");
+            string tipo = archivo.TipoArchivo.ToLower();
+
+            if (tipo.StartsWith("image/"))
+            {
+                // Convertir la imagen a PDF
+                archivo.Contenido = PdfHelper.ImagenComoPdf(archivo.Contenido);
+                tipo = "application/pdf";
+                archivo.NombreArchivo = Path.ChangeExtension(archivo.NombreArchivo, ".pdf");
+            }
+
+            // Forzar a que el navegador intente mostrarlo
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{archivo.NombreArchivo}\"";
+
+            return File(archivo.Contenido, tipo);
         }
 
         //finaliza el tramite

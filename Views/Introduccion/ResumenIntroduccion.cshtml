@@ -488,13 +488,43 @@
                                     <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Concepto</td>
                                     <td>@opc.Monto.ToString()</td>
-                                    <td>Editar - Ver</td>
+                                    <td>
+                                        @* <form asp-action="#" method="get" style="display: inline-block;">
+                                            <button type="submit" class="btn-modificar btn-sm" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </form> *@
+                                        <!-- Botón para abrir modal -->
+                                        <button type="button"
+                                                class="btn btn-primary btn-sm"
+                                                title="Ver"
+                                                onclick="verRecibo('@opc.ArchivoId')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 }
                 @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal del visor de archivo -->
+<div class="modal fade" id="modalVerRecibo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <!-- Extra grande -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ver Recibo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" style="height: 90vh;">
+                <iframe id="reciboViewer" style="width: 100%; height: 80vh; border: none; display: none;"></iframe>
+                <img id="reciboImage" style="max-width: 100%; height: auto; display: none;" />
             </div>
         </div>
     </div>
@@ -636,6 +666,20 @@
         });
     </script>
 
+    <script> //ver el recivo/archivo
+            function verRecibo(archivoId) {
+                const iframe = document.getElementById("reciboViewer");
+                const img = document.getElementById("reciboImage");
+
+                // Ocultar ambos al principio
+                iframe.style.display = "block";
+                img.style.display = "none";
+
+               iframe.src = `/Introduccion/VerRecibo?archivoId=${archivoId}`;
+
+                new bootstrap.Modal(document.getElementById("modalVerRecibo")).show();
+            }
+    </script>
 }
 
 

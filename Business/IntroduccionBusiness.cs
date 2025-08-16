@@ -1226,5 +1226,10 @@ namespace CemSys2.Business
         {
             await _introduccionBD.FinalizarTramite(tramiteId);
         }
+
+        public async Task<ArchivosDocumentacion> ObtenerArchivo(Guid archivoGuid)
+        {
+            return await _introduccionBD.ObtenerArchivo(archivoGuid);
+        }
     }
 }
