@@ -76,14 +76,17 @@ CREATE TABLE TipoParcela (
 -- Empresa funebre
 CREATE TABLE EmpresaFunebre (
     id INT PRIMARY KEY IDENTITY(1,1),
-    nombre NVARCHAR(30) NOT NULL
+    nombre NVARCHAR(30) NOT NULL,
+	visibilidad BIT NOT NULL DEFAULT 1
+
 );
 
 
 -- Cementerios
 CREATE TABLE Cementerios (
     id INT PRIMARY KEY IDENTITY(1,1),
-    nombre NVARCHAR(50) NOT NULL
+    nombre NVARCHAR(50) NOT NULL,
+	visibilidad BIT NOT NULL DEFAULT 1
 );
 
 
@@ -112,7 +115,8 @@ CREATE TABLE CantidadCuotas (
 -- Tipo de trámite
 CREATE TABLE TipoTramite (
     id INT PRIMARY KEY IDENTITY(1,1),
-    tipo NVARCHAR(30) NOT NULL
+    tipo NVARCHAR(30) NOT NULL,
+	visibilidad BIT NOT NULL DEFAULT 1
 );
 
 
@@ -214,6 +218,8 @@ CREATE TABLE Parcela (
     seccion INT NOT NULL,
     TipoNicho INT NULL,
 	TipoPanteonId INT NULL,
+	nombrePanteon nvarchar(100),
+	infoAdicional nvarchar(max),
     FOREIGN KEY (seccion) REFERENCES Secciones(id),
     FOREIGN KEY (TipoNicho) REFERENCES TipoNichos(id),
 	FOREIGN KEY (TipoPanteonId) REFERENCES TipoPanteon(id)
@@ -276,6 +282,7 @@ CREATE TABLE Introducciones (
     estadoDifunto NVARCHAR(30) NULL,
     introduccionNueva BIT NOT NULL,
     fechaRetiro DATETIME NULL,
+	informacionAdicional NVARCHAR(MAX),
     FOREIGN KEY (idTramite) REFERENCES Tramite(id),
     FOREIGN KEY (empleado) REFERENCES Usuarios(id),
     FOREIGN KEY (empresaFunebre) REFERENCES EmpresaFunebre(id),
@@ -362,9 +369,11 @@ CREATE TABLE ConceptosFactura (
     conceptoTarifariaId INT NOT NULL,
     precioUnitario DECIMAL(10,2) NOT NULL,
     cantidad INT NOT NULL DEFAULT 1,
+	tipoConceptoFacturaId INT NULL,
     subtotal AS (precioUnitario * cantidad) PERSISTED,
     FOREIGN KEY (facturaId) REFERENCES Facturas(id),
-    FOREIGN KEY (conceptoTarifariaId) REFERENCES ConceptosTarifarias(id)
+    FOREIGN KEY (conceptoTarifariaId) REFERENCES ConceptosTarifarias(id),
+	FOREIGN KEY (tipoConceptoFacturaId) REFERENCES TiposConceptoTarifaria(id)
 );
 
 -- Recibos factura
@@ -375,6 +384,7 @@ CREATE TABLE RecibosFactura (
     concepto NVARCHAR(100) NOT NULL,
     monto DECIMAL(10,2) NOT NULL,
     archivoID UNIQUEIDENTIFIER NULL,
+	decreto bit not null default 0,
     FOREIGN KEY (facturaId) REFERENCES Facturas(id)
 );
 

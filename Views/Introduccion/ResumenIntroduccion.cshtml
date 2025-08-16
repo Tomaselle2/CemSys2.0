@@ -496,7 +496,7 @@
                                         </form> *@
                                         <!-- Botón para abrir modal -->
                                         <button type="button"
-                                                class="btn btn-primary btn-sm"
+                                                class="btn-modificar btn-sm"
                                                 title="Ver"
                                                 onclick="verRecibo('@opc.ArchivoId')">
                                             <i class="bi bi-eye"></i>
@@ -519,10 +519,10 @@
         <!-- Extra grande -->
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Ver Recibo</h5>
+                <h5 class="modal-title">Archivo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body text-center" style="height: 90vh;">
+            <div class="modal-body text-center" style="height: 85vh;">
                 <iframe id="reciboViewer" style="width: 100%; height: 80vh; border: none; display: none;"></iframe>
                 <img id="reciboImage" style="max-width: 100%; height: auto; display: none;" />
             </div>
@@ -545,9 +545,25 @@
                 <div class="accordion-body">
                     @* cuerpo del acordion *@
                     <form asp-action="CargarRecibo" method="post" id="formRecibo" class="form-box" enctype="multipart/form-data" onsubmit="handleFormSubmit()">
-                        <div class="mb-3">
+                        <div class="mb-3"> <!--decreto-->
                             <input type="checkbox" asp-for="Decreto" id="decreto" />
                             <label for="decreto">Decreto municipal</label>
+                        </div>
+
+                        <div class="mb-3"><!--Nueva persona-->
+                            <label for="">Contribuyente<span class="obligatorio"> * </span></label>
+                            <div class=" form-columns-container3">
+                                <div>
+                                    <input asp-for="Concepto" id="" class="form-control" type="text" required disabled />
+                                </div>
+                                <div>
+                                    <div>
+                                        <button class="btn btn-success" id="agregarContribuyenteButton" data-bs-toggle="modal" data-bs-target="#ContribuyenteModal">
+                                            <i class="bi bi-person-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-columns-container3">
                             <div>
@@ -584,6 +600,56 @@
         </div>
     </div>
 }
+
+<!--Modal nuevo contribuyente-->
+<div class="modal fade" id="ContribuyenteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Contribuyente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formContribuyente" class="needs-validation" novalidate>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div><!--DNI-->
+                            <label for="dni">DNI<span class="obligatorio" id="dniObligatorio"> * </span></label>
+                            <input class="form-control" id="dniInput" type="text" @* asp-for="Dni" *@ pattern="[0-9]+" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                            @*                        <span asp-validation-for="Dni" class="text-danger"></span>*@                 
+                        </div>
+                        <div><!--Sexo-->
+                            <label for="sexoDifunto">Sexo<span class="obligatorio"> * </span></label>
+                            <select class="form-select" @* asp-for="Sexo" *@ required>
+                                <option value="">--Elija una opción--</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            @* <span asp-validation-for="Sexo" class="text-danger"></span> *@
+                        </div>
+                    </div>
+                    <div>
+                        <label for="nombreDifunto">Nombre<span class="obligatorio" id="nombreObligatorio"> * </span></label>
+                        <input class="form-control" id="nombreInput" type="text" @* asp-for="Nombre" *@ maxlength="60" minlength="2" />
+                        @* <span asp-validation-for="Nombre" class="text-danger"></span> *@
+                    </div>
+
+                    <div>
+                        <label for="apellidoDifunto">Apellido<span class="obligatorio"> * </span></label>
+                        <input class="form-control" type="text" id="apellidoInput" @* asp-for="Apellido" *@ required maxlength="60" minlength="2" />
+                        @* <span asp-validation-for="Apellido" class="text-danger"></span> *@
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success" id="registrarEmpresaBtn">Aceptar</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 
 <!--btn finalizar-->
@@ -679,6 +745,66 @@
 
                 new bootstrap.Modal(document.getElementById("modalVerRecibo")).show();
             }
+    </script>
+
+    <script> //logica de agregar empresa
+        const agregarContribuyenteButton = document.getElementById('agregarContribuyenteButton');
+        const formContribuyente = document.getElementById('formContribuyente');
+        //const nombreEmpresaInput = document.getElementById('nombreEmpresa');
+        //const empresaSepelioSelect = document.getElementById('empresaSepelio');
+
+        // Abre el modal y limpia el formulario
+        agregarContribuyenteButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            formContribuyente.reset();
+            formContribuyente.classList.remove('was-validated');
+            $('#ContribuyenteModal').modal('show');
+        });
+
+        // Validación y envío con fetch
+        // formEmpresa.addEventListener('submit', async function (event) {
+        //     event.preventDefault();
+        //     event.stopPropagation();
+
+        //     if (!formEmpresa.checkValidity()) {
+        //         formEmpresa.classList.add('was-validated');
+        //         return;
+        //     }
+
+        //     const nombre = nombreEmpresaInput.value.trim();
+
+        //     function mostrarAlertaExito(mensaje) {
+        //         const alertContainer = document.getElementById('alertContainer');
+        //         alertContainer.innerHTML = `
+        //             <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        //                 ${mensaje}
+        //                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        //             </div>
+        //         `;
+        //     }
+
+        //     try {
+        //         const response = await fetch(`/Introduccion/AgregarEmpresa?nombreEmpresa=${encodeURIComponent(nombre)}`);
+        //         const result = await response.json();
+
+        //         if (result.success) {
+        //             mostrarAlertaExito(result.message);
+        //             $('#EmpresaModal').modal('hide');
+
+        //             if (empresaSepelioSelect) {
+        //                 const option = document.createElement('option');
+        //                 option.value = result.idEmpresa;
+        //                 option.text = nombre;
+        //                 option.selected = true;
+        //                 empresaSepelioSelect.appendChild(option);
+        //             }
+        //         } else {
+        //             alert(result.message);
+        //         }
+        //     } catch (error) {
+        //         alert("Error al enviar la solicitud.");
+        //     }
+        });
     </script>
 }
 
