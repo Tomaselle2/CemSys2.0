@@ -440,7 +440,8 @@ namespace CemSys2.Controllers
                 FacturaId = viewModel.IdFactura.Value,
                 Concepto = viewModel.Concepto!,
                 Monto = viewModel.Monto.Value,
-                Decreto = viewModel.Decreto
+                Decreto = viewModel.Decreto,
+                Contribuyente = viewModel.IdContribuyente
             };
 
 

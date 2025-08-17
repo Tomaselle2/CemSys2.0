@@ -19,9 +19,13 @@ public partial class RecibosFactura
 
     public bool Decreto { get; set; }
 
+    public int? Contribuyente { get; set; }
+
     public virtual ArchivosDocumentacion? Archivo { get; set; }
 
     public virtual ICollection<ArchivosDocumentacion> ArchivosDocumentacions { get; set; } = new List<ArchivosDocumentacion>();
+
+    public virtual Persona? ContribuyenteNavigation { get; set; }
 
     public virtual Factura Factura { get; set; } = null!;
 }

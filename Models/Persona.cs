@@ -53,6 +53,8 @@ public partial class Persona
 
     public virtual ICollection<ParcelaDifunto> ParcelaDifuntos { get; set; } = new List<ParcelaDifunto>();
 
+    public virtual ICollection<RecibosFactura> RecibosFacturas { get; set; } = new List<RecibosFactura>();
+
     public virtual ICollection<TitularesContratoConcesion> TitularesContratoConcesions { get; set; } = new List<TitularesContratoConcesion>();
 
     public virtual ICollection<TramitePersona> TramitePersonas { get; set; } = new List<TramitePersona>();

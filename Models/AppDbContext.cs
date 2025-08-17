@@ -608,6 +608,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Concepto)
                 .HasMaxLength(100)
                 .HasColumnName("concepto");
+            entity.Property(e => e.Contribuyente).HasColumnName("contribuyente");
             entity.Property(e => e.Decreto).HasColumnName("decreto");
             entity.Property(e => e.FacturaId).HasColumnName("facturaId");
             entity.Property(e => e.FechaPago)
@@ -620,6 +621,10 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.Archivo).WithMany(p => p.RecibosFacturas)
                 .HasForeignKey(d => d.ArchivoId)
                 .HasConstraintName("FK_RecibosFactura_ArchivosDocumentacion");
+
+            entity.HasOne(d => d.ContribuyenteNavigation).WithMany(p => p.RecibosFacturas)
+                .HasForeignKey(d => d.Contribuyente)
+                .HasConstraintName("FK_constribuyente_reciboFactura");
 
             entity.HasOne(d => d.Factura).WithMany(p => p.RecibosFacturas)
                 .HasForeignKey(d => d.FacturaId)

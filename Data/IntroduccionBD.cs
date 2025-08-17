@@ -527,7 +527,8 @@ namespace CemSys2.Data
                     FechaPago = DateTime.Now,
                     Concepto = recibo.Concepto!,
                     Monto = recibo.Monto,
-                    Decreto = recibo.Decreto
+                    Decreto = recibo.Decreto,
+                    Contribuyente = recibo.Contribuyente
                 };
                 _context.RecibosFacturas.Add(reciboFactura);
                 await _context.SaveChangesAsync();
@@ -616,7 +617,7 @@ namespace CemSys2.Data
 
         public async Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId)
         {
-            return await _context.RecibosFacturas.Where(f=>f.FacturaId == facturaId).OrderByDescending(t=> t.FechaPago).ToListAsync();
+            return await _context.RecibosFacturas.Include(p=>p.ContribuyenteNavigation).Where(f=>f.FacturaId == facturaId).OrderByDescending(t=> t.FechaPago).ToListAsync();
         }
 
         public async Task FinalizarTramite(int tramiteId)

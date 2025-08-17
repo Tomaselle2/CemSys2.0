@@ -454,7 +454,7 @@
 
 
 
-<!-- Recibos -->
+<!--Tabla Recibos -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
@@ -478,6 +478,7 @@
                                 <th>Fecha</th>
                                 <th>Concepto</th>
                                 <th>Monto</th>
+                                <th>Contribuyente</th>
                                 <th>Archivo</th>
                             </tr>
                         </thead>
@@ -488,6 +489,7 @@
                                     <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Concepto</td>
                                     <td>@opc.Monto.ToString()</td>
+                                    <td>@opc.ContribuyenteNavigation?.Nombre @opc.ContribuyenteNavigation?.Apellido</td>
                                     <td>
                                         @* <form asp-action="#" method="get" style="display: inline-block;">
                                             <button type="submit" class="btn-modificar btn-sm" title="Editar">
@@ -765,7 +767,9 @@
     </script>
 
     <script> //logica de agregar contribuyente
-                // Variables globales
+        // Variables globales
+        var estadoFinalizado = @(estadoTramite == (int)EstadosIntroduccion.Finalizado ? "true" : "false");
+
         let contribuyenteSeleccionado = null;
         let estadoModal = 'buscar'; // 'buscar' o 'registrar'
 
@@ -784,8 +788,14 @@
         const idContribuyenteHidden = document.getElementById('idContribuyenteHidden');
 
         // Abrir modal
-        agregarContribuyenteButton.addEventListener('click', function (event) {
+        if(agregarContribuyenteButton){
+            agregarContribuyenteButton.addEventListener('click', function (event) {
             event.preventDefault();
+
+            if (estadoFinalizado === "true") {
+                // Si el trámite está finalizado, no hacer nada
+                return;
+            }
 
             if (contribuyenteSeleccionado) {
                 // Si ya hay un contribuyente seleccionado, limpiar selección
@@ -797,6 +807,8 @@
             }
         });
 
+        }
+        
         // Submit del formulario del modal
         formContribuyente.addEventListener('submit', function(event) {
             event.preventDefault();

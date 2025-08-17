@@ -385,7 +385,9 @@ CREATE TABLE RecibosFactura (
     monto DECIMAL(10,2) NOT NULL,
     archivoID UNIQUEIDENTIFIER NULL,
 	decreto bit not null default 0,
-    FOREIGN KEY (facturaId) REFERENCES Facturas(id)
+	contribuyente int,
+    FOREIGN KEY (facturaId) REFERENCES Facturas(id),
+	foreign key (contribuyente) references Personas(idPersona)
 );
 
 
