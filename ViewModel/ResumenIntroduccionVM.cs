@@ -14,6 +14,7 @@ namespace CemSys2.ViewModel
 
         public int? IdTramite { get; set; }
         public int? IdFactura { get; set; }
+        public int? IdRecibo { get; set; }
 
         [Required(ErrorMessage = "El concepto es obligatorio")]
         [NoSoloEspacios]
@@ -27,7 +28,8 @@ namespace CemSys2.ViewModel
 
         public string? infoAdicional { get; set; }
 
-        [Required(ErrorMessage = "El archivo es obligatorio")]
+        public bool EsEdicion { get; set; }
+
         public IFormFile? ArchivoRecibo { get; set; }
 
         public bool Decreto { get; set; } = false;
@@ -55,6 +57,13 @@ namespace CemSys2.ViewModel
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if (!EsEdicion && ArchivoRecibo == null)
+            {
+                yield return new ValidationResult(
+                    "El archivo es obligatorio al cargar un nuevo recibo.",
+                    new[] { nameof(ArchivoRecibo) });
+            }
+
             MontoMaximo = Factura.Pendiente;
             if (Monto.HasValue)
             {

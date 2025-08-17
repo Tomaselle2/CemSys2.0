@@ -1241,5 +1241,10 @@ namespace CemSys2.Business
         {
             return await _introduccionBD.RegistrarContribuyente(contribuyente);
         }
+
+        public async Task EditarReciboFactura(int reciboId, string nuevoConcepto, IFormFile? nuevoArchivo)
+        {
+             await _introduccionBD.EditarReciboFactura(reciboId, nuevoConcepto, nuevoArchivo);
+        }
     }
 }

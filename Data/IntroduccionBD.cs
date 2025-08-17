@@ -617,7 +617,7 @@ namespace CemSys2.Data
 
         public async Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId)
         {
-            return await _context.RecibosFacturas.Include(p=>p.ContribuyenteNavigation).Where(f=>f.FacturaId == facturaId).OrderByDescending(t=> t.FechaPago).ToListAsync();
+            return await _context.RecibosFacturas.Include(p=>p.ContribuyenteNavigation).Include(a => a.Archivo).Where(f=>f.FacturaId == facturaId).OrderByDescending(t=> t.FechaPago).ToListAsync();
         }
 
         public async Task FinalizarTramite(int tramiteId)
@@ -681,6 +681,67 @@ namespace CemSys2.Data
 
             // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
             return contribuyente;
+        }
+
+        public async Task EditarReciboFactura(int reciboId, string nuevoConcepto, IFormFile? nuevoArchivo)
+        {
+            var recibo = await _context.RecibosFacturas.FirstOrDefaultAsync(r => r.Id == reciboId);
+            if (recibo == null)
+                throw new Exception("El recibo no existe.");
+
+            recibo.Concepto = nuevoConcepto;
+
+            if (nuevoArchivo != null && nuevoArchivo.Length > 0)
+            {
+                var extension = Path.GetExtension(nuevoArchivo.FileName).ToLower();
+                string mimeType = extension switch
+                {
+                    ".png" => "image/png",
+                    ".jpg" => "image/jpeg",
+                    ".jpeg" => "image/jpeg",
+                    ".pdf" => "application/pdf",
+                    _ => "application/octet-stream"
+                };
+
+                byte[] contenido;
+                using (var ms = new MemoryStream())
+                {
+                    await nuevoArchivo.CopyToAsync(ms);
+                    contenido = ms.ToArray();
+                }
+
+                var archivo = await _context.ArchivosDocumentacions
+                    .FirstOrDefaultAsync(a => a.ReciboId == recibo.Id);
+
+                if (archivo != null)
+                {
+                    archivo.NombreArchivo = Path.GetFileName(nuevoArchivo.FileName);
+                    archivo.TipoArchivo = mimeType;
+                    archivo.TamanoBytes = nuevoArchivo.Length;
+                    archivo.Contenido = contenido;
+                    archivo.FechaCreacion = DateTime.Now;
+
+                    _context.ArchivosDocumentacions.Update(archivo);
+                }
+                else
+                {
+                    var nuevo = new ArchivosDocumentacion
+                    {
+                        CategoriaArchivo = CategoriaArchivosEnum.Recibo.ToString(),
+                        ReciboId = recibo.Id,
+                        NombreArchivo = Path.GetFileName(nuevoArchivo.FileName),
+                        TipoArchivo = mimeType,
+                        TamanoBytes = nuevoArchivo.Length,
+                        Contenido = contenido,
+                        FechaCreacion = DateTime.Now,
+                        Visibilidad = true,
+                    };
+                    _context.ArchivosDocumentacions.Add(nuevo);
+                }
+            }
+
+            _context.RecibosFacturas.Update(recibo);
+            await _context.SaveChangesAsync();
         }
     }
 }

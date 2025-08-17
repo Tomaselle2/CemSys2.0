@@ -334,8 +334,19 @@ body {
             background-color: #194441;
         }
 
-/*BOTON ELIMINAR*/
-
+.btnEditarRecibo {
+    background-color: #1f36ef;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+    .btnEditarRecibo:hover {
+        background-color: #194441;
+    }
+    /*BOTON ELIMINAR*/
     .btn-eliminar {
         background-color: #e53935;
         color: #ffffff;

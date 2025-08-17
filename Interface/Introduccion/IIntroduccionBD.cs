@@ -41,5 +41,7 @@ namespace CemSys2.Interface.Introduccion
         Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo);
         Task<Persona> RegistrarContribuyente(Persona contribuyente);
 
+        Task EditarReciboFactura(int reciboId, string nuevoConcepto, IFormFile? nuevoArchivo);
+
     }
 }

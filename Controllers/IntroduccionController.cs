@@ -464,6 +464,58 @@ namespace CemSys2.Controllers
             
         }
 
+        //Editar recibo
+        [HttpPost]
+        public async Task<IActionResult> EditarRecibo(ResumenIntroduccionVM viewModel)
+        {
+
+            if (!viewModel.EsEdicion && viewModel.ArchivoRecibo == null)
+            {
+                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
+            }
+
+            // Validar Concepto
+            if (string.IsNullOrWhiteSpace(viewModel.Concepto))
+            {
+                ModelState.AddModelError("Concepto", "El concepto es obligatorio.");
+            }
+
+            // Validar archivo SOLO si se sube uno nuevo
+            if (viewModel.ArchivoRecibo != null && viewModel.ArchivoRecibo.Length > 0)
+            {
+                var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+                var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
+                if (!permitidas.Contains(extension))
+                {
+                    ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
+                }
+            }
+
+            //if (!ModelState.IsValid)
+            //{
+            //    var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+            //    return View("ResumenIntroduccion", vmCompleto);
+            //}
+
+            try
+            {
+                await _introduccionBusiness.EditarReciboFactura(
+                    viewModel.IdRecibo.Value,
+                    viewModel.Concepto!,
+                    viewModel.ArchivoRecibo
+                );
+
+                TempData["MensajeExito"] = "Recibo editado con éxito";
+                return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
+            }
+            catch (Exception ex)
+            {
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.MensajeError = ex.Message;
+                return View("ResumenIntroduccion", vmCompleto);
+            }
+        }
+
         //actualiza el info adicional del tramite
         [HttpPost]
         public async Task<IActionResult> ActualizarInfoAdicionalTramite(ResumenIntroduccionVM viewModel)
