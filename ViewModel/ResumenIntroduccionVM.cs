@@ -11,6 +11,7 @@ namespace CemSys2.ViewModel
         public Factura Factura { get; set; } = new();
         public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new();
         public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
+        public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
 
         public int? IdTramite { get; set; }
         public int? IdFactura { get; set; }

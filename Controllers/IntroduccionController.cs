@@ -149,6 +149,7 @@ namespace CemSys2.Controllers
                 Factura factura = await _introduccionBusiness.ConsultarFacturaPorTramiteId(tramiteId);
                 var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaPorFactura(factura.Id);
                 var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
+                var historialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
                 if (resumen == null || resumen.Count == 0)
                 {
                     return NotFound("No se encontraron datos para el trámite especificado.");
@@ -160,7 +161,8 @@ namespace CemSys2.Controllers
                     Factura = factura,
                     ListaConceptosFactura = conceptosFactura,
                     ListaRecibosFactura = listaRecibosFactura,
-                    infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite
+                    infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
+                    HistorialEstadoTramites = historialEstadoTramites
                 };
                 return View(viewModel);
             }
@@ -373,6 +375,7 @@ namespace CemSys2.Controllers
             Factura factura = await _introduccionBusiness.ConsultarFacturaPorTramiteId(tramiteId);
             var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaPorFactura(factura.Id);
             var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
+            var historialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
 
             return new ResumenIntroduccionVM
             {
@@ -382,7 +385,8 @@ namespace CemSys2.Controllers
                 ListaRecibosFactura = listaRecibosFactura,
                 IdTramite = tramiteId,
                 IdFactura = factura.Id,
-                infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite
+                infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
+                HistorialEstadoTramites = historialEstadoTramites
             };
         }
 
@@ -560,7 +564,7 @@ namespace CemSys2.Controllers
             return File(archivo.Contenido, tipo);
         }
 
-        //finaliza el tramite
+        //finaliza el tramite introduccion
         [HttpPost]
         public async Task<IActionResult> FinalizarTramite(ResumenIntroduccionVM viewModel)
         {
@@ -695,13 +699,14 @@ namespace CemSys2.Controllers
             }
         }
 
-        // Clases para los requests AJAX
+        // Clase para los requests AJAX
         public class BuscarContribuyenteRequest
         {
             public int? Dni { get; set; }
             public string Sexo { get; set; }
         }
 
+        // Clase para los requests AJAX
         public class RegistrarContribuyenteRequest
         {
             public int? Dni { get; set; }

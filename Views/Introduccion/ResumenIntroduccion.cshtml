@@ -30,6 +30,41 @@
         </form>
 
     </div>
+
+    <!--Btn historial-->
+    <div>
+        <button class="btn-historial" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHistorial">
+            <i class="bi bi-clock-history"></i> Historial
+        </button>
+    </div>
+</div>
+
+<!-- Panel lateral derecho del historial -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasHistorial">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Historial</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="timeline">
+            @foreach (var opc in Model.HistorialEstadoTramites)
+            {
+                int valor = opc.EstadoTramiteId;
+                string estado = Enum.GetName(typeof(EstadosIntroduccion), valor);
+                <div class="timeline-item">
+                    <div class="icon bg-success text-white">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div class="content">
+                        <p class="mb-0 fw-bold">@estado</p>
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> @opc.Fecha.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 

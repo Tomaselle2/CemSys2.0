@@ -743,5 +743,10 @@ namespace CemSys2.Data
             _context.RecibosFacturas.Update(recibo);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<HistorialEstadoTramite>> HistorialEstadoTramites(int tramiteId)
+        {
+            return await _context.HistorialEstadoTramites.Where(h=> h.TramiteId == tramiteId).ToListAsync();
+        }
     }
 }

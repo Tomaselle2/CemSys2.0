@@ -408,17 +408,30 @@ body {
             color: #ffffff;
         }
 
-/*BOTON PDF*/
-
-.btn-pdf {
-    background-color: #e53935;
+.btn-historial {
+    background-color: #3c41e5;
     color: #ffffff;
     border: none;
-    padding: 10px 20px;
+    padding: 5px 10px;
     font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
+    margin: 10px;
 }
+    .btn-historial:hover {
+        background-color: #271db9;
+    }
+    /*BOTON PDF*/
+    .btn-pdf {
+        background-color: #e53935;
+        color: #ffffff;
+        border: none;
+        padding: 5px 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+    }
 
     .btn-pdf:hover {
         background-color: #b71c1c;
@@ -494,5 +507,54 @@ body {
 }
 /*Fin Estilo Personalizado de historial de parcela*/
 
+
+/*Estilo Personalizado de historial de tramite*/
+.timeline {
+    position: relative;
+    margin-left: 30px;
+}
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 12px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #ccc;
+    }
+
+.timeline-item:last-child::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: white; /* mismo color que el fondo del panel */
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+    .timeline-item .icon {
+        z-index: 1;
+        width: 28px;
+        height: 27px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1rem;
+        margin-right: 10px;
+    }
+
+    .timeline-item .content {
+        flex-grow: 1;
+    }
 
 

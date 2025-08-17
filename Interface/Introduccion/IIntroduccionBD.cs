@@ -42,6 +42,7 @@ namespace CemSys2.Interface.Introduccion
         Task<Persona> RegistrarContribuyente(Persona contribuyente);
 
         Task EditarReciboFactura(int reciboId, string nuevoConcepto, IFormFile? nuevoArchivo);
+        Task<List<HistorialEstadoTramite>> HistorialEstadoTramites(int tramiteId);
 
     }
 }

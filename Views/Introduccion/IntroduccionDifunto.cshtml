@@ -55,7 +55,7 @@
 
                             <div>
                                 <label for="dni">DNI<span class="obligatorio" id="dniObligatorio"> * </span></label>
-                                <input class="form-control" id="dniInput" type="text" asp-for="Dni" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                <input class="form-control" id="dniInput" type="text" asp-for="Dni" maxlength="8" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                 <span asp-validation-for="Dni" class="text-danger"></span>
                             </div>
 

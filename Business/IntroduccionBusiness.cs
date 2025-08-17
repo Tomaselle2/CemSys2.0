@@ -1246,5 +1246,10 @@ namespace CemSys2.Business
         {
              await _introduccionBD.EditarReciboFactura(reciboId, nuevoConcepto, nuevoArchivo);
         }
+
+        public async Task<List<HistorialEstadoTramite>> HistorialEstadoTramites(int tramiteId)
+        {
+            return await _introduccionBD.HistorialEstadoTramites(tramiteId);
+        }
     }
 }
