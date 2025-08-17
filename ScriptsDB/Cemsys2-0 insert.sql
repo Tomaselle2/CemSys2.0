@@ -109,5 +109,7 @@ VALUES
 (1, 'Cobrado'),
 (1, 'Finalizado');
 
+insert into Personas (nombre, apellido, dni, visibilidad, categoriaPersona, sexo) values ('', 'Municipalidad Colonia Tirolesa', '00000000', 1, 3, 'otro');
+
 INSERT INTO Usuarios (nombre, correo, usuario, clave, visibilidad, rol) values ('Tomas Carreras', 'tomaselle2@gmail.com', 'tomaselle2', '12345', 1, 2);
 

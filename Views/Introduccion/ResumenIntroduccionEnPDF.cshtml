@@ -1,4 +1,5 @@
 ﻿@using CemSys2.ViewModel
+@using CemSys2.Enumerable
 @model ResumenIntroduccionVM
 @{
     Layout = "";
@@ -152,9 +153,14 @@
         string domicilioEnTiorlesa = "";
         string fallecioEnTirolesa = "";
 
+        int estadoTramite = 0;
+        string estadoTramiteString = "";
+
+
         @foreach (var tramite in Model.ResumenIntroduccion)
         {
             nroTramite = tramite.Id.ToString();
+            estadoTramite = tramite.estadoTramite;
 
 
             dni = (tramite.dni == "nn") ? "--------" : tramite.dni;
@@ -188,11 +194,20 @@
 
             domicilioEnTiorlesa = (tramite.DomicilioEnTirolesa) ? "Sí, tenia domicilio en Tirolesa" : "No tenia domicilio en Tirolesa";
             fallecioEnTirolesa = (tramite.FallecioEnTirolesa) ? "Sí, falleció en Tirolesa" : "No falleció en Tirolesa";
+
+            if (Enum.IsDefined(typeof(EstadosIntroduccion), estadoTramite))
+            {
+                estadoTramiteString = ((EstadosIntroduccion)estadoTramite).ToString();
+            }
         }
 
     }
 
-    <h2>Trámite: @nroTramite</h2>
+    <div class="d-flex align-items-center justify-content-between">
+        <h2 class="nroTramite">Trámite @nroTramite</h2>
+        <h3><strong>Estado: <span class="estadoTramite">@estadoTramiteString</span></strong></h3>
+    </div>
+
     <p><strong>Ingreso:</strong> @fechaIngreso</p>
     <p><strong>Empresa:</strong> @empresa.ToUpper()</p>
 

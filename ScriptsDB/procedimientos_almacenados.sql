@@ -246,7 +246,7 @@ END
 go
 ---------------------------  Procedimiento almacenado para obtener los datos del historial de parcelas en Personas-------------------------
 
-create PROCEDURE PersonasHistorialParcelas
+ALTER PROCEDURE PersonasHistorialParcelas
     @idPersona INT
 AS
 BEGIN
@@ -271,7 +271,7 @@ BEGIN
     WHERE 
         per.idPersona = @idPersona
     ORDER BY
-        pd.fechaIngreso;
+        pd.fechaIngreso DESC;
 END
 go
 --------------------------------------------------------------------------------------------------------------------------
@@ -295,7 +295,8 @@ BEGIN
     WHERE 
         per.idPersona = @idPersona
     ORDER BY
-        t.fechaCreacion DESC;
+        t.fechaCreacion DESC,
+		t.id DESC;
 END
 go
 ------------------------------------------sp para parcelas, obtiene los difuntos actuales de la parcela---------------------------------------------------
@@ -318,7 +319,10 @@ BEGIN
     WHERE 
         p.categoriaPersona = 2 
         AND pd.fechaRetiro IS NULL 
-        AND pd.parcelaId = @parcelaId;
+        AND pd.parcelaId = @parcelaId
+        ORDER BY 
+    pd.fechaIngreso DESC,
+    p.idPersona DESC;
 END
 go
 ------------------------------------------Obtiene el encabezado del historial de una parcela-----------------------------------------
@@ -362,7 +366,10 @@ BEGIN
         Personas p ON p.idPersona = pd.difuntoId
     WHERE 
         p.categoriaPersona = 2 
-        AND pd.parcelaId = @parcelaId;
+        AND pd.parcelaId = @parcelaId
+	ORDER BY 
+    pd.fechaIngreso DESC,
+    p.idPersona DESC;
 END
 go
 --------------------------------------------------------------------------------------
@@ -374,7 +381,8 @@ BEGIN
         t.id AS TramiteId, 
         t.fechaCreacion AS FechaCreacion, 
         tipo.tipo AS TipoTramite, 
-        tp.parcelaId AS ParcelaId
+        tp.parcelaId AS ParcelaId,
+		t.estadoActualID
     FROM 
         TramiteParcela tp
     INNER JOIN 
@@ -382,7 +390,10 @@ BEGIN
     INNER JOIN 
         TipoTramite tipo ON tipo.id = t.tipoTramiteID
     WHERE 
-        tp.parcelaId = @parcelaId;
+        tp.parcelaId = @parcelaId
+	  ORDER BY 
+        t.fechaCreacion DESC,
+        t.id DESC;
 END
 go
 --------------------------------------------------------------------------------------

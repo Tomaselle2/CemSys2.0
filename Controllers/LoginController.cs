@@ -31,7 +31,7 @@ namespace CemSys2.Controllers
 
             foreach (var usuario in usuarios)
             {
-                if (model.NombreUsuario == usuario.Usuario1 && VerifyPassword(model.Clave, usuario.Clave!))
+                if (model.NombreUsuario == usuario.Usuario1 || model.NombreUsuario == usuario.Correo && VerifyPassword(model.Clave, usuario.Clave!))
                 {
                     HttpContext.Session.SetString("nombreUsuario", usuario.Nombre);
                     HttpContext.Session.SetInt32("Rol", usuario.Rol);

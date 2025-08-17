@@ -29,9 +29,12 @@ select * from RecibosFactura
 
 select * from Tramite
 select * from EstadoTramite
-select * from HistorialEstadoTramite
+select * from HistorialEstadoTramite where tramiteID = 34
 
 select * from Introducciones
 
 select * from ArchivosDocumentacion
-select * from Introducciones where idTramite = 32
+select * from Introducciones where idTramite = 34
+
+select * from Personas
+

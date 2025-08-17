@@ -699,6 +699,98 @@ namespace CemSys2.Controllers
             }
         }
 
+
+        // Método para buscar contribuyente de decreto
+        [HttpPost]
+        public async Task<IActionResult> BuscarContribuyenteDecreto([FromBody] BuscarContribuyenteRequest request)
+        {
+            try
+            {
+                // Buscar contribuyente con DNI 00000000
+                Persona contribuyente = await _introduccionBusiness.BuscarContribuyente("00000000", "otro");
+
+                if (contribuyente != null)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        contribuyente = new
+                        {
+                            id = contribuyente.IdPersona,
+                            nombre = contribuyente.Nombre,
+                            apellido = contribuyente.Apellido,
+                            dni = "00000000",
+                            sexo = "otro"
+                        }
+                    });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    contribuyente = (object)null
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Método para registrar contribuyente de decreto
+        [HttpPost]
+        public async Task<IActionResult> RegistrarContribuyenteDecreto([FromBody] RegistrarContribuyenteRequest request)
+        {
+            try
+            {
+                // Verificar si ya existe
+                Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente("00000000", "otro");
+                if (contribuyenteExistente != null)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        contribuyente = new
+                        {
+                            id = contribuyenteExistente.IdPersona,
+                            nombre = contribuyenteExistente.Nombre,
+                            apellido = contribuyenteExistente.Apellido,
+                            dni = "00000000",
+                            sexo = "otro"
+                        }
+                    });
+                }
+
+                // Crear nuevo contribuyente de decreto
+                var nuevoContribuyente = new Persona
+                {
+                    Dni = "00000000",
+                    Nombre = "MUNICIPALIDAD",
+                    Apellido = "DECRETO",
+                    Sexo = "otro"
+                };
+
+                var contribuyenteCreado = await _introduccionBusiness.RegistrarContribuyente(nuevoContribuyente);
+
+                return Json(new
+                {
+                    success = true,
+                    contribuyente = new
+                    {
+                        id = contribuyenteCreado.IdPersona,
+                        nombre = contribuyenteCreado.Nombre,
+                        apellido = contribuyenteCreado.Apellido,
+                        dni = "00000000",
+                        sexo = contribuyenteCreado.Sexo
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         // Clase para los requests AJAX
         public class BuscarContribuyenteRequest
         {

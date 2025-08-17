@@ -76,6 +76,7 @@
     margin-bottom: 1rem;
     }
 </style>
+
 @* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
 @if (TempData["MensajeExito"] != null)
 {
@@ -93,6 +94,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
+
+
 <div class="contenedor-resumen">
 
     <form asp-action="ResumenIntroduccionEnPDF" asp-controller="Introduccion" method="get">
@@ -591,7 +594,7 @@
                     <form asp-action="CargarRecibo" method="post" id="formRecibo" class="form-box" enctype="multipart/form-data" onsubmit="handleFormSubmit()">
                         <div class="mb-3">
                             <!--decreto-->
-                            <input type="checkbox" asp-for="Decreto" id="decreto" />
+                            <input type="checkbox" asp-for="Decreto" id="decreto" onchange="handleDecretoChange(this)" />
                             <label for="decreto">Decreto municipal</label>
                         </div>
 
@@ -890,6 +893,7 @@
                 if (contribuyenteSeleccionado) {
                     // Si ya hay un contribuyente seleccionado, limpiar selección
                     limpiarSeleccionContribuyente();
+
                 } else {
                     // Abrir modal para buscar/agregar contribuyente
                     resetearModal();
@@ -1031,6 +1035,12 @@
 
         // Función para seleccionar contribuyente
         function seleccionarContribuyente(contribuyente) {
+
+           // Si es contribuyente de decreto, marcar el checkbox
+           if (contribuyente.dni === "00000000") {
+               document.getElementById('decreto').checked = true;
+           }
+
             contribuyenteSeleccionado = contribuyente;
             contribuyenteDisplay.value = `${contribuyente.nombre} ${contribuyente.apellido}`;
 
@@ -1048,6 +1058,10 @@
 
         // Función para limpiar selección de contribuyente
         function limpiarSeleccionContribuyente() {
+           if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
+               document.getElementById('decreto').checked = false;
+           }
+
             contribuyenteSeleccionado = null;
             contribuyenteDisplay.value = '';
 
@@ -1109,6 +1123,99 @@
 
         function ocultarError() {
             errorMessage.style.display = 'none';
+        }
+
+        // Función para manejar cambios en el checkbox Decreto
+        function handleDecretoChange(checkbox) {
+            if (checkbox.checked) {
+                // Buscar contribuyente con DNI 00000000
+                buscarContribuyenteDecreto();
+            } else {
+                // Deseleccionar contribuyente si existe
+                if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
+                    limpiarSeleccionContribuyente();
+                }
+            }
+        }
+
+        // Función para buscar contribuyente de decreto
+        function buscarContribuyenteDecreto() {
+            mostrarCargando(true);
+            ocultarError();
+
+            const datos = {
+                Dni: 0, // Se enviará como 0 para identificarlo como decreto
+                Sexo: "otro" // Sexo por defecto
+            };
+
+            fetch('/Introduccion/BuscarContribuyenteDecreto', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    if (data.contribuyente) {
+                        seleccionarContribuyente(data.contribuyente);
+                    } else {
+                        // Registrar si no existe
+                        registrarContribuyenteDecreto();
+                    }
+                } else {
+                    mostrarError(data.message || 'Error al buscar contribuyente de decreto');
+                    document.getElementById('decreto').checked = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+                document.getElementById('decreto').checked = false;
+            });
+        }
+
+        // Función para registrar contribuyente de decreto
+        function registrarContribuyenteDecreto() {
+            mostrarCargando(true);
+
+            const datos = {
+                Dni: 00000000, // Identificador de decreto
+                Sexo: "otro",
+                Nombre: "",
+                Apellido: "Municipalidad Colonia Tirolesa"
+            };
+
+            fetch('/Introduccion/RegistrarContribuyenteDecreto', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    seleccionarContribuyente(data.contribuyente);
+                } else {
+                    mostrarError(data.message || 'Error al registrar contribuyente de decreto');
+                    document.getElementById('decreto').checked = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+                document.getElementById('decreto').checked = false;
+            });
         }
     </script>
 
