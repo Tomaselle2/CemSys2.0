@@ -26,7 +26,6 @@ namespace CemSys2.ViewModel
         [Required(ErrorMessage = "La fecha de defunción es obligatoria")]
         public DateOnly? FechaDefuncion { get; set; }
 
-        [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
         public DateOnly? FechaNacimiento { get; set; }
 
         [Required(ErrorMessage = "El sexo es obligatorio")]

@@ -24,7 +24,6 @@ namespace CemSys2.ViewModel
         [Required(ErrorMessage = "La fecha de defunción es obligatoria")]
         public DateOnly? FechaDefuncion { get; set; }
 
-        [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
         public DateOnly? FechaNacimiento { get; set; }
 
         [Required(ErrorMessage = "El sexo es obligatorio")]
@@ -115,6 +114,10 @@ namespace CemSys2.ViewModel
 
                 if (Dni == null)
                     yield return new ValidationResult("El DNI es obligatorio", new[] { nameof(Dni) });
+
+                //if (FechaNacimiento.HasValue)
+                //    yield return new ValidationResult("La fecha de nacimiento es obligatoria", new[] { nameof(FechaNacimiento)});
+                
             }
 
         }

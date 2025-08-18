@@ -79,7 +79,7 @@
 
                             <div>
                                 <label for="fechaNacimiento">Nacimiento</label>
-                                <input class="form-control" type="date" asp-for="FechaNacimiento" max="@fecha" />
+                                <input class="form-control" type="date" id="inputFechaNacimiento" asp-for="FechaNacimiento" max="@fecha" />
                                 <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
                             </div>
 
@@ -340,6 +340,7 @@
             const nombreObligatorio = document.getElementById('nombreObligatorio');
             const dniInput = document.getElementById('dniInput');
             const nombreInput = document.getElementById('nombreInput');
+            const inputFechaNacimiento = document.getElementById('inputFechaNacimiento');
 
             function toggleRequiredFields() {
                 if (nnCheckbox.checked) {
@@ -348,7 +349,8 @@
                     dniInput.removeAttribute('required');
                     nombreInput.removeAttribute('required');
                     nombreInput.setAttribute('disabled', 'disabled'); // ⬅️ Desactiva el input Nombre
-                            dniInput.setAttribute('disabled', 'disabled');
+                    dniInput.setAttribute('disabled', 'disabled');
+                    inputFechaNacimiento.setAttribute('disabled', 'disabled');
                 } else {
                     dniObligatorio.style.display = 'inline';
                     nombreObligatorio.style.display = 'inline';
@@ -356,6 +358,7 @@
                     nombreInput.setAttribute('required', 'required');
                     dniInput.removeAttribute('disabled'); // ⬅️ Reactiva el input DNI
                     nombreInput.removeAttribute('disabled');
+                    inputFechaNacimiento.removeAttribute('disabled');
                 }
             }
 

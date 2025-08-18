@@ -246,7 +246,7 @@ END
 go
 ---------------------------  Procedimiento almacenado para obtener los datos del historial de parcelas en Personas-------------------------
 
-ALTER PROCEDURE PersonasHistorialParcelas
+create PROCEDURE PersonasHistorialParcelas
     @idPersona INT
 AS
 BEGIN
