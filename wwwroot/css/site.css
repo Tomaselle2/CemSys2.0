@@ -177,7 +177,7 @@ body {
     font-weight: bold;
 }
 
-/*ACORDEON*/
+/*ACORDEON (TARIFARIA -EFECTO ACORDEON)*/
         .accordion {
             max-width: 1300px; /* Por ejemplo, un ancho máximo de 600px */
             margin-left: auto; /* Centrarlo si tiene un max-width */
