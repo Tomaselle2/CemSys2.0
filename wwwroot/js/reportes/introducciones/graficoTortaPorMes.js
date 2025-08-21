@@ -36,18 +36,27 @@ function GraficoTortaPorMes(data) {
 
     // Colores para el gráfico
     const backgroundColors = [
-        'rgba(255, 99, 132, 0.7)',
-        'rgba(54, 162, 235, 0.7)',
-        'rgba(255, 206, 86, 0.7)',
-        'rgba(75, 192, 192, 0.7)',
-        'rgba(153, 102, 255, 0.7)',
-        'rgba(255, 159, 64, 0.7)',
-        'rgba(199, 199, 199, 0.7)',
-        'rgba(83, 102, 255, 0.7)',
-        'rgba(255, 99, 255, 0.7)',
-        'rgba(99, 255, 132, 0.7)',
-        'rgba(255, 132, 99, 0.7)',
-        'rgba(132, 99, 255, 0.7)'
+        'rgba(175, 238, 238, 0.7)', // Pale Blue #AFEEEE
+        'rgba(135, 206, 235, 0.7)', // Sky Blue #87CEEB
+        'rgba(127, 255, 212, 0.7)', // Aquamarine #7FFFD4
+        'rgba(0, 255, 255, 0.7)',   // Aqua Blue #00FFFF
+        'rgba(0, 191, 255, 0.7)',   // Cyan #00BFFF
+        'rgba(0, 127, 255, 0.7)',   // Azure #007FFF
+        'rgba(0, 0, 255, 0.7)',     // Deep Blue #0000FF
+        'rgba(64, 224, 208, 0.7)',  // Turquoise #40E0D0
+        'rgba(0, 206, 209, 0.7)',   // Deep Turquoise #00CED1
+        'rgba(0, 128, 128, 0.7)',   // Teal #008080
+        'rgba(0, 136, 139, 0.7)',   // Dark Cyan #008B8B
+        'rgba(0, 123, 167, 0.7)',   // Cerulean #007BA7
+        'rgba(46, 184, 87, 0.7)',   // Sea Green #2EB857
+        'rgba(0, 91, 125, 0.7)',    // Deep Sea Blue #005B7D
+        'rgba(70, 130, 180, 0.7)',  // Steel Blue #4682B4
+        'rgba(65, 105, 225, 0.7)',  // Royal Blue #4169E1
+        'rgba(0, 71, 171, 0.7)',    // Cobalt Blue #0047AB
+        'rgba(79, 66, 133, 0.7)',   // Ocean Blue #4F4285
+        'rgba(75, 0, 130, 0.7)',    // Indigo #4B0082
+        'rgba(0, 0, 128, 0.7)',     // Navy Blue #000080
+        'rgba(25, 25, 112, 0.7)',   // Midnight Blue #191970
     ];
 
     window.chartTortaPorMes = new Chart(ctx, {

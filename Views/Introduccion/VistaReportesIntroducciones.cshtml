@@ -119,13 +119,20 @@
     </div>
 
     <div class="contenedor-reporte" style="display:none;">
+
+        <!--no tocar nombre de la clase contenedor-reporte-->
+        <!--canvas ancho fijo, si no me favorece, elimino todo la clase y dejarla vacia-->
+        
         <canvas id="graficoTortaEmpleados" class="reporte-width"></canvas>
         <div class="contenedor-btn-descargar" id="contenedorBtnPdfTortaEmpleados">
+
             <form method="post" asp-action="ReporteGraficosPDF" id="formPdfTortaEmpleados" class="form-pdf">
+
                 <input type="hidden" id="imagenBase64TortaEmpleados" name="imagenBase64">
                 <input type="hidden" name="fechaDesde">
                 <input type="hidden" name="fechaHasta">
                 <button type="submit" class="btn-pdf">
+
                     <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
                 </button>
             </form>
@@ -210,6 +217,7 @@
     
     <script>
         // Botones para descargar en PDF
+
         document.getElementById('formPdfBarraMes').addEventListener('submit', function (e) {
             var canvas = document.getElementById("graficoPorMes");
             var imagen = canvas.toDataURL("image/png");
