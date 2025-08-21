@@ -121,7 +121,7 @@ namespace CemSys2.Controllers
             viewModel.FechaNacimiento = personaHistorial.FechaNacimiento;
             viewModel.Sexo = personaHistorial.Sexo;
             viewModel.EstadoDifunto = personaHistorial.EstadoDifunto;
-            viewModel.ActaDefuncion.Id = personaHistorial.ActaDefuncion.Id;
+            viewModel.ActaDefuncion.Id = personaHistorial.ActaDefuncion != null ? personaHistorial.ActaDefuncion.Id : 0;
             viewModel.ActaDefuncion.Acta = personaHistorial.ActaDefuncion?.Acta;
             viewModel.ActaDefuncion.Tomo = personaHistorial.ActaDefuncion?.Tomo;
             viewModel.ActaDefuncion.Folio = personaHistorial.ActaDefuncion?.Folio;

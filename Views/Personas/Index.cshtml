@@ -1,4 +1,5 @@
 ﻿@using CemSys2.ViewModel
+@using CemSys2.Enumerable
 @model PersonasVM
 @{
     ViewData["Title"] = "Personas ";
@@ -104,19 +105,16 @@
                             <tbody>
                                 @foreach (var opc in Model.ListaPersonasIndex)
                                 {
+                                    string categoriaString = "";
+                                    if(Enum.IsDefined(typeof(CategoriaPersonaEnum), opc.CategoriaPersona)){
+                                        categoriaString = ((CategoriaPersonaEnum)opc.CategoriaPersona).ToString();
+                                    }
                                     <tr>
-                                        <td>@(@opc.Dni == "nn" ? "--------" : opc.Dni)</td>
+                                        <td>@(@opc.Dni == "nn" || opc.Dni == "00000000" ? "--------" : opc.Dni)</td>
                                         <td>@opc.Apellido?.ToUpper()</td>
                                         <td>@opc.Nombre?.ToUpper()</td>
                                         <td>@opc.Sexo</td>
-                                        @if(opc.CategoriaPersona == 1)
-                                        {
-                                            <td>Titular</td>
-                                        }
-                                        else
-                                        {
-                                            <td>Fallecido</td>
-                                        }
+                                        <td>@categoriaString</td>
 
                                         <td>
                                             <form asp-action="HistorialPersona" method="get" style="display: inline-block;" target="_blank">

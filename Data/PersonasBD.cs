@@ -252,12 +252,24 @@ namespace CemSys2.Data
         int registrosPorPagina = 10,
         int pagina = 1)
         {
-            // Consulta base
             var query = from p in _context.Personas
-                        join cp in _context.CategoriaPersonas on p.CategoriaPersona equals cp.Id
-                        join intro in _context.Introducciones on p.IdPersona equals intro.DifuntoId
-                        join parcela in _context.Parcelas on intro.ParcelaId equals parcela.Id
-                        join seccion in _context.Secciones on parcela.Seccion equals seccion.Id
+
+                        join cp in _context.CategoriaPersonas
+                            on p.CategoriaPersona equals cp.Id into cpJoin
+                        from cp in cpJoin.DefaultIfEmpty()
+
+                        join intro in _context.Introducciones
+                            on p.IdPersona equals intro.DifuntoId into introJoin
+                        from intro in introJoin.DefaultIfEmpty()
+
+                        join parcela in _context.Parcelas
+                            on intro.ParcelaId equals parcela.Id into parcelaJoin
+                        from parcela in parcelaJoin.DefaultIfEmpty()
+
+                        join seccion in _context.Secciones
+                            on parcela.Seccion equals seccion.Id into seccionJoin
+                        from seccion in seccionJoin.DefaultIfEmpty()
+
                         select new DTO_Difunto_Persona_Index
                         {
                             IdPersona = p.IdPersona,
@@ -266,8 +278,8 @@ namespace CemSys2.Data
                             Dni = p.Dni,
                             Sexo = p.Sexo,
                             CategoriaPersona = p.CategoriaPersona,
-                            TipoParcelaId = seccion.TipoParcela,
-                            SeccionId = seccion.Id
+                            TipoParcelaId = seccion != null ? seccion.TipoParcela : (int?)null,
+                            SeccionId = seccion != null ? seccion.Id : (int?)null
                         };
 
             // Aplicar filtros

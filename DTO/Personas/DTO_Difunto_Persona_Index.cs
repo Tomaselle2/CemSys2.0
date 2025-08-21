@@ -16,8 +16,8 @@
 
         public int TotalRegistros { get; set; }
 
-        public int TipoParcelaId { get; set; }
+        public int? TipoParcelaId { get; set; }
 
-        public int SeccionId { get; set; }
+        public int? SeccionId { get; set; }
     }
 }
