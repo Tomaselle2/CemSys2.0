@@ -49,6 +49,7 @@ namespace CemSys2.ViewModel
 
         public string? MensajeError { get; set; }
 
+        public int CategoriaPersona { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

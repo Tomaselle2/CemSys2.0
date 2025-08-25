@@ -131,6 +131,7 @@ namespace CemSys2.Controllers
             viewModel.DomicilioEnTirolesa = personaHistorial.DomicilioEnTirolesa;
             viewModel.FallecioEnTirolesa = personaHistorial.FallecioEnTirolesa;
             viewModel.NN = (personaHistorial.Dni == "nn") ? true : false;
+            viewModel.CategoriaPersona = personaHistorial.CategoriaPersona.Value;
 
 
             viewModel.ListaHistorialParcelas = historialParcelas;
