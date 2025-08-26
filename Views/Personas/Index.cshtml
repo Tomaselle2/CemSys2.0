@@ -5,6 +5,14 @@
     ViewData["Title"] = "Personas ";
 }
 <h1 class="tituloDePagina">Personas</h1>
+@* Mostrar mensajes de error genéricos *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <div class="accordion" id="accordionDatosDifunto">
     <div class="accordion-item">
@@ -117,7 +125,7 @@
                                         <td>@categoriaString</td>
 
                                         <td>
-                                            <form asp-action="HistorialPersona" method="get" style="display: inline-block;" target="_blank">
+                                            <form asp-action="RedirigirAHistorial" method="get" style="display: inline-block;" target="_blank">
                                                 <input type="hidden" name="personaId" value="@opc.IdPersona" />
                                                 <button type="submit" class="btn-modificar btn-sm" title="historial">
                                                     <i class="bi bi-clock-history"></i>

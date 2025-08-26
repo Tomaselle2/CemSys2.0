@@ -7,6 +7,8 @@ using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using ClosedXML.Excel;
+using CemSys2.Enumerable;
+using System.Threading.Tasks;
 
 
 namespace CemSys2.Controllers
@@ -84,6 +86,33 @@ namespace CemSys2.Controllers
             return View("Index", viewModel);
         }
 
+        public async Task<IActionResult> RedirigirAHistorial(int personaId)
+        {
+            DTO_Persona_Historial personaHistorial = new DTO_Persona_Historial();
+
+            try
+            {
+                personaHistorial = await _personasBusiness.DatosPersonalesPersona(personaId);
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al redirigir al historial: {ex.Message}";
+            }
+
+            if (personaHistorial.CategoriaPersona.Value == (int)CategoriaPersonaEnum.Fallecido)
+            {
+                // Redirigir a la vista de historial de difuntos
+                return RedirectToAction("HistorialPersona", new { personaId });
+            }
+            else
+            {
+                // Redirigir a la vista de historial de titulares y contribuyentes
+                return RedirectToAction("HistorialPersonaTitularContribuyente", new { personaId });
+            }
+
+        }
+
+        //busca el historial de la persona tanto de contribuyente como difunto y titulares
         [HttpGet]
         public async Task<IActionResult> HistorialPersona(int personaId, Persona_Historial_VM model = null)
         {
@@ -136,9 +165,51 @@ namespace CemSys2.Controllers
 
             viewModel.ListaHistorialParcelas = historialParcelas;
             viewModel.ListaHistorialTramites = historialTramites;
-            return View(viewModel);
+            
+            return View(viewModel); // Vista para difuntos
         }
 
+        // Vista para titulares y contribuyentes
+        public async Task<IActionResult> HistorialPersonaTitularContribuyente(int personaId, Persona_Historial_Contribuyente_Titular model = null)
+        {
+            // Inicializa el viewModel correctamente
+            Persona_Historial_Contribuyente_Titular viewModel = model ?? new Persona_Historial_Contribuyente_Titular();
+            ModelState.Clear(); // Limpia errores de validación
+
+            // Recuperar mensajes de TempData
+            if (TempData.TryGetValue("MensajeError", out object mensajeError))
+            {
+                viewModel.MensajeError = mensajeError.ToString();
+                TempData.Remove("MensajeError");
+            }
+
+            DTO_Persona_Historial personaHistorial = new DTO_Persona_Historial();
+            List<DTO_Persona_Historial_Tramites> historialTramites = new List<DTO_Persona_Historial_Tramites>();
+
+            try
+            {
+                personaHistorial = await _personasBusiness.DatosPersonalesPersona(personaId);
+                historialTramites = await _personasBusiness.ListaHistorialTramites(personaId);
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = $"Error al obtener los datos de la persona: {ex.Message}";
+            }
+
+            viewModel.Id = personaHistorial.IdPersona;
+            viewModel.Dni = (personaHistorial.Dni == "nn") ? null : int.Parse(personaHistorial.Dni);
+            viewModel.Nombre = (personaHistorial.Nombre == "nn") ? null : personaHistorial.Nombre;
+            viewModel.Apellido = personaHistorial.Apellido;
+            viewModel.FechaNacimiento = personaHistorial.FechaNacimiento;
+            viewModel.Sexo = personaHistorial.Sexo;
+            viewModel.InformacionAdicional = (personaHistorial.InformacionAdicional == null) ? null : personaHistorial.InformacionAdicional;
+            viewModel.NN = (personaHistorial.Dni == "nn") ? true : false;
+            viewModel.CategoriaPersona = personaHistorial.CategoriaPersona.Value;
+            viewModel.ListaHistorialTramites = historialTramites;
+
+            return View(model); 
+        }
+        //modifica el difunto
         [HttpPost]
         public async Task<IActionResult> ModificarPersona(Persona_Historial_VM viewModel)
         {
@@ -188,6 +259,49 @@ namespace CemSys2.Controllers
             }
         }
 
+
+        //modifica el contribuyente o titular
+        [HttpPost]
+        public async Task<IActionResult> ModificarPersonaContribuyenteTitular(Persona_Historial_Contribuyente_Titular viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Si el modelo no es válido, retornar a la vista con los errores
+                TempData["MensajeError"] = "Por favor, corrija los errores en el formulario.";
+                return View("HistorialPersonaTitularContribuyente", viewModel);
+            }
+
+            try
+            {
+                Persona? difunto = new Persona();
+
+                Persona model = await _personasBusiness.ConsultarPersona(viewModel.Id.Value);
+                model.Dni = (viewModel.NN) ? "nn" : viewModel.Dni?.ToString() ?? "nn";
+                model.Nombre = viewModel.Nombre?.Trim() ?? "nn";
+                model.Apellido = viewModel.Apellido.Trim();
+                model.FechaNacimiento = viewModel.FechaNacimiento;
+                model.Sexo = viewModel.Sexo;
+
+                model.InformacionAdicional = viewModel.InformacionAdicional;
+
+                int resultado = await _personasBusiness.ModificarPersona(model);
+
+                if (resultado == 0)
+                {
+                    TempData["MensajeError"] = "No se pudo modificar. Por favor, inténtelo de nuevo.";
+                    return View("HistorialPersona", viewModel);
+                }
+
+                TempData["MensajeExito"] = "Modificación exitosa";
+                return RedirectToAction("HistorialPersonaTitularContribuyente", new { personaId = viewModel.Id });
+
+            }
+            catch (Exception ex)
+            {
+                TempData["MensajeError"] = $"Error al modificar la persona: {ex.Message}";
+                return View("HistorialPersonaTitularContribuyente", viewModel);
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> ObtenerSeccionesPorTipo(int tipoParcelaId)
         {
@@ -212,8 +326,8 @@ namespace CemSys2.Controllers
 
                 if (idsLista == null || !idsLista.Any())
                 {
-                    TempData["MensajeError"] = "No se encontraron resultados para exportar.";
-                    return RedirectToAction("Index");
+                    viewModel.MensajeError = "No se encontraron resultados para exportar.";
+                    return RedirectToAction("Index", viewModel);
                 }
 
                 var excelData = await _personasBusiness.ListaDifuntosExcel(idsLista);
@@ -292,7 +406,7 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 TempData["MensajeError"] = $"Error al generar el archivo Excel: {ex.Message}";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", viewModel);
             }
 
 

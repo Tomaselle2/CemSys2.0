@@ -1,6 +1,6 @@
 ﻿@using CemSys2.ViewModel
 @using CemSys2.Enumerable
-@model Persona_Historial_VM
+@model Persona_Historial_Contribuyente_Titular
 
 @{
     ViewData["Title"] = "Historial persona";
@@ -28,21 +28,21 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-<!-- Datos del difunto -->
+<!-- Datos del titular -->
 <div class="accordion" id="accordionDatosDifunto">
     @* ID único para el acordeón principal *@
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsDatosDifunto-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsDatosDifunto-collapseOne" aria-expanded="false" aria-controls="panelsDatosDifunto-collapseOne">
-                Datos del difunto
+                Datos personales
             </button>
         </h2>
         <div id="panelsDatosDifunto-collapseOne" class="accordion-collapse  show" aria-labelledby="panelsDatosDifunto-headingOne" data-bs-parent="#accordionDatosDifunto">
             <div class="accordion-body">
                 <div class="form-box">
-                    <form asp-action="ModificarPersona" asp-controller="Personas" method="post">
+                    <form asp-action="ModificarPersonaContribuyenteTitular" asp-controller="Personas" method="post">
 
-                        <input  type="hidden" asp-for="NN"/>
+                        <input type="hidden" asp-for="NN" />
 
 
                         <div class="form-columns-container3">
@@ -64,14 +64,6 @@
                                 <span asp-validation-for="Apellido" class="text-danger"></span>
                             </div>
 
-                            
-                            <div>
-                                <label for="fechaDefuncion">Defunción<span class="obligatorio"> * </span></label>
-                                <input class="form-control" type="date" asp-for="FechaDefuncion" max="@fecha" required />
-                                <span asp-validation-for="FechaDefuncion" class="text-danger"></span>
-                            </div>
-                            
-                            
 
                             <div>
                                 <label for="fechaNacimiento">Nacimiento</label>
@@ -90,74 +82,14 @@
                                 <span asp-validation-for="Sexo" class="text-danger"></span>
                             </div>
 
-                            @* @if (Model.CategoriaPersona != (int)CategoriaPersonaEnum.Titular
-                            && Model.CategoriaPersona != (int)CategoriaPersonaEnum.Contribuyente)
-                            { *@
-                            <div>
-                                <label>Estado del difunto</label>
-                                <input class="form-control" type="text" asp-for="EstadoDifunto" readonly />
-                            </div>
-                            
-                            
                         </div>
 
 
-                        
-                        <h5>Datos acta de defunción</h5>
-                        <div class="form-columns-container5">
-                            <div>
-                                <label for="acta">Acta</label>
-                                <input type="number" class="form-control" asp-for="ActaDefuncion.Acta" min="1" />
-                            </div>
-                            <div>
-                                <label>Tomo</label>
-                                <input type="number" class="form-control" asp-for="ActaDefuncion.Tomo" min="1" />
-                            </div>
-                            <div>
-                                <label>Folio</label>
-                                <input type="number" class="form-control" asp-for="ActaDefuncion.Folio" min="1" />
-                            </div>
-                            <div>
-                                <label>Serie</label>
-                                <input type="text" class="form-control" asp-for="ActaDefuncion.Serie" />
-                            </div>
-                            <div>
-                                <label>Año</label>
-                                <input type="number" class="form-control" asp-for="ActaDefuncion.Age" min="1800" max="@fechaActual.Year" />
-                            </div>
-                        </div>
-                        
-                        
                         <!-- Datos adicionales -->
                         <div class="full-width">
                             <label for="datosAdicionales">Datos adicionales</label>
                             <textarea class="form-control" asp-for="InformacionAdicional"></textarea>
                         </div>
-
-                        
-                        <!--Preguntas-->
-                        <div class="full-width">
-                            <h6>¿El difunto tenía domicilio en Colonia Tirolesa?</h6>
-                            <div>
-                                <label for="domicilioSi">Si</label>
-                                <input type="radio" asp-for="DomicilioEnTirolesa" value="true" id="domicilioSi" class="inputFormularioEnLinea" disabled />
-
-                                <label for="domicilioNo">No</label>
-                                <input type="radio" asp-for="DomicilioEnTirolesa" value="false" id="domicilioNo" class="inputFormularioEnLinea" disabled />
-                            </div>
-                        </div>
-
-                        <div class="full-width">
-                            <h6>¿El difunto falleció en Colonia Tirolesa?</h6>
-                            <div>
-                                <label for="falelcioSi">si</label>
-                                <input type="radio" asp-for="FallecioEnTirolesa" value="true" id="falelcioSi" class="inputFormularioEnLinea" disabled />
-
-                                <label for="fallecioNo">no</label>
-                                <input type="radio" asp-for="FallecioEnTirolesa" value="false" id="fallecioNo" class="inputFormularioEnLinea" disabled />
-                            </div>
-                        </div>
-                        
 
                         <div style="display: flex; justify-content: center;">
                             <input type="hidden" asp-for="Id" />
@@ -171,90 +103,13 @@
 </div>
 
 
-<!-- Tabla de historial de parcelas -->
-<div class="accordion" id="accordionPanelsStayOpenExample">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Historial de parcelas
-            </button>
-        </h2>
-        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-            @* cuerpo del acordion *@
-            @if (Model.ListaHistorialParcelas.Count != 0)
-            {
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Ingreso</th>
-                                    <th>Retiro</th>
-                                    <th>Sección</th>
-                                    <th>Parcela</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var opc in Model.ListaHistorialParcelas)
-                                {
-                                    string parcela = "";
-                                    if (opc.TipoParcela == 1) //nicho
-                                    {
-                                        parcela = $"Nicho {opc.NroParcela.ToString()} Fila {opc.NroFila.ToString()}";
-                                    }
-                                    else if (opc.TipoParcela == 2)//fosa
-                                    {
-                                        parcela = $"Fosa {opc.NroParcela.ToString()}";
-                                    }
-                                    else if (opc.TipoParcela == 3) //panteon
-                                    {
-                                        parcela = $"Lote {opc.NroParcela.ToString()}";
-                                    }
-
-                                    string fechaIngreso = opc.FechaIngresoId.HasValue ? @opc.FechaIngresoId.Value.ToString("dd/MM/yyyy HH:mm") : "-----";
-                                    string fechaRetiro = opc.FechaRetiroId.HasValue ? @opc.FechaRetiroId.Value.ToString("dd/MM/yyyy HH:mm") : "-----";
-
-                                    <tr>
-                                        <td>@fechaIngreso</td>
-                                        <td>@fechaRetiro</td>
-                                        <td>@opc.NombreSeccion?.ToUpper()</td>
-                                        <td>@parcela</td>
-                                        <td>
-                                            <form asp-action="HistorialParcela" asp-controller="Parcelas" method="get" target="_blank" style="display: inline-block;">
-                                                <input type="hidden" name="parcelaId" value="@opc.Id" />
-                                                <button type="submit" class="btn-modificar btn-sm" title="ver">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i>
-                    No hay parcelas registradas.
-                </div>
-            }
-            @* Fin cuerpo del acordeon *@
-        </div>
-    </div>
-</div>
-
 
 <!-- Tabla de historial de tramites -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Historial de trámites
+                Historial de cobros
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
@@ -319,6 +174,6 @@
 
         if (dniInput.value === "") dniInput.disabled = true;
         if (nombreInput.value === "") nombreInput.disabled = true;
-        
+
     </script>
 }
