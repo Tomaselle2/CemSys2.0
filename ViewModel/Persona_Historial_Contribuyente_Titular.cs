@@ -38,6 +38,15 @@ namespace CemSys2.ViewModel
 
         public int CategoriaPersona { get; set; }
 
+        [StringLength(60, ErrorMessage = "El correo electrónico no puede superar los 60 caracteres")]
+        public string? CorreoElectronico { get; set; }
+
+        [StringLength(25, ErrorMessage = "El celular no puede superar los 25 caracteres")]
+        public string? Celular { get; set; }
+
+        [StringLength(100, ErrorMessage = "El domicilio no puede superar los 100 caracteres")]
+        public string? Domicilio { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             DateTime hoy = DateTime.Now;

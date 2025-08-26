@@ -83,10 +83,25 @@
                             </div>
 
                         </div>
-
-
+                        <div class="form-columns-container3">
+                            <div>
+                                <label for="email">Correo</label>
+                                <input class="form-control" type="email" asp-for="CorreoElectronico" maxlength="60" />
+                                <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="telefono">Teléfono</label>
+                                <input class="form-control" type="text" asp-for="Celular" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="25" />
+                                <span asp-validation-for="Celular" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="domicilio">Domicilio</label>
+                            <input class="form-control" type="text" asp-for="Domicilio" maxlength="100" />
+                            <span asp-validation-for="Domicilio" class="text-danger"></span>
+                        </div>
                         <!-- Datos adicionales -->
-                        <div class="full-width">
+                        <div class="full-width my-2">
                             <label for="datosAdicionales">Datos adicionales</label>
                             <textarea class="form-control" asp-for="InformacionAdicional"></textarea>
                         </div>

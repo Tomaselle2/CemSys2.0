@@ -206,6 +206,9 @@ namespace CemSys2.Controllers
             viewModel.NN = (personaHistorial.Dni == "nn") ? true : false;
             viewModel.CategoriaPersona = personaHistorial.CategoriaPersona.Value;
             viewModel.ListaHistorialTramites = historialTramites;
+            viewModel.Celular = personaHistorial.Celular;
+            viewModel.CorreoElectronico = personaHistorial.Correo;
+            viewModel.Domicilio = personaHistorial.Domicilio;
 
             return View(model); 
         }
@@ -281,6 +284,9 @@ namespace CemSys2.Controllers
                 model.Apellido = viewModel.Apellido.Trim();
                 model.FechaNacimiento = viewModel.FechaNacimiento;
                 model.Sexo = viewModel.Sexo;
+                model.Celular = viewModel.Celular?.Trim();
+                model.Correo = viewModel.CorreoElectronico?.Trim();
+                model.Domicilio = viewModel.Domicilio?.Trim();
 
                 model.InformacionAdicional = viewModel.InformacionAdicional;
 
