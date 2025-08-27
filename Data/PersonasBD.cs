@@ -61,7 +61,7 @@ namespace CemSys2.Data
         {
             var lista = new List<DTO_Excel_Difuntos>();
 
-            using var connection = _context.Database.GetDbConnection();
+            using var connection = new SqlConnection(_context.Database.GetConnectionString());
             await connection.OpenAsync();
 
             foreach (var id in idsDifuntos)
@@ -162,7 +162,7 @@ namespace CemSys2.Data
         {
             var resultado = new List<DTO_Persona_Historial_Tramites>();
 
-            using (var connection = _context.Database.GetDbConnection())
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -321,6 +321,47 @@ namespace CemSys2.Data
                 .ToListAsync();
 
             return (personas, totalRegistros);
+        }
+
+        public async Task<List<DTO_Recibos_Contribuyentes_Titulares>> ListaRecibosContribuyentesTitulares(int idPersona)
+        {
+            var resultado = new List<DTO_Recibos_Contribuyentes_Titulares>();
+
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "ObtenerRecibosPorContribuyente"; // nombre del SP
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    var parametro = command.CreateParameter();
+                    parametro.ParameterName = "@ContribuyenteId";
+                    parametro.Value = idPersona;
+                    command.Parameters.Add(parametro);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var dto = new DTO_Recibos_Contribuyentes_Titulares
+                            {
+                                TramiteId = reader.GetInt32(reader.GetOrdinal("Tramite")),
+                                PersonaId = reader.GetInt32(reader.GetOrdinal("Contribuyente")),
+                                FechaPago = reader.GetDateTime(reader.GetOrdinal("FechaPago")),
+                                Concepto = reader.IsDBNull(reader.GetOrdinal("Concepto")) ? string.Empty : reader.GetString(reader.GetOrdinal("Concepto")),
+                                Monto = reader.GetDecimal(reader.GetOrdinal("Monto")),
+                                ReciboId = reader.GetGuid(reader.GetOrdinal("ArchivoID"))
+                            };
+
+                            resultado.Add(dto);
+                        }
+                    }
+                }
+            }
+
+            return resultado;
         }
 
         public async Task<int> ModificarPersona(Persona model)

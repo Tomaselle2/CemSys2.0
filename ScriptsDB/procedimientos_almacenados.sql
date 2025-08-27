@@ -438,3 +438,26 @@ BEGIN
     WHERE 
         per.idPersona = @idPersona;
 END;
+go
+----------------------obtiene los recibos en personas--------------------------------------
+CREATE PROCEDURE ObtenerRecibosPorContribuyente
+    @ContribuyenteId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        tra.id AS Tramite,
+        rf.fechaPago,
+        rf.concepto,
+        rf.monto,
+        rf.contribuyente,
+        rf.archivoID
+    FROM RecibosFactura rf
+    INNER JOIN Personas per ON per.idPersona = rf.contribuyente
+    INNER JOIN Facturas fac ON fac.id = rf.facturaId
+    INNER JOIN Tramite tra ON tra.id = fac.tramiteId
+    WHERE rf.contribuyente = @ContribuyenteId
+    ORDER BY rf.fechaPago DESC;
+END;
+GO

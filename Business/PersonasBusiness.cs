@@ -53,6 +53,11 @@ namespace CemSys2.Business
             return await _personasBD.ListaPersonasIndex(dni, nombre, apellido, categoriaId, tipoParcelaId, seccionId, registrosPorPagina, pagina);
         }
 
+        public async Task<List<DTO_Recibos_Contribuyentes_Titulares>> ListaRecibosContribuyentesTitulares(int idPersona)
+        {
+            return await _personasBD.ListaRecibosContribuyentesTitulares(idPersona);
+        }
+
         public async Task<int> ModificarPersona(Persona model)
         {
             return await _personasBD.ModificarPersona(model);

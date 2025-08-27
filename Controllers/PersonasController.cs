@@ -190,6 +190,7 @@ namespace CemSys2.Controllers
             {
                 personaHistorial = await _personasBusiness.DatosPersonalesPersona(personaId);
                 historialTramites = await _personasBusiness.ListaHistorialTramites(personaId);
+                viewModel.ListaRecibos = await _personasBusiness.ListaRecibosContribuyentesTitulares(personaId);
             }
             catch (Exception ex)
             {
@@ -212,6 +213,32 @@ namespace CemSys2.Controllers
 
             return View(model); 
         }
+
+
+
+        //ver Recibo archivo
+        public async Task<IActionResult> VerRecibo(Guid archivoId)
+        {
+            var archivo = await _introduccionBusiness.ObtenerArchivo(archivoId);
+
+            if (archivo == null || archivo.Contenido == null)
+                return NotFound("Archivo no encontrado.");
+            string tipo = archivo.TipoArchivo.ToLower();
+
+            if (tipo.StartsWith("image/"))
+            {
+                // Convertir la imagen a PDF
+                archivo.Contenido = PdfHelper.ImagenComoPdf(archivo.Contenido);
+                tipo = "application/pdf";
+                archivo.NombreArchivo = Path.ChangeExtension(archivo.NombreArchivo, ".pdf");
+            }
+
+            // Forzar a que el navegador intente mostrarlo
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{archivo.NombreArchivo}\"";
+
+            return File(archivo.Contenido, tipo);
+        }
+
         //modifica el difunto
         [HttpPost]
         public async Task<IActionResult> ModificarPersona(Persona_Historial_VM viewModel)

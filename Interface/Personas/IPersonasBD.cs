@@ -22,6 +22,7 @@ namespace CemSys2.Interface.Personas
         Task<Persona> ConsultarPersona (int idPersona);
         Task<List<DTO_Persona_Historial_Parcelas>> ListaHistorialParcelas (int idPersona);
         Task<List<DTO_Persona_Historial_Tramites>> ListaHistorialTramites(int idPersona);
+        Task<List<DTO_Recibos_Contribuyentes_Titulares>> ListaRecibosContribuyentesTitulares(int idPersona);
 
         Task<List<int>> ListaIdsPersonasFiltradasParaExcel(
             string? dni = null,

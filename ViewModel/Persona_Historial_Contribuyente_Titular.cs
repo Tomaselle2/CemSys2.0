@@ -10,6 +10,8 @@ namespace CemSys2.ViewModel
         public int? Id { get; set; }
         public bool NN { get; set; }
 
+        public List<DTO_Recibos_Contribuyentes_Titulares> ListaRecibos { get; set; } = new();
+
         [Range(0, 99999999, ErrorMessage = "El DNI no debe tener más de 8 dígitos")]
         public int? Dni { get; set; }
 

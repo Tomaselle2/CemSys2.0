@@ -3,9 +3,7 @@ using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Pqc.Crypto.Lms;
 using Rotativa.AspNetCore;
-using System.Threading.Tasks;
 
 namespace CemSys2.Controllers
 {

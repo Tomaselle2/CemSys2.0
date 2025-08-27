@@ -124,7 +124,7 @@
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Historial de cobros
+                Historial de trámites
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
@@ -179,6 +179,89 @@
     </div>
 </div>
 
+<!-- Tabla de historial de recibos -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Historial de recibos
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.ListaRecibos.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Trámite</th>
+                                    <th>Fecha</th>
+                                    <th>Concepto</th>
+                                    <th>Monto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaRecibos)
+                                {
+                                    <tr>
+                                        <td>@opc.TramiteId.ToString()</td>
+                                        <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@opc.Concepto</td>
+                                        <td>$ @String.Format("{0:N2}", opc.Monto)</td>
+                                        <td>
+                                            <!-- Botón para abrir modal de ver recibo-->
+                                            <button type="button"
+                                                    class="btnEditarRecibo btn-sm"
+                                                    title="Ver recibo"
+                                                    onclick="verRecibo('@opc.ReciboId')">
+                                                <i class="bi bi-receipt"></i>
+                                            </button>
+                                            <form asp-action="ResumenIntroduccion" asp-controller="Introduccion" target="_blank" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
+                                                <button type="submit" class="btn-modificar btn-sm" title="Ir al trámite">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay recibos registrados.
+                </div>
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+<!--Modal del visor de archivo -->
+<div class="modal fade" id="modalVerRecibo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <!-- Extra grande -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" style="height: 85vh;">
+                <iframe id="reciboViewer" style="width: 100%; height: 80vh; border: none; display: none;"></iframe>
+                <img id="reciboImage" style="max-width: 100%; height: auto; display: none;" />
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -190,5 +273,20 @@
         if (dniInput.value === "") dniInput.disabled = true;
         if (nombreInput.value === "") nombreInput.disabled = true;
 
+    </script>
+
+    <script>//ver el recivo/archivo
+        function verRecibo(archivoId) {
+            const iframe = document.getElementById("reciboViewer");
+            const img = document.getElementById("reciboImage");
+
+            // Ocultar ambos al principio
+            iframe.style.display = "block";
+            img.style.display = "none";
+
+            iframe.src = `/Personas/VerRecibo?archivoId=${archivoId}`;
+
+            new bootstrap.Modal(document.getElementById("modalVerRecibo")).show();
+        }
     </script>
 }
