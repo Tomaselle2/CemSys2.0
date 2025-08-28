@@ -186,10 +186,9 @@ namespace CemSys2.Data
                             {
                                 TramiteId = reader.GetInt32(reader.GetOrdinal("TramiteId")),
                                 FechaCreacion = reader.GetDateTime(reader.GetOrdinal("FechaCreacion")),
-                                TipoTramite = reader.IsDBNull(reader.GetOrdinal("TipoTramite"))
-                                            ? string.Empty
-                                            : reader.GetString(reader.GetOrdinal("TipoTramite")),
-                                ParcelaId = reader.GetInt32(reader.GetOrdinal("ParcelaId"))
+                                TipoTramite = reader.GetInt32(reader.GetOrdinal("TipoTramite")),
+                                ParcelaId = reader.GetInt32(reader.GetOrdinal("ParcelaId")),
+                                EstadoTramite = reader.GetInt32(reader.GetOrdinal("estadoActualID"))
                             };
                             resultado.Add(dto);
                         }

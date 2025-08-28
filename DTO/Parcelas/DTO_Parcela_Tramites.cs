@@ -4,7 +4,7 @@
     {
         public int TramiteId { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public string TipoTramite { get; set; } = string.Empty;
+        public int TipoTramite { get; set; }
         public int ParcelaId { get; set; }
         public int EstadoTramite { get; set; }
     }

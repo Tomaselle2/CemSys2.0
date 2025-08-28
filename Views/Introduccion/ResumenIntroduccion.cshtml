@@ -526,7 +526,7 @@
                                 <tr>
                                     <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Concepto</td>
-                                    <td>@opc.Monto.ToString()</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Monto)</td>
                                     <td>@opc.ContribuyenteNavigation?.Nombre @opc.ContribuyenteNavigation?.Apellido</td>
                                     <td>
                                         <!-- Botón para abrir modal de editar recibo-->

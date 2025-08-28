@@ -51,3 +51,5 @@ inner join Facturas fac on fac.id = rf.facturaId
 inner join Tramite tra on tra.id = fac.tramiteId
 where rf.contribuyente = 1031 
 order by rf.fechaPago Desc
+
+select * from TramitePersonas

@@ -1,4 +1,7 @@
-﻿namespace CemSys2.Enumerable
+﻿using CemSys2.Models;
+using System.ComponentModel.DataAnnotations;
+
+namespace CemSys2.Enumerable
 {
     public enum EstadosIntroduccion
     {
@@ -6,9 +9,84 @@
         Cobrado = 2,
         Finalizado = 3
     }
-    
 
-    public class EstadosEnum
+    public enum TipotamiteEmun
     {
+        [Display(Name = "Introducción")]
+        Introduccion = 1,
+
+        [Display(Name = "Autorización para cremación")]
+        AutorizacionParaCremacion = 2,
+
+        [Display(Name = "Autorización para reducción")]
+        AutorizacionParaReduccion = 3,
+
+        [Display(Name = "Contrato de concesión")]
+        ContratoDeConcesion = 4,
+
+        [Display(Name = "Autorización para traslado")]
+        AutorizacionParaTraslado = 5,
+
+        [Display(Name = "Cambio de titularidad")]
+        CambioDeTitularidad = 6
+    }
+
+
+    public static class EstadosEnum
+    {
+        private static readonly Dictionary<TipotamiteEmun, Dictionary<int, string>> _estadosPorTramite =
+        new Dictionary<TipotamiteEmun, Dictionary<int, string>>
+        {
+            {
+                TipotamiteEmun.Introduccion,
+                new Dictionary<int, string>
+                {
+                    { 1, "Registrado" },
+                    { 2, "Cobrado" },
+                    { 3, "Finalizado" }
+                }
+            },
+            //{
+            //    TipotamiteEmun.a,
+            //    new Dictionary<int, string>
+            //    {
+            //        { 1, "Solicitado" },
+            //        { 2, "En revisión" },
+            //        { 3, "Aprobado" },
+            //        { 4, "Rechazado" }
+            //    }
+            //},
+            //{
+            //    TipoTramite.AutorizacionParaReduccion,
+            //    new Dictionary<int, string>
+            //    {
+            //        { 1, "Iniciado" },
+            //        { 2, "Documentación completa" },
+            //        { 3, "Autorizado" }
+            //    }
+            //},
+            // Agregar más trámites según necesites
+        };
+
+        public static string ObtenerNombreEstado(TipotamiteEmun tipoTramite, int estadoId)
+        {
+            if (_estadosPorTramite.ContainsKey(tipoTramite) &&
+                _estadosPorTramite[tipoTramite].ContainsKey(estadoId))
+            {
+                return _estadosPorTramite[tipoTramite][estadoId];
+            }
+            return $"Estado {estadoId}"; // Fallback
+        }
+
+        public static string ObtenerDisplayTipoTramite(TipotamiteEmun tipo)
+        {
+            var field = tipo.GetType().GetField(tipo.ToString());
+            var attribute = (DisplayAttribute)Attribute.GetCustomAttribute(field, typeof(DisplayAttribute));
+            return attribute?.Name ?? tipo.ToString();
+        }
+
+
     }
 }
+
+

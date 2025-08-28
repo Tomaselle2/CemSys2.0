@@ -185,7 +185,8 @@ namespace CemSys2.Data
                                 TramiteId = reader.GetInt32(reader.GetOrdinal("TramiteId")),
                                 PersonaId = reader.GetInt32(reader.GetOrdinal("PersonaId")),
                                 FechaInicio = reader.GetDateTime(reader.GetOrdinal("FechaInicio")),
-                                TipoTramite = reader.IsDBNull(reader.GetOrdinal("TipoTramite")) ? null : reader.GetString(reader.GetOrdinal("TipoTramite"))
+                                TipoTramite = reader.GetInt32(reader.GetOrdinal("TipoTramite")),
+                                EstadoTramite = reader.GetInt32(reader.GetOrdinal("estadoActualID"))
                             };
                             resultado.Add(dto);
                         }

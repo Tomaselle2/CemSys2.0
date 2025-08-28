@@ -269,6 +269,7 @@
                                     <th>Nro trámite</th>
                                     <th>Fecha inicio</th>
                                     <th>Tipo de trámite</th>
+                                    <th>Estado</th>
                                     <th>Acción</th>
                                 </tr>
                             </thead>
@@ -277,10 +278,14 @@
                                 {
                                     string fechaInicio = opc.FechaInicio.ToString("dd/MM/yyyy HH:mm");
 
+                                    string tipoTramiteDisplay = EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)opc.TipoTramite);
+                                    string estadoTramiteDisplay = EstadosEnum.ObtenerNombreEstado((TipotamiteEmun)opc.TipoTramite, opc.EstadoTramite);
+
                                     <tr>
                                         <td>@opc.TramiteId.ToString()</td>
                                         <td>@fechaInicio</td>
-                                        <td>@opc.TipoTramite</td>
+                                        <td>@tipoTramiteDisplay</td>
+                                        <td>@estadoTramiteDisplay</td>
                                         <td>
                                             <form asp-action="ResumenIntroduccion" asp-controller="Introduccion" target="_blank" method="get" style="display: inline-block;">
                                                 <input type="hidden" name="tramiteId" value="@opc.TramiteId" />

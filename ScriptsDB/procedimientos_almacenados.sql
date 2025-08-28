@@ -275,7 +275,7 @@ BEGIN
 END
 go
 --------------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE PersonasHistorialTramites
+create PROCEDURE PersonasHistorialTramites
     @idPersona INT
 AS
 BEGIN
@@ -283,7 +283,8 @@ BEGIN
         t.id AS TramiteId,
         per.idPersona AS PersonaId,
         t.fechaCreacion AS FechaInicio,
-        tipo.tipo AS TipoTramite
+        tipo.id AS TipoTramite,
+		t.estadoActualID
     FROM 
         TramitePersonas tp
     INNER JOIN 
@@ -373,14 +374,14 @@ BEGIN
 END
 go
 --------------------------------------------------------------------------------------
-CREATE PROCEDURE ObtenerTramitesPorParcela
+create PROCEDURE ObtenerTramitesPorParcela
     @parcelaId INT
 AS
 BEGIN
     SELECT 
         t.id AS TramiteId, 
         t.fechaCreacion AS FechaCreacion, 
-        tipo.tipo AS TipoTramite, 
+        tipo.id AS TipoTramite, 
         tp.parcelaId AS ParcelaId,
 		t.estadoActualID
     FROM 

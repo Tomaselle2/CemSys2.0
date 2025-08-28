@@ -604,7 +604,17 @@ namespace CemSys2.Data
                     }
                 }
 
-                
+                // Relacionar persona con trámite
+                TramitePersona tramitePersona = new TramitePersona
+                {
+                    TramiteId = tramite.Id,
+                    PersonaId = recibo.Contribuyente.Value
+                };
+                _context.TramitePersonas.Add(tramitePersona);
+
+                await _context.SaveChangesAsync();
+
+
                 await transaction.CommitAsync();
 
             }
