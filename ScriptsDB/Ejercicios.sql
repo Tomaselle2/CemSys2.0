@@ -53,3 +53,24 @@ where rf.contribuyente = 1031
 order by rf.fechaPago Desc
 
 select * from TramitePersonas
+
+SELECT 
+    p.id AS parcelaId,
+    sec.tipoParcela,
+    sec.nombre AS NombreSeccion,
+    p.NroParcela,
+    p.NroFila,
+    STRING_AGG(per.apellido + ' ' + per.nombre, ', ') AS Difuntos
+FROM Parcela p
+LEFT JOIN ContratoConcesion cc
+    ON p.id = cc.parcelaId
+JOIN Secciones sec 
+    ON sec.id = p.seccion
+JOIN ParcelaDifuntos pd 
+    ON pd.parcelaId = p.id
+JOIN Personas per 
+    ON per.idPersona = pd.difuntoId
+WHERE cc.parcelaId IS NULL 
+  AND p.cantidadDifuntos > 0
+GROUP BY 
+    p.id, sec.tipoParcela, sec.nombre, p.NroParcela, p.NroFila;
