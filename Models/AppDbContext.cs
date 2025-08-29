@@ -43,6 +43,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<HistorialEstadoTramite> HistorialEstadoTramites { get; set; }
 
+    public virtual DbSet<HistorialTitularesContrato> HistorialTitularesContratos { get; set; }
+
     public virtual DbSet<Introduccione> Introducciones { get; set; }
 
     public virtual DbSet<Parcela> Parcelas { get; set; }
@@ -82,6 +84,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<TramitePersona> TramitePersonas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -247,8 +250,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Concesion)
                 .HasMaxLength(5)
                 .HasColumnName("concesion");
+            entity.Property(e => e.ContratoAnteriorId).HasColumnName("contratoAnteriorId");
             entity.Property(e => e.CuotaId).HasColumnName("cuotaId");
-            entity.Property(e => e.DifuntoId).HasColumnName("difuntoId");
             entity.Property(e => e.Empleado).HasColumnName("empleado");
             entity.Property(e => e.FechaGeneracion)
                 .HasColumnType("datetime")
@@ -257,6 +260,9 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(150)
                 .HasColumnName("pagoDescripcion");
             entity.Property(e => e.ParcelaId).HasColumnName("parcelaId");
+            entity.Property(e => e.Precio)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("precio");
             entity.Property(e => e.PrecioTarifariaId).HasColumnName("precioTarifariaID");
             entity.Property(e => e.TipoParcela).HasColumnName("tipoParcela");
             entity.Property(e => e.Vencimiento)
@@ -269,14 +275,13 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ContratoC__canti__04E4BC85");
 
+            entity.HasOne(d => d.ContratoAnterior).WithMany(p => p.InverseContratoAnterior)
+                .HasForeignKey(d => d.ContratoAnteriorId)
+                .HasConstraintName("FK_ContratoConcesion_ContratoAnterior");
+
             entity.HasOne(d => d.Cuota).WithMany(p => p.ContratoConcesions)
                 .HasForeignKey(d => d.CuotaId)
                 .HasConstraintName("FK__ContratoC__cuota__06CD04F7");
-
-            entity.HasOne(d => d.Difunto).WithMany(p => p.ContratoConcesions)
-                .HasForeignKey(d => d.DifuntoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ContratoC__difun__02FC7413");
 
             entity.HasOne(d => d.EmpleadoNavigation).WithMany(p => p.ContratoConcesions)
                 .HasForeignKey(d => d.Empleado)
@@ -397,6 +402,34 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.TramiteId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Historial__trami__778AC167");
+        });
+
+        modelBuilder.Entity<HistorialTitularesContrato>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Historia__3213E83FC81D8B45");
+
+            entity.ToTable("HistorialTitularesContrato");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ContratoId).HasColumnName("contratoId");
+            entity.Property(e => e.FechaFin)
+                .HasColumnType("datetime")
+                .HasColumnName("fechaFin");
+            entity.Property(e => e.FechaInicio)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaInicio");
+            entity.Property(e => e.PersonaId).HasColumnName("personaId");
+
+            entity.HasOne(d => d.Contrato).WithMany(p => p.HistorialTitularesContratos)
+                .HasForeignKey(d => d.ContratoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Historial__contr__55009F39");
+
+            entity.HasOne(d => d.Persona).WithMany(p => p.HistorialTitularesContratos)
+                .HasForeignKey(d => d.PersonaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Historial__perso__55F4C372");
         });
 
         modelBuilder.Entity<Introduccione>(entity =>

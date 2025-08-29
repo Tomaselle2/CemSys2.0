@@ -7,8 +7,6 @@ public partial class ContratoConcesion
 {
     public int IdTramite { get; set; }
 
-    public int DifuntoId { get; set; }
-
     public int ParcelaId { get; set; }
 
     public int CantidadAnios { get; set; }
@@ -31,15 +29,23 @@ public partial class ContratoConcesion
 
     public int TipoParcela { get; set; }
 
+    public int? ContratoAnteriorId { get; set; }
+
+    public decimal Precio { get; set; }
+
     public virtual AniosConcesion CantidadAniosNavigation { get; set; } = null!;
+
+    public virtual ContratoConcesion? ContratoAnterior { get; set; }
 
     public virtual CantidadCuota? Cuota { get; set; }
 
-    public virtual Persona Difunto { get; set; } = null!;
-
     public virtual Usuario EmpleadoNavigation { get; set; } = null!;
 
+    public virtual ICollection<HistorialTitularesContrato> HistorialTitularesContratos { get; set; } = new List<HistorialTitularesContrato>();
+
     public virtual Tramite IdTramiteNavigation { get; set; } = null!;
+
+    public virtual ICollection<ContratoConcesion> InverseContratoAnterior { get; set; } = new List<ContratoConcesion>();
 
     public virtual Parcela Parcela { get; set; } = null!;
 
