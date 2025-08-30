@@ -494,3 +494,24 @@ BEGIN
         p.NroFila;
 END
 GO
+--------------------Obtene los difuntos actuales en parcela para hacer un contrato-------------------------------------------
+CREATE PROCEDURE sp_GetDifuntosActualesPorParcela
+    @parcelaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        pd.difuntoId AS DifuntoId,
+        p.dni AS DNI,
+        p.nombre AS Nombre,
+        p.apellido AS Apellido,
+        pd.fechaIngreso AS FechaIngreso,
+        ed.estado AS EstadoDifunto
+    FROM ParcelaDifuntos pd
+    INNER JOIN Personas p ON pd.difuntoId = p.idPersona
+    LEFT JOIN EstadoDifunto ed ON p.estadoDifunto = ed.id
+    WHERE pd.parcelaId = @parcelaId
+      AND pd.fechaRetiro IS NULL;
+END;
+GO

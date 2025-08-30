@@ -54,23 +54,38 @@ order by rf.fechaPago Desc
 
 select * from TramitePersonas
 
+select * from ParcelaDifuntos where parcelaId = 33 and fechaRetiro is null
+
 SELECT 
-    p.id AS parcelaId,
-    sec.tipoParcela,
-    sec.nombre AS NombreSeccion,
-    p.NroParcela,
-    p.NroFila,
-    STRING_AGG(per.apellido + ' ' + per.nombre, ', ') AS Difuntos
-FROM Parcela p
-LEFT JOIN ContratoConcesion cc
-    ON p.id = cc.parcelaId
-JOIN Secciones sec 
-    ON sec.id = p.seccion
-JOIN ParcelaDifuntos pd 
-    ON pd.parcelaId = p.id
-JOIN Personas per 
-    ON per.idPersona = pd.difuntoId
-WHERE cc.parcelaId IS NULL 
-  AND p.cantidadDifuntos > 0
-GROUP BY 
-    p.id, sec.tipoParcela, sec.nombre, p.NroParcela, p.NroFila;
+        pd.difuntoId AS DifuntoId,
+        p.dni AS DNI,
+        p.nombre AS Nombre,
+        p.apellido AS Apellido,
+        pd.fechaIngreso AS FechaIngreso,
+        ed.estado AS EstadoDifunto
+    FROM ParcelaDifuntos pd
+    INNER JOIN Personas p ON pd.difuntoId = p.idPersona
+    LEFT JOIN EstadoDifunto ed ON p.estadoDifunto = ed.id
+    WHERE pd.parcelaId = 33
+      AND pd.fechaRetiro IS NULL;
+
+
+	  SELECT 
+        pd.difuntoId AS DifuntoId, 
+        pd.fechaIngreso, 
+        p.nombre, 
+        p.apellido,
+		p.dni AS Dni,  -- Agregado este campo
+        pd.parcelaId,
+		p.estadoDifunto
+    FROM 
+        ParcelaDifuntos pd
+    INNER JOIN 
+        Personas p ON p.idPersona = pd.difuntoId
+    WHERE 
+        p.categoriaPersona = 2 
+        AND pd.fechaRetiro IS NULL 
+        AND pd.parcelaId = 33
+        ORDER BY 
+    pd.fechaIngreso DESC,
+    p.idPersona DESC;

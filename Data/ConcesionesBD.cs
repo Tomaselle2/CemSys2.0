@@ -15,6 +15,55 @@ namespace CemSys2.Data
         {
             _context = context;
         }
+
+        //Obtene los difuntos actuales en parcela para hacer un contrato
+        public async Task<List<DTO_Difuntos_Para_Concesion>> ListaDifuntosPorParcela(int parcelaId)
+        {
+            var resultados = new List<DTO_Difuntos_Para_Concesion>();
+
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "sp_GetDifuntosActualesPorParcela"; // Nombre del SP
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@parcelaId", parcelaId);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var difunto = new DTO_Difuntos_Para_Concesion
+                            {
+                                DifuntoId = reader.GetInt32(reader.GetOrdinal("DifuntoId")),
+                                DNI = reader.IsDBNull(reader.GetOrdinal("DNI"))
+                                      ? string.Empty
+                                      : reader.GetString(reader.GetOrdinal("DNI")),
+                                Nombre = reader.IsDBNull(reader.GetOrdinal("Nombre"))
+                                         ? string.Empty
+                                         : reader.GetString(reader.GetOrdinal("Nombre")),
+                                Apellido = reader.IsDBNull(reader.GetOrdinal("Apellido"))
+                                           ? string.Empty
+                                           : reader.GetString(reader.GetOrdinal("Apellido")),
+                                FechaIngreso = reader.GetDateTime(reader.GetOrdinal("FechaIngreso")),
+                                EstadoDifunto = reader.IsDBNull(reader.GetOrdinal("EstadoDifunto"))
+                                                ? string.Empty
+                                                : reader.GetString(reader.GetOrdinal("EstadoDifunto"))
+                            };
+
+                            resultados.Add(difunto);
+                        }
+                    }
+                }
+
+                return resultados;
+            }
+
+        }
+
+        //obtiene las parcelas sin contrato de concesion
         public async Task<List<DTO_Parcelas_Sin_Contrato>> ListaParcelasSinContrato()
         {
             var resultados = new List<DTO_Parcelas_Sin_Contrato>();

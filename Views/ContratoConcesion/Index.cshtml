@@ -66,10 +66,10 @@
                                             <td>@parcela</td>
                                             <td>@opc.Difuntos.ToUpper()</td>
                                             <td>
-                                                <form asp-action="#" asp-controller="#" target="_blank" method="get" style="display: inline-block;">
-                                                    <input type="hidden" name="tramiteId" value="@opc.ParcelaId" />
-                                                    <button type="submit" class="btn-modificar btn-sm" title="ver">
-                                                        <i class="bi bi-eye"></i>
+                                                <form asp-action="ContratoConcesion" asp-controller="ContratoConcesion" target="_blank" method="get" style="display: inline-block;">
+                                                    <input type="hidden" name="parcelaId" value="@opc.ParcelaId" />
+                                                    <button type="submit" class="btn btn-success" title="Generar nuevo contrato">
+                                                        <i class="bi bi-plus-circle"></i> Concesión
                                                     </button>
                                                 </form>
                                             </td>

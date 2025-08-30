@@ -13,6 +13,11 @@ namespace CemSys2.Business
            _concesionesDB = concesionesBd;
         }
 
+        public async Task<List<DTO_Difuntos_Para_Concesion>> ListaDifuntosPorParcela(int parcelaId)
+        {
+            return await _concesionesDB.ListaDifuntosPorParcela(parcelaId);
+        }
+
         public async Task<List<DTO_Parcelas_Sin_Contrato>> ListaParcelasSinContrato()
         {
            return await _concesionesDB.ListaParcelasSinContrato();

@@ -5,5 +5,6 @@ namespace CemSys2.Interface.Concesiones
     public interface IConcesionesDB
     {
         Task<List<DTO_Parcelas_Sin_Contrato>> ListaParcelasSinContrato();
+        Task<List<DTO_Difuntos_Para_Concesion>> ListaDifuntosPorParcela(int parcelaId);
     }
 }

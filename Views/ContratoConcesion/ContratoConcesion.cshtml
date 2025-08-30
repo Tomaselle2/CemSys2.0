@@ -1,0 +1,80 @@
+﻿@using CemSys2.ViewModel.ConcesionesViewModel
+@model GenerarContratoVM
+
+@{
+    ViewData["Title"] = "Contrato de concesión";
+}
+
+<h1 class="tituloDePagina">Contrato de concesión</h1>
+<!--Mostrar mensajes de error genéricos (si los pones en model.MensajeError) -->
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* string fechaInicio = opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
+                                    string dni = (opc.Dni == "nn") ? "--------" : opc.Dni; // Manejo de DNI nulo
+                                    string estadoDifunto = opc.EstadoDifunto switch
+                                    {
+                                        1 => "Cuerpo Completo",
+                                        2 => "Reducido",
+                                        3 => "Cremado",
+                                        _ => "Desconocido"
+                                    }; *@
+
+<!-- Tabla de historial de difuntos actuales -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Difunto/s (@Model.DifuntosEnParcela.Count())
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            @if (Model.DifuntosEnParcela.Any())
+            {
+                foreach (var opc in Model.DifuntosEnParcela)
+                {
+                    string dni = (opc.DNI == "nn") ? "--------" : opc.DNI; // Manejo de DNI nulo
+
+                    <div class="contenedor-de-datos" style="margin-bottom: 5px; margin-top: 5px">
+                        <div class="form-columns-container3">
+                            <div>
+                                <!--DNI-->
+                                <p>DNI: @dni</p>
+                            </div>
+
+                            <div>
+                                <!--Nombre completo-->
+                                <p>Nombre completo: @opc.Apellido.ToUpper() @opc.Nombre.ToUpper() </p>
+                            </div>
+
+                            <div>
+                                <!--Fecha ingreso-->
+                                <p>Fecha de ingreso: @opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+
+                            <div>
+                                <!--Estado Difunto-->
+                               <p>Estado: @opc.EstadoDifunto</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay difuntos actuales en esta parcela.
+                </div>
+            }
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
