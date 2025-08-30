@@ -15,16 +15,6 @@
     </div>
 }
 
-@* string fechaInicio = opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm");
-                                    string dni = (opc.Dni == "nn") ? "--------" : opc.Dni; // Manejo de DNI nulo
-                                    string estadoDifunto = opc.EstadoDifunto switch
-                                    {
-                                        1 => "Cuerpo Completo",
-                                        2 => "Reducido",
-                                        3 => "Cremado",
-                                        _ => "Desconocido"
-                                    }; *@
-
 <!-- Tabla de historial de difuntos actuales -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
@@ -42,26 +32,23 @@
                     string dni = (opc.DNI == "nn") ? "--------" : opc.DNI; // Manejo de DNI nulo
 
                     <div class="contenedor-de-datos" style="margin-bottom: 5px; margin-top: 5px">
-                        <div class="form-columns-container3">
-                            <div>
-                                <!--DNI-->
-                                <p>DNI: @dni</p>
-                            </div>
-
-                            <div>
-                                <!--Nombre completo-->
-                                <p>Nombre completo: @opc.Apellido.ToUpper() @opc.Nombre.ToUpper() </p>
-                            </div>
-
-                            <div>
-                                <!--Fecha ingreso-->
-                                <p>Fecha de ingreso: @opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm")</p>
-                            </div>
-
-                            <div>
-                                <!--Estado Difunto-->
-                               <p>Estado: @opc.EstadoDifunto</p>
-                            </div>
+                        <div>
+                            <!--DNI-->
+                            <p>
+                                <b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@dni</span>
+                            </p>
+                        </div>
+                        <div>
+                            <!--Nombre completo-->
+                            <p><b>Nombre completo: </b><span class="datoEncabezadoHistorialParcela">@opc.Apellido.ToUpper(), @opc.Nombre.ToUpper()</span></p>
+                        </div>
+                        <div>
+                            <!--Fecha ingreso-->
+                            <p><b>Fecha de ingreso: </b><span class="datoEncabezadoHistorialParcela">@opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm")</span></p>
+                        </div>
+                        <div>
+                            <!--Estado Difunto-->
+                            <p><b>Estado: </b><span class="datoEncabezadoHistorialParcela">@opc.EstadoDifunto</span></p>
                         </div>
                     </div>
                 }
@@ -78,3 +65,370 @@
         </div>
     </div>
 </div>
+
+<!-- Seccion de titulares -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Titular
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            <div class="mb-3">
+                <!--Contribuyente-->
+                <label for="">Contribuyente<span class="obligatorio"> * </span></label>
+                <div class="form-columns-container3">
+                    <div>
+                        <input id="contribuyenteDisplay" asp-for="IdContribuyente" class="form-control" type="text" placeholder="Seleccione un contribuyente" disabled />
+                    </div>
+                    <div>
+                        <div>
+                            <button class="btn btn-success" id="agregarContribuyenteButton" type="button">
+                                <i class="bi bi-person-plus" id="contribuyenteIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+<!--Modal contribuyente-->
+<div class="modal fade" id="ContribuyenteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Contribuyente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formContribuyente" class="needs-validation" novalidate>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <!--DNI-->
+                            <label for="dni">DNI<span class="obligatorio"> * </span></label>
+                            <input class="form-control" id="dniInput" type="text" pattern="[0-9]+" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+                            <div class="invalid-feedback">El DNI es obligatorio</div>
+                        </div>
+                        <div>
+                            <!--Sexo-->
+                            <label for="sexoInput">Sexo<span class="obligatorio"> * </span></label>
+                            <select class="form-select" id="sexoInput" required>
+                                <option value="">--Elija una opción--</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            <div class="invalid-feedback">El sexo es obligatorio</div>
+                        </div>
+                    </div>
+
+                    <!-- Campos adicionales (inicialmente ocultos) -->
+                    <div id="camposAdicionales" style="display: none;">
+                        <div class="mt-3">
+                            <!--Nombre-->
+                            <label for="nombreInput">Nombre<span class="obligatorio"> * </span></label>
+                            <input class="form-control" id="nombreInput" type="text" maxlength="60" minlength="2" />
+                            <div class="invalid-feedback">El nombre es obligatorio</div>
+                        </div>
+
+                        <div class="mt-3">
+                            <!--Apellido-->
+                            <label for="apellidoInput">Apellido<span class="obligatorio"> * </span></label>
+                            <input class="form-control" type="text" id="apellidoInput" maxlength="60" minlength="2" />
+                            <div class="invalid-feedback">El apellido es obligatorio</div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de error -->
+                    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success" id="btnAccionContribuyente">Buscar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script> //logica de DNI
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.dni-formateado').forEach(elemento => {
+                const dni = elemento.textContent;
+                if (dni !== '--------') {
+                    elemento.textContent = dni.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+            });
+        });
+    </script>
+    <script>
+        let contribuyenteSeleccionado = null;
+        let estadoModal = 'buscar'; // 'buscar' o 'registrar'
+
+        // Elementos del DOM
+        const agregarContribuyenteButton = document.getElementById('agregarContribuyenteButton');
+        const formContribuyente = document.getElementById('formContribuyente');
+        const dniInput = document.getElementById('dniInput');
+        const sexoInput = document.getElementById('sexoInput');
+        const nombreInput = document.getElementById('nombreInput');
+        const apellidoInput = document.getElementById('apellidoInput');
+        const camposAdicionales = document.getElementById('camposAdicionales');
+        const btnAccionContribuyente = document.getElementById('btnAccionContribuyente');
+        const contribuyenteDisplay = document.getElementById('contribuyenteDisplay');
+        const contribuyenteIcon = document.getElementById('contribuyenteIcon');
+        const errorMessage = document.getElementById('errorMessage');
+        const idContribuyenteHidden = document.getElementById('idContribuyenteHidden');
+        const estadoFinalizado = false;
+        // Abrir modal
+        if(agregarContribuyenteButton){
+            agregarContribuyenteButton.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                if (estadoFinalizado === "true") {
+                    // Si el trámite está finalizado, no hacer nada
+                    return;
+                }
+
+                if (contribuyenteSeleccionado) {
+                    // Si ya hay un contribuyente seleccionado, limpiar selección
+                    limpiarSeleccionContribuyente();
+
+                } else {
+                    // Abrir modal para buscar/agregar contribuyente
+                    resetearModal();
+                    $('#ContribuyenteModal').modal('show');
+                }
+            });
+
+        }
+
+        // Submit del formulario del modal
+        formContribuyente.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            if (!validarFormulario()) {
+                return;
+            }
+
+            if (estadoModal === 'buscar') {
+                buscarContribuyente();
+            } else if (estadoModal === 'registrar') {
+                registrarContribuyente();
+            }
+        });
+
+        // Función para validar formulario
+        function validarFormulario() {
+            let esValido = true;
+
+            // Limpiar clases de validación anteriores
+            formContribuyente.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            // Validar DNI
+            if (!dniInput.value.trim() || dniInput.value.length < 1) {
+                dniInput.classList.add('is-invalid');
+                esValido = false;
+            }
+
+            // Validar sexo
+            if (!sexoInput.value) {
+                sexoInput.classList.add('is-invalid');
+                esValido = false;
+            }
+
+            // Si estamos en modo registrar, validar nombre y apellido
+            if (estadoModal === 'registrar') {
+                if (!nombreInput.value.trim() || nombreInput.value.length < 2) {
+                    nombreInput.classList.add('is-invalid');
+                    esValido = false;
+                }
+
+                if (!apellidoInput.value.trim() || apellidoInput.value.length < 2) {
+                    apellidoInput.classList.add('is-invalid');
+                    esValido = false;
+                }
+            }
+
+            return esValido;
+        }
+
+        // Función para buscar contribuyente via AJAX
+        function buscarContribuyente() {
+            mostrarCargando(true);
+            ocultarError();
+
+            const datos = {
+                Dni: parseInt(dniInput.value),
+                Sexo: sexoInput.value
+            };
+
+                   fetch('/ContratoConcesion/BuscarContribuyente', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    if (data.contribuyente) {
+                        // Contribuyente encontrado
+                        seleccionarContribuyente(data.contribuyente);
+                        $('#ContribuyenteModal').modal('hide');
+                    } else {
+                        // Contribuyente no encontrado, mostrar campos para registrar
+                        cambiarAModoRegistrar();
+                    }
+                } else {
+                    mostrarError(data.message || 'Error al buscar contribuyente');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+            });
+        }
+
+        // Función para registrar nuevo contribuyente
+        function registrarContribuyente() {
+            mostrarCargando(true);
+            ocultarError();
+
+            const datos = {
+                Dni: parseInt(dniInput.value),
+                Sexo: sexoInput.value,
+                Nombre: nombreInput.value.trim(),
+                Apellido: apellidoInput.value.trim()
+            };
+
+            fetch('/ContratoConcesion/RegistrarContribuyente', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    seleccionarContribuyente(data.contribuyente);
+                    $('#ContribuyenteModal').modal('hide');
+                } else {
+                    mostrarError(data.message || 'Error al registrar contribuyente');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+            });
+        }
+
+        // Función para seleccionar contribuyente
+        function seleccionarContribuyente(contribuyente) {
+
+           // Si es contribuyente de decreto, marcar el checkbox
+           if (contribuyente.dni === "00000000") {
+               document.getElementById('decreto').checked = true;
+           }
+
+            contribuyenteSeleccionado = contribuyente;
+            contribuyenteDisplay.value = `${contribuyente.nombre} ${contribuyente.apellido}`;
+
+            // Actualizar todos los campos hidden
+            document.getElementById('idContribuyenteHidden').value = contribuyente.id;
+            document.getElementById('dniHidden').value = contribuyente.dni;
+            document.getElementById('sexoHidden').value = contribuyente.sexo;
+            document.getElementById('nombreHidden').value = contribuyente.nombre;
+            document.getElementById('apellidoHidden').value = contribuyente.apellido;
+
+            // Cambiar botón a modo "quitar"
+            agregarContribuyenteButton.className = 'btn btn-danger';
+            contribuyenteIcon.className = 'bi bi-person-dash';
+        }
+
+        // Función para limpiar selección de contribuyente
+        function limpiarSeleccionContribuyente() {
+           if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
+               document.getElementById('decreto').checked = false;
+           }
+
+            contribuyenteSeleccionado = null;
+            contribuyenteDisplay.value = '';
+
+            // Limpiar todos los campos hidden
+            document.getElementById('idContribuyenteHidden').value = '';
+            document.getElementById('dniHidden').value = '';
+            document.getElementById('sexoHidden').value = '';
+            document.getElementById('nombreHidden').value = '';
+            document.getElementById('apellidoHidden').value = '';
+
+            // Restaurar botón a modo "agregar"
+            agregarContribuyenteButton.className = 'btn btn-success';
+            contribuyenteIcon.className = 'bi bi-person-plus';
+        }
+
+        // Función para cambiar a modo registrar
+        function cambiarAModoRegistrar() {
+            estadoModal = 'registrar';
+            camposAdicionales.style.display = 'block';
+            btnAccionContribuyente.textContent = 'Registrar';
+
+            // Hacer campos nombre y apellido requeridos
+            nombreInput.setAttribute('required', '');
+            apellidoInput.setAttribute('required', '');
+        }
+
+        // Función para resetear modal
+        function resetearModal() {
+            estadoModal = 'buscar';
+            formContribuyente.reset();
+            formContribuyente.classList.remove('was-validated');
+            camposAdicionales.style.display = 'none';
+            btnAccionContribuyente.textContent = 'Buscar';
+            ocultarError();
+
+            // Quitar required de campos nombre y apellido
+            nombreInput.removeAttribute('required');
+            apellidoInput.removeAttribute('required');
+
+            // Limpiar clases de validación
+            formContribuyente.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        }
+
+        // Funciones auxiliares
+        function mostrarCargando(mostrar) {
+            if (mostrar) {
+                btnAccionContribuyente.disabled = true;
+                btnAccionContribuyente.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...';
+            } else {
+                btnAccionContribuyente.disabled = false;
+                btnAccionContribuyente.textContent = estadoModal === 'buscar' ? 'Buscar' : 'Registrar';
+            }
+        }
+
+        function mostrarError(mensaje) {
+            errorMessage.textContent = mensaje;
+            errorMessage.style.display = 'block';
+        }
+
+        function ocultarError() {
+            errorMessage.style.display = 'none';
+        }
+    </script>
+}

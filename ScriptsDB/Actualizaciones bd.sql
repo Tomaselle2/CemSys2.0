@@ -30,7 +30,7 @@ go
 -- 1. Eliminar la FK
 ALTER TABLE ContratoConcesion
 DROP CONSTRAINT FK__ContratoC__difun__02FC7413; -- reemplazar con el nombre real de la FK
---sp_help 'ContratoConcesion' para buscar la tabla y la relacion
+--sp_help 'ContratoConcesion' --para buscar la tabla y la relacion
 go
 
 -- 2. Eliminar la columna difuntoId

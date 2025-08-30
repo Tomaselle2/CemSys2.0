@@ -15,6 +15,8 @@
 }
 
 <a asp-action="Index" asp-controller="Introduccion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
+
+<!--Titulo y boton de PDF e Historial-->
 <div class="d-flex justify-content-center align-items-center">
     <div>
         <h1 class="tituloDePagina">Resumen de la introducción</h1>
@@ -95,7 +97,7 @@
     </div>
 }
 
-
+<!--Resumen de la introduccion-->
 <div class="contenedor-resumen">
 
     <form asp-action="ResumenIntroduccionEnPDF" asp-controller="Introduccion" method="get">
@@ -211,6 +213,7 @@
     <p>@fallecioEnTirolesa</p>
 
 </div>
+
 <!--Info adicional-->
 <div class="contenedor-resumen my-2">
     <form asp-action="ActualizarInfoAdicionalTramite" method="post">
