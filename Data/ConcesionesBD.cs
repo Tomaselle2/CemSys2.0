@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Models;
 using Microsoft.Data.SqlClient;
@@ -102,6 +103,23 @@ namespace CemSys2.Data
             }
 
             return resultados;
+        }
+
+        //registra un nuevo titular para la concesion
+        public async Task<Persona> RegistrarTitular(Persona titular)
+        {
+            // Asegurarnos de que la persona tenga visibilidad true al crearse
+            titular.Visibilidad = true;
+            titular.CategoriaPersona = (int)CategoriaPersonaEnum.Titular;
+
+            // Agregar el contribuyente al contexto
+            _context.Personas.Add(titular);
+
+            // Guardar los cambios en la base de datos
+            await _context.SaveChangesAsync();
+
+            // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
+            return titular;
         }
     }
 }

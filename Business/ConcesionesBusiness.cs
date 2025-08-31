@@ -22,5 +22,10 @@ namespace CemSys2.Business
         {
            return await _concesionesDB.ListaParcelasSinContrato();
         }
+
+        public async Task<Persona> RegistrarTitular(Persona titular)
+        {
+            return await _concesionesDB.RegistrarTitular(titular);
+        }
     }
 }

@@ -6,7 +6,8 @@
 }
 
 <h1 class="tituloDePagina">Contrato de concesión</h1>
-<!--Mostrar mensajes de error genéricos (si los pones en model.MensajeError) -->
+
+<!--Mostrar mensajes de error genéricos -->
 @if (!string.IsNullOrEmpty(Model.MensajeError))
 {
     <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
@@ -16,43 +17,34 @@
 }
 
 <!-- Tabla de historial de difuntos actuales -->
-<div class="accordion" id="accordionPanelsStayOpenExample">
+<div class="accordion" id="accordionDifuntos">
     <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+        <h2 class="accordion-header" id="panelsStayOpen-headingDifuntos">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseDifuntos" aria-expanded="true" aria-controls="panelsStayOpen-collapseDifuntos">
                 Difunto/s (@Model.DifuntosEnParcela.Count())
             </button>
         </h2>
-        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-            @* cuerpo del acordion *@
+        <div id="panelsStayOpen-collapseDifuntos" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingDifuntos">
             @if (Model.DifuntosEnParcela.Any())
             {
                 foreach (var opc in Model.DifuntosEnParcela)
                 {
-                    string dni = (opc.DNI == "nn") ? "--------" : opc.DNI; // Manejo de DNI nulo
-
+                    string dni = (opc.DNI == "nn") ? "--------" : opc.DNI;
                     <div class="contenedor-de-datos" style="margin-bottom: 5px; margin-top: 5px">
                         <div>
-                            <!--DNI-->
-                            <p>
-                                <b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@dni</span>
-                            </p>
+                            <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@dni</span></p>
                         </div>
                         <div>
-                            <!--Nombre completo-->
                             <p><b>Nombre completo: </b><span class="datoEncabezadoHistorialParcela">@opc.Apellido.ToUpper(), @opc.Nombre.ToUpper()</span></p>
                         </div>
                         <div>
-                            <!--Fecha ingreso-->
                             <p><b>Fecha de ingreso: </b><span class="datoEncabezadoHistorialParcela">@opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm")</span></p>
                         </div>
                         <div>
-                            <!--Estado Difunto-->
                             <p><b>Estado: </b><span class="datoEncabezadoHistorialParcela">@opc.EstadoDifunto</span></p>
                         </div>
                     </div>
                 }
-                
             }
             else
             {
@@ -61,61 +53,51 @@
                     No hay difuntos actuales en esta parcela.
                 </div>
             }
-            @* Fin cuerpo del acordeon *@
         </div>
     </div>
 </div>
 
-<!-- Seccion de titulares -->
-<div class="accordion" id="accordionPanelsStayOpenExample">
+<!-- Sección de titulares -->
+<div class="accordion" id="accordionTitulares">
     <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Titular
+        <h2 class="accordion-header" id="panelsStayOpen-headingTitulares">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTitulares" aria-expanded="true" aria-controls="panelsStayOpen-collapseTitulares">
+                Titulares (<span id="contadorTitulares">0</span>)
             </button>
         </h2>
-        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-            @* cuerpo del acordion *@
-            <div class="mb-3">
-                <!--Contribuyente-->
-                <label for="">Contribuyente<span class="obligatorio"> * </span></label>
-                <div class="form-columns-container3">
-                    <div>
-                        <input id="contribuyenteDisplay" asp-for="IdContribuyente" class="form-control" type="text" placeholder="Seleccione un contribuyente" disabled />
-                    </div>
-                    <div>
-                        <div>
-                            <button class="btn btn-success" id="agregarContribuyenteButton" type="button">
-                                <i class="bi bi-person-plus" id="contribuyenteIcon"></i>
-                            </button>
-                        </div>
-                    </div>
+        <div id="panelsStayOpen-collapseTitulares" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingTitulares">
+            <div class="mb-3 p-3">
+                <!-- Contenedor para titulares -->
+                <div id="contenedorTitulares"></div>
+
+                <!-- Botón para agregar titular -->
+                <div class="text-center mt-3">
+                    <button class="btn btn-success" id="agregarContribuyenteButton" type="button">
+                        <i class="bi bi-person-plus" id="contribuyenteIcon"></i> Agregar Titular
+                    </button>
                 </div>
             </div>
-            @* Fin cuerpo del acordeon *@
         </div>
     </div>
 </div>
 
-<!--Modal contribuyente-->
-<div class="modal fade" id="ContribuyenteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Modal contribuyente - NOMBRE CORREGIDO -->
+<div class="modal fade" id="TitularModal" tabindex="-1" aria-labelledby="titularModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Contribuyente</h5>
+                <h5 class="modal-title" id="titularModalLabel">Buscar/Registrar Titular</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="formContribuyente" class="needs-validation" novalidate>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <!--DNI-->
-                            <label for="dni">DNI<span class="obligatorio"> * </span></label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="dniInput">DNI<span class="obligatorio"> * </span></label>
                             <input class="form-control" id="dniInput" type="text" pattern="[0-9]+" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
                             <div class="invalid-feedback">El DNI es obligatorio</div>
                         </div>
-                        <div>
-                            <!--Sexo-->
+                        <div class="col-md-6">
                             <label for="sexoInput">Sexo<span class="obligatorio"> * </span></label>
                             <select class="form-select" id="sexoInput" required>
                                 <option value="">--Elija una opción--</option>
@@ -129,36 +111,89 @@
 
                     <!-- Campos adicionales (inicialmente ocultos) -->
                     <div id="camposAdicionales" style="display: none;">
-                        <div class="mt-3">
-                            <!--Nombre-->
-                            <label for="nombreInput">Nombre<span class="obligatorio"> * </span></label>
-                            <input class="form-control" id="nombreInput" type="text" maxlength="60" minlength="2" />
-                            <div class="invalid-feedback">El nombre es obligatorio</div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="nombreInput">Nombre<span class="obligatorio"> * </span></label>
+                                <input class="form-control" id="nombreInput" type="text" maxlength="60" minlength="2" />
+                                <div class="invalid-feedback">El nombre es obligatorio</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apellidoInput">Apellido<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="text" id="apellidoInput" maxlength="60" minlength="2" />
+                                <div class="invalid-feedback">El apellido es obligatorio</div>
+                            </div>
                         </div>
-
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="celularInput">Celular</label>
+                                <input class="form-control" type="text" id="celularInput" maxlength="25" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                <div class="invalid-feedback">No puede tener más de 25 dígitos</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="correoInput">Correo electrónico</label>
+                                <input class="form-control" type="email" maxlength="100" id="correoInput" />
+                                <div class="invalid-feedback">No puede tener más de 100 caracteres</div>
+                            </div>
+                        </div>
                         <div class="mt-3">
-                            <!--Apellido-->
-                            <label for="apellidoInput">Apellido<span class="obligatorio"> * </span></label>
-                            <input class="form-control" type="text" id="apellidoInput" maxlength="60" minlength="2" />
-                            <div class="invalid-feedback">El apellido es obligatorio</div>
+                            <label for="domicilioInput">Domicilio<span class="obligatorio"> * </span></label>
+                            <input class="form-control" type="text" maxlength="100" minlength="2" id="domicilioInput" />
+                            <div class="invalid-feedback">El domicilio es obligatorio</div>
                         </div>
                     </div>
 
                     <!-- Mensaje de error -->
                     <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success" id="btnAccionContribuyente">Buscar</button>
-                    </div>
                 </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formContribuyente" class="btn btn-primary" id="btnAccionContribuyente">Buscar</button>
             </div>
         </div>
     </div>
 </div>
 
-@section Scripts{
-    <script> //logica de DNI
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- CSS adicional para múltiples titulares -->
+    <style>
+        .titular-item {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .titular-header {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .titular-number {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .btn-eliminar {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .form-columns-container3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+
+    <script>
+
+        // Formatear DNI
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.dni-formateado').forEach(elemento => {
                 const dni = elemento.textContent;
@@ -168,68 +203,49 @@
             });
         });
     </script>
+
     <script>
-        let contribuyenteSeleccionado = null;
-        let estadoModal = 'buscar'; // 'buscar' o 'registrar'
+        // Variables globales
+        let titulares = [];
+        let estadoModal = 'buscar';
 
         // Elementos del DOM
-        const agregarContribuyenteButton = document.getElementById('agregarContribuyenteButton');
-        const formContribuyente = document.getElementById('formContribuyente');
+        const agregarTitularButton = document.getElementById('agregarContribuyenteButton');
+        const formTitular = document.getElementById('formContribuyente');
+        const contenedorTitulares = document.getElementById('contenedorTitulares');
+        const contadorTitularesSpan = document.getElementById('contadorTitulares');
         const dniInput = document.getElementById('dniInput');
         const sexoInput = document.getElementById('sexoInput');
         const nombreInput = document.getElementById('nombreInput');
         const apellidoInput = document.getElementById('apellidoInput');
+        const celularInput = document.getElementById('celularInput');
+        const correoInput = document.getElementById('correoInput');
+        const domicilioInput = document.getElementById('domicilioInput');
         const camposAdicionales = document.getElementById('camposAdicionales');
-        const btnAccionContribuyente = document.getElementById('btnAccionContribuyente');
-        const contribuyenteDisplay = document.getElementById('contribuyenteDisplay');
-        const contribuyenteIcon = document.getElementById('contribuyenteIcon');
+        const btnAccionTitular = document.getElementById('btnAccionContribuyente');
         const errorMessage = document.getElementById('errorMessage');
-        const idContribuyenteHidden = document.getElementById('idContribuyenteHidden');
-        const estadoFinalizado = false;
-        // Abrir modal
-        if(agregarContribuyenteButton){
-            agregarContribuyenteButton.addEventListener('click', function (event) {
-                event.preventDefault();
 
-                if (estadoFinalizado === "true") {
-                    // Si el trámite está finalizado, no hacer nada
-                    return;
-                }
+        // Event Listeners
+        agregarTitularButton.addEventListener('click', function() {
+            resetearModal();
+            $('#TitularModal').modal('show'); // CORREGIDO: nombre correcto del modal
+        });
 
-                if (contribuyenteSeleccionado) {
-                    // Si ya hay un contribuyente seleccionado, limpiar selección
-                    limpiarSeleccionContribuyente();
-
-                } else {
-                    // Abrir modal para buscar/agregar contribuyente
-                    resetearModal();
-                    $('#ContribuyenteModal').modal('show');
-                }
-            });
-
-        }
-
-        // Submit del formulario del modal
-        formContribuyente.addEventListener('submit', function(event) {
+        formTitular.addEventListener('submit', function(event) {
             event.preventDefault();
-
-            if (!validarFormulario()) {
-                return;
-            }
+            if (!validarFormulario()) return;
 
             if (estadoModal === 'buscar') {
-                buscarContribuyente();
+                buscarTitular();
             } else if (estadoModal === 'registrar') {
-                registrarContribuyente();
+                registrarTitular();
             }
         });
 
-        // Función para validar formulario
+        // Funciones principales
         function validarFormulario() {
             let esValido = true;
-
-            // Limpiar clases de validación anteriores
-            formContribuyente.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            formTitular.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
 
             // Validar DNI
             if (!dniInput.value.trim() || dniInput.value.length < 1) {
@@ -243,15 +259,24 @@
                 esValido = false;
             }
 
-            // Si estamos en modo registrar, validar nombre y apellido
+            // Verificar si el DNI ya existe
+            if (titulares.some(t => t.dni === dniInput.value.trim())) {
+                mostrarError('Ya existe un titular con este DNI');
+                return false;
+            }
+
+            // Si estamos en modo registrar, validar campos adicionales
             if (estadoModal === 'registrar') {
                 if (!nombreInput.value.trim() || nombreInput.value.length < 2) {
                     nombreInput.classList.add('is-invalid');
                     esValido = false;
                 }
-
                 if (!apellidoInput.value.trim() || apellidoInput.value.length < 2) {
                     apellidoInput.classList.add('is-invalid');
+                    esValido = false;
+                }
+                if (!domicilioInput.value.trim() || domicilioInput.value.length < 2) {
+                    domicilioInput.classList.add('is-invalid');
                     esValido = false;
                 }
             }
@@ -259,17 +284,16 @@
             return esValido;
         }
 
-        // Función para buscar contribuyente via AJAX
-        function buscarContribuyente() {
+        function buscarTitular() {
             mostrarCargando(true);
             ocultarError();
 
             const datos = {
                 Dni: parseInt(dniInput.value),
-                Sexo: sexoInput.value
+                Sexo: sexoInput.value,
             };
 
-                   fetch('/ContratoConcesion/BuscarContribuyente', {
+            fetch('/ContratoConcesion/BuscarContribuyente', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -280,18 +304,17 @@
             .then(response => response.json())
             .then(data => {
                 mostrarCargando(false);
-
                 if (data.success) {
                     if (data.contribuyente) {
-                        // Contribuyente encontrado
-                        seleccionarContribuyente(data.contribuyente);
-                        $('#ContribuyenteModal').modal('hide');
+                        // Asegurar que el titular tenga un ID único
+                        data.contribuyente.id = data.contribuyente.id || Date.now();
+                        agregarTitular(data.contribuyente);
+                        $('#TitularModal').modal('hide');
                     } else {
-                        // Contribuyente no encontrado, mostrar campos para registrar
                         cambiarAModoRegistrar();
                     }
                 } else {
-                    mostrarError(data.message || 'Error al buscar contribuyente');
+                    mostrarError(data.message || 'Error al buscar titular');
                 }
             })
             .catch(error => {
@@ -301,16 +324,18 @@
             });
         }
 
-        // Función para registrar nuevo contribuyente
-        function registrarContribuyente() {
+        function registrarTitular() {
             mostrarCargando(true);
             ocultarError();
 
             const datos = {
-                Dni: parseInt(dniInput.value),
-                Sexo: sexoInput.value,
-                Nombre: nombreInput.value.trim(),
-                Apellido: apellidoInput.value.trim()
+                dni: dniInput.value.trim(),
+                sexo: sexoInput.value,
+                nombre: nombreInput.value.trim(),
+                apellido: apellidoInput.value.trim(),
+                celular: celularInput.value.trim(),
+                correo: correoInput.value.trim(),
+                domicilio: domicilioInput.value.trim()
             };
 
             fetch('/ContratoConcesion/RegistrarContribuyente', {
@@ -324,12 +349,13 @@
             .then(response => response.json())
             .then(data => {
                 mostrarCargando(false);
-
                 if (data.success) {
-                    seleccionarContribuyente(data.contribuyente);
-                    $('#ContribuyenteModal').modal('hide');
+                    // Asegurar que el titular tenga un ID único
+                    data.contribuyente.id = data.contribuyente.id || Date.now();
+                    agregarTitular(data.contribuyente);
+                    $('#TitularModal').modal('hide');
                 } else {
-                    mostrarError(data.message || 'Error al registrar contribuyente');
+                    mostrarError(data.message || 'Error al registrar titular');
                 }
             })
             .catch(error => {
@@ -339,86 +365,117 @@
             });
         }
 
-        // Función para seleccionar contribuyente
-        function seleccionarContribuyente(contribuyente) {
-
-           // Si es contribuyente de decreto, marcar el checkbox
-           if (contribuyente.dni === "00000000") {
-               document.getElementById('decreto').checked = true;
-           }
-
-            contribuyenteSeleccionado = contribuyente;
-            contribuyenteDisplay.value = `${contribuyente.nombre} ${contribuyente.apellido}`;
-
-            // Actualizar todos los campos hidden
-            document.getElementById('idContribuyenteHidden').value = contribuyente.id;
-            document.getElementById('dniHidden').value = contribuyente.dni;
-            document.getElementById('sexoHidden').value = contribuyente.sexo;
-            document.getElementById('nombreHidden').value = contribuyente.nombre;
-            document.getElementById('apellidoHidden').value = contribuyente.apellido;
-
-            // Cambiar botón a modo "quitar"
-            agregarContribuyenteButton.className = 'btn btn-danger';
-            contribuyenteIcon.className = 'bi bi-person-dash';
+        function agregarTitular(titular) {
+            titulares.push(titular);
+            renderizarTitulares();
+            actualizarContador();
         }
 
-        // Función para limpiar selección de contribuyente
-        function limpiarSeleccionContribuyente() {
-           if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
-               document.getElementById('decreto').checked = false;
-           }
-
-            contribuyenteSeleccionado = null;
-            contribuyenteDisplay.value = '';
-
-            // Limpiar todos los campos hidden
-            document.getElementById('idContribuyenteHidden').value = '';
-            document.getElementById('dniHidden').value = '';
-            document.getElementById('sexoHidden').value = '';
-            document.getElementById('nombreHidden').value = '';
-            document.getElementById('apellidoHidden').value = '';
-
-            // Restaurar botón a modo "agregar"
-            agregarContribuyenteButton.className = 'btn btn-success';
-            contribuyenteIcon.className = 'bi bi-person-plus';
+        function eliminarTitular(id) {
+            if (confirm('¿Está seguro de eliminar este titular?')) {
+                titulares = titulares.filter(t => t.id !== id);
+                renderizarTitulares();
+                actualizarContador();
+            }
         }
 
-        // Función para cambiar a modo registrar
+        function renderizarTitulares() {
+            contenedorTitulares.innerHTML = '';
+
+            titulares.forEach((titular, index) => {
+                const titularDiv = document.createElement('div');
+                titularDiv.className = 'titular-item';
+                titularDiv.innerHTML = `
+                    <div class="titular-header">
+                        <span class="titular-number">Titular ${index + 1}</span>
+                        <button type="button" class="btn btn-danger btn-sm btn-eliminar" onclick="eliminarTitular(${titular.id})">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </div>
+                    <div class="contenedor-de-datos p-3">
+                        <form>
+                            <input type="hidden" name="Titulares[${index}].Id" value="${titular.id}" />
+                            <div class="form-columns-container3 mb-3">
+                                <div>
+                                    <label>DNI<span class="obligatorio"> * </span></label>
+                                    <input class="form-control" type="text" name="Titulares[${index}].Dni" value="${titular.dni}" readonly />
+                                </div>
+                                <div>
+                                    <label>Nombre<span class="obligatorio"> * </span></label>
+                                    <input class="form-control" type="text" name="Titulares[${index}].Nombre" value="${titular.nombre}" maxlength="60" required />
+                                </div>
+                                <div>
+                                    <label>Apellido<span class="obligatorio"> * </span></label>
+                                    <input class="form-control" type="text" name="Titulares[${index}].Apellido" value="${titular.apellido}" maxlength="60" required />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label>Domicilio<span class="obligatorio"> * </span></label>
+                                <input class="form-control" type="text" name="Titulares[${index}].Domicilio" value="${titular.domicilio}" maxlength="100" required />
+                            </div>
+                            <div class="form-columns-container3">
+                                <div>
+                                    <label>Sexo<span class="obligatorio"> * </span></label>
+                                    <select class="form-select" name="Titulares[${index}].Sexo" required>
+                                        <option value="masculino" ${titular.sexo === 'masculino' ? 'selected' : ''}>Masculino</option>
+                                        <option value="femenino" ${titular.sexo === 'femenino' ? 'selected' : ''}>Femenino</option>
+                                        <option value="otro" ${titular.sexo === 'otro' ? 'selected' : ''}>Otro</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Teléfono</label>
+                                    <input class="form-control" type="text" name="Titulares[${index}].Celular" value="${titular.celular || ''}" pattern="[0-9]+" maxlength="25" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                </div>
+                                <div>
+                                    <label>Correo</label>
+                                    <input class="form-control" type="email" name="Titulares[${index}].CorreoElectronico" value="${titular.correo || ''}" maxlength="100" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                contenedorTitulares.appendChild(titularDiv);
+            });
+        }
+
+        function actualizarContador() {
+            contadorTitularesSpan.textContent = titulares.length;
+        }
+
         function cambiarAModoRegistrar() {
             estadoModal = 'registrar';
             camposAdicionales.style.display = 'block';
-            btnAccionContribuyente.textContent = 'Registrar';
-
-            // Hacer campos nombre y apellido requeridos
+            btnAccionTitular.textContent = 'Registrar';
             nombreInput.setAttribute('required', '');
             apellidoInput.setAttribute('required', '');
+            domicilioInput.setAttribute('required', '');
         }
 
-        // Función para resetear modal
         function resetearModal() {
             estadoModal = 'buscar';
-            formContribuyente.reset();
-            formContribuyente.classList.remove('was-validated');
+            formTitular.reset();
+            formTitular.classList.remove('was-validated');
             camposAdicionales.style.display = 'none';
-            btnAccionContribuyente.textContent = 'Buscar';
+            btnAccionTitular.textContent = 'Buscar';
             ocultarError();
 
-            // Quitar required de campos nombre y apellido
+            // Remover required de campos
             nombreInput.removeAttribute('required');
             apellidoInput.removeAttribute('required');
+            domicilioInput.removeAttribute('required');
 
-            // Limpiar clases de validación
-            formContribuyente.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            // Limpiar validaciones
+            formTitular.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         }
 
         // Funciones auxiliares
         function mostrarCargando(mostrar) {
             if (mostrar) {
-                btnAccionContribuyente.disabled = true;
-                btnAccionContribuyente.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...';
+                btnAccionTitular.disabled = true;
+                btnAccionTitular.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...';
             } else {
-                btnAccionContribuyente.disabled = false;
-                btnAccionContribuyente.textContent = estadoModal === 'buscar' ? 'Buscar' : 'Registrar';
+                btnAccionTitular.disabled = false;
+                btnAccionTitular.textContent = estadoModal === 'buscar' ? 'Buscar' : 'Registrar';
             }
         }
 

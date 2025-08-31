@@ -78,7 +78,11 @@ namespace CemSys2.Controllers
                             nombre = contribuyente.Nombre,
                             apellido = contribuyente.Apellido,
                             dni = request.Dni, // Usar el DNI del request para mantener consistencia
-                            sexo = request.Sexo
+                            sexo = request.Sexo,
+                            celular = contribuyente.Celular,
+                            correo = contribuyente.Correo,
+                            domicilio = contribuyente.Domicilio,
+
                         }
                     });
                 }
@@ -89,7 +93,8 @@ namespace CemSys2.Controllers
                         success = true,
                         contribuyente = (object)null,
                         dni = request.Dni, // Devolver el DNI aunque no se encuentre el contribuyente
-                        sexo = request.Sexo
+                        sexo = request.Sexo,
+
                     });
                 }
             }
@@ -106,7 +111,7 @@ namespace CemSys2.Controllers
             try
             {
                 if (request.Dni == null || string.IsNullOrEmpty(request.Sexo) ||
-                    string.IsNullOrEmpty(request.Nombre) || string.IsNullOrEmpty(request.Apellido))
+                    string.IsNullOrEmpty(request.Nombre) || string.IsNullOrEmpty(request.Apellido) || string.IsNullOrEmpty(request.Domicilio))
                 {
                     return Json(new { success = false, message = "Todos los campos son obligatorios" });
                 }
@@ -118,28 +123,34 @@ namespace CemSys2.Controllers
                     return Json(new { success = false, message = "El contribuyente ya existe en el sistema" });
                 }
 
-                // Crear nuevo contribuyente
-                var nuevoContribuyente = new Persona
+                // Crear nuevo titular
+                var nuevoTitular = new Persona
                 {
                     Dni = request.Dni.ToString(),
                     Nombre = request.Nombre.Trim(),
                     Apellido = request.Apellido.Trim(),
-                    Sexo = request.Sexo
+                    Sexo = request.Sexo,
+                    Celular = request.Celular?.Trim(),
+                    Correo = request.Correo?.Trim(),
+                    Domicilio = request.Domicilio.Trim(),
                 };
 
-                // Guardar en base de datos (ajusta según tu lógica de negocio)
-                var contribuyenteCreado = await _introduccionBusiness.RegistrarContribuyente(nuevoContribuyente);
+                // Guardar en base de datos
+                var TitularCreado = await _concesionesBusiness.RegistrarTitular(nuevoTitular);
 
                 return Json(new
                 {
                     success = true,
                     contribuyente = new
                     {
-                        id = contribuyenteCreado.IdPersona,
-                        nombre = contribuyenteCreado.Nombre,
-                        apellido = contribuyenteCreado.Apellido,
+                        id = TitularCreado.IdPersona,
+                        nombre = TitularCreado.Nombre,
+                        apellido = TitularCreado.Apellido,
                         dni = request.Dni, // Usar el DNI del request
-                        sexo = contribuyenteCreado.Sexo
+                        sexo = TitularCreado.Sexo,
+                        celular = TitularCreado.Celular,
+                        correo = TitularCreado.Correo,
+                        domicilio = TitularCreado.Domicilio
                     }
                 });
             }
@@ -163,6 +174,9 @@ namespace CemSys2.Controllers
             public string Sexo { get; set; }
             public string Nombre { get; set; }
             public string Apellido { get; set; }
+            public string Domicilio { get; set; }
+            public string? Celular { get; set; }
+            public string? Correo { get; set; }
         }
 
 

@@ -50,8 +50,11 @@ namespace CemSys2.ViewModel
         [NoSoloEspacios]
         public string? Apellido { get; set; }
 
+
         [Required(ErrorMessage = "El sexo es obligatorio")]
         public string? Sexo { get; set; }
+
+      
 
         [Required(ErrorMessage = "El contribuyente es obligatorio")]
         public int? IdContribuyente { get; set; }
