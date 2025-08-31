@@ -46,7 +46,11 @@ namespace CemSys2.Controllers
                 //metodo que recibe el parcelaId y buscar los difuntos en esa parcela
                 viewModel.DifuntosEnParcela = await _concesionesBusiness.ListaDifuntosPorParcela(parcelaId);
 
-            }catch(Exception ex)
+                //metodo que recibe el parcelaId y buscar los datos de la parcela
+                viewModel.DatosParcela = await _concesionesBusiness.DatosParcela(parcelaId);
+
+            }
+            catch(Exception ex)
             {
                 viewModel.MensajeError = ex.Message;
             }
@@ -78,7 +82,7 @@ namespace CemSys2.Controllers
                             nombre = contribuyente.Nombre,
                             apellido = contribuyente.Apellido,
                             dni = request.Dni, // Usar el DNI del request para mantener consistencia
-                            sexo = request.Sexo,
+                            sexo = contribuyente.Sexo,
                             celular = contribuyente.Celular,
                             correo = contribuyente.Correo,
                             domicilio = contribuyente.Domicilio,

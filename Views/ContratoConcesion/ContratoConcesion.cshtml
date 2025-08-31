@@ -20,7 +20,7 @@
 <div class="accordion" id="accordionDifuntos">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingDifuntos">
-            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseDifuntos" aria-expanded="true" aria-controls="panelsStayOpen-collapseDifuntos">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-target="#panelsStayOpen-collapseDifuntos" aria-expanded="true" aria-controls="panelsStayOpen-collapseDifuntos">
                 Difunto/s (@Model.DifuntosEnParcela.Count())
             </button>
         </h2>
@@ -61,7 +61,7 @@
 <div class="accordion" id="accordionTitulares">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingTitulares">
-            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTitulares" aria-expanded="true" aria-controls="panelsStayOpen-collapseTitulares">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-target="#panelsStayOpen-collapseTitulares" aria-expanded="true" aria-controls="panelsStayOpen-collapseTitulares">
                 Titulares (<span id="contadorTitulares">0</span>)
             </button>
         </h2>
@@ -81,7 +81,22 @@
     </div>
 </div>
 
-<!-- Modal contribuyente - NOMBRE CORREGIDO -->
+<!-- Sección de concesion -->
+<div class="accordion" id="accordionConcesion">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingConcesion">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-target="#panelsStayOpen-collapseConcesion" aria-expanded="true" aria-controls="panelsStayOpen-collapseConcesion">
+                Concesión
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseConcesion" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingConcesion">
+            <!--Cuerpo-->
+            <p></p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal contribuyente-->
 <div class="modal fade" id="TitularModal" tabindex="-1" aria-labelledby="titularModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -132,7 +147,7 @@
                             <div class="col-md-6">
                                 <label for="correoInput">Correo electrónico</label>
                                 <input class="form-control" type="email" maxlength="100" id="correoInput" />
-                                <div class="invalid-feedback">No puede tener más de 100 caracteres</div>
+                                <div class="invalid-feedback">Debe contener "@@" y "." </div>
                             </div>
                         </div>
                         <div class="mt-3">
@@ -154,46 +169,64 @@
     </div>
 </div>
 
+<!-- CSS adicional para múltiples titulares -->
+<style>
+    .titular-item {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .titular-header {
+        background-color: #e9ecef;
+        padding: 10px 15px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .titular-number {
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .btn-eliminar {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    .form-columns-container3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+    }
+</style>
+
+
+<!-- Modal Confirmación Eliminar -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmarEliminarModalLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro de que desea eliminar este titular?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
-    <!-- CSS adicional para múltiples titulares -->
-    <style>
-        .titular-item {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .titular-header {
-            background-color: #e9ecef;
-            padding: 10px 15px;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .titular-number {
-            font-weight: bold;
-            color: #495057;
-        }
-
-        .btn-eliminar {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-
-        .form-columns-container3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-    </style>
-
-    <script>
-
-        // Formatear DNI
+    <script> // Formatear DNI
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.dni-formateado').forEach(elemento => {
                 const dni = elemento.textContent;
@@ -204,10 +237,13 @@
         });
     </script>
 
-    <script>
+    <script> //logica de titulares
         // Variables globales
         let titulares = [];
         let estadoModal = 'buscar';
+        let titularAEliminar = null; // variable global para guardar id temporalmente
+        const normalizarDni = (v) => String(v ?? '').trim().replace(/\D/g, '');
+
 
         // Elementos del DOM
         const agregarTitularButton = document.getElementById('agregarContribuyenteButton');
@@ -260,7 +296,9 @@
             }
 
             // Verificar si el DNI ya existe
-            if (titulares.some(t => t.dni === dniInput.value.trim())) {
+            const dniNorm = normalizarDni(dniInput.value);
+            if (titulares.some(t => normalizarDni(t.dni ?? t.Dni) === dniNorm)) {
+                dniInput.classList.add('is-invalid');
                 mostrarError('Ya existe un titular con este DNI');
                 return false;
             }
@@ -279,6 +317,15 @@
                     domicilioInput.classList.add('is-invalid');
                     esValido = false;
                 }
+
+                 // Validar correo si tiene algo escrito
+                if (correoInput.value.trim() && !new RegExp("^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$").test(correoInput.value.trim())) {
+                correoInput.classList.add('is-invalid');
+                esValido = false;
+                }
+
+
+
             }
 
             return esValido;
@@ -366,18 +413,43 @@
         }
 
         function agregarTitular(titular) {
-            titulares.push(titular);
-            renderizarTitulares();
-            actualizarContador();
+            // Normalizo y unifico nombres de propiedades por si vienen con mayúsculas
+           const tNorm = {
+               id: titular.id ?? titular.Id ?? Date.now(),
+               dni: normalizarDni(titular.dni ?? titular.Dni),
+               nombre: titular.nombre ?? titular.Nombre ?? '',
+               apellido: titular.apellido ?? titular.Apellido ?? '',
+               sexo: (titular.sexo ?? titular.Sexo ?? '').toLowerCase(),
+               celular: titular.celular ?? titular.Celular ?? '',
+               correo: titular.correo ?? titular.Correo ?? titular.correoElectronico ?? titular.CorreoElectronico ?? '',
+               domicilio: titular.domicilio ?? titular.Domicilio ?? ''
+           };
+
+           // Evitar duplicados aquí también (por si se saltea la validación del modal)
+           if (titulares.some(t => normalizarDni(t.dni ?? t.Dni) === tNorm.dni)) {
+               mostrarError('Ya existe un titular con este DNI');
+               return;
+           }
+
+           titulares.push(tNorm);
+           renderizarTitulares();
+           actualizarContador();
         }
 
         function eliminarTitular(id) {
-            if (confirm('¿Está seguro de eliminar este titular?')) {
-                titulares = titulares.filter(t => t.id !== id);
+            titularAEliminar = id;
+           $('#confirmarEliminarModal').modal('show');
+        }
+
+        document.getElementById('btnConfirmarEliminar').addEventListener('click', function() {
+            if (titularAEliminar !== null) {
+                titulares = titulares.filter(t => t.id !== titularAEliminar);
                 renderizarTitulares();
                 actualizarContador();
+                titularAEliminar = null;
+                $('#confirmarEliminarModal').modal('hide');
             }
-        }
+        });
 
         function renderizarTitulares() {
             contenedorTitulares.innerHTML = '';
@@ -392,7 +464,7 @@
                             <i class="bi bi-trash"></i> Eliminar
                         </button>
                     </div>
-                    <div class="contenedor-de-datos p-3">
+                    <div class="p-3">
                         <form>
                             <input type="hidden" name="Titulares[${index}].Id" value="${titular.id}" />
                             <div class="form-columns-container3 mb-3">

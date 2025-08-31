@@ -515,3 +515,49 @@ BEGIN
       AND pd.fechaRetiro IS NULL;
 END;
 GO
+--------------obtiene los datos de la parcela que esta haciendo un contrato-------------------------------------
+CREATE PROCEDURE DatosParcelaConcesion
+    @parcelaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        p.id AS parcelaId,
+        sec.tipoParcela,
+        sec.id AS seccionId,
+        sec.nombre AS NombreSeccion,
+        p.NroParcela,
+        p.NroFila 
+    FROM Parcela p 
+    JOIN Secciones sec ON sec.id = p.seccion
+    WHERE p.id = @parcelaId;
+END
+GO
+------------------obtiene los precios de una parcela para hacer contrato-----------------------------------
+CREATE PROCEDURE obtenerPreciosParcelaContrato
+    @conceptoTarifariaId INT,
+    @tarifarioId INT,
+    @seccionId INT,
+    @nroFila INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        pre.id,
+        pre.conceptoTarifariaId,
+        pre.precio,
+        pre.seccionId,
+        pre.nroFila,
+        anio.anios
+    FROM PreciosTarifarias pre
+    INNER JOIN AniosConcesion anio
+        ON anio.id = pre.aniosConcesion
+    WHERE pre.conceptoTarifariaId = @conceptoTarifariaId
+      AND pre.tarifarioId = @tarifarioId
+      AND pre.seccionId = @seccionId
+      AND pre.nroFila = @nroFila
+    ORDER BY anio.anios;
+END
+GO

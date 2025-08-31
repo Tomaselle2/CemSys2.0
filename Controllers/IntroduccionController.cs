@@ -629,7 +629,7 @@ namespace CemSys2.Controllers
                             nombre = contribuyente.Nombre,
                             apellido = contribuyente.Apellido,
                             dni = request.Dni, // Usar el DNI del request para mantener consistencia
-                            sexo = request.Sexo
+                            sexo = contribuyente.Sexo
                         }
                     });
                 }

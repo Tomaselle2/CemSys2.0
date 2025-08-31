@@ -673,8 +673,21 @@ namespace CemSys2.Data
 
         public async Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo)
         {
-            return await _context.Personas.FirstOrDefaultAsync(p => p.Visibilidad == true && p.Dni == DniContribuyente &&
-            p.CategoriaPersona != (int)CategoriaPersonaEnum.Fallecido && p.Sexo == sexo);
+            // Determinar si se debe filtrar por sexo basado en el rango del DNI
+            bool aplicarFiltroSexo = true;
+
+            if (int.TryParse(DniContribuyente, out int dniNumerico) && dniNumerico >= 10000000)
+            {
+                aplicarFiltroSexo = false;
+            }
+
+            // Aplicar la consulta con filtro condicional por sexo
+            return await _context.Personas
+                .Where(p => p.Visibilidad == true &&
+                           p.Dni == DniContribuyente &&
+                           p.CategoriaPersona != (int)CategoriaPersonaEnum.Fallecido &&
+                           (!aplicarFiltroSexo || p.Sexo == sexo))
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Persona> RegistrarContribuyente(Persona contribuyente)

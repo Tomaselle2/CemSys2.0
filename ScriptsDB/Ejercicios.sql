@@ -51,41 +51,33 @@ inner join Facturas fac on fac.id = rf.facturaId
 inner join Tramite tra on tra.id = fac.tramiteId
 where rf.contribuyente = 1031 
 order by rf.fechaPago Desc
-
+select * from Parcela
 select * from TramitePersonas
-
+select * from ConceptosTarifarias
 select * from ParcelaDifuntos where parcelaId = 33 and fechaRetiro is null
 
-SELECT 
-        pd.difuntoId AS DifuntoId,
-        p.dni AS DNI,
-        p.nombre AS Nombre,
-        p.apellido AS Apellido,
-        pd.fechaIngreso AS FechaIngreso,
-        ed.estado AS EstadoDifunto
-    FROM ParcelaDifuntos pd
-    INNER JOIN Personas p ON pd.difuntoId = p.idPersona
-    LEFT JOIN EstadoDifunto ed ON p.estadoDifunto = ed.id
-    WHERE pd.parcelaId = 33
-      AND pd.fechaRetiro IS NULL;
 
+SELECT pre.id,
+       pre.conceptoTarifariaId,
+       pre.precio,
+       pre.seccionId,
+       pre.nroFila,
+       anio.anios
+FROM PreciosTarifarias pre
+INNER JOIN AniosConcesion anio
+    ON anio.id = pre.aniosConcesion
+WHERE pre.conceptoTarifariaId = 16
+  AND pre.tarifarioId = 3
+  AND pre.seccionId = 1
+  AND pre.nroFila = 5
+ORDER BY anio.anios;
 
-	  SELECT 
-        pd.difuntoId AS DifuntoId, 
-        pd.fechaIngreso, 
-        p.nombre, 
-        p.apellido,
-		p.dni AS Dni,  -- Agregado este campo
-        pd.parcelaId,
-		p.estadoDifunto
-    FROM 
-        ParcelaDifuntos pd
-    INNER JOIN 
-        Personas p ON p.idPersona = pd.difuntoId
-    WHERE 
-        p.categoriaPersona = 2 
-        AND pd.fechaRetiro IS NULL 
-        AND pd.parcelaId = 33
-        ORDER BY 
-    pd.fechaIngreso DESC,
-    p.idPersona DESC;
+select p.id AS parcelaId,
+        sec.tipoParcela,
+		sec.id AS seccionId,
+        sec.nombre AS NombreSeccion,
+        p.NroParcela,
+        p.NroFila from Parcela p 
+		JOIN Secciones sec 
+        ON sec.id = p.seccion
+		where p.id = 2

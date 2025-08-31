@@ -17,6 +17,42 @@ namespace CemSys2.Data
             _context = context;
         }
 
+        //Obtiene los datos de la parcela para hacer un contrato de concesion
+        public async Task<DTO_Datos_Concesion> DatosParcela(int parcelaId)
+        {
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+                DTO_Datos_Concesion datosConcesion = new DTO_Datos_Concesion();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "DatosParcelaConcesion"; // Nombre del SP
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@parcelaId", parcelaId);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            datosConcesion = new DTO_Datos_Concesion
+                            {
+                                ParcelaId = reader.GetInt32(reader.GetOrdinal("parcelaId")),
+                                TipoParcela = reader.GetInt32(reader.GetOrdinal("tipoParcela")),
+                                SeccionId = reader.GetInt32(reader.GetOrdinal("seccionId")),
+                                NombreSeccion = reader.IsDBNull(reader.GetOrdinal("NombreSeccion"))
+                                               ? string.Empty
+                                               : reader.GetString(reader.GetOrdinal("NombreSeccion")),
+                                NroParcela = reader.GetInt32(reader.GetOrdinal("NroParcela")),
+                                NroFila = reader.GetInt32(reader.GetOrdinal("NroFila"))
+                            };   
+                        }
+                    }
+                }
+
+                return datosConcesion;
+            }
+        }
+
         //Obtene los difuntos actuales en parcela para hacer un contrato
         public async Task<List<DTO_Difuntos_Para_Concesion>> ListaDifuntosPorParcela(int parcelaId)
         {
