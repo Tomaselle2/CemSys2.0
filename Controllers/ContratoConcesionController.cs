@@ -124,7 +124,7 @@ namespace CemSys2.Controllers
                 Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
                 if (contribuyenteExistente != null)
                 {
-                    return Json(new { success = false, message = "El contribuyente ya existe en el sistema" });
+                    return Json(new { success = false, message = "El titular ya existe en el sistema" });
                 }
 
                 // Crear nuevo titular

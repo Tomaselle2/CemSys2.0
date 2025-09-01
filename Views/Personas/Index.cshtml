@@ -149,7 +149,16 @@
                         TotalPaginas = Model.TotalPaginas,
                         TotalRegistros = Model.TotalRegistros,
                         Accion = "BuscarPersona",
-                        Controlador = "Personas"
+                        Controlador = "Personas",
+                        ParametrosAdicionales = new Dictionary<string, string>
+                        {
+                            { "Dni", Model.Dni ?? "" },
+                            { "Nombre", Model.Nombre ?? "" },
+                            { "Apellido", Model.Apellido ?? "" },
+                            { "CondicionPersonaId", Model.CondicionPersonaId?.ToString() ?? "" },
+                            { "TipoParcelaId", Model.TipoParcelaId?.ToString() ?? "" },
+                            { "SeccionId", Model.SeccionId?.ToString() ?? "" }
+                        }
                     })
                 }
 
@@ -167,8 +176,7 @@
 </div>
 
 
-<script>
-    //maneja la aparicion y desaparicion de los select de tipo parcela y seccion
+<script> //maneja la aparicion y desaparicion de los select de tipo parcela y seccion
     document.getElementById('condicionPersona').addEventListener('change', function () {
         const condicion = this.value;
         const tipoParcela = document.getElementById('selectTipoParcela');

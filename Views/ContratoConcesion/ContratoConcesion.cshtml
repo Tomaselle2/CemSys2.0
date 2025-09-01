@@ -1,4 +1,5 @@
 ﻿@using CemSys2.ViewModel.ConcesionesViewModel
+@using CemSys2.Enumerable
 @model GenerarContratoVM
 
 @{
@@ -91,7 +92,35 @@
         </h2>
         <div id="panelsStayOpen-collapseConcesion" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingConcesion">
             <!--Cuerpo-->
-            <p></p>
+            @{
+                string parcela = "";
+                if (Model.DatosParcela.TipoParcela == 1) //nicho
+                {
+                    parcela = $"Nicho {Model.DatosParcela.NroParcela.ToString()} Fila {Model.DatosParcela.NroFila.ToString()}";
+                }
+                else if (Model.DatosParcela.TipoParcela == 2)//fosa
+                {
+                    parcela = $"Fosa {Model.DatosParcela.NroParcela.ToString()}";
+                }
+                else if (Model.DatosParcela.TipoParcela == 3) //panteon
+                {
+                    parcela = $"Lote {Model.DatosParcela.NroParcela.ToString()}";
+                }
+
+                string tipoParela = ((TipoParcelaEnum)Model.DatosParcela.TipoParcela).ToString();
+            }
+
+            <div class="contenedor-de-datos" style="margin-bottom: 5px; margin-top: 5px">
+                <div>
+                    <p><b>Tipo de parcela: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@tipoParela</span></p>
+                </div>
+                <div>
+                    <p><b>Sección: </b><span class="datoEncabezadoHistorialParcela">@Model.DatosParcela.NombreSeccion.ToUpper()</span></p>
+                </div>
+                <div>
+                    <p><b>Parcela: </b><span class="datoEncabezadoHistorialParcela">@parcela</span></p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
