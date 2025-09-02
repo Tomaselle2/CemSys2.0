@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
@@ -22,9 +23,10 @@ namespace CemSys2.Controllers
             _introduccionBusiness = introduccionBusiness;
         }
 
+        //vista principal de concesiones
         public async Task<IActionResult> Index()
         {
-            IndexConcesionesVM viewModel= new IndexConcesionesVM();
+            IndexConcesionesVM viewModel = new IndexConcesionesVM();
             try
             {
                 viewModel.ListaParcelasSinContrato = await _concesionesBusiness.ListaParcelasSinContrato();
@@ -37,6 +39,7 @@ namespace CemSys2.Controllers
             return View(viewModel);
         }
 
+        //vista de generar contrato concesion
         public async Task<IActionResult> ContratoConcesion(int parcelaId)
         {
             GenerarContratoVM viewModel = new GenerarContratoVM();
@@ -48,6 +51,22 @@ namespace CemSys2.Controllers
 
                 //metodo que recibe el parcelaId y buscar los datos de la parcela
                 viewModel.DatosParcela = await _concesionesBusiness.DatosParcela(parcelaId);
+
+                //si el tipo parcela es nicho o fosa
+                int conceptoTarifariaId = 0;
+
+                if (viewModel.DatosParcela.TipoParcela == (int)TipoParcelaEnum.Nicho)
+                {
+                    conceptoTarifariaId = (int)ConceptosTarifariaEnum.ConcesionNicho;
+                }
+
+                if (viewModel.DatosParcela.TipoParcela == (int)TipoParcelaEnum.Fosa)
+                {
+                    conceptoTarifariaId = (int)ConceptosTarifariaEnum.ConcesionFosas;
+                }
+
+                //metodo que recibe el conceptoTarifariaId, seccionId y nroFila para buscar los precios de concesion
+                viewModel.PreciosConcesion = await _concesionesBusiness.PreciosConcesion(conceptoTarifariaId, viewModel.DatosParcela.SeccionId, viewModel.DatosParcela.NroFila);
 
             }
             catch(Exception ex)

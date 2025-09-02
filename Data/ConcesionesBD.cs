@@ -1,6 +1,7 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
+using CemSys2.Interface.Parcelas;
 using CemSys2.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -139,6 +140,54 @@ namespace CemSys2.Data
             }
 
             return resultados;
+        }
+
+        //obtiene los precios para hacer un contrato de concesion
+        public async Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila)
+        {
+            var resultados = new List<DTO_Precios_Concesion>();
+
+            //obtengo la tarifaria vigente, la fecha mas reciente
+            var tarifariaVigente = await _context.Tarifarias
+                .Where(t => t.Visibilidad == true)
+                .OrderByDescending(t => t.FechaCreacionTarifaria)
+                .FirstAsync();
+
+
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "obtenerPreciosParcelaContrato"; // Nombre del SP
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@conceptoTarifariaId", conceptoTarifariaId);
+                    command.Parameters.AddWithValue("@tarifarioId", tarifariaVigente.Id);
+                    command.Parameters.AddWithValue("@seccionId", seccionId);
+                    command.Parameters.AddWithValue("@nroFila", nroFila);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var precio = new DTO_Precios_Concesion
+                            {
+                                tarifariaId = reader.GetInt32(reader.GetOrdinal("id")),
+                                conceptoTarifariaId = reader.GetInt32(reader.GetOrdinal("conceptoTarifariaId")),
+                                Precio = reader.GetDecimal(reader.GetOrdinal("precio")),
+                                seccionId = reader.GetInt32(reader.GetOrdinal("seccionId")),
+                                fila = reader.GetInt32(reader.GetOrdinal("nroFila")),
+                                aniosConcesion = reader.GetInt32(reader.GetOrdinal("anios"))
+                            };
+
+                            resultados.Add(precio);
+                        }
+                    }
+                }
+
+                return resultados;
+            }
         }
 
         //registra un nuevo titular para la concesion

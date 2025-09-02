@@ -9,6 +9,7 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         public List<DTO_Difuntos_Para_Concesion> DifuntosEnParcela = new();
         public List<DTO_Titulares> Titulares { get; set; } = new();
         public DTO_Datos_Concesion DatosParcela = new DTO_Datos_Concesion();
+        public List<DTO_Precios_Concesion> PreciosConcesion { get; set; } = new();
 
         public string MensajeError = string.Empty;
 

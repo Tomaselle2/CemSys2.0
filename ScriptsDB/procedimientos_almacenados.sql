@@ -463,7 +463,7 @@ BEGIN
 END;
 GO
 ----------parcelas sin contrato de concesion---------------------------------------
-CREATE PROCEDURE ParcelasSinContrato
+create PROCEDURE ParcelasSinContrato
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -486,6 +486,7 @@ BEGIN
         ON per.idPersona = pd.difuntoId
     WHERE cc.parcelaId IS NULL 
         AND p.cantidadDifuntos > 0
+		AND sec.tipoParcela <> 3
     GROUP BY 
         p.id, 
         sec.tipoParcela, 

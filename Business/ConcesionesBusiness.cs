@@ -28,6 +28,11 @@ namespace CemSys2.Business
            return await _concesionesDB.ListaParcelasSinContrato();
         }
 
+        public async Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila)
+        {
+            return await _concesionesDB.PreciosConcesion(conceptoTarifariaId, seccionId, nroFila);
+        }
+
         public async Task<Persona> RegistrarTitular(Persona titular)
         {
             return await _concesionesDB.RegistrarTitular(titular);
