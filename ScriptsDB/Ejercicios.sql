@@ -81,3 +81,5 @@ select p.id AS parcelaId,
 		JOIN Secciones sec 
         ON sec.id = p.seccion
 		where p.id = 2
+
+select * from PreciosTarifarias where id = 138

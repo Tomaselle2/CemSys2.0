@@ -68,6 +68,7 @@ namespace CemSys2.Controllers
                 //metodo que recibe el conceptoTarifariaId, seccionId y nroFila para buscar los precios de concesion
                 viewModel.PreciosConcesion = await _concesionesBusiness.PreciosConcesion(conceptoTarifariaId, viewModel.DatosParcela.SeccionId, viewModel.DatosParcela.NroFila);
 
+                viewModel.ParcelaId = parcelaId;
             }
             catch(Exception ex)
             {
@@ -75,6 +76,13 @@ namespace CemSys2.Controllers
             }
 
             return View(viewModel);
+        }
+
+        //recibe los datos para generar el contrato
+        [HttpPost]
+        public IActionResult GeneraContrato(GenerarContratoVM viewModel)
+        {
+            return RedirectToAction("ContratoConcesion", new { parcelaId = viewModel.ParcelaId });
         }
 
         // Método para buscar contribuyente (AJAX)

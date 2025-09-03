@@ -12,7 +12,7 @@
 
     public class DTO_Precios_Concesion
     {
-        public int tarifariaId { get; set; }
+        public int precioId { get; set; }
         public int conceptoTarifariaId { get; set; }
         public decimal Precio { get; set; }
         public int seccionId { get; set; }

@@ -557,4 +557,45 @@ body {
         flex-grow: 1;
     }
 
+/* contrato de concesion */
+.card-presentacion-datos {
+    background-color: #feffff;
+    border-radius: 12px;
+    box-shadow: 1px 1px 4px 1px #bbc1b9;
+    padding: 10px;
+    margin: 10px;
+    max-width: 600px; /* Ancho fijo para la tarjeta, ajusta según necesidad */
+    box-sizing: border-box;
+}
 
+.contenedor-2-elementos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    justify-content: center;
+    align-items: start;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+    /* Para 1 elemento: centrar en la primera columna */
+    .contenedor-2-elementos:has(> :only-child) {
+        grid-template-columns: 1fr; /* Cambia a 1 columna */
+        justify-items: center; /* Centra el contenido */
+    }
+
+    /* Para asegurar que el contenido interno también sea consistente */
+    .contenedor-2-elementos > div {
+        width: 100%;
+        box-sizing: border-box;
+        max-width: 600px; /* Opcional: ancho máximo para mejor apariencia */
+    }
+
+.titulo-intermedio {
+    color: #2E8B57;
+    font-size: 1.5em;
+    font-weight: 700;
+    text-align: center
+}

@@ -173,7 +173,7 @@ namespace CemSys2.Data
                         {
                             var precio = new DTO_Precios_Concesion
                             {
-                                tarifariaId = reader.GetInt32(reader.GetOrdinal("id")),
+                                precioId = reader.GetInt32(reader.GetOrdinal("id")),
                                 conceptoTarifariaId = reader.GetInt32(reader.GetOrdinal("conceptoTarifariaId")),
                                 Precio = reader.GetDecimal(reader.GetOrdinal("precio")),
                                 seccionId = reader.GetInt32(reader.GetOrdinal("seccionId")),
