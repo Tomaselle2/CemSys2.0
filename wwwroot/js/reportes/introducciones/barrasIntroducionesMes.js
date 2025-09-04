@@ -31,8 +31,7 @@ function BarrasIntroduccionesMes(data) {
             datasets: [{
                 label: 'Cantidad de Introducciones',
                 data: cantidades,
-                backgroundColor: 'pink', // Nombre de color simple
-                borderColor: 'black',
+                backgroundColor: 'rgba(127, 240, 161, 1)',
                 borderWidth: 1
             }]
         },
