@@ -13,6 +13,11 @@ namespace CemSys2.Business
            _concesionesDB = concesionesBd;
         }
 
+        public async Task<List<CantidadCuota>> CantidadCuotas()
+        {
+            return await _concesionesDB.CantidadCuotas();
+        }
+
         public async Task<DTO_Datos_Concesion> DatosParcela(int parcelaId)
         {
             return await _concesionesDB.DatosParcela(parcelaId);

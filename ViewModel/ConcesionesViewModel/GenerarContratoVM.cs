@@ -1,5 +1,6 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
+using CemSys2.Models;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -11,6 +12,7 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         public List<DTO_Titulares> Titulares { get; set; } = new();
         public DTO_Datos_Concesion DatosParcela = new DTO_Datos_Concesion();
         public List<DTO_Precios_Concesion> PreciosConcesion { get; set; } = new();
+        public List<DTO_Cuotas> CantidadCuotas { get; set; } = new();
 
         public int? ParcelaId { get; set; }
 
@@ -27,6 +29,12 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
 
         [Required(ErrorMessage = "El vencimiento es obligatorio")]
         public DateOnly? Vencimiento { get; set; }
+
+        [Required(ErrorMessage = "La forma de pago es obligatoria")]
+        public string? FormaDePago { get; set; }
+
+        public int? CantidadCuotaSeleccionada { get; set; }
+
 
         public Dictionary<int, string> CantidadAniosNicho { get; set; } =
             new Dictionary<int, string>

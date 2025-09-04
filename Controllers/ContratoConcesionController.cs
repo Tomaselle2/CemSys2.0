@@ -52,6 +52,17 @@ namespace CemSys2.Controllers
                 //metodo que recibe el parcelaId y buscar los datos de la parcela
                 viewModel.DatosParcela = await _concesionesBusiness.DatosParcela(parcelaId);
 
+                //metodo que busca las cantidades de cuotas
+                List<CantidadCuota> cuotas = await _concesionesBusiness.CantidadCuotas();
+                List<DTO_Cuotas> dtoCuota =  cuotas.Select(c => new DTO_Cuotas
+                {
+                    Id = c.Id,
+                    Texto = c.Cuota == 1 ? "1 pago" : $"{c.Cuota} cuotas"
+                }).ToList();
+
+
+                viewModel.CantidadCuotas = dtoCuota;
+
                 //si el tipo parcela es nicho o fosa
                 int conceptoTarifariaId = 0;
 
