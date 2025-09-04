@@ -5,7 +5,7 @@
     Layout = "";
     var baseUrl = ViewData["BaseUrl"] as string;
     var imageUrlCompleto = $"{baseUrl}/fotos/completo.png";
-    var imageUrlLogoLargo = $"{baseUrl}/fotos/logolargo.png";
+    var imageUrlLogoLargo = $"{baseUrl}/fotos/sinfondo2.png";
     var usuarioNavegando = ViewData["UsuarioLogueado"] as string;
     var fechaHoyGeneraciondereporte = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 }
@@ -110,7 +110,7 @@
 
 
         .footer-bar img {
-            height: 90px;
+            height: 100px;
             object-fit: contain;
         }
 
@@ -248,5 +248,5 @@
         <p>Fecha de generación del reporte: @fechaHoyGeneraciondereporte</p>
         <p>Usuario: @usuarioNavegando</p>
     </div>
-    <img src="@imageUrlLogoLargo" alt="Logo Pie" />
+    <img src="@imageUrlLogoLargo" alt="Logo Pie"/>
 </div>
