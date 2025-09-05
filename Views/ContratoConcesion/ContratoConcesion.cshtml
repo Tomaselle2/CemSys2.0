@@ -140,6 +140,7 @@
                         @foreach (var precio in Model.PreciosFiltrados)
                         {
                             <option value="@precio.precioId"
+                                    data-precio="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
                                     selected="@(Model.PrecioSeleccionado == precio.precioId ? "selected" : null)">
                                 @precio.aniosConcesion años - $ @precio.Precio.ToString("N2")
                             </option>
@@ -165,14 +166,14 @@
                     <label>Forma de pago<span class="obligatorio"> * </span></label>
                     <div class ="form-columns-container3 mb-3">
                         <div>
-                            <select class="form-control" asp-for="FormaDePago">
+                            <select id="formaDePago" class="form-control" asp-for="FormaDePago" disabled>
                                 <option value="">--Seleccione una forma de pago--</option>
                                 <option value="cuota">Cuotas</option>
                                 <option value="otra">Otra</option>
                             </select>
                         </div>
                         <div>
-                            <select class="form-control" asp-for="CantidadCuotaSeleccionada" asp-items="@(new SelectList(Model.CantidadCuotas, "Id", "Texto"))">
+                            <select disabled class="form-control" id="CantidadCuotaSeleccionada" asp-for="CantidadCuotaSeleccionada" asp-items="@(new SelectList(Model.CantidadCuotas, "Id", "Texto"))">
                                 <option value="">--Elija una cuota--</option>
                             </select>
                         </div>
@@ -181,7 +182,7 @@
                         </div>
                     </div>
                     
-                    <div>
+                    <div id="divOtraFormaPago" style="display: none">
                         <label>Escriba la forma de pago</label>
                         <input class="form-control" type="text" id="otraForma" readonly />
                     </div>
@@ -732,6 +733,119 @@
                     vencimientoConcesion.value = "";
                 }
             });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+          const formaDePagoSelect   = document.getElementById('formaDePago');
+          const cantidadCuotaSelect = document.getElementById('CantidadCuotaSeleccionada');
+          const divOtraFormaPago    = document.getElementById('divOtraFormaPago');
+          const selectCantidadPrecio= document.getElementById('selectCantidadPrecio');
+          const valorCuotaInput     = document.getElementById('valorCuota');
+
+          // --- util: parsea cadenas con distintos formatos de miles/decimales ---
+          function parsePrecioString(raw) {
+            if (!raw) return NaN;
+            raw = raw.trim();
+            raw = raw.replace(/[^\d.,-]/g, '');
+
+            const lastDot   = raw.lastIndexOf('.');
+            const lastComma = raw.lastIndexOf(',');
+
+            if (lastDot > lastComma) {
+              raw = raw.replace(/,/g, '');                // punto decimal
+            } else if (lastComma > lastDot) {
+              raw = raw.replace(/\./g, '').replace(',', '.'); // coma decimal
+            } else {
+              const dots   = (raw.match(/\./g) || []).length;
+              const commas = (raw.match(/,/g) || []).length;
+              if (dots > 1 && commas === 0) raw = raw.replace(/\./g, '');
+              else if (commas > 1 && dots === 0) raw = raw.replace(/,/g, '');
+              else if (commas === 1 && dots === 0) raw = raw.replace(',', '.');
+            }
+            const n = Number(raw);
+            return Number.isFinite(n) ? n : NaN;
+          }
+
+          function getPrecioSeleccionado() {
+            const opt = selectCantidadPrecio.selectedOptions && selectCantidadPrecio.selectedOptions[0];
+            if (!opt) return NaN;
+            let raw = opt.dataset.precio ?? '';
+            if (!raw) raw = opt.textContent || '';
+            return parsePrecioString(raw);
+          }
+
+         function calcularValorCuota() {
+              const forma = formaDePagoSelect.value;
+              if (forma !== 'cuota') {
+                valorCuotaInput.value = '';
+                return;
+              }
+
+              const precio = getPrecioSeleccionado();
+              const cuotas = parseInt(cantidadCuotaSelect.value, 10);
+
+              if (Number.isFinite(precio) && Number.isInteger(cuotas) && cuotas > 0) {
+                const cuota = precio / cuotas;
+                const montoFormateado = new Intl.NumberFormat('es-AR', {
+                  style: 'currency',
+                  currency: 'ARS'
+                }).format(cuota);
+
+                if (cuotas === 1) {
+                  valorCuotaInput.value = `1 pago de ${montoFormateado}`;
+                } else {
+                  valorCuotaInput.value = `${cuotas} cuotas de ${montoFormateado}`;
+                }
+              } else {
+                valorCuotaInput.value = '';
+              }
+        }
+
+          // --- EVENTOS ---
+
+          formaDePagoSelect.addEventListener('change', function() {
+            if (this.value === 'otra') {
+              divOtraFormaPago.style.display = 'block';
+              document.getElementById('otraForma').removeAttribute('readonly');
+              cantidadCuotaSelect.setAttribute('disabled', 'disabled');
+              cantidadCuotaSelect.value = '';
+              valorCuotaInput.value = '';
+              document.getElementById('otraForma').value = '';
+            } else if (this.value === 'cuota') {
+              divOtraFormaPago.style.display = 'none';
+              document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+              cantidadCuotaSelect.removeAttribute('disabled');
+            } else {
+              divOtraFormaPago.style.display = 'none';
+              document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+              cantidadCuotaSelect.setAttribute('disabled', 'disabled');
+              cantidadCuotaSelect.value = '';
+              valorCuotaInput.value = '';
+            }
+            calcularValorCuota();
+          });
+
+          selectCantidadPrecio.addEventListener('change', function() {
+            if (this.value !== '') {
+              formaDePagoSelect.removeAttribute('disabled');
+            } else {
+              formaDePagoSelect.setAttribute('disabled', 'disabled');
+              formaDePagoSelect.value = '';
+              divOtraFormaPago.style.display = 'none';
+              document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+              cantidadCuotaSelect.setAttribute('disabled', 'disabled');
+              cantidadCuotaSelect.value = '';
+              valorCuotaInput.value = '';
+            }
+            calcularValorCuota();
+          });
+
+          cantidadCuotaSelect.addEventListener('change', calcularValorCuota);
+
+          // inicializo por si viene con algo cargado
+          calcularValorCuota();
         });
     </script>
 }
