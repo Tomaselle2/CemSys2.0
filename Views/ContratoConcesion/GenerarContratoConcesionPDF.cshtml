@@ -1,0 +1,98 @@
+﻿@using CemSys2.DTO.Concesiones
+@model DTO_DatosGenerarContratoConcesion
+
+@{
+    Layout = null;
+}
+
+<style>
+    body {
+        margin-bottom: 60px;
+        font-family: 'Montserrat', sans-serif;
+        background-color: #fff;
+        margin-left: 65px;
+    }
+
+    html {
+        font-size: 14px;
+        position: relative;
+        min-height: 100%;
+    }
+
+    .flexVencimiento {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 45px;
+    }
+
+    .flexCuenta {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        justify-content: end;
+        height: 50px;
+    }
+
+    .contenedor-imagen {
+        width: 500px;
+        height: 120px;
+        margin-top: 30px;
+    }
+</style>
+
+<div class="contenedor-imagen">
+    <img src="~/fotos/completo.png" alt="Logo Municipalidad">
+</div>
+
+<div class="flexVencimiento">
+    <div>
+        <p><strong>ORIGINAL</strong></p>
+    </div>
+    <div>
+        <p>vencimiento: @Model.Vencimiento.ToString("dd/MM/yyyy")</p>
+    </div>
+</div>
+
+<div class="flexCuenta">
+    <div>
+        <p>N° concesión: @Model.NroConcesion</p>
+    </div>
+</div>
+
+<div>
+    <h2><u>CONTRATO DE CONCESIÓN</u></h2>
+</div>
+
+<p>Nombre seccion: @Model.SeccionNombre</p>
+<p>Parcela @Model.ParcelaString</p>
+<p>Tipo Parcela @Model.TipoParcela</p>
+<p>Precio @Model.Precio</p>
+<p>Cantidad años @Model.CantidadAnios</p>
+<p>CuotaId: @Model.CuotaId</p>
+<p>Forma de pago: @Model.formaPago</p>
+<p>Precio final: @Model.PrecioId</p>
+<p>Forma de pago otra: @Model.PagoDescripcion</p>
+@foreach (var titular in Model.Titulares)
+{
+    <p>Nombre titular @titular.Nombre @titular.Apellido</p>
+    <p>DNI: @titular.Dni</p>
+    <p>Domicilio @titular.Domicilio</p>
+    <p>Celular @titular.Celular</p>
+    <p>Correo electronico @titular.CorreoElectronico</p>
+}
+
+@foreach (var difunto in Model.Difuntos)
+{
+    <p>Nombre difunto @difunto.Nombre @difunto.Apellido</p>
+    <p>DNI: @difunto.DNI</p>
+    <p>Estado @difunto.EstadoDifunto</p>
+    <p>Fecha ingreso @difunto.FechaIngreso.ToString("dd/MM/yyyy")</p>
+}
+
+
+
+

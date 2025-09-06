@@ -35,6 +35,13 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
 
         public int? CantidadCuotaSeleccionada { get; set; }
 
+        public int? tipoParcela { get; set; }
+        public string seccion { get; set; } = string.Empty;
+        public string ParcelaString { get; set; } = string.Empty;
+
+        public string? otraFormaPago { get; set; }
+        public decimal PrecioFinal { get; set; }
+      
 
         public Dictionary<int, string> CantidadAniosNicho { get; set; } =
             new Dictionary<int, string>

@@ -294,7 +294,6 @@ CREATE TABLE Introducciones (
 -- Contrato concesión
 CREATE TABLE ContratoConcesion (
     idTramite INT NOT NULL PRIMARY KEY, -- PK y FK de Tramite
-    difuntoId INT NOT NULL,
     parcelaId INT NOT NULL,
     cantidadAnios INT NOT NULL,
     vencimiento DATETIME NOT NULL,
@@ -305,15 +304,27 @@ CREATE TABLE ContratoConcesion (
     visibilidad BIT NOT NULL,
     fechaGeneracion DATETIME NOT NULL,
     empleado INT NOT NULL,
+	contratoAnteriorId INT NULL,
+	precio DECIMAL(10,2) NOT NULL DEFAULT 0,
     tipoParcela INT NOT NULL,
     FOREIGN KEY (idTramite) REFERENCES Tramite(id),
-    FOREIGN KEY (difuntoId) REFERENCES Personas(idPersona),
     FOREIGN KEY (parcelaId) REFERENCES Parcela(id),
     FOREIGN KEY (cantidadAnios) REFERENCES AniosConcesion(id),
     FOREIGN KEY (precioTarifariaID) REFERENCES PreciosTarifarias(id),
     FOREIGN KEY (cuotaId) REFERENCES CantidadCuotas(id),
     FOREIGN KEY (empleado) REFERENCES Usuarios(id),
-    FOREIGN KEY (tipoParcela) REFERENCES TipoParcela(id)
+    FOREIGN KEY (tipoParcela) REFERENCES TipoParcela(id),
+	FOREIGN KEY (contratoAnteriorId) REFERENCES ContratoConcesion(idTramite)
+);
+
+CREATE TABLE HistorialTitularesContrato (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    contratoId INT NOT NULL,
+    personaId INT NOT NULL,
+    fechaInicio DATETIME NOT NULL DEFAULT GETDATE(),
+    fechaFin DATETIME NULL,
+    FOREIGN KEY (contratoId) REFERENCES ContratoConcesion(idTramite),
+    FOREIGN KEY (personaId) REFERENCES Personas(idPersona)
 );
 
 -- Titulares contrato concesión

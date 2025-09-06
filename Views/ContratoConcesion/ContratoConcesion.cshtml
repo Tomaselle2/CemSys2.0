@@ -18,7 +18,7 @@
 }
 
 
-<form asp-action="GeneraContrato" method="post" id="formPrincipal">
+<form asp-action="GenerarContratoConcesionPDF" method="post" id="formPrincipal" target="_blank">
     <!-- Tabla de historial de difuntos actuales -->
     <div class="accordion" id="accordionDifuntos">
         <div class="accordion-item">
@@ -176,6 +176,7 @@
                             <select disabled class="form-control" id="CantidadCuotaSeleccionada" asp-for="CantidadCuotaSeleccionada" asp-items="@(new SelectList(Model.CantidadCuotas, "Id", "Texto"))">
                                 <option value="">--Elija una cuota--</option>
                             </select>
+                            <span id="cuota-error" class="text-danger"></span> <!-- mensaje de validación -->
                         </div>
                         <div>
                             <input class="form-control" type="text" id="valorCuota" readonly />
@@ -184,18 +185,24 @@
                     
                     <div id="divOtraFormaPago" style="display: none">
                         <label>Escriba la forma de pago</label>
-                        <input class="form-control" type="text" id="otraForma" readonly />
+                        <input class="form-control" type="text" id="otraForma" asp-for="otraFormaPago" readonly />
+                        <span id="otraForma-error" class="text-danger"></span> <!-- mensaje de validación -->
                     </div>
                 </div>
 
                 <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
                 <input type="hidden" asp-for="CantidadAnios" id="cantidadAnios" />
+                <input type="hidden" asp-for="tipoParcela" value="@Model.DatosParcela.TipoParcela" />
+                <input type="hidden" asp-for="seccion" value="@Model.DatosParcela.NombreSeccion.ToUpper()" />
+                <input type="hidden" asp-for="ParcelaString" value="@parcela" />
+                <input type="hidden" asp-for="PrecioFinal" id="precioFinal" name="PrecioFinal" />
 
                 <input type="submit" value="Generar contrato" class="btn btn-success" />
             </div>
         </div>
     </div>
 </form>
+
 
 <!-- Modal contribuyente-->
 <div class="modal fade" id="TitularModal" tabindex="-1" aria-labelledby="titularModalLabel" aria-hidden="true">
@@ -735,7 +742,8 @@
             });
         });
     </script>
-    <script>
+
+    <script>//logica de forma de pago y cuotas
         document.addEventListener('DOMContentLoaded', () => {
 
           const formaDePagoSelect   = document.getElementById('formaDePago');
@@ -743,7 +751,12 @@
           const divOtraFormaPago    = document.getElementById('divOtraFormaPago');
           const selectCantidadPrecio= document.getElementById('selectCantidadPrecio');
           const valorCuotaInput     = document.getElementById('valorCuota');
-
+          const formulario = document.getElementById('formPrincipal');
+          const otraFormaError      = document.getElementById('otraForma-error');
+          const otraFormaInput      = document.getElementById('otraForma');
+          const cuotaError = document.getElementById('cuota-error');
+          const precioFinalHidden = document.getElementById('precioFinal');
+          let precio = 0;
           // --- util: parsea cadenas con distintos formatos de miles/decimales ---
           function parsePrecioString(raw) {
             if (!raw) return NaN;
@@ -776,14 +789,14 @@
             return parsePrecioString(raw);
           }
 
-         function calcularValorCuota() {
+        function calcularValorCuota() {
               const forma = formaDePagoSelect.value;
               if (forma !== 'cuota') {
                 valorCuotaInput.value = '';
                 return;
               }
 
-              const precio = getPrecioSeleccionado();
+              precio = getPrecioSeleccionado();
               const cuotas = parseInt(cantidadCuotaSelect.value, 10);
 
               if (Number.isFinite(precio) && Number.isInteger(cuotas) && cuotas > 0) {
@@ -801,31 +814,37 @@
               } else {
                 valorCuotaInput.value = '';
               }
+
         }
+
+        
 
           // --- EVENTOS ---
 
-          formaDePagoSelect.addEventListener('change', function() {
+        formaDePagoSelect.addEventListener('change', function() {
             if (this.value === 'otra') {
-              divOtraFormaPago.style.display = 'block';
-              document.getElementById('otraForma').removeAttribute('readonly');
-              cantidadCuotaSelect.setAttribute('disabled', 'disabled');
-              cantidadCuotaSelect.value = '';
-              valorCuotaInput.value = '';
-              document.getElementById('otraForma').value = '';
+                divOtraFormaPago.style.display = 'block';
+                document.getElementById('otraForma').removeAttribute('readonly');
+                cantidadCuotaSelect.setAttribute('disabled', 'disabled');
+                cantidadCuotaSelect.value = '';
+                valorCuotaInput.value = '';
+                document.getElementById('otraForma').value = '';
             } else if (this.value === 'cuota') {
-              divOtraFormaPago.style.display = 'none';
-              document.getElementById('otraForma').setAttribute('readonly', 'readonly');
-              cantidadCuotaSelect.removeAttribute('disabled');
+                divOtraFormaPago.style.display = 'none';
+                document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+                cantidadCuotaSelect.removeAttribute('disabled');
             } else {
-              divOtraFormaPago.style.display = 'none';
-              document.getElementById('otraForma').setAttribute('readonly', 'readonly');
-              cantidadCuotaSelect.setAttribute('disabled', 'disabled');
-              cantidadCuotaSelect.value = '';
-              valorCuotaInput.value = '';
+                divOtraFormaPago.style.display = 'none';
+                document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+                cantidadCuotaSelect.setAttribute('disabled', 'disabled');
+                cantidadCuotaSelect.value = '';
+                valorCuotaInput.value = '';
             }
+            
+            precio = getPrecioSeleccionado();
+            precioFinalHidden.value = precio || 0;
             calcularValorCuota();
-          });
+        });
 
           selectCantidadPrecio.addEventListener('change', function() {
             if (this.value !== '') {
@@ -839,10 +858,62 @@
               cantidadCuotaSelect.value = '';
               valorCuotaInput.value = '';
             }
+
+            precio = getPrecioSeleccionado();
+            precioFinalHidden.value = precio || 0;
             calcularValorCuota();
           });
 
           cantidadCuotaSelect.addEventListener('change', calcularValorCuota);
+
+        // --- VALIDACIÓN EN SUBMIT si se selecciona "otra" o "cuota" ---
+        formulario.addEventListener('submit', function (e) {
+          let valido = true;
+
+          // limpiar errores previos
+          otraFormaError.textContent = "";
+          cuotaError.textContent = "";
+          cantidadCuotaSelect.classList.remove("is-invalid");
+          otraFormaInput.classList.remove("is-invalid");
+
+          // Caso "otra"
+          if (formaDePagoSelect.value === 'otra') {
+            const texto = otraFormaInput.value.trim();
+            if (texto.length < 10) {
+              valido = false;
+              otraFormaError.textContent = 'Debe ingresar al menos 10 caracteres en "Otra forma de pago".';
+              otraFormaInput.classList.add("is-invalid");
+            }
+          }
+
+          // Caso "cuota"
+          if (formaDePagoSelect.value === 'cuota') {
+            if (!cantidadCuotaSelect.value) {
+              valido = false;
+              cuotaError.textContent = 'Debe seleccionar una cantidad de cuotas.';
+              cantidadCuotaSelect.classList.add("is-invalid");
+            }
+          }
+
+          if (!valido) {
+            e.preventDefault(); // bloquea el envío
+          }
+        });
+
+        // borrar mensajes en tiempo real
+        otraFormaInput.addEventListener('input', function () {
+          if (this.value.trim().length >= 10) {
+            otraFormaError.textContent = "";
+            this.classList.remove("is-invalid");
+          }
+        });
+
+        cantidadCuotaSelect.addEventListener('change', function () {
+          if (this.value) {
+            cuotaError.textContent = "";
+            this.classList.remove("is-invalid");
+          }
+        });
 
           // inicializo por si viene con algo cargado
           calcularValorCuota();
