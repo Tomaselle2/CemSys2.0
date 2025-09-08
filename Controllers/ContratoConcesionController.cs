@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Concesiones;
+﻿using CemSys2.Business;
+using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Introduccion;
@@ -169,6 +170,8 @@ namespace CemSys2.Controllers
                 dtoDatosGenerarConcesion.Vencimiento = viewModel.Vencimiento.Value;
                 dtoDatosGenerarConcesion.NroConcesion = viewModel.NroConcesion.Value;
                 dtoDatosGenerarConcesion.formaPago = viewModel.FormaDePago;
+                dtoDatosGenerarConcesion.NroParcela = viewModel.NroParcela;
+                dtoDatosGenerarConcesion.NroFila = viewModel.NroFila;
 
                 if (viewModel.FormaDePago == "cuota")
                 {
@@ -189,8 +192,25 @@ namespace CemSys2.Controllers
                 return View("ContratoConcesion", viewModel);
             }
 
+            ContratoPDF_VM contratoPDF_VM = new ContratoPDF_VM();
+            contratoPDF_VM.datosContrato = dtoDatosGenerarConcesion;
+            contratoPDF_VM.baseUrl = $"{Request.Scheme}://{Request.Host}";
+            contratoPDF_VM.PrecioEnLetras = NumeroALetras.ConvertirALetras(dtoDatosGenerarConcesion.Precio);
+
+            //si es nicho voy a vista de contrato nicho sino contrato fosa
+            string nombreVistaContrato = "";
+            switch (viewModel.tipoParcela)
+            {
+                case (int)TipoParcelaEnum.Nicho:
+                    nombreVistaContrato = TipoParcelaEnum.Nicho.ToString();
+                    break;
+                case (int)TipoParcelaEnum.Fosa:
+                    nombreVistaContrato = TipoParcelaEnum.Fosa.ToString();
+                    break;
+            }
+
             // retorno el PDF
-            return new ViewAsPdf("GenerarContratoConcesionPDF", dtoDatosGenerarConcesion)
+            return new ViewAsPdf($"{nombreVistaContrato}", contratoPDF_VM)
             {
                 PageMargins = new Rotativa.AspNetCore.Options.Margins(10, 5, 5, 10),
                 PageSize = Rotativa.AspNetCore.Options.Size.A4,

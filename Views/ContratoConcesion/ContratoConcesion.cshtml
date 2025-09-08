@@ -196,6 +196,9 @@
                 <input type="hidden" asp-for="seccion" value="@Model.DatosParcela.NombreSeccion.ToUpper()" />
                 <input type="hidden" asp-for="ParcelaString" value="@parcela" />
                 <input type="hidden" asp-for="PrecioFinal" id="precioFinal" name="PrecioFinal" />
+                <input type="hidden" asp-for="NroFila"  value="@Model.DatosParcela.NroFila" />
+                <input type="hidden" asp-for="NroParcela" value="@Model.DatosParcela.NroParcela" />
+
 
                 <input type="submit" value="Generar contrato" class="btn btn-success" />
             </div>

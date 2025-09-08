@@ -41,7 +41,8 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
 
         public string? otraFormaPago { get; set; }
         public decimal PrecioFinal { get; set; }
-      
+        public int NroParcela { get; set; }
+        public int NroFila { get; set; }
 
         public Dictionary<int, string> CantidadAniosNicho { get; set; } =
             new Dictionary<int, string>

@@ -19,6 +19,8 @@
         public string SeccionNombre { get; set; }
         public string ParcelaString { get; set; }
         public string formaPago { get; set; } = string.Empty;
+        public int NroParcela { get; set; }
+        public int NroFila { get; set; }
 
     }
 }
