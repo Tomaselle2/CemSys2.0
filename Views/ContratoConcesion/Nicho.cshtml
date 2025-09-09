@@ -6,131 +6,166 @@
     var imgEncabezado = $"{Model.baseUrl}/fotos/logoMuni.png";
     var pieContrato = $"{Model.baseUrl}/fotos/pieContrato.png";
 }
-<style>
-    html {
-        font-size: 14px;
-       /*  position: relative; */
-        min-height: 100%;
-    }
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background-color: #fff;
-        color: #000;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrato de Concesión</title>
+    <style>
+        html {
+            font-size: 14px;
+            min-height: 100%;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #fff;
+            color: #000;
+            height: 100%;
+        }
 
-    .documento-container {
-        width: 100%;
-        margin: 0 auto;
-        padding: 0 5mm 0mm 15mm;
-        background-color: #fff;
-        min-height: 280mm; /* Alto A4 */ 
-        box-sizing: border-box;
-    }
-    
-    .encabezado {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 5px;
-    }
-    
-    .logo-container img {
-        width: 310px;
-        height: auto;
-        display: block;
-        margin: 0 auto; /* centra horizontal */
-    }
-    
-    .documento-info {
-        padding: 20px;
-        color: black;
-        margin-bottom: 30px;
-    }
+        /* Contenedor principal para cada contrato */
+        .documento-container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 5mm 70px 18mm; /* Añadido padding inferior para el pie */
+            background-color: #fff;
+            min-height: 280mm; /* Alto A4 */
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .encabezado {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        
+        .logo-container img {
+            width: 310px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .documento-info {
+            padding: 20px;
+            color: black;
+            margin-bottom: 30px;
+        }
 
-    .flex-container {
-        display: flex;
-        justify-content: space-between;
-        width: 100%; /* Asegura que ocupe todo el ancho disponible */
-        align-items: flex-start;
-    }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: flex-start;
+        }
 
-    .original {
-       font-weight: bold;
-    }
+        .original {
+           font-weight: bold;
+        }
 
-    .info-derecha {
-        text-align: right;
-    }
+        .info-derecha {
+            text-align: right;
+        }
 
-    .vencimiento {
-        margin-bottom: 8px;
-    }
-    
-    .titulo-principal {
-        text-align: center;
-        font-size: 0.6rem;
-        font-weight: bold;
-    }
-    
-    .contenido-contrato {
-        text-align: justify;
-        margin-bottom: 40px;
-    }
-    
-    .contenido-contrato p {
-        margin: 15px 0;
-        text-indent: 0;
-    }
+        .vencimiento {
+            margin-bottom: 8px;
+        }
+        
+        .titulo-principal {
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+        
+        .contenido-contrato {
+            text-align: justify;
+            margin-bottom: 40px;
+        }
+        
+        .contenido-contrato p {
+            margin: 15px 0;
+            text-indent: 0;
+        }
 
-    .contenido-contrato div {
-        display: inline;
-        margin: 0;
-        padding: 0;
-    }
+        .contenido-contrato div {
+            display: inline;
+            margin: 0;
+            padding: 0;
+        }
 
-    .firma-linea {
-        font-size: 18px;
-        letter-spacing: 1px;
-        color: #000;
-        margin: 0 auto 15px auto;
-        overflow: hidden;
-        height: 30px;
-        line-height: 30px;
-        width: 100%; /* Asegura que la línea ocupe todo el ancho del contenedor */
-    }
+        .firma-linea {
+            font-size: 18px;
+            letter-spacing: 1px;
+            color: #000;
+            margin: 0 auto 15px auto;
+            overflow: hidden;
+            height: 30px;
+            line-height: 30px;
+            width: 100%;
+        }
 
+        /* Pie de página mejorado - posición relativa */
+        .pie-pagina {
+            position: absolute;
+            bottom: 5mm;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 0 15mm;
+        }
 
-    .pie-pagina {
-        position: absolute;
-        bottom: 5mm;
-        left: 15mm;
-        right: 15mm;
-    }
+        .pie-pagina img {
+            width: 700px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
 
-    .pie-pagina img{
-        width: 700px;
-        height: auto;
-        display: block;
-        margin: 0 auto; /* centra horizontal */
-    }
+        .contenido-contrato p {
+            margin: 0;
+            text-indent: 0;
+        }
 
-    .contenido-contrato p {
-        margin: 0;
-        text-indent: 0;
-    }
+        .flexFirmas {
+            margin-top: 70px;
+            margin-bottom: 100px; /* Más espacio para el pie de página */
+            width: 90%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-    .flexFirmas {
-        margin-top: 70px;
-        margin-bottom: 80px; /* Espacio para el pie de página */
-        width: 90%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    }
-</style>
-
+        /* Para impresión - usando @@ para escapar en Razor */
+        @@media print {
+            .documento-container {
+                page-break-after: always;
+                height: 280mm;
+                padding-bottom: 80px; /* Espacio para el pie en impresión */
+            }
+            
+            .documento-container:last-child {
+                page-break-after: auto;
+            }
+            
+            .pie-pagina {
+                position: absolute;
+                bottom: 5mm;
+            }
+            
+            /* Salto de página entre copias */
+            .salto-pagina {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
 @{ //logica de titulares
     var titulares = Model.datosContrato.Titulares;
     var bloqueTitular = "";
@@ -232,93 +267,99 @@
 
 }
 
-<div class="documento-container">
-    
-    
-    <div class="encabezado">
-        <div class="logo-container">
-            <img src="@imgEncabezado" alt="Logo Municipalidad">
-        </div>
-    </div>
-
-    <div class="documento-info">
-        <div class="flex-container">
-            <div class="original">
-                ORIGINAL
-            </div>
-            <div class="info-derecha">
-                <div class="vencimiento">
-                    vencimiento: @Model.datosContrato.Vencimiento.ToString("dd/MM/yyyy")
-                </div>
-                <div>
-                    N° cuenta: @Model.datosContrato.NroConcesion
-                </div>
+@for(int i=0; i < 2; i++) //bucle para generar dos copias del contrato en la misma hoja
+{
+    <div class="documento-container">
+        <div class="encabezado">
+            <div class="logo-container">
+                <img src="@imgEncabezado" alt="Logo Municipalidad">
             </div>
         </div>
-    </div>
-    <div class="titulo-principal">
-        <h1>CONTRATO DE CONCESIÓN</h1>
-    </div>
+
+        <div class="documento-info">
+            <div class="flex-container">
+                <div class="original">
+                    @(i == 0 ? "ORIGINAL" : "DUPLICADO")
+                </div>
+                <div class="info-derecha">
+                    <div class="vencimiento">
+                        vencimiento: @Model.datosContrato.Vencimiento.ToString("dd/MM/yyyy")
+                    </div>
+                    <div>
+                        N° cuenta: @Model.datosContrato.NroConcesion
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="titulo-principal">
+            <h1>CONTRATO DE CONCESIÓN</h1>
+        </div>
     
-    <div class="contenido-contrato">
-        <p>
-            Entre la Municipalidad de Colonia Tirolesa, representada en este acto por el Sr. Intendente Municipal Sr. JUAN DOMINGO PANICHELLI y @bloqueTitular Convienen en celebrar el siguiente contrato de concesión del derecho real de uso que se regirá por las siguientes cláusulas:
-        </p>
+        <div class="contenido-contrato">
+            <p>
+                Entre la Municipalidad de Colonia Tirolesa, representada en este acto por el Sr. Intendente Municipal Sr. JUAN DOMINGO PANICHELLI y @bloqueTitular Convienen en celebrar el siguiente contrato de concesión del derecho real de uso que se regirá por las siguientes cláusulas:
+            </p>
         
-        <p>
-            <strong>PRIMERO: OBJETO</strong>. La municipalidad de Colonia Tirolesa concede el uso especial del siguiente bien:<br/> <strong>@parcela</strong>.
-        </p>
+            <p>
+                <strong>PRIMERO: OBJETO</strong>. La municipalidad de Colonia Tirolesa concede el uso especial del siguiente bien:<br/> <strong>@parcela</strong>.
+            </p>
         
-        <p>
-            Sito en el cementerio municipal de Colonia Tirolesa a cargo de la oficina del Registro Civil por el término de <br/><strong>@Model.datosContrato.CantidadAnios AÑOS</strong>.
-        </p>
+            <p>
+                Sito en el cementerio municipal de Colonia Tirolesa a cargo de la oficina del Registro Civil por el término de <br/><strong>@Model.datosContrato.CantidadAnios AÑOS</strong>.
+            </p>
         
-        <p>
-            <strong>SEGUNDO: ONEROSIDAD</strong>. El precio de la concesión conforme la ordenanza tarifaria vigente a la firma del presente, asciende a la suma de <strong> $ @Model.datosContrato.Precio.ToString("N2") (@Model.PrecioEnLetras.ToUpper())</strong>.
-        </p>
+            <p>
+                <strong>SEGUNDO: ONEROSIDAD</strong>. El precio de la concesión conforme la ordenanza tarifaria vigente a la firma del presente, asciende a la suma de <strong> $ @Model.datosContrato.Precio.ToString("N2") (@Model.PrecioEnLetras.ToUpper())</strong>.
+            </p>
         
-        <p>
-            <strong>TERCERO: FORMA DE PAGO</strong>. El precio de la concesión será abonado de la siguiente forma: <br/><strong>@formaPago</strong>
-        </p>
+            <p>
+                <strong>TERCERO: FORMA DE PAGO</strong>. El precio de la concesión será abonado de la siguiente forma: <br/><strong>@formaPago</strong>
+            </p>
         
-        <p>
-            <strong>CUARTO: OTRAS OBLIGACIONES</strong>. El concesionario se obliga, además, a abonar anualmente los gastos de mantenimiento, administrativos, consevación, exhumación, inhumacion, traslado, reducción de cuerpo y todos los derechos municipales que la ordenanza tarifaria establece. Es obligatorio el uso de la placa autorizada por la municipalidad.
-        </p>
+            <p>
+                <strong>CUARTO: OTRAS OBLIGACIONES</strong>. El concesionario se obliga, además, a abonar anualmente los gastos de mantenimiento, administrativos, consevación, exhumación, inhumacion, traslado, reducción de cuerpo y todos los derechos municipales que la ordenanza tarifaria establece. Es obligatorio el uso de la placa autorizada por la municipalidad.
+            </p>
         
-        <p>
-            <strong>QUINTO: CADUCIDAD</strong>. La caducidad de la concesión se efectuará de pleno derecho por el mero transcurso del tiempo sin necesidad de interpelación previa de ninguna especie, ante la expiración del término por el cual fue concedido el bien; y/o por el incumplimiento en el pago de la concesión y/o los gastos enumerados en la cláusula cuarta, por uno o más períodos, pasando nuevamente el bien concedido al dominio público, trasladándose los restos a fosa común municipal a cargo del concesionario y/o sus herederos.-
-        </p>
+            <p>
+                <strong>QUINTO: CADUCIDAD</strong>. La caducidad de la concesión se efectuará de pleno derecho por el mero transcurso del tiempo sin necesidad de interpelación previa de ninguna especie, ante la expiración del término por el cual fue concedido el bien; y/o por el incumplimiento en el pago de la concesión y/o los gastos enumerados en la cláusula cuarta, por uno o más períodos, pasando nuevamente el bien concedido al dominio público, trasladándose los restos a fosa común municipal a cargo del concesionario y/o sus herederos.-
+            </p>
         
-        <p>
-            El pago posterior a esta medida no da derecho a reclamo del cuerpo exhumado, ni de ningún tipo de indemnización.
-        </p>
+            <p>
+                El pago posterior a esta medida no da derecho a reclamo del cuerpo exhumado, ni de ningún tipo de indemnización.
+            </p>
         
-        <p>
-            <strong>SEXTO: JURISDICCIÓN</strong>. El bien estará ocupado por el extinto: <strong> @bloqueDifuntos</strong>
-        </p>
+            <p>
+                <strong>SEXTO: JURISDICCIÓN</strong>. El bien estará ocupado por el extinto: <strong> @bloqueDifuntos</strong>
+            </p>
 
-        <p>
-            Año de ingreso: <strong>@bloqueAnioIngreso</strong>
-        </p>
+            <p>
+                Año de ingreso: <strong>@bloqueAnioIngreso</strong>
+            </p>
 
-        <p>
-            <strong>SÉPTIMO: JURISDICCIÓN Y DOMICILIO</strong>. Por todos los efectos del presente, las partes se someten a la jurisdicción de los Tribunales Ordinarios de la Ciudad de Córdoba, renunciando a todo otro fuero que le pudiera corresponder; fijando sus domicilios en los arriba indicados donde se tendrán por válidas todas las notificaciones extrajudiciales o judiciales que se practiquen. En prueba de conformidad se firman dos ejemplares de un mismo tenor el día @Model.datosContrato.fechaGeneracion.ToString("D")
-        </p>
-    </div>
-    <div class="flexFirmas">
-        <div>
-            <p class="firma-linea">...............................</p>
-            <p>Firma Autoridad Municipal</p>
+            <p>
+                <strong>SÉPTIMO: JURISDICCIÓN Y DOMICILIO</strong>. Por todos los efectos del presente, las partes se someten a la jurisdicción de los Tribunales Ordinarios de la Ciudad de Córdoba, renunciando a todo otro fuero que le pudiera corresponder; fijando sus domicilios en los arriba indicados donde se tendrán por válidas todas las notificaciones extrajudiciales o judiciales que se practiquen. En prueba de conformidad se firman dos ejemplares de un mismo tenor el día @Model.datosContrato.fechaGeneracion.ToString("D")
+            </p>
         </div>
-        <div>
-            <p class="firma-linea">..........................</p>
-            <p>Firma Concesionario</p>
+        <div class="flexFirmas">
+            <div>
+                <p class="firma-linea">...............................</p>
+                <p>Firma Autoridad Municipal</p>
+            </div>
+            <div>
+                <p class="firma-linea">..........................</p>
+                <p>Firma Concesionario</p>
+            </div>
+        </div>
+
+        <div class="pie-pagina">
+             <img src="@pieContrato" alt="Logo Municipalidad">
         </div>
     </div>
-</div>
 
-
-
-<div class="pie-pagina">
-    <img src="@pieContrato" alt="Logo Municipalidad">
-</div>
+    if(i == 0)
+    {
+        <div class="salto-pagina"></div> <!-- Salto de página entre copias -->
+    }
+}
+</body>
+</html>
