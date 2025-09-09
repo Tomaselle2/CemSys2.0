@@ -9,6 +9,8 @@ using CemSys2.Interface.Personas;
 using Rotativa.AspNetCore;
 using CemSys2.Interface.Parcelas;
 using CemSys2.Interface.Concesiones;
+using PuppeteerSharp;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +28,9 @@ builder.Services.AddControllersWithViews();
 // Configurar el DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion")));
+
+
+builder.Services.AddScoped<IPdfService, PdfService>();
 
 //contenedor de capa de datos
 builder.Services.AddScoped(typeof(IRepositoryDB<>), typeof(ServiceGenericDB<>));
@@ -46,6 +51,8 @@ builder.Services.AddScoped<IConcesionesBusiness, ConcesionesBusiness>();
 
 var app = builder.Build();
 
+var browserFetcher = new BrowserFetcher();
+await browserFetcher.DownloadAsync();
 
 // Configura Rotativa con la ruta de wkhtmltopdf
 string wwwroot = app.Environment.WebRootPath;

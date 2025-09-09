@@ -3,64 +3,78 @@
 @model ContratoPDF_VM
 @{
     Layout = null;
-    var imgEncabezado = $"{Model.baseUrl}/fotos/completo.png";
+    var imgEncabezado = $"{Model.baseUrl}/fotos/logoMuni.png";
+    var pieContrato = $"{Model.baseUrl}/fotos/pieContrato.png";
 }
 <style>
     html {
-        font-size: 16px;
-        position: relative;
+        font-size: 14px;
+       /*  position: relative; */
         min-height: 100%;
     }
     body {
         margin: 0;
         padding: 0;
-        font-family: "Segoe UI Variable Display", sans-serif;
-        background-color: #aff;
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #fff;
         color: #000;
     }
 
     .documento-container {
         width: 100%;
-        /* max-width: 210mm; */ /* Tamaño A4 */
         margin: 0 auto;
-        padding: 20mm;
+        padding: 0 5mm 0mm 15mm;
         background-color: #fff;
-        min-height: 297mm; /* Alto A4 */
+        min-height: 280mm; /* Alto A4 */ 
         box-sizing: border-box;
     }
     
     .encabezado {
         display: flex;
         justify-content: center;
-        margin-bottom: 30px;
+        margin-bottom: 5px;
     }
     
     .logo-container img {
-        max-width: 600px;
+        width: 310px;
         height: auto;
         display: block;
         margin: 0 auto; /* centra horizontal */
     }
     
     .documento-info {
-        text-align: right;
-        font-size: 12px;
+        padding: 20px;
+        color: black;
+        margin-bottom: 30px;
     }
-    
-    .documento-info p {
-        margin: 2px 0;
+
+    .flex-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%; /* Asegura que ocupe todo el ancho disponible */
+        align-items: flex-start;
+    }
+
+    .original {
+       font-weight: bold;
+    }
+
+    .info-derecha {
+        text-align: right;
+    }
+
+    .vencimiento {
+        margin-bottom: 8px;
     }
     
     .titulo-principal {
         text-align: center;
         font-size: 0.6rem;
         font-weight: bold;
-        margin: 20px 0;
     }
     
     .contenido-contrato {
         text-align: justify;
-        font-size: 17px;
         margin-bottom: 40px;
     }
     
@@ -74,36 +88,31 @@
         margin: 0;
         padding: 0;
     }
-    
-    .firmas {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 80px;
-        margin-bottom: 40px;
-    }
-    
-    .firma {
-        text-align: center;
-        width: 200px;
-    }
-    
+
     .firma-linea {
-        border-top: 1px solid #000;
-        margin-bottom: 5px;
+        font-size: 18px;
+        letter-spacing: 1px;
+        color: #000;
+        margin: 0 auto 15px auto;
+        overflow: hidden;
+        height: 30px;
+        line-height: 30px;
+        width: 100%; /* Asegura que la línea ocupe todo el ancho del contenedor */
     }
-    
+
+
     .pie-pagina {
         position: absolute;
-        bottom: 20mm;
-        left: 20mm;
-        right: 20mm;
-        background-color: #666;
-        color: white;
-        padding: 10px;
-        font-size: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        bottom: 5mm;
+        left: 15mm;
+        right: 15mm;
+    }
+
+    .pie-pagina img{
+        width: 700px;
+        height: auto;
+        display: block;
+        margin: 0 auto; /* centra horizontal */
     }
 
     .contenido-contrato p {
@@ -111,10 +120,18 @@
         text-indent: 0;
     }
 
+    .flexFirmas {
+        margin-top: 70px;
+        margin-bottom: 80px; /* Espacio para el pie de página */
+        width: 90%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
 </style>
 
-@{
-    //logica de titulares
+@{ //logica de titulares
     var titulares = Model.datosContrato.Titulares;
     var bloqueTitular = "";
 
@@ -124,7 +141,7 @@
         string el_la = titular.Sexo == "masculino" ? "el" : "la";
         string sr_sra = titular.Sexo == "masculino" ? "Sr." : "Sra.";
 
-        var textoTitular = $"{el_la} {sr_sra} {titular.Nombre.ToUpper()} {titular.Apellido.ToUpper()} DNI {titular.Dni} con domicilio en {titular.Domicilio.ToUpper()}. Tel: {titular.Celular}. E-mail: {titular.CorreoElectronico}.";
+        var textoTitular = $"{el_la} {sr_sra} {titular.Nombre.ToUpper()} {titular.Apellido.ToUpper()} DNI {titular.Dni} con domicilio en {titular.Domicilio.ToUpper()}. Tel: {titular.Celular}. E-mail: {titular.CorreoElectronico.ToLower()}.";
 
         if (i == 0)
         {
@@ -192,8 +209,7 @@
 
 }
 
-@{
-    //forma de pago
+@{ //forma de pago
     string formaPago = "";
 
     if (Model.datosContrato.formaPago == "cuota")
@@ -223,15 +239,23 @@
         <div class="logo-container">
             <img src="@imgEncabezado" alt="Logo Municipalidad">
         </div>
-        
-        <div class="documento-info">
-            <p>vencimiento: @Model.datosContrato.Vencimiento.ToString("dd/MM/yyyy")</p>
-            <p>N° cuenta: @Model.datosContrato.NroConcesion</p>
-        </div>
-
-        <strong>ORIGINAL</strong>
     </div>
-    
+
+    <div class="documento-info">
+        <div class="flex-container">
+            <div class="original">
+                ORIGINAL
+            </div>
+            <div class="info-derecha">
+                <div class="vencimiento">
+                    vencimiento: @Model.datosContrato.Vencimiento.ToString("dd/MM/yyyy")
+                </div>
+                <div>
+                    N° cuenta: @Model.datosContrato.NroConcesion
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="titulo-principal">
         <h1>CONTRATO DE CONCESIÓN</h1>
     </div>
@@ -242,11 +266,11 @@
         </p>
         
         <p>
-            <strong>PRIMERO: OBJETO</strong>. La municipalidad de Colonia Tirolesa concede el uso especial del siguiente bien <strong>@parcela</strong>.
+            <strong>PRIMERO: OBJETO</strong>. La municipalidad de Colonia Tirolesa concede el uso especial del siguiente bien:<br/> <strong>@parcela</strong>.
         </p>
         
         <p>
-            Sito en el cementerio municipal de Colonia Tirolesa a cargo de la oficina del Registro Civil por el término de <strong>@Model.datosContrato.CantidadAnios AÑOS</strong>.
+            Sito en el cementerio municipal de Colonia Tirolesa a cargo de la oficina del Registro Civil por el término de <br/><strong>@Model.datosContrato.CantidadAnios AÑOS</strong>.
         </p>
         
         <p>
@@ -254,7 +278,7 @@
         </p>
         
         <p>
-            <strong>TERCERO: FORMA DE PAGO</strong>. El precio de la concesión será abonado de la siguiente forma: <strong>@formaPago</strong>
+            <strong>TERCERO: FORMA DE PAGO</strong>. El precio de la concesión será abonado de la siguiente forma: <br/><strong>@formaPago</strong>
         </p>
         
         <p>
@@ -278,24 +302,23 @@
         </p>
 
         <p>
-            <strong>SÉPTIMO: JURISDICCIÓN Y DOMICILIO</strong>. Por todos los efectos del presente, las partes se someten a la jurisdicción de los Tribunales Ordinarios de la Ciudad de Córdoba, renunciando a  todo otro fuero que le pudiera corresponder, fijando sus domicilios en los arriba indicados donde se  tendrán por válidas todas las notificaciones extrajudiciales o judiciales que se practiquen. En 
-            prueba de conformidad se firman dos ejemplares de un mismo tenor el día domingo, 7 de 
-            septiembre de 2025
+            <strong>SÉPTIMO: JURISDICCIÓN Y DOMICILIO</strong>. Por todos los efectos del presente, las partes se someten a la jurisdicción de los Tribunales Ordinarios de la Ciudad de Córdoba, renunciando a todo otro fuero que le pudiera corresponder; fijando sus domicilios en los arriba indicados donde se tendrán por válidas todas las notificaciones extrajudiciales o judiciales que se practiquen. En prueba de conformidad se firman dos ejemplares de un mismo tenor el día @Model.datosContrato.fechaGeneracion.ToString("D")
         </p>
     </div>
-    
-    <div class="firmas">
-        <div class="firma">
-            <div class="firma-linea"></div>
+    <div class="flexFirmas">
+        <div>
+            <p class="firma-linea">...............................</p>
             <p>Firma Autoridad Municipal</p>
         </div>
-        <div class="firma">
-            <div class="firma-linea"></div>
+        <div>
+            <p class="firma-linea">..........................</p>
             <p>Firma Concesionario</p>
         </div>
     </div>
-    
-    <div class="pie-pagina">
-        <p>Imagen de pie de pagina</p>
-    </div>
+</div>
+
+
+
+<div class="pie-pagina">
+    <img src="@pieContrato" alt="Logo Municipalidad">
 </div>

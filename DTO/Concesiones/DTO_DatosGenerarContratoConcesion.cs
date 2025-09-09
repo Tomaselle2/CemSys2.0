@@ -15,6 +15,7 @@
         public int? ContratoAnteriorId { get; set; }
         public decimal Precio { get; set; }
         public int TipoParcela { get; set; }
+        public DateTime fechaGeneracion { get; set; }
 
         public string SeccionNombre { get; set; }
         public string ParcelaString { get; set; }

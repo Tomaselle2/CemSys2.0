@@ -1,6 +1,7 @@
 ﻿using CemSys2.Business;
 using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
+using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
@@ -20,13 +21,14 @@ namespace CemSys2.Controllers
         private readonly IConcesionesBusiness _concesionesBusiness;
         private readonly IIntroduccionBusiness _introduccionBusiness;
         private readonly IPersonasBusiness _personasBusiness;
+        private readonly IPdfService _pdfService;
 
-
-        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, IPersonasBusiness personasBusiness)
+        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, IPersonasBusiness personasBusiness, IPdfService pdfService)
         {
             _concesionesBusiness = concesionesBusiness;
             _introduccionBusiness = introduccionBusiness;
             _personasBusiness = personasBusiness;
+            _pdfService = pdfService;
         }
 
         //vista principal de concesiones
@@ -156,7 +158,7 @@ namespace CemSys2.Controllers
                         });
                     }
                 }
-
+                DateTime fechaGeneracion = DateTime.Now;
                 //creo el dto para enviar a la siguiente pantalla de generacion de contrato concesion
                 dtoDatosGenerarConcesion.Titulares = Titulares;
                 dtoDatosGenerarConcesion.Difuntos = Difuntos;
@@ -172,6 +174,7 @@ namespace CemSys2.Controllers
                 dtoDatosGenerarConcesion.formaPago = viewModel.FormaDePago;
                 dtoDatosGenerarConcesion.NroParcela = viewModel.NroParcela;
                 dtoDatosGenerarConcesion.NroFila = viewModel.NroFila;
+                dtoDatosGenerarConcesion.fechaGeneracion = fechaGeneracion;
 
                 if (viewModel.FormaDePago == "cuota")
                 {
@@ -209,13 +212,28 @@ namespace CemSys2.Controllers
                     break;
             }
 
-            // retorno el PDF
-            return new ViewAsPdf($"{nombreVistaContrato}", contratoPDF_VM)
+            try
             {
-                PageMargins = new Rotativa.AspNetCore.Options.Margins(10, 5, 5, 10),
-                PageSize = Rotativa.AspNetCore.Options.Size.A4,
-                FileName = null // null = lo abre en el visor del navegador
-            };
+                // Generar PDF con Puppeteer
+                var pdfBytes = await _pdfService.GeneratePdfAsync(nombreVistaContrato, contratoPDF_VM, HttpContext);
+
+                // se abre en el visor del navegador
+                return File(pdfBytes, "application/pdf");
+
+                // Si quieres forzar descarga:
+                // return File(pdfBytes, "application/pdf", "contrato.pdf");
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return BadRequest($"Error generando PDF: {ex.Message}");
+            }
+            //return new ViewAsPdf($"{nombreVistaContrato}", contratoPDF_VM)
+            //{
+            //    PageMargins = new Rotativa.AspNetCore.Options.Margins(5, 5, 5, 10),
+            //    PageSize = Rotativa.AspNetCore.Options.Size.A4,
+            //    FileName = null // null = lo abre en el visor del navegador
+            //};
         }
 
 
