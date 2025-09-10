@@ -18,9 +18,8 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
 
         public string MensajeError = string.Empty;
 
-        [Range(0, 99999, ErrorMessage = "El número de concesión no puede superar los 5 dígitos")]
         [Required(ErrorMessage = "El número de concesión es obligatorio")]
-        public int? NroConcesion { get; set; }
+        public string? NroConcesion { get; set; }
 
         [Required(ErrorMessage = "La cantidad de años es obligatoria")]
         public int? PrecioSeleccionado { get; set; }

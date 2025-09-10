@@ -110,10 +110,13 @@ namespace CemSys2.Controllers
         //metodo de genera el contrato concesion en formato pdf
         public async Task<IActionResult> GenerarContratoConcesionPDF(GenerarContratoVM viewModel)
         {
+
             //valido el modelo
             if (!ModelState.IsValid)
             {
                 await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
+                //mensaje de error
+                viewModel.MensajeError = "Por favor, complete todos los campos obligatorios.";
                 return View("ContratoConcesion", viewModel);
             }
 
@@ -170,7 +173,7 @@ namespace CemSys2.Controllers
                 dtoDatosGenerarConcesion.ParcelaId = viewModel.ParcelaId.Value;
                 dtoDatosGenerarConcesion.CantidadAnios = viewModel.CantidadAnios.Value;
                 dtoDatosGenerarConcesion.Vencimiento = viewModel.Vencimiento.Value;
-                dtoDatosGenerarConcesion.NroConcesion = viewModel.NroConcesion.Value;
+                dtoDatosGenerarConcesion.NroConcesion = viewModel.NroConcesion ?? "";
                 dtoDatosGenerarConcesion.formaPago = viewModel.FormaDePago;
                 dtoDatosGenerarConcesion.NroParcela = viewModel.NroParcela;
                 dtoDatosGenerarConcesion.NroFila = viewModel.NroFila;

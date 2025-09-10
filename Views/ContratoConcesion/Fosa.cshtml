@@ -1,1 +1,406 @@
-﻿
+﻿@using CemSys2.ViewModel.ConcesionesViewModel;
+@using CemSys2.Enumerable;
+@model ContratoPDF_VM
+@{
+    Layout = null;
+    var imgEncabezado = $"{Model.baseUrl}/fotos/logoMuni.png";
+    var pieContrato = $"{Model.baseUrl}/fotos/pieContrato.png";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrato de Concesión</title>
+    <style>
+        html {
+            font-size: 14px;
+            min-height: 100%;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #fff;
+            color: #000;
+            height: 100%;
+        }
+
+        /* Contenedor principal para cada contrato */
+        .documento-container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 5mm 70px 18mm; /* Añadido padding inferior para el pie */
+            background-color: #fff;
+            min-height: 280mm; /* Alto A4 */
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .encabezado {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        
+        .logo-container img {
+            width: 310px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .documento-info {
+            padding: 20px;
+            color: black;
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .original {
+           font-weight: bold;
+        }
+
+        .info-derecha {
+            text-align: right;
+        }
+
+        .vencimiento {
+            margin-bottom: 8px;
+        }
+        
+        .titulo-principal {
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+        
+        .contenido-contrato {
+            text-align: justify;
+            margin-bottom: 40px;
+        }
+        
+        .contenido-contrato p {
+            margin: 15px 0;
+            text-indent: 0;
+        }
+
+        .contenido-contrato div {
+            display: inline;
+            margin: 0;
+            padding: 0;
+        }
+
+        .firma-linea {
+            font-size: 18px;
+            letter-spacing: 1px;
+            color: #000;
+            margin: 0 auto 15px auto;
+            overflow: hidden;
+            height: 30px;
+            line-height: 30px;
+            width: 100%;
+        }
+
+        /* Pie de página mejorado - posición relativa */
+        .pie-pagina {
+            position: absolute;
+            bottom: 5mm;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 0 15mm;
+        }
+
+        .pie-pagina img {
+            width: 700px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .contenido-contrato p {
+            margin: 0;
+            text-indent: 0;
+        }
+
+        .flexFirmas {
+            margin-top: 60px;
+            margin-bottom: 80px; /* Más espacio para el pie de página */
+            width: 90%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Para impresión - usando @@ para escapar en Razor */
+        @@media print {
+            .documento-container {
+                page-break-after: always;
+                height: 280mm;
+                padding-bottom: 80px; /* Espacio para el pie en impresión */
+            }
+            
+            .documento-container:last-child {
+                page-break-after: auto;
+            }
+            
+            .pie-pagina {
+                position: absolute;
+                bottom: 5mm;
+            }
+            
+            /* Salto de página entre copias */
+            .salto-pagina {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+@{ //logica de titulares
+    var titulares = Model.datosContrato.Titulares;
+    var bloqueTitular = "";
+
+    for (int i = 0; i < titulares.Count; i++)
+    {
+        var titular = titulares[i];
+        string el_la = titular.Sexo == "masculino" ? "el" : "la";
+        string sr_sra = titular.Sexo == "masculino" ? "Sr." : "Sra.";
+
+        // Eliminar cualquier punto existente para evitar duplicados
+        string dniLimpio = titular.Dni.Replace(".", "");
+    
+        // Formatear agregando puntos cada 3 dígitos desde la derecha
+        string dniFormateado = "";
+        int contador = 0;
+    
+        // Recorrer el DNI de derecha a izquierda
+        for (int j = dniLimpio.Length - 1; j >= 0; j--)
+        {
+            dniFormateado = dniLimpio[j] + dniFormateado;
+            contador++;
+        
+            // Agregar punto cada 3 dígitos (excepto al final)
+            if (contador % 3 == 0 && j > 0)
+            {
+                dniFormateado = "." + dniFormateado;
+            }
+        }
+
+
+        var textoTitular = $"{el_la} {sr_sra} {titular.Nombre.ToUpper()} {titular.Apellido.ToUpper()} DNI {dniFormateado} con domicilio en {titular.Domicilio.ToUpper()}. Tel: {titular.Celular}. E-mail: {titular.CorreoElectronico.ToLower()}.";
+
+        if (i == 0)
+        {
+            // primer titular
+            bloqueTitular += textoTitular;
+        }
+        else if (i == titulares.Count - 1)
+        {
+            // último titular → usar " y "
+            bloqueTitular += " Y " + textoTitular;
+        }
+        else
+        {
+            // titulares intermedios → usar coma
+            bloqueTitular += ", " + textoTitular;
+        }
+    }
+}
+
+@{ //logica de ubicacion parcela
+    string parcela = "";
+    if (Model.datosContrato.TipoParcela == 1) //nicho
+    {
+        parcela = $"NICHO {Model.datosContrato.NroParcela.ToString()} SECC {Model.datosContrato.SeccionNombre.ToUpper()} FILA {Model.datosContrato.NroFila.ToString()}";
+    }
+    else if (Model.datosContrato.TipoParcela == 2)//fosa
+    {
+        parcela = $"FOSA {Model.datosContrato.NroParcela.ToString()} SECC {Model.datosContrato.SeccionNombre.ToUpper()}";
+    }
+    else if (Model.datosContrato.TipoParcela == 3) //panteon
+    {
+        parcela = $"LOTE {Model.datosContrato.NroParcela.ToString()} SECC {Model.datosContrato.SeccionNombre.ToUpper()}";
+    }
+}
+
+@{ //logica de difuntos
+    var difuntos = Model.datosContrato.Difuntos;
+    var bloqueDifuntos = "";
+    var bloqueAnioIngreso = "";
+
+    for (int i = 0; i < difuntos.Count; i++)
+    {
+        var difunto = difuntos[i];
+        var textoDifunto = $"{difunto.Apellido.ToUpper()} {difunto.Nombre.ToUpper()}";
+        if (i == 0)
+        {
+            // primer difunto
+            bloqueDifuntos += textoDifunto;
+            bloqueAnioIngreso += difunto.FechaIngreso.Year.ToString();
+        }
+        else if (i == difuntos.Count - 1)
+        {
+            // último difunto → usar " y "
+            bloqueDifuntos += " y " + textoDifunto;
+            bloqueAnioIngreso += " - " + difunto.FechaIngreso.Year.ToString();
+        }
+        else
+        {
+            // difuntos intermedios → usar coma
+            bloqueDifuntos += ", " + textoDifunto;
+            bloqueAnioIngreso += " - " + difunto.FechaIngreso.Year.ToString();
+
+        }
+    }
+
+}
+
+@{ //forma de pago
+    string formaPago = "";
+
+    if (Model.datosContrato.formaPago == "cuota")
+    {
+        if(Model.datosContrato.CuotaId == 1)
+        {
+            formaPago = "1 solo pago";
+        }
+        else
+        {
+            decimal precio = (Model.datosContrato.Precio / Model.datosContrato.CuotaId.Value);
+            formaPago = $"{Model.datosContrato.CuotaId} cuotas mensuales y consecutivas de $ {precio.ToString("N2")}";
+        }
+
+    }
+    else //otra forma de pago
+    {
+        formaPago = Model.datosContrato.PagoDescripcion;
+    }
+
+}
+
+@for(int i=0; i < 2; i++) //bucle para generar dos copias del contrato en la misma hoja
+{
+    <div class="documento-container">
+        <div class="encabezado">
+            <div class="logo-container">
+                <img src="@imgEncabezado" alt="Logo Municipalidad">
+            </div>
+        </div>
+
+        <div class="documento-info">
+            <div class="flex-container">
+                <div class="original">
+                    @(i == 0 ? "ORIGINAL" : "DUPLICADO")
+                </div>
+                <div class="info-derecha">
+                    <div class="vencimiento">
+                        vencimiento: @Model.datosContrato.Vencimiento.ToString("dd/MM/yyyy")
+                    </div>
+                    <div>
+                        N° concesión: @Model.datosContrato.NroConcesion
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="titulo-principal">
+            <h1>CONTRATO DE CONCESIÓN</h1>
+        </div>
+    
+        <div class="contenido-contrato">
+            <p>
+                Entre la Municipalidad de Colonia Tirolesa, representada en este acto por el Sr. Intendente Municipal Sr. JUAN DOMINGO PANICHELLI y @bloqueTitular Convienen en celebrar el siguiente contrato de concesión del derecho real de uso que se regirá por las siguientes cláusulas:
+            </p>
+        
+            <p>
+                <strong>PRIMERO: OBJETO</strong>. La municipalidad de Colonia Tirolesa concede el uso especial del siguiente bien:<br/> <strong>@parcela</strong>.
+            </p>
+        
+            <p>
+                Sito en el cementerio municipal de Colonia Tirolesa a cargo de la oficina del Registro Civil por el término de <br/><strong>@Model.datosContrato.CantidadAnios AÑOS</strong>.
+            </p>
+        
+            <p>
+                <strong>SEGUNDO: ONEROSIDAD</strong>. El precio de la concesión conforme la ordenanza tarifaria vigente a la firma del presente, asciende a la suma de <strong> $ @Model.datosContrato.Precio.ToString("N2") (@Model.PrecioEnLetras.ToUpper())</strong>.
+            </p>
+        
+            <p>
+                <strong>TERCERO: FORMA DE PAGO</strong>. El precio de la concesión será abonado de la siguiente forma: <br/><strong>@formaPago</strong>
+            </p>
+        
+            <p>
+                <strong>CUARTO: OTRAS OBLIGACIONES</strong>. El concesionario se obliga, además, a abonar anualmente los gastos de mantenimiento, administrativos, consevación, exhumación, inhumacion, traslado, reducción de cuerpo y todos los derechos municipales que la ordenanza tarifaria establece.
+            </p>
+
+            <p>
+                <strong>QUINTO: PLACAS</strong>. En caso de que los responsables y/o familiares a cargo deseen colocar una placa, la misma deberá cumplir con los requisitos estipulados.
+            </p>
+
+            <p>
+                <strong>SEXTO: EXHUMACIÓN</strong>. "No se permitirá exhumar ningún cadáber sepultado, antes de los cinco (5) años de la fecha de inhumación, salvo orden judicial" según Articulo N° 34 de la Ordenanza N° 361, Decreto N° 31 de la fecha 30/06/1997.
+            </p>
+        
+            <p>
+                <strong>SÉPTIMO: CADUCIDAD</strong>. La caducidad de la concesión se efectuará de pleno derecho por el mero transcurso del tiempo sin necesidad de interpelación previa de ninguna especie, ante la expiración del término por el cual fue concedido el bien; y/o por el incumplimiento en el pago de la concesión y/o los gastos enumerados en la cláusula cuarta, por uno o más períodos, pasando nuevamente el bien concedido al dominio público, trasladándose los restos a fosa común municipal a cargo del concesionario y/o sus herederos.-
+            </p>
+        
+            <p>
+                El pago posterior a esta medida no da derecho a reclamo del cuerpo exhumado, ni de ningún tipo de indemnización.
+            </p>
+        
+            <p>
+                <strong>OCTAVO: OCUPACIÓN</strong>. El bien estará ocupado por el extinto: <strong> @bloqueDifuntos</strong>
+            </p>
+
+            <p>
+                Año de ingreso: <strong>@bloqueAnioIngreso</strong>
+            </p>
+
+            <p>
+                <strong>NOVENO: JURISDICCIÓN Y DOMICILIO</strong>. Por todos los efectos del presente, las partes se someten a la jurisdicción de los Tribunales Ordinarios de la Ciudad de Córdoba, renunciando a todo otro fuero que le pudiera corresponder; fijando sus domicilios en los arriba indicados donde se tendrán por válidas todas las notificaciones extrajudiciales o judiciales que se practiquen. En prueba de conformidad se firman dos ejemplares de un mismo tenor el día @Model.datosContrato.fechaGeneracion.ToString("D")
+            </p>
+        </div>
+        <div class="flexFirmas">
+            <div>
+                <p class="firma-linea">............................</p>
+                <p>Firma Autoridad Municipal</p>
+            </div>
+            <div>
+                <p class="firma-linea">......................</p>
+                <p>Firma Concesionario</p>
+            </div>
+        </div>
+
+        <div class="pie-pagina">
+             <img src="@pieContrato" alt="Logo Municipalidad">
+        </div>
+    </div>
+
+    if(i == 0)
+    {
+        <div class="salto-pagina"></div> <!-- Salto de página entre copias -->
+    }
+}
+</body>
+</html>
+@section Scripts {
+    <script> // Formatear DNI
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.dni-formateado').forEach(elemento => {
+                const dni = elemento.textContent;
+                if (dni !== '--------') {
+                    elemento.textContent = dni.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+            });
+        });
+    </script>
+}
+

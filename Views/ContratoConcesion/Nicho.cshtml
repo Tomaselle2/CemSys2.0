@@ -54,7 +54,6 @@
         .documento-info {
             padding: 20px;
             color: black;
-            margin-bottom: 30px;
         }
 
         .flex-container {
@@ -132,8 +131,8 @@
         }
 
         .flexFirmas {
-            margin-top: 70px;
-            margin-bottom: 100px; /* Más espacio para el pie de página */
+            margin-top: 60px;
+            margin-bottom: 80px; /* Más espacio para el pie de página */
             width: 90%;
             display: flex;
             flex-direction: row;
@@ -176,7 +175,28 @@
         string el_la = titular.Sexo == "masculino" ? "el" : "la";
         string sr_sra = titular.Sexo == "masculino" ? "Sr." : "Sra.";
 
-        var textoTitular = $"{el_la} {sr_sra} {titular.Nombre.ToUpper()} {titular.Apellido.ToUpper()} DNI {titular.Dni} con domicilio en {titular.Domicilio.ToUpper()}. Tel: {titular.Celular}. E-mail: {titular.CorreoElectronico.ToLower()}.";
+        // Eliminar cualquier punto existente para evitar duplicados
+        string dniLimpio = titular.Dni.Replace(".", "");
+    
+        // Formatear agregando puntos cada 3 dígitos desde la derecha
+        string dniFormateado = "";
+        int contador = 0;
+    
+        // Recorrer el DNI de derecha a izquierda
+        for (int j = dniLimpio.Length - 1; j >= 0; j--)
+        {
+            dniFormateado = dniLimpio[j] + dniFormateado;
+            contador++;
+        
+            // Agregar punto cada 3 dígitos (excepto al final)
+            if (contador % 3 == 0 && j > 0)
+            {
+                dniFormateado = "." + dniFormateado;
+            }
+        }
+
+
+        var textoTitular = $"{el_la} {sr_sra} {titular.Nombre.ToUpper()} {titular.Apellido.ToUpper()} DNI {dniFormateado} con domicilio en {titular.Domicilio.ToUpper()}. Tel: {titular.Celular}. E-mail: {titular.CorreoElectronico.ToLower()}.";
 
         if (i == 0)
         {
@@ -286,7 +306,7 @@
                         vencimiento: @Model.datosContrato.Vencimiento.ToString("dd/MM/yyyy")
                     </div>
                     <div>
-                        N° cuenta: @Model.datosContrato.NroConcesion
+                        N° concesión: @Model.datosContrato.NroConcesion
                     </div>
                 </div>
             </div>
@@ -329,7 +349,7 @@
             </p>
         
             <p>
-                <strong>SEXTO: JURISDICCIÓN</strong>. El bien estará ocupado por el extinto: <strong> @bloqueDifuntos</strong>
+                <strong>SEXTO: OCUPACIÓN</strong>. El bien estará ocupado por el extinto: <strong> @bloqueDifuntos</strong>
             </p>
 
             <p>
@@ -342,11 +362,11 @@
         </div>
         <div class="flexFirmas">
             <div>
-                <p class="firma-linea">...............................</p>
+                <p class="firma-linea">............................</p>
                 <p>Firma Autoridad Municipal</p>
             </div>
             <div>
-                <p class="firma-linea">..........................</p>
+                <p class="firma-linea">......................</p>
                 <p>Firma Concesionario</p>
             </div>
         </div>
@@ -363,3 +383,15 @@
 }
 </body>
 </html>
+@section Scripts {
+    <script> // Formatear DNI
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.dni-formateado').forEach(elemento => {
+                const dni = elemento.textContent;
+                if (dni !== '--------') {
+                    elemento.textContent = dni.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+            });
+        });
+    </script>
+}

@@ -157,7 +157,8 @@
                     </div>
                     <div>
                         <label>N° Concesión<span class="obligatorio"> * </span></label>
-                        <input class="form-control" type="number" max="99999" required id="nroConcesion" asp-for="NroConcesion" />
+                        <input class="form-control" type="text" required
+                               id="nroConcesion" asp-for="NroConcesion" maxlength="5" />
                         <span asp-validation-for="NroConcesion" class="text-danger"></span>
                     </div>
                 </div>
@@ -199,8 +200,10 @@
                 <input type="hidden" asp-for="NroFila"  value="@Model.DatosParcela.NroFila" />
                 <input type="hidden" asp-for="NroParcela" value="@Model.DatosParcela.NroParcela" />
 
-
-                <input type="submit" value="Generar contrato" class="btn btn-success" />
+                <div class="text-center p-3">
+                    <input type="submit" value="Generar contrato" class="btn btn-success" />
+                </div>
+                
             </div>
         </div>
     </div>
@@ -385,11 +388,23 @@
 
         // Validar formulario principal antes de enviar
         formPrincipal.addEventListener('submit', function(event) {
+            // Normalizar valores de celular y correo antes de enviar
+            const inputsTitulares = contenedorTitulares.querySelectorAll('input');
+            inputsTitulares.forEach(input => {
+                if ((input.name.includes('Celular') || input.name.includes('CorreoElectronico')) && !input.value) {
+                    input.value = "-----";
+                    console.log(input.value);
+                    console.log(input.value);
+                }
+            });
+
             if (titulares.length === 0) {
                 event.preventDefault();
                 alert('Debe agregar al menos un titular');
                 return false;
             }
+
+            
             return true;
         });
 
@@ -433,11 +448,11 @@
                     esValido = false;
                 }
 
-                // Validar correo si tiene algo escrito
-                if (correoInput.value.trim() && !new RegExp("^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$").test(correoInput.value.trim())) {
-                    correoInput.classList.add('is-invalid');
-                    esValido = false;
-                }
+                // // Validar correo si tiene algo escrito
+                // if (correoInput.value.trim() && !new RegExp("^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$").test(correoInput.value.trim())) {
+                //     correoInput.classList.add('is-invalid');
+                //     esValido = false;
+                // }
             }
 
             return esValido;
@@ -612,13 +627,13 @@
                             </div>
                             <div>
                                 <label>Teléfono</label>
-                                <input class="form-control" type="text" name="Titulares[${index}].Celular" value="${titular.celular || ''}" pattern="[0-9]+" maxlength="25" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
-                                <div class="invalid-feedback">No puede tener más de 25 dígitos</div>
+                                <input class="form-control" type="text" name="Titulares[${index}].Celular" value="${titular.celular || ''}" maxlength="25" />
+                                
                             </div>
                             <div>
                                 <label>Correo</label>
-                                <input class="form-control" type="email" name="Titulares[${index}].CorreoElectronico" value="${titular.correo || ''}" maxlength="100" />
-                                <div class="invalid-feedback">Debe contener "@@" y "." </div>
+                                <input class="form-control" type="text" name="Titulares[${index}].CorreoElectronico" value="${titular.correo || ''}" maxlength="100" />
+                                
                             </div>
                         </div>
                     </div>
@@ -746,9 +761,9 @@
         });
     </script>
 
-    <script>//logica de forma de pago y cuotas
+    <script>//logica de forma de pago y cuotas y nro concesion
         document.addEventListener('DOMContentLoaded', () => {
-
+          const nroConcesionInput = document.getElementById('nroConcesion');
           const formaDePagoSelect   = document.getElementById('formaDePago');
           const cantidadCuotaSelect = document.getElementById('CantidadCuotaSeleccionada');
           const divOtraFormaPago    = document.getElementById('divOtraFormaPago');
@@ -920,6 +935,53 @@
 
           // inicializo por si viene con algo cargado
           calcularValorCuota();
-        });
+
+        //validad el nro de concesion-----------------------------------------------------------------------
+        if (nroConcesionInput) {
+            nroConcesionInput.addEventListener('blur', function() {
+                formatearNumeroConcesion(this);
+            });
+
+            nroConcesionInput.addEventListener('input', function() {
+                // Permitir solo números y guiones, limitar a 5 caracteres
+                this.value = this.value.replace(/[^0-9\-]/g, '');
+                if (this.value.length > 5) {
+                    this.value = this.value.slice(0, 5);
+                }
+            });
+        }
+
+        function formatearNumeroConcesion(input) {
+            let valor = input.value.trim();
+
+            if (valor === '') {
+                input.setCustomValidity('El número de concesión es requerido');
+                return;
+            }
+
+            // Verificar si son exactamente 5 guiones
+            if (valor === '-----') {
+                input.setCustomValidity(''); // Limpiar cualquier error
+                input.reportValidity(); // Forzar actualización de la validación
+                return; // No formatear, mantener los guiones
+            }
+
+            // Si no son 5 guiones, debe ser un número
+            // Verificar que solo contenga números
+            if (!/^\d+$/.test(valor)) {
+                input.setCustomValidity('El número de concesión debe contener solo números o exactamente 5 guiones (-----)');
+                return;
+            }
+
+            // Asegurar que tenga exactamente 5 dígitos con ceros a la izquierda
+            input.value = valor.padStart(5, '0');
+            input.setCustomValidity('');
+        }
+
+    });
+
+
+        
+
     </script>
 }

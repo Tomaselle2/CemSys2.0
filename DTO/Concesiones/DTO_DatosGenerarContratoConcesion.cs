@@ -7,7 +7,7 @@
         public int ParcelaId { get; set; }
         public int CantidadAnios { get; set; }
         public DateOnly Vencimiento { get; set; }
-        public int NroConcesion { get; set; }
+        public string NroConcesion { get; set; } = string.Empty;
         public int PrecioId { get; set; }
         public int? CuotaId { get; set; }
         public string PagoDescripcion { get; set; } = string.Empty;

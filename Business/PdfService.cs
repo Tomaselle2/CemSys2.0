@@ -40,7 +40,7 @@ namespace CemSys2.Business
                 {
                     Top = "5mm",
                     Right = "5mm",
-                    Bottom = "10mm",
+                    Bottom = "5mm",
                     Left = "5mm"
                 }
             });
