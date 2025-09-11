@@ -604,15 +604,21 @@ namespace CemSys2.Data
                     }
                 }
 
-                // Relacionar persona con trámite
-                TramitePersona tramitePersona = new TramitePersona
-                {
-                    TramiteId = tramite.Id,
-                    PersonaId = recibo.Contribuyente.Value
-                };
-                _context.TramitePersonas.Add(tramitePersona);
+                // ✅ VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
+                bool relacionExistente = await _context.TramitePersonas
+                    .AnyAsync(tp => tp.TramiteId == tramite.Id && tp.PersonaId == recibo.Contribuyente.Value);
 
-                await _context.SaveChangesAsync();
+                // Solo crear la relación si no existe
+                if (!relacionExistente)
+                {
+                    TramitePersona tramitePersona = new TramitePersona
+                    {
+                        TramiteId = tramite.Id,
+                        PersonaId = recibo.Contribuyente.Value
+                    };
+                    _context.TramitePersonas.Add(tramitePersona);
+                    await _context.SaveChangesAsync();
+                }
 
 
                 await transaction.CommitAsync();
