@@ -51,7 +51,7 @@ namespace CemSys2.Controllers
         public async Task<IActionResult> ContratoConcesion(int parcelaId)
         {
             GenerarContratoVM viewModel = new GenerarContratoVM();
-           await CargarDatosPantallaContrato(viewModel, parcelaId);
+            await CargarDatosPantallaContrato(viewModel, parcelaId);
 
 
             return View(viewModel);

@@ -105,9 +105,15 @@ INSERT INTO CantidadCuotas (cuota) VALUES
 
 INSERT INTO EstadoTramite (tipoTramiteId, estado)
 VALUES 
-(1, 'Registrado'),
+(1, 'Registrado'), --introduccion
 (1, 'Cobrado'),
-(1, 'Finalizado');
+(1, 'Finalizado'),
+(4, 'Iniciado'), --contrato de conescion
+(4, 'Pendiente de documentación'),
+(4, 'Activa'),
+(4, 'Vencida'),
+(4, 'Inactiva'),
+(4, 'Renovación');
 
 insert into Personas (nombre, apellido, dni, visibilidad, categoriaPersona, sexo) values ('', 'Municipalidad Colonia Tirolesa', '00000000', 1, 3, 'otro');
 
