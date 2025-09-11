@@ -15,9 +15,10 @@
     </div>
 }
 
-
 <!-- tabla parcelas sin contrato-->
 <div class="accordion" id="accordionSinContrato">
+    <p>Debe esta finalizada la introducción para realizar el contrato de concesión</p>
+
     @* ID único para el acordeón principal *@
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsUbicacion-headingOne">
@@ -39,6 +40,7 @@
                                         <th>Sección</th>
                                         <th>Parcela</th>
                                         <th>Difunto/s</th>
+                                        <th>Estado introducción</th>
                                         <th>Acción</th>
                                     </tr>
                                 </thead>
@@ -46,6 +48,8 @@
                                     @foreach (var opc in Model.ListaParcelasSinContrato)
                                     {
                                         string parcela = "";
+                                        string estadoTramiteDisplay = EstadosEnum.ObtenerNombreEstado((TipotamiteEmun)(int)TipotamiteEmun.Introduccion, opc.EstadoTramiteIntroduccion);
+
                                         if (opc.TipoParcela == 1) //nicho
                                         {
                                             parcela = $"Nicho {opc.NroParcela.ToString()} Fila {opc.NroFila.ToString()}";
@@ -65,14 +69,22 @@
                                             <td>@opc.NombreSeccion.ToUpper()</td>
                                             <td>@parcela</td>
                                             <td>@opc.Difuntos.ToUpper()</td>
-                                            <td>
-                                                <form asp-action="ContratoConcesion" asp-controller="ContratoConcesion" target="_blank" method="get" style="display: inline-block;">
-                                                    <input type="hidden" name="parcelaId" value="@opc.ParcelaId" />
-                                                    <button type="submit" class="btn btn-success" title="Generar nuevo contrato">
-                                                        <i class="bi bi-plus-circle"></i> Concesión
-                                                    </button>
-                                                </form>
-                                            </td>
+                                            <td>@estadoTramiteDisplay</td>
+                                            @if (opc.EstadoTramiteIntroduccion == (int)EstadosIntroduccion.Finalizado)
+                                            {
+                                                <td>
+                                                    <form asp-action="ContratoConcesion" asp-controller="ContratoConcesion" target="_blank" method="get" style="display: inline-block;">
+                                                        <input type="hidden" name="parcelaId" value="@opc.ParcelaId" />
+                                                        <button type="submit" class="btn btn-success" title="Generar nuevo contrato">
+                                                            <i class="bi bi-plus-circle"></i> Concesión
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td>No disponible</td>
+                                            }
                                         </tr>
 
                                     }

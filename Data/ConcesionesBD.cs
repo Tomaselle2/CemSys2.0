@@ -137,7 +137,8 @@ namespace CemSys2.Data
                                 NroFila = reader.GetInt32(reader.GetOrdinal("NroFila")),
                                 Difuntos = reader.IsDBNull(reader.GetOrdinal("Difuntos"))
                                            ? string.Empty
-                                           : reader.GetString(reader.GetOrdinal("Difuntos"))
+                                           : reader.GetString(reader.GetOrdinal("Difuntos")),
+                                EstadoTramiteIntroduccion = reader.GetInt32(reader.GetOrdinal("estadoTramite"))
                             };
 
                             resultados.Add(parcela);
