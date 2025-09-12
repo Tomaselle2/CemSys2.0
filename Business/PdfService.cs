@@ -16,23 +16,26 @@ namespace CemSys2.Business
         private readonly IRazorViewEngine _razorViewEngine;
         private readonly ITempDataProvider _tempDataProvider;
         private readonly IServiceProvider _serviceProvider;
+        private readonly BrowserHolder _holder;
 
-        public PdfService(IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider, IServiceProvider serviceProvider)
+        public PdfService(IRazorViewEngine razorViewEngine, ITempDataProvider tempDataProvider, IServiceProvider serviceProvider, BrowserHolder holder)
         {
             _razorViewEngine = razorViewEngine;
             _tempDataProvider = tempDataProvider;
             _serviceProvider = serviceProvider;
+            _holder = holder;
         }
 
         public async Task<byte[]> GeneratePdfAsync(string viewName, object model, HttpContext httpContext)
         {
             var html = await RenderViewToStringAsync(viewName, model, httpContext);
 
-            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
-            await using var page = await browser.NewPageAsync();
+            //await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true });
+            //await using var page = await browser.NewPageAsync();
+            await using var page = await _holder.Browser.NewPageAsync();
             await page.SetContentAsync(html);
 
-            using var pdfStream = await page.PdfStreamAsync(new PdfOptions
+            var pdfOptions = new PdfOptions
             {
                 Format = PaperFormat.A4,
                 PrintBackground = true,
@@ -43,8 +46,9 @@ namespace CemSys2.Business
                     Bottom = "5mm",
                     Left = "5mm"
                 }
-            });
+            };
 
+            using var pdfStream = await page.PdfStreamAsync(pdfOptions);
             using var memoryStream = new MemoryStream();
             await pdfStream.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
