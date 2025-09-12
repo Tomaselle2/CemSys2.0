@@ -469,30 +469,34 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        p.id AS parcelaId,
-        sec.tipoParcela,
-        sec.nombre AS NombreSeccion,
-        p.NroParcela,
-        p.NroFila,
-        STRING_AGG(per.apellido + ' ' + per.nombre, ', ') AS Difuntos
-    FROM Parcela p
-    LEFT JOIN ContratoConcesion cc
-        ON p.id = cc.parcelaId
-    JOIN Secciones sec 
-        ON sec.id = p.seccion
-    JOIN ParcelaDifuntos pd 
-        ON pd.parcelaId = p.id
-    JOIN Personas per 
-        ON per.idPersona = pd.difuntoId
-    WHERE cc.parcelaId IS NULL 
-        AND p.cantidadDifuntos > 0
-		AND sec.tipoParcela <> 3
-    GROUP BY 
-        p.id, 
-        sec.tipoParcela, 
-        sec.nombre, 
-        p.NroParcela, 
-        p.NroFila;
+    p.id AS parcelaId,
+    sec.tipoParcela,
+    sec.nombre AS NombreSeccion,
+    p.NroParcela,
+    p.NroFila,
+    d.Difuntos,
+    MAX(tra.estadoActualID) AS estadoTramite
+FROM Parcela p
+LEFT JOIN ContratoConcesion cc
+    ON p.id = cc.parcelaId
+JOIN Secciones sec 
+    ON sec.id = p.seccion
+CROSS APPLY (
+    SELECT STRING_AGG(per.apellido + ' ' + per.nombre, ', ')
+    FROM ParcelaDifuntos pd 
+    JOIN Personas per ON per.idPersona = pd.difuntoId
+    WHERE pd.parcelaId = p.id
+) d(Difuntos)
+JOIN Introducciones intro 
+    ON intro.parcelaID = p.id
+JOIN Tramite tra 
+    ON tra.id = intro.idTramite
+WHERE cc.parcelaId IS NULL 
+  AND p.cantidadDifuntos > 0
+  AND sec.tipoParcela <> 3
+GROUP BY 
+    p.id, sec.tipoParcela, sec.nombre, p.NroParcela, p.NroFila, d.Difuntos;
+
 END
 GO
 --------------------Obtene los difuntos actuales en parcela para hacer un contrato-------------------------------------------

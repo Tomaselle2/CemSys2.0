@@ -8,5 +8,6 @@
         public int NroParcela { get; set; }
         public int NroFila { get; set; }
         public string Difuntos { get; set; } = string.Empty;
+        public int EstadoTramiteIntroduccion { get; set; }
     }
 }

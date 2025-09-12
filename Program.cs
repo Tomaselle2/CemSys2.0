@@ -9,10 +9,17 @@ using CemSys2.Interface.Personas;
 using Rotativa.AspNetCore;
 using CemSys2.Interface.Parcelas;
 using CemSys2.Interface.Concesiones;
+using PuppeteerSharp;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Registrar el holder del navegador
+builder.Services.AddSingleton<BrowserHolder>();
+
+// Registrar el servicio de inicialización del navegador
+builder.Services.AddHostedService<BrowserInitializationService>();
 
 
 //para el manejo de sesiones
@@ -27,6 +34,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion")));
 
+
+
+
 //contenedor de capa de datos
 builder.Services.AddScoped(typeof(IRepositoryDB<>), typeof(ServiceGenericDB<>));
 builder.Services.AddScoped<ITarifariaBD, TarifariaBD>();
@@ -36,6 +46,7 @@ builder.Services.AddScoped<IParcelaBD, ParcelaBD>();
 builder.Services.AddScoped<IConcesionesDB, ConcesionesBD>();
 
 //contenedor de capa de negocio
+builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped(typeof(IRepositoryBusiness<>), typeof(ServiceGenericBusiness<>));
 builder.Services.AddScoped<ISeccionesBusiness, SeccionesBusiness>();
 builder.Services.AddScoped<IParcelasBusiness, ParcelasBusiness>();
@@ -46,6 +57,12 @@ builder.Services.AddScoped<IConcesionesBusiness, ConcesionesBusiness>();
 
 var app = builder.Build();
 
+// Cerrar el navegador al apagar la aplicación
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    var holder = app.Services.GetService<BrowserHolder>();
+    holder.Browser?.CloseAsync().GetAwaiter().GetResult();
+});
 
 // Configura Rotativa con la ruta de wkhtmltopdf
 string wwwroot = app.Environment.WebRootPath;

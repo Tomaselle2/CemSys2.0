@@ -1,11 +1,16 @@
-﻿using CemSys2.DTO.Concesiones;
+﻿using CemSys2.Business;
+using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
+using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Introduccion;
+using CemSys2.Interface.Personas;
 using CemSys2.Models;
 using CemSys2.ViewModel.ConcesionesViewModel;
 using CemSys2.ViewModel.ContratoViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Rotativa.AspNetCore;
 using System.Threading.Tasks;
 using static CemSys2.Controllers.IntroduccionController;
 
@@ -15,12 +20,15 @@ namespace CemSys2.Controllers
     {
         private readonly IConcesionesBusiness _concesionesBusiness;
         private readonly IIntroduccionBusiness _introduccionBusiness;
+        private readonly IPersonasBusiness _personasBusiness;
+        private readonly IPdfService _pdfService;
 
-
-        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness)
+        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, IPersonasBusiness personasBusiness, IPdfService pdfService)
         {
             _concesionesBusiness = concesionesBusiness;
             _introduccionBusiness = introduccionBusiness;
+            _personasBusiness = personasBusiness;
+            _pdfService = pdfService;
         }
 
         //vista principal de concesiones
@@ -43,47 +51,194 @@ namespace CemSys2.Controllers
         public async Task<IActionResult> ContratoConcesion(int parcelaId)
         {
             GenerarContratoVM viewModel = new GenerarContratoVM();
+            await CargarDatosPantallaContrato(viewModel, parcelaId);
 
+
+            return View(viewModel);
+        }
+
+        //metodo privado que carga los datos en la pantalla de contrato concesion
+        private async Task CargarDatosPantallaContrato(GenerarContratoVM viewModel, int parcelaId)
+        {
             try
             {
                 //metodo que recibe el parcelaId y buscar los difuntos en esa parcela
                 viewModel.DifuntosEnParcela = await _concesionesBusiness.ListaDifuntosPorParcela(parcelaId);
-
+               
                 //metodo que recibe el parcelaId y buscar los datos de la parcela
-                viewModel.DatosParcela = await _concesionesBusiness.DatosParcela(parcelaId);
+                DTO_Datos_Concesion datosConcesion = await _concesionesBusiness.DatosParcela(parcelaId);
+                viewModel.DatosParcela = datosConcesion;
 
                 //si el tipo parcela es nicho o fosa
                 int conceptoTarifariaId = 0;
 
-                if (viewModel.DatosParcela.TipoParcela == (int)TipoParcelaEnum.Nicho)
+                if (datosConcesion.TipoParcela == (int)TipoParcelaEnum.Nicho)
                 {
                     conceptoTarifariaId = (int)ConceptosTarifariaEnum.ConcesionNicho;
                 }
 
-                if (viewModel.DatosParcela.TipoParcela == (int)TipoParcelaEnum.Fosa)
+                if (datosConcesion.TipoParcela == (int)TipoParcelaEnum.Fosa)
                 {
                     conceptoTarifariaId = (int)ConceptosTarifariaEnum.ConcesionFosas;
                 }
 
                 //metodo que recibe el conceptoTarifariaId, seccionId y nroFila para buscar los precios de concesion
-                viewModel.PreciosConcesion = await _concesionesBusiness.PreciosConcesion(conceptoTarifariaId, viewModel.DatosParcela.SeccionId, viewModel.DatosParcela.NroFila);
+                List<DTO_Precios_Concesion> precios = await _concesionesBusiness.PreciosConcesion(conceptoTarifariaId, datosConcesion.SeccionId, datosConcesion.NroFila);
+                viewModel.PreciosConcesion = precios;
 
                 viewModel.ParcelaId = parcelaId;
+
+                //metodo que busca las cantidades de cuotas
+                List<CantidadCuota> cuotas = await _concesionesBusiness.CantidadCuotas();
+                List<DTO_Cuotas> dtoCuota = cuotas.Select(c => new DTO_Cuotas
+                {
+                    Id = c.Id,
+                    Texto = c.Cuota == 1 ? "1 pago" : $"{c.Cuota} cuotas"
+                }).ToList();
+
+                viewModel.CantidadCuotas = dtoCuota;
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 viewModel.MensajeError = ex.Message;
             }
-
-            return View(viewModel);
         }
 
-        //recibe los datos para generar el contrato
-        [HttpPost]
-        public IActionResult GeneraContrato(GenerarContratoVM viewModel)
+        
+
+        //metodo de genera el contrato concesion en formato pdf
+        public async Task<IActionResult> GenerarContratoConcesionPDF(GenerarContratoVM viewModel)
         {
-            return RedirectToAction("ContratoConcesion", new { parcelaId = viewModel.ParcelaId });
+
+            //valido el modelo
+            if (!ModelState.IsValid)
+            {
+                await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
+                //mensaje de error
+                viewModel.MensajeError = "Por favor, complete todos los campos obligatorios.";
+                return View("ContratoConcesion", viewModel);
+            }
+
+            List<DTO_Difuntos_Para_Concesion> Difuntos = new List<DTO_Difuntos_Para_Concesion>();
+            List<DTO_Titulares> Titulares = new List<DTO_Titulares>();
+            DTO_DatosGenerarContratoConcesion dtoDatosGenerarConcesion = new DTO_DatosGenerarContratoConcesion();
+
+            try
+            {
+                //busca los difuntos en la parcela
+                Difuntos = await _concesionesBusiness.ListaDifuntosPorParcela(viewModel.ParcelaId.Value);
+
+                //busca el/los titulares, lo actuliza y los agrega a la lista de titulares
+                foreach (var t in viewModel.Titulares)
+                {
+                    Persona titular = await _personasBusiness.ConsultarPersona(t.Id);
+
+                    if (titular != null)
+                    {
+                        // Actualizo los datos del titular con la información del formulario
+                        titular.Nombre = t.Nombre;
+                        titular.Apellido = t.Apellido;
+                        titular.Correo = t.CorreoElectronico;
+                        titular.Celular = t.Celular;
+                        titular.Domicilio = t.Domicilio;
+                        titular.Sexo = t.Sexo;
+                        int resultado = await _personasBusiness.ModificarPersona(titular);
+
+                        Persona titularActualizado = await _personasBusiness.ConsultarPersona(t.Id); // Vuelvo a consultar para asegurarme de tener los datos actualizados
+
+                        // Agrego el titular actualizado a la lista de titulares
+                        Titulares.Add(new DTO_Titulares
+                        {
+                            Id = titularActualizado.IdPersona,
+                            Dni = titularActualizado.Dni,
+                            Nombre = titular.Nombre,
+                            Apellido = titularActualizado.Apellido,
+                            Sexo = titularActualizado.Sexo,
+                            Celular = titularActualizado.Celular ?? "",
+                            CorreoElectronico = titularActualizado.Correo ?? "",
+                            Domicilio = titularActualizado.Domicilio ?? ""
+                        });
+                    }
+                }
+                DateTime fechaGeneracion = DateTime.Now;
+                //creo el dto para enviar a la siguiente pantalla de generacion de contrato concesion
+                dtoDatosGenerarConcesion.Titulares = Titulares;
+                dtoDatosGenerarConcesion.Difuntos = Difuntos;
+                dtoDatosGenerarConcesion.TipoParcela = viewModel.tipoParcela.Value;
+                dtoDatosGenerarConcesion.SeccionNombre = viewModel.seccion;
+                dtoDatosGenerarConcesion.ParcelaString = viewModel.ParcelaString;
+                dtoDatosGenerarConcesion.PrecioId = viewModel.PrecioSeleccionado.Value;
+                dtoDatosGenerarConcesion.Precio = viewModel.PrecioFinal;
+                dtoDatosGenerarConcesion.ParcelaId = viewModel.ParcelaId.Value;
+                dtoDatosGenerarConcesion.CantidadAnios = viewModel.CantidadAnios.Value;
+                dtoDatosGenerarConcesion.Vencimiento = viewModel.Vencimiento.Value;
+                dtoDatosGenerarConcesion.NroConcesion = viewModel.NroConcesion ?? "";
+                dtoDatosGenerarConcesion.formaPago = viewModel.FormaDePago;
+                dtoDatosGenerarConcesion.NroParcela = viewModel.NroParcela;
+                dtoDatosGenerarConcesion.NroFila = viewModel.NroFila;
+                dtoDatosGenerarConcesion.fechaGeneracion = fechaGeneracion;
+
+                if (viewModel.FormaDePago == "cuota")
+                {
+                    dtoDatosGenerarConcesion.CuotaId = viewModel.CantidadCuotaSeleccionada;
+                }
+                else // otra forma de pago
+                {
+                    dtoDatosGenerarConcesion.CuotaId = null;
+                    dtoDatosGenerarConcesion.PagoDescripcion = viewModel.otraFormaPago ?? "";
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = ex.Message;
+                await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
+                return View("ContratoConcesion", viewModel);
+            }
+
+            ContratoPDF_VM contratoPDF_VM = new ContratoPDF_VM();
+            contratoPDF_VM.datosContrato = dtoDatosGenerarConcesion;
+            contratoPDF_VM.baseUrl = $"{Request.Scheme}://{Request.Host}";
+            contratoPDF_VM.PrecioEnLetras = NumeroALetras.ConvertirALetras(dtoDatosGenerarConcesion.Precio);
+
+            //si es nicho voy a vista de contrato nicho sino contrato fosa
+            string nombreVistaContrato = "";
+            switch (viewModel.tipoParcela)
+            {
+                case (int)TipoParcelaEnum.Nicho:
+                    nombreVistaContrato = TipoParcelaEnum.Nicho.ToString();
+                    break;
+                case (int)TipoParcelaEnum.Fosa:
+                    nombreVistaContrato = TipoParcelaEnum.Fosa.ToString();
+                    break;
+            }
+
+            try
+            {
+                // Generar PDF con Puppeteer
+                var pdfBytes = await _pdfService.GeneratePdfAsync(nombreVistaContrato, contratoPDF_VM, HttpContext);
+
+                // se abre en el visor del navegador
+                return File(pdfBytes, "application/pdf");
+
+                // Si quieres forzar descarga:
+                // return File(pdfBytes, "application/pdf", "contrato.pdf");
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return BadRequest($"Error generando PDF: {ex.Message}");
+            }
+            //return new ViewAsPdf($"{nombreVistaContrato}", contratoPDF_VM)
+            //{
+            //    PageMargins = new Rotativa.AspNetCore.Options.Margins(5, 5, 5, 10),
+            //    PageSize = Rotativa.AspNetCore.Options.Size.A4,
+            //    FileName = null // null = lo abre en el visor del navegador
+            //};
         }
+
 
         // Método para buscar contribuyente (AJAX)
         [HttpPost]

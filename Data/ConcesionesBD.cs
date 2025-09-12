@@ -18,6 +18,13 @@ namespace CemSys2.Data
             _context = context;
         }
 
+        public async Task<List<CantidadCuota>> CantidadCuotas()
+        {
+            return await _context.CantidadCuotas
+                .OrderBy(c => c.Cuota)
+                .ToListAsync();
+        }
+
         //Obtiene los datos de la parcela para hacer un contrato de concesion
         public async Task<DTO_Datos_Concesion> DatosParcela(int parcelaId)
         {
@@ -130,7 +137,8 @@ namespace CemSys2.Data
                                 NroFila = reader.GetInt32(reader.GetOrdinal("NroFila")),
                                 Difuntos = reader.IsDBNull(reader.GetOrdinal("Difuntos"))
                                            ? string.Empty
-                                           : reader.GetString(reader.GetOrdinal("Difuntos"))
+                                           : reader.GetString(reader.GetOrdinal("Difuntos")),
+                                EstadoTramiteIntroduccion = reader.GetInt32(reader.GetOrdinal("estadoTramite"))
                             };
 
                             resultados.Add(parcela);

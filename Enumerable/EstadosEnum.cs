@@ -46,16 +46,18 @@ namespace CemSys2.Enumerable
                     { 3, "Finalizado" }
                 }
             },
-            //{
-            //    TipotamiteEmun.a,
-            //    new Dictionary<int, string>
-            //    {
-            //        { 1, "Solicitado" },
-            //        { 2, "En revisión" },
-            //        { 3, "Aprobado" },
-            //        { 4, "Rechazado" }
-            //    }
-            //},
+            {
+                TipotamiteEmun.ContratoDeConcesion,
+                new Dictionary<int, string>
+                {
+                    { 4, "Iniciado" },
+                    { 5, "Pendiente de documentación" },
+                    { 6, "Activa" },
+                    { 7, "Vencida" },
+                    { 8, "Inactiva" },
+                    { 9, "Renovación" }
+                }
+            }
             //{
             //    TipoTramite.AutorizacionParaReduccion,
             //    new Dictionary<int, string>

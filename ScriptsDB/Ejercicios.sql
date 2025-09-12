@@ -37,7 +37,7 @@ select * from Introducciones where idTramite = 34
 
 select * from Personas
 
-
+SELECT @@VERSION;
 -----
 select * from TipoTramite
 select * from Tramite
