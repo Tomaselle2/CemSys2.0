@@ -81,8 +81,9 @@ namespace CemSys2.Data
                         var nuevoContrato = new ContratoConcesion
                         {
                             IdTramite = tramiteId,
+                            ParcelaId = contrato.ParcelaId,
                             CantidadAnios = contrato.CantidadAnios,
-                            Vencimiento = contrato.Vencimiento.ToDateTime(TimeOnly.MinValue),
+                            Vencimiento = contrato.Vencimiento,
                             Concesion = contrato.NroConcesion,
                             PrecioTarifariaId = contrato.PrecioId,
                             CuotaId = contrato.CuotaId,
@@ -94,7 +95,6 @@ namespace CemSys2.Data
                             ContratoAnteriorId = contrato.ContratoAnteriorId,
                             Precio = contrato.Precio,
                         };
-
                         _context.ContratoConcesions.Add(nuevoContrato);
                         await _context.SaveChangesAsync();
 
@@ -105,11 +105,20 @@ namespace CemSys2.Data
                             Fecha = DateTime.Now,
                             TramiteId = tramiteId,
                         };
-
                         _context.HistorialEstadoTramites.Add(estadoTramite);
                         await _context.SaveChangesAsync();
 
-                       await transaction.CommitAsync();
+                        //registrar la parcela con el tramite
+                        TramiteParcela tramiteParcela = new TramiteParcela
+                        {
+                            ParcelaId = contrato.ParcelaId,
+                            TramiteId = tramiteId,
+                            FechaRegistro = DateTime.Now,
+                        };
+                        _context.TramiteParcelas.Add(tramiteParcela);
+                        await _context.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
                         exito = true;
                     }
                 }

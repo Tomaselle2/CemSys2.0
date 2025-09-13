@@ -19,26 +19,10 @@ namespace CemSys2.Data
 
         public async Task<int> RegistrarTramite(Tramite tramite) 
         {
-            int id = 0;
-
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    tramite.Id = await ObtenerProximoIdTramite();
-                    _context.Tramites.Add(tramite);
-                    await _context.SaveChangesAsync();
-                    id = tramite.Id;
-                    await transaction.CommitAsync();
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync();
-                    throw; // Re-throw the exception after rolling back
-                }
-            }
-
-            return id;
+            tramite.Id = await ObtenerProximoIdTramite();
+            _context.Tramites.Add(tramite);
+            await _context.SaveChangesAsync();
+            return tramite.Id;
         }
 
         private async Task<int> ObtenerProximoIdTramite()

@@ -11,7 +11,7 @@ public partial class ContratoConcesion
 
     public int CantidadAnios { get; set; }
 
-    public DateTime Vencimiento { get; set; }
+    public DateOnly Vencimiento { get; set; }
 
     public string Concesion { get; set; } = null!;
 

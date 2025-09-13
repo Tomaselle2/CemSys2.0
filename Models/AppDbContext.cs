@@ -265,9 +265,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("precio");
             entity.Property(e => e.PrecioTarifariaId).HasColumnName("precioTarifariaID");
             entity.Property(e => e.TipoParcela).HasColumnName("tipoParcela");
-            entity.Property(e => e.Vencimiento)
-                .HasColumnType("datetime")
-                .HasColumnName("vencimiento");
+            entity.Property(e => e.Vencimiento).HasColumnName("vencimiento");
             entity.Property(e => e.Visibilidad).HasColumnName("visibilidad");
 
             entity.HasOne(d => d.CantidadAniosNavigation).WithMany(p => p.ContratoConcesions)
@@ -791,6 +789,10 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.ContratoId).HasColumnName("contratoId");
+            entity.Property(e => e.Fecha)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fecha");
             entity.Property(e => e.PersonaId).HasColumnName("personaId");
 
             entity.HasOne(d => d.Contrato).WithMany(p => p.TitularesContratoConcesions)

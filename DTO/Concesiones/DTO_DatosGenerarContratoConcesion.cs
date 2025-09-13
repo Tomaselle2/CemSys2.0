@@ -5,7 +5,7 @@
         public List<DTO_Difuntos_Para_Concesion> Difuntos { get; set; } = new();
         public List<DTO_Titulares> Titulares { get; set; } = new();
         public int ParcelaId { get; set; }
-        public int CantidadAnios { get; set; }
+        public int CantidadAniosId { get; set; }
         public DateOnly Vencimiento { get; set; }
         public string NroConcesion { get; set; } = string.Empty;
         public int PrecioId { get; set; }

@@ -29,7 +29,7 @@ select * from TiposConceptoTarifaria
 select * from Usuarios
 
 select * from EstadoTramite
-select * from HistorialEstadoTramite where tramiteID = 34
+select * from HistorialEstadoTramite where tramiteID = 43
 
 select * from Introducciones
 
@@ -37,7 +37,8 @@ select * from ArchivosDocumentacion
 select * from Introducciones where idTramite = 34
 
 select * from Personas
-
+select * from ContratoConcesion
+select * from TramiteParcela where tramiteId = 43
 SELECT @@VERSION;
 -----
 select * from TipoTramite

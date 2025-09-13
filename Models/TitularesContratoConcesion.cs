@@ -11,6 +11,8 @@ public partial class TitularesContratoConcesion
 
     public int PersonaId { get; set; }
 
+    public DateTime Fecha { get; set; }
+
     public virtual ContratoConcesion Contrato { get; set; } = null!;
 
     public virtual Persona Persona { get; set; } = null!;

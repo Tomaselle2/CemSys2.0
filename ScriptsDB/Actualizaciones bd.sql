@@ -7,3 +7,12 @@ VALUES
 (4, 'Inactiva'),
 (4, 'Renovación');
 
+
+--del 12/09
+ALTER TABLE ContratoConcesion 
+ALTER COLUMN vencimiento DATE NOT NULL;
+
+go
+
+ALTER TABLE TitularesContratoConcesion 
+ADD fecha DATETIME NOT NULL DEFAULT GETDATE();
