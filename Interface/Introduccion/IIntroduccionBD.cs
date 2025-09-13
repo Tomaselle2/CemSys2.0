@@ -7,7 +7,7 @@ namespace CemSys2.Interface.Introduccion
     public interface IIntroduccionBD
     {
 
-        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFactura);
+        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFactura, int usuarioId);
 
         Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model);
 

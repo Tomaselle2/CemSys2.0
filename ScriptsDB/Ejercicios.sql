@@ -26,6 +26,7 @@ join ConceptosTarifarias tct on cf.conceptoTarifariaId = tct.id
 select * from ConceptosFactura where facturaId = 30
 select * from TiposConceptoTarifaria
 
+select * from Usuarios
 
 select * from EstadoTramite
 select * from HistorialEstadoTramite where tramiteID = 34

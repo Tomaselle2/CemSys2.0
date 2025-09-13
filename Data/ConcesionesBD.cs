@@ -2,6 +2,7 @@
 using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Parcelas;
+using CemSys2.Interface.Tramite;
 using CemSys2.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,12 @@ namespace CemSys2.Data
     public class ConcesionesBD : IConcesionesDB
     {
         public readonly AppDbContext _context;
+        private readonly ITramiteBD _tramiteBD;
 
-        public ConcesionesBD(AppDbContext context)
+        public ConcesionesBD(AppDbContext context, ITramiteBD tramiteBD)
         {
             _context = context;
+            _tramiteBD = tramiteBD;
         }
 
         public async Task<List<CantidadCuota>> CantidadCuotas()
@@ -59,6 +62,65 @@ namespace CemSys2.Data
 
                 return datosConcesion;
             }
+        }
+
+        //Genera el contrato de concesion
+        public async Task<bool> GenerarContrato(DTO_DatosGenerarContratoConcesion contrato, Tramite tramite)
+        {
+            bool exito = false;
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Registrar el trámite
+                    int tramiteId = await _tramiteBD.RegistrarTramite(tramite);
+                    if (tramiteId > 0)
+                    {
+                        // Crear el contrato de concesión
+                        var nuevoContrato = new ContratoConcesion
+                        {
+                            IdTramite = tramiteId,
+                            CantidadAnios = contrato.CantidadAnios,
+                            Vencimiento = contrato.Vencimiento.ToDateTime(TimeOnly.MinValue),
+                            Concesion = contrato.NroConcesion,
+                            PrecioTarifariaId = contrato.PrecioId,
+                            CuotaId = contrato.CuotaId,
+                            PagoDescripcion = contrato.PagoDescripcion,
+                            Visibilidad = true,
+                            FechaGeneracion = contrato.fechaGeneracion,
+                            Empleado = contrato.EmpleadoId,
+                            TipoParcela = contrato.TipoParcela,
+                            ContratoAnteriorId = contrato.ContratoAnteriorId,
+                            Precio = contrato.Precio,
+                        };
+
+                        _context.ContratoConcesions.Add(nuevoContrato);
+                        await _context.SaveChangesAsync();
+
+                        // Actualizar el estado del trámite
+                        HistorialEstadoTramite estadoTramite = new HistorialEstadoTramite
+                        {
+                            EstadoTramiteId = tramite.EstadoActualId ?? 0, //es iniciado la primera vez
+                            Fecha = DateTime.Now,
+                            TramiteId = tramiteId,
+                        };
+
+                        _context.HistorialEstadoTramites.Add(estadoTramite);
+                        await _context.SaveChangesAsync();
+
+                       await transaction.CommitAsync();
+                        exito = true;
+                    }
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw; // Re-throw the exception after rolling back
+                }
+            }
+
+            return exito;
         }
 
         //Obtene los difuntos actuales en parcela para hacer un contrato

@@ -115,9 +115,10 @@ namespace CemSys2.Controllers
                     placa = viewModel.Placa.HasValue && viewModel.Placa.Value;
                 }
 
+                int? usuarioId = HttpContext.Session.GetInt32("idUsuario");
 
                 tramiteId = await _introduccionBusiness.RegistrarIntroduccionCompleta(actaDefuncion, difuntoNuevo, viewModel.EmpleadoID.Value, viewModel.EmpresaFunebreID.Value,
-                    viewModel.ParcelaID.Value, viewModel.FechaHoraIngreso.Value, placa);
+                    viewModel.ParcelaID.Value, viewModel.FechaHoraIngreso.Value, usuarioId.Value, placa);
                 if (tramiteId == 0)
                 {
                     viewModel.MensajeError = "No se pudo registrar la introducción. Intente nuevamente.";

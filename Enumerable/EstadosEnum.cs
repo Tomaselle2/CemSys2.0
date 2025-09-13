@@ -10,6 +10,16 @@ namespace CemSys2.Enumerable
         Finalizado = 3
     }
 
+    public enum EstadosContratoConcesion
+    {
+        Iniciado = 4,
+        PendienteDeDocumentacion = 5,
+        Activa = 6,
+        Vencida = 7,
+        Inactiva = 8,
+        Renovacion = 9
+    }
+
     public enum TipotamiteEmun
     {
         [Display(Name = "Introducción")]

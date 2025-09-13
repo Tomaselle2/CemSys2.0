@@ -5,6 +5,7 @@ using CemSys2.Interface;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -134,13 +135,13 @@ namespace CemSys2.Data
            return await _context.Personas.Where(p => p.Visibilidad == true && p.Dni == dni).FirstOrDefaultAsync();
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFacturas)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFacturas, int usuarioId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 // Registrar Acta de Defunción
-                _context.ActaDefuncions.Add(actaDefuncion);
+                 _context.ActaDefuncions.Add(actaDefuncion);
                 await _context.SaveChangesAsync();
 
                 var estadoDifunto = await _context.EstadoDifuntos
@@ -163,7 +164,7 @@ namespace CemSys2.Data
                     Id = await ObtenerProximoIdTramite(),
                     TipoTramiteId = tipoTramiteId,
                     FechaCreacion = DateTime.Now,
-                    Usuario = empleadoId, 
+                    Usuario = usuarioId, 
                     Visibilidad = true,
                     EstadoActualId = estadoTramiteId
                 };
@@ -172,13 +173,24 @@ namespace CemSys2.Data
                 await _context.SaveChangesAsync();
 
                 // Relacionar persona con trámite
-                TramitePersona tramitePersona = new TramitePersona
+                // ✅ VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
+                bool relacionExistente = await _context.TramitePersonas
+                    .AnyAsync(tp => tp.TramiteId == tramite.Id && tp.PersonaId == difunto.IdPersona);
+
+                // Solo crear la relación si no existe
+                if (!relacionExistente)
                 {
-                    TramiteId = tramite.Id,
-                    PersonaId = difunto.IdPersona
-                };
-                _context.TramitePersonas.Add(tramitePersona);
-                await _context.SaveChangesAsync();
+                    TramitePersona tramitePersona = new TramitePersona
+                    {
+                        TramiteId = tramite.Id,
+                        PersonaId = difunto.IdPersona
+                    };
+                    _context.TramitePersonas.Add(tramitePersona);
+                    await _context.SaveChangesAsync();
+                }
+
+
+
 
                 // Relacionar parcela con trámite
                 TramiteParcela tramiteParcela = new TramiteParcela
@@ -204,7 +216,7 @@ namespace CemSys2.Data
                     IdTramite = tramite.Id,
                     Visibilidad = true,
                     FechaIngreso = fechaIngreso,
-                    Empleado = tramite.Usuario,
+                    Empleado = empleadoId,
                     EmpresaFunebre = empresaSepelioId, 
                     ParcelaId = ParcelaId, 
                     DifuntoId = difunto.IdPersona,

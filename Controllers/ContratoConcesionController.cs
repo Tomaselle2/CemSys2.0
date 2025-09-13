@@ -5,14 +5,12 @@ using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
+using CemSys2.Interface.Tramite;
 using CemSys2.Models;
 using CemSys2.ViewModel.ConcesionesViewModel;
 using CemSys2.ViewModel.ContratoViewModel;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Rotativa.AspNetCore;
-using System.Threading.Tasks;
-using static CemSys2.Controllers.IntroduccionController;
+
 
 namespace CemSys2.Controllers
 {
@@ -22,13 +20,15 @@ namespace CemSys2.Controllers
         private readonly IIntroduccionBusiness _introduccionBusiness;
         private readonly IPersonasBusiness _personasBusiness;
         private readonly IPdfService _pdfService;
+        private readonly ITramiteBusiness _tramiteBusiness;
 
-        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, IPersonasBusiness personasBusiness, IPdfService pdfService)
+        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, IPersonasBusiness personasBusiness, IPdfService pdfService, ITramiteBusiness tramiteBusiness)
         {
             _concesionesBusiness = concesionesBusiness;
             _introduccionBusiness = introduccionBusiness;
             _personasBusiness = personasBusiness;
             _pdfService = pdfService;
+            _tramiteBusiness = tramiteBusiness;
         }
 
         //vista principal de concesiones
@@ -48,10 +48,10 @@ namespace CemSys2.Controllers
         }
 
         //vista de generar contrato concesion
-        public async Task<IActionResult> ContratoConcesion(int parcelaId)
+        public async Task<IActionResult> ContratoConcesion(int parcelaId) //recibe el parcelaId de las parcelas sin contrato
         {
             GenerarContratoVM viewModel = new GenerarContratoVM();
-            await CargarDatosPantallaContrato(viewModel, parcelaId);
+            await CargarDatosPantallaContrato(viewModel, parcelaId); //metodo privado que carga los datos en la pantalla de contrato concesion
 
 
             return View(viewModel);
@@ -129,7 +129,7 @@ namespace CemSys2.Controllers
                 //busca los difuntos en la parcela
                 Difuntos = await _concesionesBusiness.ListaDifuntosPorParcela(viewModel.ParcelaId.Value);
 
-                //busca el/los titulares, lo actuliza y los agrega a la lista de titulares
+                //busca el/los titulares, lo actualiza y los agrega a la lista de titulares
                 foreach (var t in viewModel.Titulares)
                 {
                     Persona titular = await _personasBusiness.ConsultarPersona(t.Id);
@@ -161,7 +161,10 @@ namespace CemSys2.Controllers
                         });
                     }
                 }
+
                 DateTime fechaGeneracion = DateTime.Now;
+                int? usuarioId = HttpContext.Session.GetInt32("idUsuario");
+
                 //creo el dto para enviar a la siguiente pantalla de generacion de contrato concesion
                 dtoDatosGenerarConcesion.Titulares = Titulares;
                 dtoDatosGenerarConcesion.Difuntos = Difuntos;
@@ -178,6 +181,7 @@ namespace CemSys2.Controllers
                 dtoDatosGenerarConcesion.NroParcela = viewModel.NroParcela;
                 dtoDatosGenerarConcesion.NroFila = viewModel.NroFila;
                 dtoDatosGenerarConcesion.fechaGeneracion = fechaGeneracion;
+                dtoDatosGenerarConcesion.EmpleadoId = usuarioId ?? 0;
 
                 if (viewModel.FormaDePago == "cuota")
                 {
@@ -189,6 +193,17 @@ namespace CemSys2.Controllers
                     dtoDatosGenerarConcesion.PagoDescripcion = viewModel.otraFormaPago ?? "";
                 }
 
+                //se genera el tramite de contrato de concesion en estado iniciado
+                Tramite tramite = new Tramite
+                {
+                    TipoTramiteId = (int)TipotamiteEmun.ContratoDeConcesion,
+                    FechaCreacion = DateTime.Now,
+                    EstadoActualId = (int)EstadosContratoConcesion.Iniciado,
+                    Visibilidad = true,
+                    Usuario = usuarioId ?? 0
+                };
+                
+                bool contratoGenerado = await _concesionesBusiness.GenerarContrato(dtoDatosGenerarConcesion, tramite);
 
             }
             catch (Exception ex)

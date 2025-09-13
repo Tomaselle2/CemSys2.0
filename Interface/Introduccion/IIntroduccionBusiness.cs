@@ -19,7 +19,7 @@ namespace CemSys2.Interface.Introduccion
         Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model);
         Task<Persona?> ConsultarDifunto(string dni);
 
-        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, bool? placa = null);
+        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, int usuarioId, bool? placa = null);
 
         Task<(List<Introduccione> introducciones, int totalRegistros)> ListadoIntroducciones(DateTime? fechaDesde = null, DateTime? fechaHasta = null, int registrosPorPagina = 10,  int pagina = 1);
         Task<List<DTO_Resumen_Introduccion>> ObtenerResumenIntroduccion(int idTramite);

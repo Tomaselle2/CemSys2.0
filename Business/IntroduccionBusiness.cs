@@ -83,11 +83,11 @@ namespace CemSys2.Business
             return await _introduccionBD.RegistrarEmpresaSepelio(model);
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, bool? placa = null)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, int usuarioId, bool? placa = null)
         {
             return await _introduccionBD.RegistrarIntroduccionCompleta(
                 actaDefuncion, difunto, empleadoId, empresaSepelioId, ParcelaId, fechaIngreso, 
-                await ListaConceptoFactura(difunto.DomicilioEnTirolesa, difunto.FallecioEnTirolesa, ParcelaId, difunto.EstadoDifunto.Value, placa.Value)
+                await ListaConceptoFactura(difunto.DomicilioEnTirolesa, difunto.FallecioEnTirolesa, ParcelaId, difunto.EstadoDifunto.Value, placa.Value), usuarioId
                 );
         }
 

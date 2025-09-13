@@ -12,6 +12,8 @@ namespace CemSys2.Interface.Concesiones
         Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila);
         Task<List<CantidadCuota>> CantidadCuotas();
 
+        Task<bool> GenerarContrato(DTO_DatosGenerarContratoConcesion contrato, CemSys2.Models.Tramite tramite); //para generar contrato
+
 
     }
 }

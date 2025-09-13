@@ -10,6 +10,7 @@ using Rotativa.AspNetCore;
 using CemSys2.Interface.Parcelas;
 using CemSys2.Interface.Concesiones;
 using PuppeteerSharp;
+using CemSys2.Interface.Tramite;
 
 
 
@@ -44,6 +45,7 @@ builder.Services.AddScoped<IIntroduccionBD, IntroduccionBD>();
 builder.Services.AddScoped<IPersonasBD, PersonasBD>();
 builder.Services.AddScoped<IParcelaBD, ParcelaBD>();
 builder.Services.AddScoped<IConcesionesDB, ConcesionesBD>();
+builder.Services.AddScoped<ITramiteBD, TramiteDB>();
 
 //contenedor de capa de negocio
 builder.Services.AddScoped<IPdfService, PdfService>();
@@ -54,6 +56,7 @@ builder.Services.AddScoped<ITarifariaBusiness, TarifariaBusiness>();
 builder.Services.AddScoped<IIntroduccionBusiness, IntroduccionBusiness>();
 builder.Services.AddScoped<IPersonasBusiness, PersonasBusiness>();
 builder.Services.AddScoped<IConcesionesBusiness, ConcesionesBusiness>();
+builder.Services.AddScoped<ITramiteBusiness, TramiteBusiness>();
 
 var app = builder.Build();
 

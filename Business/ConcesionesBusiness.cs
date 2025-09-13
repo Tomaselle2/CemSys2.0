@@ -23,6 +23,11 @@ namespace CemSys2.Business
             return await _concesionesDB.DatosParcela(parcelaId);
         }
 
+        public async Task<bool> GenerarContrato(DTO_DatosGenerarContratoConcesion contrato, Tramite tramite)
+        {
+            return await _concesionesDB.GenerarContrato(contrato, tramite);
+        }
+
         public async Task<List<DTO_Difuntos_Para_Concesion>> ListaDifuntosPorParcela(int parcelaId)
         {
             return await _concesionesDB.ListaDifuntosPorParcela(parcelaId);
