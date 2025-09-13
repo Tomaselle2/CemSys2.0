@@ -211,8 +211,10 @@
     </div>
 </form>
 
-<div class="text-center p-3">
-    <button class="btn btn-secondary" id="btnSubirContrato" style="display: none" value="">Contrato firmado</button>
+<div class="d-flex justify-content-center align-items-center">
+    <button class="btn btn-secondary" id="btnSubirContrato" style="display: none" value="">
+        Contrato firmado
+    </button>
 </div>
 
 
@@ -755,6 +757,7 @@
                                         <div class="mb-3">
                                             <p>El contrato debe estar firmado y escaneado para continuar</p>
                                         </div>
+                                        <div id="titularesSubirContrato"></div> <!-- Contenedor para titulares -->
                                     </div>
 
                                     <input type="hidden" name="NroConcesion" value="${nroConcesion}" />
@@ -771,6 +774,21 @@
                     `;
 
                     document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                    // Copiar titulares al formulario del modal
+                    const titularesSubirContrato = document.getElementById('titularesSubirContrato');
+                    titulares.forEach((titular, index) => {
+                        titularesSubirContrato.innerHTML += `
+                            <input type="hidden" name="Titulares[${index}].Id" value="${titular.id}" />
+                            <input type="hidden" name="Titulares[${index}].Dni" value="${titular.dni}" />
+                            <input type="hidden" name="Titulares[${index}].Nombre" value="${titular.nombre}" />
+                            <input type="hidden" name="Titulares[${index}].Apellido" value="${titular.apellido}" />
+                            <input type="hidden" name="Titulares[${index}].Domicilio" value="${titular.domicilio}" />
+                            <input type="hidden" name="Titulares[${index}].Sexo" value="${titular.sexo}" />
+                            <input type="hidden" name="Titulares[${index}].Celular" value="${titular.celular}" />
+                            <input type="hidden" name="Titulares[${index}].CorreoElectronico" value="${titular.correo}" />
+                        `;
+                    });
 
                     const modal = new bootstrap.Modal(document.getElementById('modalSubirContrato'));
                     modal.show();

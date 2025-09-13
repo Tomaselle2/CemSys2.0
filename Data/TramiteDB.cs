@@ -14,7 +14,14 @@ namespace CemSys2.Data
         }
         public Task<Tramite> ConsultarTramite(int idTramite)
         {
-            throw new NotImplementedException();
+            return _context.Tramites.FirstAsync(t=>t.Id == idTramite);
+        }
+
+        public async Task<int> ModificarTramite(CemSys2.Models.Tramite tramite)
+        {
+            _context.Tramites.Update(tramite);
+            await _context.SaveChangesAsync();
+            return tramite.Id;
         }
 
         public async Task<int> RegistrarTramite(Tramite tramite) 

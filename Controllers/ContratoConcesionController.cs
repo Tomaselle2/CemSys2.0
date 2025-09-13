@@ -295,8 +295,19 @@ namespace CemSys2.Controllers
             {
                 //Se busca el contrato de concesión
                 CemSys2.Models.ContratoConcesion contratoConcesion = await _concesionesBusiness.ConsultarContratoConcesion(nroTramite);
+                int tipoConceptoTarifaria = 0;
+                switch (contratoConcesion.TipoParcela)
+                {
+                    case 1: //nicho
+                        tipoConceptoTarifaria = (int)TipoConceptoTarifariaEnum.ConcesionNicho;
+                        break;
+                    case 2: //fosa
+                        tipoConceptoTarifaria = (int)TipoConceptoTarifariaEnum.ConcesionFosa;
+                        break;
+                }
 
                 //metodo que carga los datos del paso Pendiente de documentacion
+                bool exito = await _concesionesBusiness.PasoPendienteDocumentacion(contratoConcesion, viewModel.Titulares, tipoConceptoTarifaria);
             }
             else //el nro de conces en incorrecto, no existe par
             {

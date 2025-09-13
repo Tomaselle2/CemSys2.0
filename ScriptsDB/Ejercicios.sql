@@ -37,12 +37,10 @@ select * from ArchivosDocumentacion
 select * from Introducciones where idTramite = 34
 
 select * from Personas
-select * from ContratoConcesion
 select * from TramiteParcela where tramiteId = 43
 SELECT @@VERSION;
 -----
 select * from TipoTramite
-select * from Tramite
 select * from RecibosFactura
 select * from Facturas where tramiteId = 30
 
@@ -85,3 +83,14 @@ select p.id AS parcelaId,
 		where p.id = 2
 
 select * from PreciosTarifarias where id = 138
+
+select * from Tramite
+
+select * from ContratoConcesion
+select * from TramitePersonas
+select * from TitularesContratoConcesion
+select * from HistorialTitularesContrato
+select * from PreciosTarifarias where id = 126
+select * from ConceptosFactura
+select * from PreciosTarifarias
+select * from 

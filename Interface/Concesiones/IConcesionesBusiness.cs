@@ -16,6 +16,7 @@ namespace CemSys2.Interface.Concesiones
         Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId);
         Task<ContratoConcesion> ConsultarContratoConcesion(int tramiteId);
         Task<bool> ModificarContratoConcesion(ContratoConcesion contrato);
+        Task<bool> PasoPendienteDocumentacion(ContratoConcesion contrato, List<DTO_Titulares> titulares, int tipoConceptoTarifariaId);
 
 
 

@@ -48,6 +48,11 @@ namespace CemSys2.Business
             return await  _concesionesDB.ModificarContratoConcesion(contrato);
         }
 
+        public async Task<bool> PasoPendienteDocumentacion(ContratoConcesion contrato, List<DTO_Titulares> titulares, int tipoConceptoTarifariaId)
+        {
+            return await _concesionesDB.PasoPendienteDocumentacion(contrato, titulares, tipoConceptoTarifariaId);
+        }
+
         public async Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila)
         {
             return await _concesionesDB.PreciosConcesion(conceptoTarifariaId, seccionId, nroFila);

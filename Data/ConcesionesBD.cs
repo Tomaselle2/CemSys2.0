@@ -1,7 +1,9 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
+using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Parcelas;
+using CemSys2.Interface.Tarifaria;
 using CemSys2.Interface.Tramite;
 using CemSys2.Models;
 using Microsoft.Data.SqlClient;
@@ -14,11 +16,15 @@ namespace CemSys2.Data
     {
         public readonly AppDbContext _context;
         private readonly ITramiteBD _tramiteBD;
+        private readonly IFacturasBD _facturasBD;
+        private readonly ITarifariaBD _tarifariaBd;
 
-        public ConcesionesBD(AppDbContext context, ITramiteBD tramiteBD)
+        public ConcesionesBD(AppDbContext context, ITramiteBD tramiteBD, IFacturasBD facturasBD, ITarifariaBD tarifariaBD)
         {
             _context = context;
             _tramiteBD = tramiteBD;
+            _facturasBD = facturasBD;
+            _tarifariaBd = tarifariaBD;
         }
 
         public async Task<List<CantidadCuota>> CantidadCuotas()
@@ -239,6 +245,127 @@ namespace CemSys2.Data
             catch (Exception)
             {
                 exito = false;
+            }
+
+            return exito;
+        }
+
+        public async Task<bool> PasoPendienteDocumentacion(ContratoConcesion contrato, List<DTO_Titulares> titulares, int tipoConceptoTarifariaId)
+        {
+            bool exito = false;
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Relacionar persona con trámite
+                    // VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
+                    foreach (var t in titulares)
+                    {
+                        bool relacionExistente = await _context.TramitePersonas
+                        .AnyAsync(tp => tp.TramiteId == contrato.IdTramite && tp.PersonaId == t.Id);
+
+                        // Solo crear la relación si no existe con cada titular
+                        if (!relacionExistente)
+                        {
+                            TramitePersona tramitePersona = new TramitePersona
+                            {
+                                TramiteId = contrato.IdTramite,
+                                PersonaId = t.Id
+                            };
+                            _context.TramitePersonas.Add(tramitePersona);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        //se relaciona el titular con la concesion tabla TitularesConcesion
+                        TitularesContratoConcesion titularesContratoConcesion = new TitularesContratoConcesion
+                        {
+                            PersonaId = t.Id,
+                            ContratoId = contrato.IdTramite,
+                            Fecha = DateTime.Now
+                        };
+                        _context.TitularesContratoConcesions.Add(titularesContratoConcesion);
+                        await _context.SaveChangesAsync();
+
+                        //se guarda el historial de titulares por contrato
+                        HistorialTitularesContrato historialTitularesContrato = new HistorialTitularesContrato
+                        {
+                            ContratoId = contrato.IdTramite,
+                            PersonaId = t.Id,
+                            FechaInicio = contrato.FechaGeneracion
+                        };
+                        _context.HistorialTitularesContratos.Add(historialTitularesContrato);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    //relaciona cada difunto con el tramite
+                    var ListaDifuntos = await ListaDifuntosPorParcela(contrato.ParcelaId);
+                    foreach (var difunto in ListaDifuntos)
+                    {
+                        bool relacionExistente = await _context.TramitePersonas
+                        .AnyAsync(tp => tp.TramiteId == contrato.IdTramite && tp.PersonaId == difunto.DifuntoId);
+
+                        // Solo crear la relación si no existe con cada difunto
+                        if (!relacionExistente)
+                        {
+                            TramitePersona tramitePersona = new TramitePersona
+                            {
+                                TramiteId = contrato.IdTramite,
+                                PersonaId = difunto.DifuntoId
+                            };
+                            _context.TramitePersonas.Add(tramitePersona);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+                    PreciosTarifaria precioConcesion = await _tarifariaBd.ConsultarUnPrecioTarifaria(contrato.PrecioTarifariaId);
+
+                    //genero la factura
+                    Factura factura = new Factura{
+                        TramiteId = contrato.IdTramite,
+                        FechaCreacion = contrato.FechaGeneracion,
+                        Total = precioConcesion.Precio,
+                        Pendiente = precioConcesion.Precio,
+                        Visibilidad = true
+                    };
+                    int idFactura = await _facturasBD.RegistrarFactura(factura);
+
+                    ConceptosFactura conceptoFactura = new ConceptosFactura
+                    {
+                        FacturaId = factura.Id,
+                        ConceptoTarifariaId = precioConcesion.ConceptoTarifariaId,
+                        PrecioUnitario = precioConcesion.Precio,
+                        Cantidad = 1,
+                        TipoConceptoFacturaId = tipoConceptoTarifariaId
+                    };
+                    int idConcepto = await _facturasBD.RegistrarConceptoFactura(conceptoFactura);
+
+                   
+                    //busco el tramite y actualizo el estado
+                    Tramite tramite = await _tramiteBD.ConsultarTramite(contrato.IdTramite);
+                    tramite.EstadoActualId = (int)EstadosContratoConcesion.PendienteDeDocumentacion;
+                    int idTramite = await _tramiteBD.ModificarTramite(tramite); //actualizo el estado del tramite
+
+                    // Actualizar el estado del trámite pasa el tramite a Pendiente de Documentacion
+                    HistorialEstadoTramite estadoTramite = new HistorialEstadoTramite
+                    {
+                        EstadoTramiteId = tramite.EstadoActualId ?? 0, 
+                        Fecha = DateTime.Now,
+                        TramiteId = tramite.Id
+                    };
+                    _context.HistorialEstadoTramites.Add(estadoTramite);
+                    await _context.SaveChangesAsync();
+
+
+                    await transaction.CommitAsync();
+                    exito = true;
+                    
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw; // Re-throw the exception after rolling back
+                }
             }
 
             return exito;

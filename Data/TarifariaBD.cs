@@ -76,7 +76,7 @@ namespace CemSys2.Data
 
 
         //precios tarifaria------------------------
-        public async Task<List<PreciosTarifaria>> ConsultarPrecioTarifaria(int id)
+        public async Task<List<PreciosTarifaria>> ConsultarPrecioTarifaria(int id) //devuelve todos los precios de una tarifaria
         {
             try
             {
@@ -195,6 +195,11 @@ namespace CemSys2.Data
                 await transaction.RollbackAsync();
                 throw new Exception($"Error al actualizar precios de tarifaria: {ex.Message}", ex);
             }
+        }
+
+        public async Task<PreciosTarifaria> ConsultarUnPrecioTarifaria(int precioId)
+        {
+            return await _context.PreciosTarifarias.FirstAsync(p => p.Id == precioId);
         }
     }
 }

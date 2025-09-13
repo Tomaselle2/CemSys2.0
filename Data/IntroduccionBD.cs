@@ -242,7 +242,6 @@ namespace CemSys2.Data
                     TramiteIngresoId = tramite.Id
                 };
                 _context.ParcelaDifuntos.Add(parcelaDifunto);
-
                 await _context.SaveChangesAsync();
 
                 //facturacion
