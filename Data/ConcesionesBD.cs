@@ -82,7 +82,7 @@ namespace CemSys2.Data
                         {
                             IdTramite = tramiteId,
                             ParcelaId = contrato.ParcelaId,
-                            CantidadAnios = contrato.CantidadAnios,
+                            CantidadAnios = contrato.CantidadAniosId,
                             Vencimiento = contrato.Vencimiento,
                             Concesion = contrato.NroConcesion,
                             PrecioTarifariaId = contrato.PrecioId,
@@ -257,7 +257,8 @@ namespace CemSys2.Data
                                 Precio = reader.GetDecimal(reader.GetOrdinal("precio")),
                                 seccionId = reader.GetInt32(reader.GetOrdinal("seccionId")),
                                 fila = reader.GetInt32(reader.GetOrdinal("nroFila")),
-                                aniosConcesion = reader.GetInt32(reader.GetOrdinal("anios"))
+                                aniosConcesion = reader.GetInt32(reader.GetOrdinal("anios")),
+                                cantidadAniosId = reader.GetInt32(reader.GetOrdinal("cantidadAniosId"))
                             };
 
                             resultados.Add(precio);

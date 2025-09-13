@@ -540,7 +540,7 @@ BEGIN
 END
 GO
 ------------------obtiene los precios de una parcela para hacer contrato-----------------------------------
-CREATE PROCEDURE obtenerPreciosParcelaContrato
+create PROCEDURE obtenerPreciosParcelaContrato
     @conceptoTarifariaId INT,
     @tarifarioId INT,
     @seccionId INT,
@@ -555,7 +555,8 @@ BEGIN
         pre.precio,
         pre.seccionId,
         pre.nroFila,
-        anio.anios
+        anio.anios,
+		anio.id AS cantidadAniosId
     FROM PreciosTarifarias pre
     INNER JOIN AniosConcesion anio
         ON anio.id = pre.aniosConcesion

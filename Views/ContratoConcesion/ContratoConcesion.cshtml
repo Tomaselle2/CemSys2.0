@@ -141,8 +141,9 @@
                         {
                             <option value="@precio.precioId"
                                     data-precio="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                    data-cantidad-anios-id="@precio.cantidadAniosId"
                                     selected="@(Model.PrecioSeleccionado == precio.precioId ? "selected" : null)">
-                                @precio.aniosConcesion años - $ @precio.Precio.ToString("N2")
+                                    @precio.aniosConcesion años - $ @precio.Precio.ToString("N2")
                             </option>
                         }
                     </select>
@@ -192,7 +193,7 @@
                 </div>
 
                 <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
-                <input type="hidden" asp-for="CantidadAnios" id="cantidadAnios" />
+                <input type="hidden" asp-for="CantidadAniosId" id="cantidadAniosId" />
                 <input type="hidden" asp-for="tipoParcela" value="@Model.DatosParcela.TipoParcela" />
                 <input type="hidden" asp-for="seccion" value="@Model.DatosParcela.NombreSeccion.ToUpper()" />
                 <input type="hidden" asp-for="ParcelaString" value="@parcela" />
@@ -698,7 +699,7 @@
             const selectCantidadPrecio = document.getElementById('selectCantidadPrecio');
             const vencimientoConcesion = document.getElementById('vencimientoConcesion');
             const nroConcesion = document.getElementById('nroConcesion');
-            const cantidadAniosInputHidden = document.getElementById('cantidadAnios');
+            //const cantidadAniosInputHidden = document.getElementById('cantidadAnios');
 
             // Función para extraer los años del texto de la opción
             function extraerAnios(textoOpcion) {
@@ -743,7 +744,7 @@
 
                 // Asignamos la fecha al campo de vencimiento
                 vencimientoConcesion.value = fechaFormateada;
-                cantidadAniosInputHidden.value = anios; // Actualizamos el input hidden
+                //cantidadAniosInputHidden.value = anios; // Actualizamos el input hidden
 
                 
             }
@@ -774,6 +775,8 @@
           const otraFormaInput      = document.getElementById('otraForma');
           const cuotaError = document.getElementById('cuota-error');
           const precioFinalHidden = document.getElementById('precioFinal');
+          const cantidadAniosIdHidden = document.getElementById('cantidadAniosId');
+
           let precio = 0;
           // --- util: parsea cadenas con distintos formatos de miles/decimales ---
           function parsePrecioString(raw) {
@@ -865,21 +868,30 @@
         });
 
           selectCantidadPrecio.addEventListener('change', function() {
-            if (this.value !== '') {
-              formaDePagoSelect.removeAttribute('disabled');
-            } else {
-              formaDePagoSelect.setAttribute('disabled', 'disabled');
-              formaDePagoSelect.value = '';
-              divOtraFormaPago.style.display = 'none';
-              document.getElementById('otraForma').setAttribute('readonly', 'readonly');
-              cantidadCuotaSelect.setAttribute('disabled', 'disabled');
-              cantidadCuotaSelect.value = '';
-              valorCuotaInput.value = '';
-            }
 
-            precio = getPrecioSeleccionado();
-            precioFinalHidden.value = precio || 0;
-            calcularValorCuota();
+                const selectedOption = this.options[this.selectedIndex];
+
+                if (selectedOption && selectedOption.value !== '') {
+
+                      const cantidadAniosId = selectedOption.getAttribute('data-cantidad-anios-id');
+                      cantidadAniosIdHidden.value = cantidadAniosId;
+                      formaDePagoSelect.removeAttribute('disabled');
+
+                } else {
+                      
+                      cantidadAniosIdHidden.value = '';
+                      formaDePagoSelect.setAttribute('disabled', 'disabled');
+                      formaDePagoSelect.value = '';
+                      divOtraFormaPago.style.display = 'none';
+                      document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+                      cantidadCuotaSelect.setAttribute('disabled', 'disabled');
+                      cantidadCuotaSelect.value = '';
+                      valorCuotaInput.value = '';
+                }
+
+                precio = getPrecioSeleccionado();
+                precioFinalHidden.value = precio || 0;
+                calcularValorCuota();
           });
 
           cantidadCuotaSelect.addEventListener('change', calcularValorCuota);

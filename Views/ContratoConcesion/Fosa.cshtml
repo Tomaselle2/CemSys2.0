@@ -287,6 +287,33 @@
 
 }
 
+@{//logica de cantidad de años
+    //recibe la cantidad de añosId y devuelve el texto correspondiente
+    string cantidadAniosTexto = "";
+    switch (Model.datosContrato.CantidadAniosId)
+    {
+        case 1:
+            cantidadAniosTexto = "1 AÑO";
+            break;
+        case 2:
+            cantidadAniosTexto = "5 AÑOS";
+            break;
+        case 3:
+            cantidadAniosTexto = "10 AÑOS";
+            break;
+        case 4:
+            cantidadAniosTexto = "15 AÑOS";
+            break;
+        case 5:
+            cantidadAniosTexto = "25 AÑOS";
+            break;
+        default:
+            cantidadAniosTexto = $"{Model.datosContrato.CantidadAniosId} AÑOS";
+            break;
+    }
+}
+
+
 @for(int i=0; i < 2; i++) //bucle para generar dos copias del contrato en la misma hoja
 {
     <div class="documento-container">
@@ -325,7 +352,7 @@
             </p>
         
             <p>
-                Sito en el cementerio municipal de Colonia Tirolesa a cargo de la oficina del Registro Civil por el término de <br/><strong>@Model.datosContrato.CantidadAnios AÑOS</strong>.
+                Sito en el cementerio municipal de Colonia Tirolesa a cargo de la oficina del Registro Civil por el término de <br/><strong>@cantidadAniosTexto</strong>.
             </p>
         
             <p>

@@ -174,7 +174,7 @@ namespace CemSys2.Controllers
                 dtoDatosGenerarConcesion.PrecioId = viewModel.PrecioSeleccionado.Value;
                 dtoDatosGenerarConcesion.Precio = viewModel.PrecioFinal;
                 dtoDatosGenerarConcesion.ParcelaId = viewModel.ParcelaId.Value;
-                dtoDatosGenerarConcesion.CantidadAniosId = viewModel.CantidadAnios.Value; //es el id de cantidad años pero ahora solo toma la cantidad de años
+                dtoDatosGenerarConcesion.CantidadAniosId = viewModel.CantidadAniosId.Value; //aca debe estar el id de cantidad de años años
                 dtoDatosGenerarConcesion.Vencimiento = viewModel.Vencimiento.Value;
                 dtoDatosGenerarConcesion.NroConcesion = viewModel.NroConcesion ?? "";
                 dtoDatosGenerarConcesion.formaPago = viewModel.FormaDePago;

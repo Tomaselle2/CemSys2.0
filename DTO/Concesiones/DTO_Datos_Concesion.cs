@@ -18,5 +18,6 @@
         public int seccionId { get; set; }
         public int fila { get; set; }
         public int aniosConcesion { get; set; }
+        public int cantidadAniosId { get; set; }  // Nueva propiedad
     }
 }
