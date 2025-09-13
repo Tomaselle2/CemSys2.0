@@ -482,7 +482,22 @@ namespace CemSys2.Controllers
                 throw new Exception($"Error al cargar los combos: {ex.Message}", ex);
             }
         }
+
+
+
+
+
+
+        //---------------------------------------------------------------------------------------------------------------------------------
+        //parte visual de fosa
+        [HttpPost]
+        public IActionResult VistaVisualFosa(ParcelasViewModel viewModel) {
+            return View(viewModel); 
+        }
     }
+
+
+
 
    
 }
