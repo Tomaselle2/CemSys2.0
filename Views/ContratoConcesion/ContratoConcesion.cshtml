@@ -205,14 +205,15 @@
                     <input type="submit" value="Generar contrato" class="btn btn-success" />
                 </div>
 
-                <div class="text-center p-3">
-                    <input type="button" class="btn btn-secondary" id="btnSubirContrato" style="display: none" value="Contrato firmado"/>
-                </div>
+                
             </div>
         </div>
     </div>
 </form>
 
+<div class="text-center p-3">
+    <button class="btn btn-secondary" id="btnSubirContrato" style="display: none" value="">Contrato firmado</button>
+</div>
 
 
 <!-- Modal contribuyente-->
@@ -736,6 +737,10 @@
             // ⚠️ Solo agregar listener si no existe ya
             if (!btnSubirContrato.dataset.listenerAdded) {
                 btnSubirContrato.addEventListener('click', () => {
+                    // Obtener valores necesarios
+                    const nroConcesion = nroConcesionInput.value;
+                    const parcelaId = '@Model.ParcelaId'; // Usar el valor del modelo
+
                     const modalHTML = `
                     <div class="modal fade" id="modalSubirContrato" tabindex="-1">
                         <div class="modal-dialog">
@@ -744,12 +749,17 @@
                                     <h5 class="modal-title">Advertencia</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
-                                <form action="/tu-controlador/accion" method="post" enctype="multipart/form-data">
+                                <form method="post" action="@Url.Action("PendienteDocumentacion", "ContratoConcesion")">
+                                    @Html.AntiForgeryToken()
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <p>El contrato debe estar firmado y escaneado para continuar</p>
                                         </div>
                                     </div>
+
+                                    <input type="hidden" name="NroConcesion" value="${nroConcesion}" />
+                                    <input type="hidden" name="ParcelaId" value="${parcelaId}" />
+
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                         <button type="submit" class="btn btn-primary">Continuar</button>

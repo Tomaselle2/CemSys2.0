@@ -285,6 +285,29 @@ namespace CemSys2.Controllers
         }
 
 
+        //metodo que recibe el parcelaId y nroConcesion para pasar a subir Contrato de concesion
+        [HttpPost]
+        public async Task<IActionResult> PendienteDocumentacion(GenerarContratoVM viewModel)
+        {
+            //si existe el nroTramite es > 0
+            int nroTramite = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion, viewModel.ParcelaId ?? 0);
+            if(nroTramite > 0)
+            {
+                //Se busca el contrato de concesión
+                CemSys2.Models.ContratoConcesion contratoConcesion = await _concesionesBusiness.ConsultarContratoConcesion(nroTramite);
+
+                //metodo que carga los datos del paso Pendiente de documentacion
+            }
+            else //el nro de conces en incorrecto, no existe par
+            {
+                await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
+                viewModel.MensajeError = "El número de concesión es incorrecto";
+                return View("ContratoConcesion", viewModel);
+            }
+                await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
+                return View("ContratoConcesion", viewModel);
+        }
+
         // Método para buscar contribuyente (AJAX)
         [HttpPost]
         public async Task<IActionResult> BuscarContribuyente([FromBody] BuscarContribuyenteRequest request)
