@@ -567,3 +567,71 @@ BEGIN
     ORDER BY anio.anios;
 END
 GO
+---Metodo para la tabla general de concesiones en el index--------------------
+CREATE PROCEDURE sp_ListadoContratosConcesiones
+    @PageNumber INT = 1,
+    @PageSize INT = 10
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    ;WITH ContratosCTE AS (
+        SELECT 
+            cc.idTramite,
+            cc.concesion,
+            sec.nombre AS Seccion,
+            sec.tipoParcela,         -- número del tipo de parcela
+            p.NroParcela,
+            p.NroFila,
+            cc.vencimiento,
+            tra.estadoActualID,      -- solo ID
+                        
+            -- Difuntos actuales en la parcela
+            d.Difuntos,
+            
+            -- Titulares del contrato
+            t.Titulares
+        FROM ContratoConcesion cc
+        INNER JOIN Tramite tra ON tra.id = cc.idTramite
+        INNER JOIN Parcela p ON p.id = cc.parcelaId
+        INNER JOIN Secciones sec ON sec.id = p.seccion
+        
+        -- Difuntos (string concatenado)
+        OUTER APPLY (
+            SELECT STRING_AGG(perDif.apellido + ' ' + perDif.nombre, ', ')
+            FROM ParcelaDifuntos pd
+            INNER JOIN Personas perDif ON perDif.idPersona = pd.difuntoId
+            WHERE pd.parcelaId = p.id
+              AND (pd.fechaRetiro IS NULL OR pd.estadoActual = 1)
+        ) d(Difuntos)
+        
+        -- Titulares (string concatenado)
+        OUTER APPLY (
+            SELECT STRING_AGG(perTit.apellido + ' ' + perTit.nombre, ', ')
+            FROM TitularesContratoConcesion tcc
+            INNER JOIN Personas perTit ON perTit.idPersona = tcc.personaId
+            WHERE tcc.contratoId = cc.idTramite
+        ) t(Titulares)
+    )
+    -- 1) Listado paginado
+    SELECT 
+        idTramite,
+        concesion,
+        Difuntos,
+        Seccion,
+        tipoParcela,      -- solo el número
+        NroParcela,       -- sin formato
+        NroFila,          -- sin formato
+        Titulares,
+        vencimiento,
+        estadoActualID    -- solo el ID
+    FROM ContratosCTE
+    ORDER BY vencimiento DESC
+    OFFSET (@PageNumber - 1) * @PageSize ROWS
+    FETCH NEXT @PageSize ROWS ONLY;
+
+    -- 2) Total de registros (para paginación)
+    SELECT COUNT(*) AS TotalRegistros
+    FROM ContratoConcesion;
+END;
+GO

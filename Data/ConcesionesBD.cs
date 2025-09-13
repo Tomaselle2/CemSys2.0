@@ -461,5 +461,65 @@ namespace CemSys2.Data
 
             return 0;
         }
+
+        //devuelve los contratos de concesion paginados
+        public async Task<DTO_Listado_Paginado_Concesiones> ListadoConcesiones(int paginaActual, int tamanoPagina)
+        {
+            using (var connection = new SqlConnection(_context.Database.GetConnectionString()))
+            {
+                await connection.OpenAsync();
+
+                var resultado = new DTO_Listado_Paginado_Concesiones
+                {
+                    PaginaActual = paginaActual,
+                    TamanoPagina = tamanoPagina
+                };
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "sp_ListadoContratosConcesiones";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PageNumber", paginaActual);
+                    command.Parameters.AddWithValue("@PageSize", tamanoPagina);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        // 1) Leer la lista de concesiones
+                        while (await reader.ReadAsync())
+                        {
+                            var item = new DTO_Listado_Tabla_General_Concesiones
+                            {
+                                TramiteId = reader.GetInt32(reader.GetOrdinal("idTramite")),
+                                NroConcesion = reader.IsDBNull(reader.GetOrdinal("concesion"))
+                                                ? string.Empty
+                                                : reader.GetString(reader.GetOrdinal("concesion")),
+                                NombreSeccion = reader.GetString(reader.GetOrdinal("Seccion")),
+                                TipoParcelaId = reader.GetInt32(reader.GetOrdinal("tipoParcela")),
+                                NroParcela = reader.GetInt32(reader.GetOrdinal("NroParcela")),
+                                NroFila = reader.GetInt32(reader.GetOrdinal("NroFila")),
+                                Vencimiento = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("vencimiento"))),
+                                EstadoActualId = reader.GetInt32(reader.GetOrdinal("estadoActualID")),
+                                Difuntos = reader.IsDBNull(reader.GetOrdinal("Difuntos"))
+                                           ? string.Empty
+                                           : reader.GetString(reader.GetOrdinal("Difuntos")),
+                                Titulares = reader.IsDBNull(reader.GetOrdinal("Titulares"))
+                                            ? string.Empty
+                                            : reader.GetString(reader.GetOrdinal("Titulares"))
+                            };
+
+                            resultado.Items.Add(item);
+                        }
+
+                        // 2) Pasar al siguiente resultset -> total de registros
+                        if (await reader.NextResultAsync() && await reader.ReadAsync())
+                        {
+                            resultado.TotalRegistros = reader.GetInt32(reader.GetOrdinal("TotalRegistros"));
+                        }
+                    }
+                }
+
+                return resultado;
+            }
+        }
     }
 }

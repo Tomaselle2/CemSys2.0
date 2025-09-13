@@ -22,13 +22,13 @@
     @* ID único para el acordeón principal *@
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsUbicacion-headingOne">
-            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsSinContrato-collapseOne" aria-expanded="false" aria-controls="panelsSinContrato-collapseOne">
+            <button class="accordion-button nueva-seccion" style="background-color: #ED2B2B" type="button" data-bs-toggle="collapse" data-bs-target="#panelsSinContrato-collapseOne" aria-expanded="false" aria-controls="panelsSinContrato-collapseOne">
                 Parcelas sin contrato (@Model.ListaParcelasSinContrato.Count())
             </button>
         </h2>
         <div id="panelsSinContrato-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsSinContrato-headingOne" data-bs-parent="#accordionSinContrato">
             @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
-            <div class="accordion-body">
+            <div class="accordion-body" style="padding: 0">
                 @if (Model.ListaParcelasSinContrato.Any())
                 {
                     <div class="card shadow-sm">
@@ -86,7 +86,6 @@
                                                 <td>No disponible</td>
                                             }
                                         </tr>
-
                                     }
                                 </tbody>
                             </table>
@@ -104,6 +103,98 @@
         </div>
     </div>
 
+</div>
+
+<!-- Tabla General de concesiones -->
+<div class="accordion" id="accordionConcesiones">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingConcesiones">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-target="#panelsStayOpen-collapseConcesiones" aria-expanded="true" aria-controls="panelsStayOpen-collapseConcesiones">
+                Tabla General
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseConcesiones" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingConcesiones">
+            @if (Model.ListaConcesiones.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Concesión</th>
+                                    <th>Difunto</th>
+                                    <th>Sección</th>
+                                    <th>Parcela</th>
+                                    <th>Titular</th>
+                                    <th>Vencimiento</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaConcesiones)
+                                {
+                                    string parcela = "";
+                                    string estadoTramiteDisplay = EstadosEnum.ObtenerNombreEstado((TipotamiteEmun)(int)TipotamiteEmun.ContratoDeConcesion, opc.EstadoActualId);
+
+                                    if (opc.TipoParcelaId == 1) //nicho
+                                    {
+                                        parcela = $"Nicho {opc.NroParcela.ToString()} Fila {opc.NroFila.ToString()}";
+                                    }
+                                    else if (opc.TipoParcelaId == 2)//fosa
+                                    {
+                                        parcela = $"Fosa {opc.NroParcela.ToString()}";
+                                    }
+                                    else if (opc.TipoParcelaId == 3) //panteon
+                                    {
+                                        parcela = $"Lote {opc.NroParcela.ToString()}";
+                                    }
+
+                                    <tr>
+                                        <td>@opc.NroConcesion</td>
+                                        <td>@opc.Difuntos.ToUpper()</td>
+                                        <td>@opc.NombreSeccion.ToUpper()</td>
+                                        <td>@parcela</td>
+                                        <td>@opc.Titulares.ToUpper()</td>
+                                        <td>@opc.Vencimiento.ToString("dd/MM/yyyy")</td>
+                                        <td>@estadoTramiteDisplay</td>
+                                        <td>
+                                            <form asp-action="#" asp-controller="ContratoConcesion" target="_blank" method="get" style="display: inline-block;">
+                                                <input type="hidden" name="parcelaId" value="@opc.TramiteId" />
+                                                <button type="submit" class="btn btn-success" title="Ir a concesión">
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                //paginador
+                @if (Model.TotalPaginas > 1)
+                {
+                    @await Html.PartialAsync("_Paginador", new CemSys2.ViewModel.PaginadorViewModel
+                    {
+                        PaginaActual = Model.PaginaActual,
+                        TotalPaginas = Model.TotalPaginas,
+                        TotalRegistros = Model.TotalRegistros,
+                        Accion = "Index",           // acción del controlador actual
+                        Controlador = "ContratoConcesion" // nombre del controlador
+                    })
+                }
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay contrato de concesiones
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 

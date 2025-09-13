@@ -170,23 +170,24 @@ body {
 .nueva-seccion {
     background-color: #005954;
     color: #ffffff;
-    padding: 16px 24px;
+   /* padding: 16px 24px;*/
     font-size: 20px;
     font-weight: bold;
 }
 
 /*ACORDEON (TARIFARIA -EFECTO ACORDEON)*/
         .accordion {
-            max-width: 1300px; /* Por ejemplo, un ancho máximo de 600px */
+            max-width: 1600px; /* Por ejemplo, un ancho máximo de 600px */
             margin-left: auto; /* Centrarlo si tiene un max-width */
             margin-right: auto;
             margin-bottom: 20px;
-            padding: 10px;
+            margin-top: 10px;
+            padding: 20px;
         }
         .acordeon-fijo {
             cursor: default !important; /* No pointer */
             background-image: none !important; /* Quita flechita */
-            padding-left: 1rem !important; /* Acomoda texto si quitás la flecha */
+            /*padding-left: 1rem !important;*/ /* Acomoda texto si quitás la flecha */
         }
         .acordeon-fijo::after {
             display: none !important;
@@ -235,6 +236,7 @@ body {
     margin-right: auto;
     font-size: 1.2rem;
 }
+
 /*FIN ACORDEON*/
 /*Formularios*/
 .form-columns-container3 {

@@ -32,12 +32,22 @@ namespace CemSys2.Controllers
         }
 
         //vista principal de concesiones
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pagina = 1, int tamanoPagina = 10)
         {
             IndexConcesionesVM viewModel = new IndexConcesionesVM();
             try
             {
                 viewModel.ListaParcelasSinContrato = await _concesionesBusiness.ListaParcelasSinContrato();
+                var resultado = await _concesionesBusiness.ListadoConcesiones(pagina, tamanoPagina);
+
+                viewModel.ListaConcesiones = resultado.Items;
+                viewModel.PaginaActual = resultado.PaginaActual;
+                viewModel.TotalRegistros = resultado.TotalRegistros;
+                viewModel.TamanoPagina = resultado.TamanoPagina;
+
+                // Calcular total de páginas
+                viewModel.TotalPaginas = (int)Math.Ceiling((double)resultado.TotalRegistros / resultado.TamanoPagina);
+
             }
             catch (Exception ex)
             {
