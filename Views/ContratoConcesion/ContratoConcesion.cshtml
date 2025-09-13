@@ -204,11 +204,15 @@
                 <div class="text-center p-3">
                     <input type="submit" value="Generar contrato" class="btn btn-success" />
                 </div>
-                
+
+                <div class="text-center p-3">
+                    <input type="button" class="btn btn-secondary" id="btnSubirContrato" style="display: none" value="Contrato firmado"/>
+                </div>
             </div>
         </div>
     </div>
 </form>
+
 
 
 <!-- Modal contribuyente-->
@@ -335,25 +339,14 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
-    <script> // Formatear DNI
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.dni-formateado').forEach(elemento => {
-                const dni = elemento.textContent;
-                if (dni !== '--------') {
-                    elemento.textContent = dni.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-                }
-            });
-        });
-    </script>
-
-    <script>//logica de titulares
+    <script>
         // Variables globales
         let titulares = [];
         let estadoModal = 'buscar';
         let titularAEliminar = null;
         const normalizarDni = (v) => String(v ?? '').trim().replace(/\D/g, '');
 
-        // Elementos del DOM
+        // Elementos del DOM - Titulares
         const formPrincipal = document.getElementById('formPrincipal');
         const agregarTitularButton = document.getElementById('agregarContribuyenteButton');
         const formTitular = document.getElementById('formContribuyente');
@@ -370,7 +363,22 @@
         const btnAccionTitular = document.getElementById('btnAccionContribuyente');
         const errorMessage = document.getElementById('errorMessage');
 
-        // Event Listeners
+        // Elementos del DOM - Forma de pago
+        const nroConcesionInput = document.getElementById('nroConcesion');
+        const formaDePagoSelect = document.getElementById('formaDePago');
+        const cantidadCuotaSelect = document.getElementById('CantidadCuotaSeleccionada');
+        const divOtraFormaPago = document.getElementById('divOtraFormaPago');
+        const selectCantidadPrecio = document.getElementById('selectCantidadPrecio');
+        const valorCuotaInput = document.getElementById('valorCuota');
+        const otraFormaError = document.getElementById('otraForma-error');
+        const otraFormaInput = document.getElementById('otraForma');
+        const cuotaError = document.getElementById('cuota-error');
+        const precioFinalHidden = document.getElementById('precioFinal');
+        const cantidadAniosIdHidden = document.getElementById('cantidadAniosId');
+        const vencimientoConcesion = document.getElementById('vencimientoConcesion');
+        const btnSubirContrato = document.getElementById('btnSubirContrato');
+
+        // Event Listeners - Titulares
         agregarTitularButton.addEventListener('click', function() {
             resetearModal();
             $('#TitularModal').modal('show');
@@ -394,22 +402,59 @@
             inputsTitulares.forEach(input => {
                 if ((input.name.includes('Celular') || input.name.includes('CorreoElectronico')) && !input.value) {
                     input.value = "-----";
-                    console.log(input.value);
-                    console.log(input.value);
                 }
             });
 
-            if (titulares.length === 0) {
+            // Primero verificamos la validez del formulario
+            if (!this.checkValidity()) {
                 event.preventDefault();
-                alert('Debe agregar al menos un titular');
-                return false;
+                event.stopPropagation();
+                //this.classList.add('was-validated');
+                ocultarBoton();
+                return;
             }
 
-            
-            return true;
+            // Validación personalizada adicional
+            let valido = true;
+
+            // Validar que haya al menos un titular
+            if (titulares.length === 0) {
+                valido = false;
+                alert('Debe agregar al menos un titular');
+            }
+
+            // Validación de forma de pago
+            if (formaDePagoSelect.value === 'otra') {
+                const texto = otraFormaInput.value.trim();
+                if (texto.length < 10) {
+                    valido = false;
+                    otraFormaError.textContent = 'Debe ingresar al menos 10 caracteres en "Otra forma de pago".';
+                    otraFormaInput.classList.add("is-invalid");
+                }
+            }
+
+            if (formaDePagoSelect.value === 'cuota') {
+                if (!cantidadCuotaSelect.value) {
+                    valido = false;
+                    cuotaError.textContent = 'Debe seleccionar una cantidad de cuotas.';
+                    cantidadCuotaSelect.classList.add("is-invalid");
+                }
+            }
+
+            if (!valido) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.classList.add('was-validated');
+                ocultarBoton();
+                return;
+            }
+
+            // Si todo es válido, prevenimos el envío normal y mostramos el botón
+            //event.preventDefault();
+            SubirContrato();
         });
 
-        // Funciones principales
+        // Funciones principales - Titulares
         function validarFormulario() {
             let esValido = true;
             formTitular.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
@@ -448,12 +493,6 @@
                     domicilioInput.classList.add('is-invalid');
                     esValido = false;
                 }
-
-                // // Validar correo si tiene algo escrito
-                // if (correoInput.value.trim() && !new RegExp("^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$").test(correoInput.value.trim())) {
-                //     correoInput.classList.add('is-invalid');
-                //     esValido = false;
-                // }
             }
 
             return esValido;
@@ -629,12 +668,10 @@
                             <div>
                                 <label>Teléfono</label>
                                 <input class="form-control" type="text" name="Titulares[${index}].Celular" value="${titular.celular || ''}" maxlength="25" />
-                                
                             </div>
                             <div>
                                 <label>Correo</label>
                                 <input class="form-control" type="text" name="Titulares[${index}].CorreoElectronico" value="${titular.correo || ''}" maxlength="100" />
-                                
                             </div>
                         </div>
                     </div>
@@ -692,94 +729,112 @@
         function ocultarError() {
             errorMessage.style.display = 'none';
         }
-    </script>
 
-    <script>//logica de vencimiento
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectCantidadPrecio = document.getElementById('selectCantidadPrecio');
-            const vencimientoConcesion = document.getElementById('vencimientoConcesion');
-            const nroConcesion = document.getElementById('nroConcesion');
-            //const cantidadAniosInputHidden = document.getElementById('cantidadAnios');
+        function SubirContrato() {
+            btnSubirContrato.style.display = 'block';
 
-            // Función para extraer los años del texto de la opción
-            function extraerAnios(textoOpcion) {
-                // Usamos una expresión regular para encontrar el número de años
-                const match = textoOpcion.match(/^(\d+)\s*años/);
-                if (match && match[1]) {
-                    return parseInt(match[1]);
-                }
-                return 0;
+            // ⚠️ Solo agregar listener si no existe ya
+            if (!btnSubirContrato.dataset.listenerAdded) {
+                btnSubirContrato.addEventListener('click', () => {
+                    const modalHTML = `
+                    <div class="modal fade" id="modalSubirContrato" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Advertencia</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form action="/tu-controlador/accion" method="post" enctype="multipart/form-data">
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <p>El contrato debe estar firmado y escaneado para continuar</p>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Continuar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+
+                    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                    const modal = new bootstrap.Modal(document.getElementById('modalSubirContrato'));
+                    modal.show();
+
+                    document.getElementById('modalSubirContrato').addEventListener('hidden.bs.modal', () => {
+                        document.getElementById('modalSubirContrato').remove();
+                    });
+                });
+
+                btnSubirContrato.dataset.listenerAdded = "true";
+            }
+        }
+
+        // --- Función auxiliar para ocultar ---
+        function ocultarBoton() {
+            btnSubirContrato.style.display = 'none';
+        }
+
+        // Lógica de vencimiento
+        function extraerAnios(textoOpcion) {
+            // Usamos una expresión regular para encontrar el número de años
+            const match = textoOpcion.match(/^(\d+)\s*años/);
+            if (match && match[1]) {
+                return parseInt(match[1]);
+            }
+            return 0;
+        }
+
+        // Función para calcular la fecha de vencimiento
+        function calcularVencimiento() {
+            if (selectCantidadPrecio.value === "") {
+                alert("Por favor, seleccione la cantidad de años.");
+                return;
             }
 
-            // Función para calcular la fecha de vencimiento
-            function calcularVencimiento() {
-                if (selectCantidadPrecio.value === "") {
-                    alert("Por favor, seleccione la cantidad de años.");
-                    return;
-                }
+            // Obtenemos la opción seleccionada
+            const opcionSeleccionada = selectCantidadPrecio.options[selectCantidadPrecio.selectedIndex];
 
-                // Obtenemos la opción seleccionada
-                const opcionSeleccionada = selectCantidadPrecio.options[selectCantidadPrecio.selectedIndex];
+            // Extraemos los años del texto de la opción
+            const anios = extraerAnios(opcionSeleccionada.text);
 
-                // Extraemos los años del texto de la opción
-                const anios = extraerAnios(opcionSeleccionada.text);
-
-                if (anios === 0) {
-                    alert("No se pudo determinar la cantidad de años.");
-                    return;
-                }
-
-                // Obtenemos la fecha actual
-                const hoy = new Date();
-
-                // Creamos una nueva fecha sumando los años
-                const nuevaFecha = new Date(hoy);
-                nuevaFecha.setFullYear(nuevaFecha.getFullYear() + anios);
-
-                // Formateamos la fecha para el input type="date" (YYYY-MM-DD)
-                const year = nuevaFecha.getFullYear();
-                const month = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
-                const day = String(nuevaFecha.getDate()).padStart(2, '0');
-                const fechaFormateada = `${year}-${month}-${day}`;
-
-                // Asignamos la fecha al campo de vencimiento
-                vencimientoConcesion.value = fechaFormateada;
-                //cantidadAniosInputHidden.value = anios; // Actualizamos el input hidden
-
-                
+            if (anios === 0) {
+                alert("No se pudo determinar la cantidad de años.");
+                return;
             }
 
+            // Obtenemos la fecha actual
+            const hoy = new Date();
 
-            // También podemos mantener el evento change para el select
-            selectCantidadPrecio.addEventListener('change', function() {
-                // Solo calcular si hay una selección válida
-                if (this.value !== "") {
-                    calcularVencimiento();
-                } else {
-                    vencimientoConcesion.value = "";
-                }
-            });
+            // Creamos una nueva fecha sumando los años
+            const nuevaFecha = new Date(hoy);
+            nuevaFecha.setFullYear(nuevaFecha.getFullYear() + anios);
+
+            // Formateamos la fecha para el input type="date" (YYYY-MM-DD)
+            const year = nuevaFecha.getFullYear();
+            const month = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
+            const day = String(nuevaFecha.getDate()).padStart(2, '0');
+            const fechaFormateada = `${year}-${month}-${day}`;
+
+            // Asignamos la fecha al campo de vencimiento
+            vencimientoConcesion.value = fechaFormateada;
+        }
+
+        selectCantidadPrecio.addEventListener('change', function() {
+            // Solo calcular si hay una selección válida
+            if (this.value !== "") {
+                calcularVencimiento();
+            } else {
+                vencimientoConcesion.value = "";
+            }
         });
-    </script>
 
-    <script>//logica de forma de pago y cuotas y nro concesion
-        document.addEventListener('DOMContentLoaded', () => {
-          const nroConcesionInput = document.getElementById('nroConcesion');
-          const formaDePagoSelect   = document.getElementById('formaDePago');
-          const cantidadCuotaSelect = document.getElementById('CantidadCuotaSeleccionada');
-          const divOtraFormaPago    = document.getElementById('divOtraFormaPago');
-          const selectCantidadPrecio= document.getElementById('selectCantidadPrecio');
-          const valorCuotaInput     = document.getElementById('valorCuota');
-          const formulario = document.getElementById('formPrincipal');
-          const otraFormaError      = document.getElementById('otraForma-error');
-          const otraFormaInput      = document.getElementById('otraForma');
-          const cuotaError = document.getElementById('cuota-error');
-          const precioFinalHidden = document.getElementById('precioFinal');
-          const cantidadAniosIdHidden = document.getElementById('cantidadAniosId');
-
-          let precio = 0;
-          // --- util: parsea cadenas con distintos formatos de miles/decimales ---
-          function parsePrecioString(raw) {
+        // Lógica de forma de pago y cuotas
+        function parsePrecioString(raw) {
             if (!raw) return NaN;
             raw = raw.trim();
             raw = raw.replace(/[^\d.,-]/g, '');
@@ -788,167 +843,119 @@
             const lastComma = raw.lastIndexOf(',');
 
             if (lastDot > lastComma) {
-              raw = raw.replace(/,/g, '');                // punto decimal
+                raw = raw.replace(/,/g, '');                // punto decimal
             } else if (lastComma > lastDot) {
-              raw = raw.replace(/\./g, '').replace(',', '.'); // coma decimal
+                raw = raw.replace(/\./g, '').replace(',', '.'); // coma decimal
             } else {
-              const dots   = (raw.match(/\./g) || []).length;
-              const commas = (raw.match(/,/g) || []).length;
-              if (dots > 1 && commas === 0) raw = raw.replace(/\./g, '');
-              else if (commas > 1 && dots === 0) raw = raw.replace(/,/g, '');
-              else if (commas === 1 && dots === 0) raw = raw.replace(',', '.');
+                const dots   = (raw.match(/\./g) || []).length;
+                const commas = (raw.match(/,/g) || []).length;
+                if (dots > 1 && commas === 0) raw = raw.replace(/\./g, '');
+                else if (commas > 1 && dots === 0) raw = raw.replace(/,/g, '');
+                else if (commas === 1 && dots === 0) raw = raw.replace(',', '.');
             }
             const n = Number(raw);
             return Number.isFinite(n) ? n : NaN;
-          }
+        }
 
-          function getPrecioSeleccionado() {
+        function getPrecioSeleccionado() {
             const opt = selectCantidadPrecio.selectedOptions && selectCantidadPrecio.selectedOptions[0];
             if (!opt) return NaN;
             let raw = opt.dataset.precio ?? '';
             if (!raw) raw = opt.textContent || '';
             return parsePrecioString(raw);
-          }
+        }
 
         function calcularValorCuota() {
-              const forma = formaDePagoSelect.value;
-              if (forma !== 'cuota') {
+            const forma = formaDePagoSelect.value;
+            if (forma !== 'cuota') {
                 valorCuotaInput.value = '';
                 return;
-              }
+            }
 
-              precio = getPrecioSeleccionado();
-              const cuotas = parseInt(cantidadCuotaSelect.value, 10);
+            const precio = getPrecioSeleccionado();
+            const cuotas = parseInt(cantidadCuotaSelect.value, 10);
 
-              if (Number.isFinite(precio) && Number.isInteger(cuotas) && cuotas > 0) {
+            if (Number.isFinite(precio) && Number.isInteger(cuotas) && cuotas > 0) {
                 const cuota = precio / cuotas;
                 const montoFormateado = new Intl.NumberFormat('es-AR', {
-                  style: 'currency',
-                  currency: 'ARS'
+                    style: 'currency',
+                    currency: 'ARS'
                 }).format(cuota);
 
                 if (cuotas === 1) {
-                  valorCuotaInput.value = `1 pago de ${montoFormateado}`;
+                    valorCuotaInput.value = `1 pago de ${montoFormateado}`;
                 } else {
-                  valorCuotaInput.value = `${cuotas} cuotas de ${montoFormateado}`;
+                    valorCuotaInput.value = `${cuotas} cuotas de ${montoFormateado}`;
                 }
-              } else {
+            } else {
                 valorCuotaInput.value = '';
-              }
-
+            }
         }
-
-        
-
-          // --- EVENTOS ---
 
         formaDePagoSelect.addEventListener('change', function() {
             if (this.value === 'otra') {
                 divOtraFormaPago.style.display = 'block';
-                document.getElementById('otraForma').removeAttribute('readonly');
+                otraFormaInput.removeAttribute('readonly');
                 cantidadCuotaSelect.setAttribute('disabled', 'disabled');
                 cantidadCuotaSelect.value = '';
                 valorCuotaInput.value = '';
-                document.getElementById('otraForma').value = '';
+                otraFormaInput.value = '';
             } else if (this.value === 'cuota') {
                 divOtraFormaPago.style.display = 'none';
-                document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+                otraFormaInput.setAttribute('readonly', 'readonly');
                 cantidadCuotaSelect.removeAttribute('disabled');
             } else {
                 divOtraFormaPago.style.display = 'none';
-                document.getElementById('otraForma').setAttribute('readonly', 'readonly');
+                otraFormaInput.setAttribute('readonly', 'readonly');
                 cantidadCuotaSelect.setAttribute('disabled', 'disabled');
                 cantidadCuotaSelect.value = '';
                 valorCuotaInput.value = '';
             }
-            
-            precio = getPrecioSeleccionado();
-            precioFinalHidden.value = precio || 0;
+
+            precioFinalHidden.value = getPrecioSeleccionado() || 0;
             calcularValorCuota();
         });
 
-          selectCantidadPrecio.addEventListener('change', function() {
+        selectCantidadPrecio.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
 
-                const selectedOption = this.options[this.selectedIndex];
-
-                if (selectedOption && selectedOption.value !== '') {
-
-                      const cantidadAniosId = selectedOption.getAttribute('data-cantidad-anios-id');
-                      cantidadAniosIdHidden.value = cantidadAniosId;
-                      formaDePagoSelect.removeAttribute('disabled');
-
-                } else {
-                      
-                      cantidadAniosIdHidden.value = '';
-                      formaDePagoSelect.setAttribute('disabled', 'disabled');
-                      formaDePagoSelect.value = '';
-                      divOtraFormaPago.style.display = 'none';
-                      document.getElementById('otraForma').setAttribute('readonly', 'readonly');
-                      cantidadCuotaSelect.setAttribute('disabled', 'disabled');
-                      cantidadCuotaSelect.value = '';
-                      valorCuotaInput.value = '';
-                }
-
-                precio = getPrecioSeleccionado();
-                precioFinalHidden.value = precio || 0;
-                calcularValorCuota();
-          });
-
-          cantidadCuotaSelect.addEventListener('change', calcularValorCuota);
-
-        // --- VALIDACIÓN EN SUBMIT si se selecciona "otra" o "cuota" ---
-        formulario.addEventListener('submit', function (e) {
-          let valido = true;
-
-          // limpiar errores previos
-          otraFormaError.textContent = "";
-          cuotaError.textContent = "";
-          cantidadCuotaSelect.classList.remove("is-invalid");
-          otraFormaInput.classList.remove("is-invalid");
-
-          // Caso "otra"
-          if (formaDePagoSelect.value === 'otra') {
-            const texto = otraFormaInput.value.trim();
-            if (texto.length < 10) {
-              valido = false;
-              otraFormaError.textContent = 'Debe ingresar al menos 10 caracteres en "Otra forma de pago".';
-              otraFormaInput.classList.add("is-invalid");
+            if (selectedOption && selectedOption.value !== '') {
+                const cantidadAniosId = selectedOption.getAttribute('data-cantidad-anios-id');
+                cantidadAniosIdHidden.value = cantidadAniosId;
+                formaDePagoSelect.removeAttribute('disabled');
+            } else {
+                cantidadAniosIdHidden.value = '';
+                formaDePagoSelect.setAttribute('disabled', 'disabled');
+                formaDePagoSelect.value = '';
+                divOtraFormaPago.style.display = 'none';
+                otraFormaInput.setAttribute('readonly', 'readonly');
+                cantidadCuotaSelect.setAttribute('disabled', 'disabled');
+                cantidadCuotaSelect.value = '';
+                valorCuotaInput.value = '';
             }
-          }
 
-          // Caso "cuota"
-          if (formaDePagoSelect.value === 'cuota') {
-            if (!cantidadCuotaSelect.value) {
-              valido = false;
-              cuotaError.textContent = 'Debe seleccionar una cantidad de cuotas.';
-              cantidadCuotaSelect.classList.add("is-invalid");
-            }
-          }
-
-          if (!valido) {
-            e.preventDefault(); // bloquea el envío
-          }
+            precioFinalHidden.value = getPrecioSeleccionado() || 0;
+            calcularValorCuota();
         });
 
-        // borrar mensajes en tiempo real
+        cantidadCuotaSelect.addEventListener('change', calcularValorCuota);
+
+        // Validación en tiempo real para forma de pago
         otraFormaInput.addEventListener('input', function () {
-          if (this.value.trim().length >= 10) {
-            otraFormaError.textContent = "";
-            this.classList.remove("is-invalid");
-          }
+            if (this.value.trim().length >= 10) {
+                otraFormaError.textContent = "";
+                this.classList.remove("is-invalid");
+            }
         });
 
         cantidadCuotaSelect.addEventListener('change', function () {
-          if (this.value) {
-            cuotaError.textContent = "";
-            this.classList.remove("is-invalid");
-          }
+            if (this.value) {
+                cuotaError.textContent = "";
+                this.classList.remove("is-invalid");
+            }
         });
 
-          // inicializo por si viene con algo cargado
-          calcularValorCuota();
-
-        //validad el nro de concesion-----------------------------------------------------------------------
+        // Validación número de concesión
         if (nroConcesionInput) {
             nroConcesionInput.addEventListener('blur', function() {
                 formatearNumeroConcesion(this);
@@ -990,10 +997,19 @@
             input.setCustomValidity('');
         }
 
-    });
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.dni-formateado').forEach(elemento => {
+                const dni = elemento.textContent;
+                if (dni !== '--------') {
+                    elemento.textContent = dni.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+            });
 
-
-        
-
+            // Inicializar cálculo de valor de cuota
+            calcularValorCuota();
+        });
     </script>
+
+   
 }

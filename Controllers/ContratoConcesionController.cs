@@ -120,6 +120,7 @@ namespace CemSys2.Controllers
                 return View("ContratoConcesion", viewModel);
             }
 
+
             List<DTO_Difuntos_Para_Concesion> Difuntos = new List<DTO_Difuntos_Para_Concesion>();
             List<DTO_Titulares> Titulares = new List<DTO_Titulares>();
             DTO_DatosGenerarContratoConcesion dtoDatosGenerarConcesion = new DTO_DatosGenerarContratoConcesion();
@@ -202,8 +203,36 @@ namespace CemSys2.Controllers
                     Visibilidad = true,
                     Usuario = usuarioId ?? 0
                 };
+
+
+                //si el par (parcelaId y nro de concesion) existe se modifica con los valores nuevos
+                if (!string.IsNullOrEmpty(viewModel.NroConcesion))
+                {
+                    //si existe el nroTramite es > 0
+                    int nroTramite = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion, viewModel.ParcelaId ?? 0);
+                    if (nroTramite > 0)
+                    {
+                        //busco el contrato existente por el nroTramite
+                        CemSys2.Models.ContratoConcesion contratoConcesion = await _concesionesBusiness.ConsultarContratoConcesion(nroTramite);
+                        //modifico el contrato existente con los datos nuevos
+                        contratoConcesion.CantidadAnios = dtoDatosGenerarConcesion.CantidadAniosId;
+                        contratoConcesion.Vencimiento = dtoDatosGenerarConcesion.Vencimiento;
+                        contratoConcesion.PrecioTarifariaId = dtoDatosGenerarConcesion.PrecioId;
+                        contratoConcesion.CuotaId = dtoDatosGenerarConcesion.CuotaId;
+                        contratoConcesion.PagoDescripcion = dtoDatosGenerarConcesion.PagoDescripcion;
+                        contratoConcesion.Empleado = dtoDatosGenerarConcesion.EmpleadoId;
+                        contratoConcesion.Precio = dtoDatosGenerarConcesion.Precio;
+
+                        //modifico el tramite de contrato concesion
+                        bool contratoModificado = await _concesionesBusiness.ModificarContratoConcesion(contratoConcesion);
+                    }
+                    else //si no existe se crea un nuevo contrato
+                    {
+                        bool contratoGenerado = await _concesionesBusiness.GenerarContrato(dtoDatosGenerarConcesion, tramite);
+                    }
+                }
                 
-                bool contratoGenerado = await _concesionesBusiness.GenerarContrato(dtoDatosGenerarConcesion, tramite);
+
 
             }
             catch (Exception ex)
@@ -213,6 +242,7 @@ namespace CemSys2.Controllers
                 return View("ContratoConcesion", viewModel);
             }
 
+            // Preparar el ViewModel para la vista del contrato en PDF -----------------------------------------------------------------------------------------
             ContratoPDF_VM contratoPDF_VM = new ContratoPDF_VM();
             contratoPDF_VM.datosContrato = dtoDatosGenerarConcesion;
             contratoPDF_VM.baseUrl = $"{Request.Scheme}://{Request.Host}";

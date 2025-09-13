@@ -13,6 +13,10 @@ namespace CemSys2.Interface.Concesiones
         Task<List<CantidadCuota>> CantidadCuotas();
 
         Task<bool> GenerarContrato(DTO_DatosGenerarContratoConcesion contrato, CemSys2.Models.Tramite tramite); //para generar contrato
+        Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId);
+        Task<ContratoConcesion> ConsultarContratoConcesion(int tramiteId);
+        Task<bool> ModificarContratoConcesion(ContratoConcesion contrato);
+
 
 
     }

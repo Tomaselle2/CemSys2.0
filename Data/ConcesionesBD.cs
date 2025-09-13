@@ -28,6 +28,12 @@ namespace CemSys2.Data
                 .ToListAsync();
         }
 
+        public async Task<ContratoConcesion> ConsultarContratoConcesion(int tramiteId)
+        {
+            return await _context.ContratoConcesions
+                .FirstAsync(c => c.IdTramite == tramiteId);
+        }
+
         //Obtiene los datos de la parcela para hacer un contrato de concesion
         public async Task<DTO_Datos_Concesion> DatosParcela(int parcelaId)
         {
@@ -221,6 +227,23 @@ namespace CemSys2.Data
             return resultados;
         }
 
+        public async Task<bool> ModificarContratoConcesion(ContratoConcesion contrato)
+        {
+            bool exito = false;
+            try
+            {
+                _context.ContratoConcesions.Update(contrato);
+                await _context.SaveChangesAsync();
+                exito = true;
+            }
+            catch (Exception)
+            {
+                exito = false;
+            }
+
+            return exito;
+        }
+
         //obtiene los precios para hacer un contrato de concesion
         public async Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila)
         {
@@ -285,6 +308,31 @@ namespace CemSys2.Data
 
             // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
             return titular;
+        }
+
+        //verifica si ya existe un contrato con ese numero de concesion
+        public async Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId)
+        {
+            // Normalizar el número de concesión removiendo todos los guiones
+            string nroConcesionNormalizado = nroConcesion.Replace("-", "");
+
+            // Obtener todos los contratos para la parcelaId específica
+            var contratosDeParcela = await _context.ContratoConcesions
+                .Where(c => c.ParcelaId == parcelaId)
+                .Select(c => new { c.Concesion, c.IdTramite })
+                .ToListAsync();
+
+            // Buscar el contrato cuya concesión normalizada coincida
+            foreach (var contrato in contratosDeParcela)
+            {
+                string concesionNormalizada = contrato.Concesion.Replace("-", "");
+                if (concesionNormalizada == nroConcesionNormalizado)
+                {
+                    return contrato.IdTramite;
+                }
+            }
+
+            return 0;
         }
     }
 }

@@ -18,6 +18,11 @@ namespace CemSys2.Business
             return await _concesionesDB.CantidadCuotas();
         }
 
+        public async Task<ContratoConcesion> ConsultarContratoConcesion(int tramiteId)
+        {
+            return await _concesionesDB.ConsultarContratoConcesion(tramiteId);
+        }
+
         public async Task<DTO_Datos_Concesion> DatosParcela(int parcelaId)
         {
             return await _concesionesDB.DatosParcela(parcelaId);
@@ -38,6 +43,11 @@ namespace CemSys2.Business
            return await _concesionesDB.ListaParcelasSinContrato();
         }
 
+        public async Task<bool> ModificarContratoConcesion(ContratoConcesion contrato)
+        {
+            return await  _concesionesDB.ModificarContratoConcesion(contrato);
+        }
+
         public async Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila)
         {
             return await _concesionesDB.PreciosConcesion(conceptoTarifariaId, seccionId, nroFila);
@@ -46,6 +56,11 @@ namespace CemSys2.Business
         public async Task<Persona> RegistrarTitular(Persona titular)
         {
             return await _concesionesDB.RegistrarTitular(titular);
+        }
+
+        public async Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId)
+        {
+            return await _concesionesDB.VerificarSiExisteContratoConcesion(nroConcesion, parcelaId);
         }
     }
 }

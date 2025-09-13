@@ -24,7 +24,6 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         [Required(ErrorMessage = "La cantidad de años es obligatoria")]
         public int? PrecioSeleccionado { get; set; }
 
-        //public int? CantidadAnios { get; set; }
         [Required(ErrorMessage = "La cantidad de años es obligatoria")]
         public int? CantidadAniosId { get; set; }  // Nueva propiedad para el ID de años
 
