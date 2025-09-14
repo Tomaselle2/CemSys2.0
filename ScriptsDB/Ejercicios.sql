@@ -100,3 +100,11 @@ select * from ConceptosTarifarias
 select * from PreciosTarifarias where id = 114
 select * from Facturas where tramiteId = 65
 select * from ConceptosFactura where facturaId = 1052
+select * from ArchivosDocumentacion
+
+SELECT CASE WHEN EXISTS (
+    SELECT 1 
+    FROM ArchivosDocumentacion 
+    WHERE TramiteID = 60
+      AND CategoriaArchivo = 'Recibo'
+) THEN 1 ELSE 0 END AS ArchivoSubido;
