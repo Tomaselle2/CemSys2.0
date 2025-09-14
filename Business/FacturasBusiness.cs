@@ -26,6 +26,11 @@ namespace CemSys2.Business
             return await _facturasBD.ListaRecibosFactura(facturaId);
         }
 
+        public async Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo)
+        {
+            await _facturasBD.RegistrarArchivo(archivo, mimeType, tramiteId, categoriaArchivo);
+        }
+
         public async Task<int> RegistrarConceptoFactura(ConceptosFactura concepto)
         {
             return await _facturasBD.RegistrarConceptoFactura(concepto);

@@ -1,6 +1,7 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.Models;
 using CemSys2.ValidacionAnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace CemSys2.ViewModel.ConcesionesViewModel
@@ -10,6 +11,9 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         public List<DTO_Difuntos_Para_Concesion> DifuntosEnParcela = new();
         public List<DTO_Titulares> Titulares { get; set; } = new();
         public DTO_Datos_Concesion DatosParcela = new DTO_Datos_Concesion();
+
+        public List<SelectListItem> Categorias { get; set; } = new();  // 👈 lista de opciones
+
 
         public Factura Factura { get; set; } = new();
         public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new();
@@ -34,8 +38,8 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         [Required(ErrorMessage = "El contribuyente es obligatorio")]
         public int? IdContribuyente { get; set; }
 
-        [Required(ErrorMessage = "El concepto es obligatorio")]
-        [StringLength(100, ErrorMessage = "El concepto no puede superar los 100 caracteres")]
+        [Required(ErrorMessage = "La descripción es obligatoria")]
+        [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]
         public string? Concepto { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El monto es obligatorio")]
@@ -61,5 +65,9 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
 
         [Required(ErrorMessage = "El sexo es obligatorio")]
         public string? Sexo { get; set; }
+
+        [Required(ErrorMessage = "La categoría es obligatoria")]
+        [Display(Name = "Categoría del archivo")]
+        public string Categoria { get; set; } = string.Empty;   // 👈 String, no enum
     }
 }

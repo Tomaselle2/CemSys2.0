@@ -146,5 +146,45 @@ namespace CemSys2.Data
                 throw;
             }
         }
+
+        public async Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 2️ Insertar archivo en ArchivosDocumentacion (FILESTREAM)
+                byte[] contenido;
+                using (var ms = new MemoryStream())
+                {
+                    await archivo.CopyToAsync(ms);
+                    contenido = ms.ToArray();
+                }
+
+                var archivoRecibo = new ArchivosDocumentacion
+                {
+                    CategoriaArchivo = categoriaArchivo,
+                    TramiteId = tramiteId,
+                    NombreArchivo = Path.GetFileName(archivo.FileName),
+                    TipoArchivo = mimeType,
+                    TamanoBytes = archivo.Length,
+                    Contenido = contenido,
+                    Descripcion = $"{categoriaArchivo}",
+                    FechaCreacion = DateTime.Now,
+                    Visibilidad = true,
+                };
+                _context.ArchivosDocumentacions.Add(archivoRecibo);
+                await _context.SaveChangesAsync();
+
+
+                await transaction.CommitAsync();
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

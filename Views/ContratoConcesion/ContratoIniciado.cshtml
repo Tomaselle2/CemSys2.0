@@ -291,7 +291,7 @@
                         <thead>
                             <tr>
                                 <th>Fecha</th>
-                                <th>Concepto</th>
+                                <th>Descripción</th>
                                 <th>Monto</th>
                                 <th>Contribuyente</th>
                                 <th>Archivo</th>
@@ -311,6 +311,7 @@
                                         {
                                             <button class="btn btn-primary btnEditarRecibo"
                                                     type="button"
+                                                    title="Editar"
                                                     data-id="@opc.Id"
                                                     data-concepto="@opc.Concepto"
                                                     data-archivo="@opc.Archivo?.NombreArchivo">
@@ -337,7 +338,7 @@
     </div>
 </div>
 
-<!--Tabla Archivo del contrato de concesion -->
+<!--Tabla Archivos del contrato de concesion -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
@@ -348,11 +349,6 @@
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
             <div class="accordion-body" style="padding: 0">
                 @* cuerpo del acordion *@
-                <table class="table table-hover mb-0">
-                    <tr style="font-size: 1.2rem">
-                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Factura.Pendiente)</b></td>
-                    </tr>
-                </table>
                 @if (Model.ListaRecibosFactura.Any())
                 {
                     <table class="table table-hover mb-0">
@@ -372,10 +368,10 @@
                                     <td>$ @String.Format("{0:N2}", opc.Monto)</td>
                                     <td>@opc.ContribuyenteNavigation?.Nombre @opc.ContribuyenteNavigation?.Apellido</td>
                                     <td>
-                                        <!-- Botón para abrir modal de editar recibo-->
+                                        <!-- Botón para abrir modal de editar archivo-->
                                         @if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion)
                                         {
-                                            <button class="btn btn-primary btnEditarRecibo"
+                                            <button class="btn btn-primary btnEditarArchivo"
                                                     type="button"
                                                     data-id="@opc.Id"
                                                     data-concepto="@opc.Concepto"
@@ -384,7 +380,7 @@
                                             </button>
                                         }
 
-                                        <!-- Botón para abrir modal de ver recibo-->
+                                        <!-- Botón para abrir modal de ver archivo-->
                                         <button type="button"
                                                 class="btn-modificar btn-sm"
                                                 title="Ver"
@@ -400,8 +396,17 @@
                 @* Fin cuerpo del acordeon *@
             </div>
         </div>
+        <button class="btn btn-success m-3"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#SubirArchivoContrato">
+                @* data-archivo="@opc.Archivo?.NombreArchivo" *@
+            <i class="bi bi-file-earmark-arrow-up" style="font-size: 20px;"></i>
+            Subir archivo
+        </button>
     </div>
 </div>
+
 
 <!-- formulario nuevo recibo -->
 @if (Model.Factura.Pendiente > 0)
@@ -552,13 +557,13 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Editar recibo</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Editar archivo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form asp-action="EditarRecibo" method="post" id="formEditarRecibo" class="form-box" enctype="multipart/form-data">
                     <div>
-                        <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
+                        <label for="conceptoRecibo">Descripción<span class="obligatorio"> * </span></label>
                         <input asp-for="Concepto" id="conceptoReciboEdicion" class="form-control" type="text" maxlength="100" required />
                         <span asp-validation-for="Concepto" class="text-danger"></span>
                     </div>
@@ -593,6 +598,7 @@
     </div>
 </div>
 
+
 <!--Modal del visor de archivo -->
 <div class="modal fade" id="modalVerRecibo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -605,6 +611,56 @@
             <div class="modal-body text-center" style="height: 85vh;">
                 <iframe id="reciboViewer" style="width: 100%; height: 80vh; border: none; display: none;"></iframe>
                 <img id="reciboImage" style="max-width: 100%; height: auto; display: none;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Modal subir archivo contrato-->
+<div class="modal fade" id="SubirArchivoContrato" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Subir archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="SubirArchivo" method="post" id="subirArchivoContratoForm" class="form-box" enctype="multipart/form-data">
+                    <div>
+                        <label for="descripcionArchivo">Descripción<span class="obligatorio"> * </span></label>
+                        <input asp-for="Concepto" id="descripcionArchivo" class="form-control" type="text" maxlength="100" required />
+                        <span asp-validation-for="Concepto" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Categoria" class="control-label"></label>
+                        <select asp-for="Categoria"
+                                asp-items="Model.Categorias"
+                                class="form-control"
+                        required>
+                            <option value="">-- Seleccione una categoría --</option>
+                        </select>
+                        <span asp-validation-for="Categoria" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label for="archivoRecibo">Seleccione el archivo<span class="obligatorio"> (.png .jpg .pdf)</span></label>
+                        <input asp-for="ArchivoRecibo" id="archivoContrato" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" required/>
+                        <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
+                    <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
+                    <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                        <div class="my-3">
+                            <button type="submit" id="btnCargarArchivo" class="my-3 btn btn-success">
+                                <span class="btn-text">Editar</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span class="loading-text d-none">Cargando...</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -639,6 +695,37 @@
 
             // Si llegamos aquí, la validación pasó
             const btn = document.getElementById('btnCargarRecibo');
+            const btnText = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.spinner-border');
+            const loadingText = btn.querySelector('.loading-text');
+
+            // Deshabilitar el botón
+            btn.disabled = true;
+
+            // Ocultar texto original y mostrar spinner + texto de carga
+            btnText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+            loadingText.classList.remove('d-none');
+
+            // Permitir que el formulario se envíe
+            return true;
+        }
+    </script>
+
+    <script>//logica de carga de archivo de contrato, spiner
+        function handleFormSubmit(event) {
+            // Primero verificar si el formulario es válido
+            const form = document.getElementById('subirArchivoContratoForm');
+
+            // Usar la validación nativa del navegador
+            if (!form.checkValidity()) {
+                // Si no es válido, mostrar mensajes de validación y detener
+                form.reportValidity();
+                return false;
+            }
+
+            // Si llegamos aquí, la validación pasó
+            const btn = document.getElementById('btnCargarArchivo');
             const btnText = btn.querySelector('.btn-text');
             const spinner = btn.querySelector('.spinner-border');
             const loadingText = btn.querySelector('.loading-text');
@@ -1031,7 +1118,7 @@
         }
     </script>
 
-    <script>// Lógica para editar un recibo
+    <script>// Lógica para editar un recibo o archivo
         document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll('.btnEditarRecibo').forEach(btn => {
                 btn.addEventListener('click', function () {
@@ -1044,6 +1131,22 @@
                     document.getElementById('archivoActualRecibo').value = archivo || "Sin archivo";
 
                     $('#EditarReciboModal').modal('show');
+                });
+            });
+
+            //para archivo
+              document.querySelectorAll('.btnEditarArchivo').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const concepto = this.dataset.concepto;
+                    const archivo = this.dataset.archivo;
+
+                    document.getElementById('idReciboHidden').value = id;
+                    document.getElementById('descripcionArchivo').value = concepto;
+                    document.getElementById('archivoActualContrato').textContent = archivo || "Sin archivo";
+
+
+                    $('#SubirArchivoContrato').modal('show');
                 });
             });
         });
