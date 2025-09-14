@@ -48,6 +48,11 @@ namespace CemSys2.Business
            return await _concesionesDB.ListaParcelasSinContrato();
         }
 
+        public async Task<List<DTO_Titulares>> ListaTitularesActualesContrato(int contratoId)
+        {
+            return await _concesionesDB.ListaTitularesActualesContrato(contratoId);
+        }
+
         public async Task<bool> ModificarContratoConcesion(ContratoConcesion contrato)
         {
             return await  _concesionesDB.ModificarContratoConcesion(contrato);

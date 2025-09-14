@@ -3,6 +3,7 @@ using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Parcelas;
+using CemSys2.Interface.Personas;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.Interface.Tramite;
 using CemSys2.Models;
@@ -18,13 +19,15 @@ namespace CemSys2.Data
         private readonly ITramiteBD _tramiteBD;
         private readonly IFacturasBD _facturasBD;
         private readonly ITarifariaBD _tarifariaBd;
+        private readonly IPersonasBD _personasBD;
 
-        public ConcesionesBD(AppDbContext context, ITramiteBD tramiteBD, IFacturasBD facturasBD, ITarifariaBD tarifariaBD)
+        public ConcesionesBD(AppDbContext context, ITramiteBD tramiteBD, IFacturasBD facturasBD, ITarifariaBD tarifariaBD, IPersonasBD personasBD)
         {
             _context = context;
             _tramiteBD = tramiteBD;
             _facturasBD = facturasBD;
             _tarifariaBd = tarifariaBD;
+            _personasBD = personasBD;
         }
 
         public async Task<List<CantidadCuota>> CantidadCuotas()
@@ -440,26 +443,13 @@ namespace CemSys2.Data
         //verifica si ya existe un contrato con ese numero de concesion
         public async Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId)
         {
-            // Normalizar el número de concesión removiendo todos los guiones
-            string nroConcesionNormalizado = nroConcesion.Replace("-", "");
+            var contrato = await _context.ContratoConcesions
+                .AsNoTracking() // Evita el uso de caché en el contexto
+                .Where(c => c.ParcelaId == parcelaId && c.Concesion == nroConcesion)
+                .Select(c => c.IdTramite)
+                .FirstOrDefaultAsync();
 
-            // Obtener todos los contratos para la parcelaId específica
-            var contratosDeParcela = await _context.ContratoConcesions
-                .Where(c => c.ParcelaId == parcelaId)
-                .Select(c => new { c.Concesion, c.IdTramite })
-                .ToListAsync();
-
-            // Buscar el contrato cuya concesión normalizada coincida
-            foreach (var contrato in contratosDeParcela)
-            {
-                string concesionNormalizada = contrato.Concesion.Replace("-", "");
-                if (concesionNormalizada == nroConcesionNormalizado)
-                {
-                    return contrato.IdTramite;
-                }
-            }
-
-            return 0;
+            return contrato;
         }
 
         //devuelve los contratos de concesion paginados
@@ -504,7 +494,8 @@ namespace CemSys2.Data
                                            : reader.GetString(reader.GetOrdinal("Difuntos")),
                                 Titulares = reader.IsDBNull(reader.GetOrdinal("Titulares"))
                                             ? string.Empty
-                                            : reader.GetString(reader.GetOrdinal("Titulares"))
+                                            : reader.GetString(reader.GetOrdinal("Titulares")),
+                                parcelaId = reader.GetInt32(reader.GetOrdinal("parcelaId"))
                             };
 
                             resultado.Items.Add(item);
@@ -520,6 +511,19 @@ namespace CemSys2.Data
 
                 return resultado;
             }
+        }
+
+        //para contratos ya inicados titulares actuales
+        public async Task<List<DTO_Titulares>> ListaTitularesActualesContrato(int contratoId) 
+        {
+            //busco los id de los titulares dentro del contrato
+            List<int> idTitulares = await _context.TitularesContratoConcesions
+                .Where(cc => cc.ContratoId == contratoId)
+                .Select(t => t.PersonaId)
+                .ToListAsync();
+
+            return await _personasBD.ListaTitularesActualesContrato(idTitulares);
+
         }
     }
 }

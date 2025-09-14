@@ -1,4 +1,5 @@
 ﻿using CemSys2.Business;
+using CemSys2.Data;
 using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
@@ -58,16 +59,60 @@ namespace CemSys2.Controllers
         }
 
         //vista de generar contrato concesion
-        public async Task<IActionResult> ContratoConcesion(int parcelaId) //recibe el parcelaId de las parcelas sin contrato
+        public async Task<IActionResult> ContratoConcesion(int parcelaId, string? nroConcesion) //recibe el parcelaId de las parcelas sin contrato
         {
             GenerarContratoVM viewModel = new GenerarContratoVM();
-            await CargarDatosPantallaContrato(viewModel, parcelaId); //metodo privado que carga los datos en la pantalla de contrato concesion
 
+            if (!string.IsNullOrEmpty(nroConcesion)) //va a entrar cuando esta iniciado para completar
+            {
+                int tamiteId = await _concesionesBusiness.VerificarSiExisteContratoConcesion(nroConcesion, parcelaId);
+                //se busca el tramite
+                Tramite tramite = await _tramiteBusiness.ConsultarTramite(tamiteId);
 
+                viewModel.NroConcesion = nroConcesion;
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                viewModel.TramiteId = tramite.Id;
+            }
+
+            //se ejecuta cuando no inicio un contrato de concesion
+            await CargarDatosPantallaContrato(viewModel, parcelaId); //metodo privado que carga los datos en la pantalla de contrato concesion que no inico
             return View(viewModel);
         }
 
-        //metodo privado que carga los datos en la pantalla de contrato concesion
+        //carga los datos de contratos ya iniciados
+        private async Task CargarDatosContratoYaInicado(ContratoInicadoVM viewModel, int parcelaId, int tramiteId)
+        {
+            try
+            {
+                //metodo que recibe el parcelaId y buscar los difuntos en esa parcela
+                viewModel.DifuntosEnParcela = await _concesionesBusiness.ListaDifuntosPorParcela(parcelaId);
+
+                //metodo que recibe el parcelaId y buscar los datos de la parcela
+                DTO_Datos_Concesion datosConcesion = await _concesionesBusiness.DatosParcela(parcelaId);
+                viewModel.DatosParcela = datosConcesion;
+
+                viewModel.ParcelaId = parcelaId;
+                viewModel.TramiteId = tramiteId;
+
+                //Se busca el contrato de concesión
+                CemSys2.Models.ContratoConcesion contratoConcesion = await _concesionesBusiness.ConsultarContratoConcesion(tramiteId);
+                viewModel.CantidadCuotaSeleccionada = contratoConcesion.CuotaId;
+                viewModel.CantidadAniosId = contratoConcesion.CantidadAnios;
+                viewModel.NroConcesion = contratoConcesion.Concesion;
+                viewModel.Vencimiento = contratoConcesion.Vencimiento;
+                viewModel.PrecioFinal = contratoConcesion.Precio;
+                viewModel.PrecioSeleccionado = contratoConcesion.PrecioTarifariaId;
+                
+
+                viewModel.Titulares = await _concesionesBusiness.ListaTitularesActualesContrato(contratoConcesion.IdTramite);
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = ex.Message;
+            }
+        }
+
+        //metodo privado que carga los datos en la pantalla de contrato concesion de tramites no iniciados
         private async Task CargarDatosPantallaContrato(GenerarContratoVM viewModel, int parcelaId)
         {
             try
@@ -295,6 +340,39 @@ namespace CemSys2.Controllers
         }
 
 
+        //vista para los contratos que ya se iniciaron
+        [HttpGet]
+        public async Task<IActionResult> ContratoIniciado(string nroConcesion, int parcelaId)
+        {
+            ContratoInicadoVM viewModel = new ContratoInicadoVM();
+            Tramite tramite = new Tramite();
+            try
+            {
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(nroConcesion, parcelaId);
+
+                //se busca el tramite
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                
+
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = ex.Message;
+            }
+
+
+            if (tramite.EstadoActualId == (int)EstadosContratoConcesion.Iniciado) //quiere decir que no llego al paso pendiente de documentacion
+            {
+                return RedirectToAction("ContratoConcesion", new { parcelaId = parcelaId, nroConcesion = nroConcesion }); //redirigo a la vista de generar contrato
+            }
+
+            viewModel.EstadoTramiteId = tramite.EstadoActualId;
+            await CargarDatosContratoYaInicado(viewModel, parcelaId, tramite.Id);
+
+            return View(viewModel);
+            
+        }
+
         //metodo que recibe el parcelaId y nroConcesion para pasar a subir Contrato de concesion
         [HttpPost]
         public async Task<IActionResult> PendienteDocumentacion(GenerarContratoVM viewModel)
@@ -305,6 +383,8 @@ namespace CemSys2.Controllers
             {
                 //Se busca el contrato de concesión
                 CemSys2.Models.ContratoConcesion contratoConcesion = await _concesionesBusiness.ConsultarContratoConcesion(nroTramite);
+
+                //verifico el tipo de concepto
                 int tipoConceptoTarifaria = 0;
                 switch (contratoConcesion.TipoParcela)
                 {
@@ -325,8 +405,8 @@ namespace CemSys2.Controllers
                 viewModel.MensajeError = "El número de concesión es incorrecto";
                 return View("ContratoConcesion", viewModel);
             }
-                await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
-                return View("ContratoConcesion", viewModel);
+
+            return RedirectToAction("ContratoIniciado", new {nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
         }
 
         // Método para buscar contribuyente (AJAX)

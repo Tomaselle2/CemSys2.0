@@ -18,5 +18,7 @@ namespace CemSys2.Interface.Concesiones
         Task<bool> ModificarContratoConcesion(ContratoConcesion contrato);
         Task<bool> PasoPendienteDocumentacion(ContratoConcesion contrato, List<DTO_Titulares> titulares, int tipoConceptoTarifariaId);
         Task<DTO_Listado_Paginado_Concesiones> ListadoConcesiones(int paginaActual, int tamanoPagina);
+
+        Task<List<DTO_Titulares>> ListaTitularesActualesContrato(int contratoId);
     }
 }

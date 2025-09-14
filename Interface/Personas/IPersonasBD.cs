@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Personas;
+﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Personas;
 using CemSys2.Models;
 
 namespace CemSys2.Interface.Personas
@@ -33,5 +34,7 @@ namespace CemSys2.Interface.Personas
             int? seccionId = null);
 
         Task<List<DTO_Excel_Difuntos>> ListaDifuntosExcel(List<int> idsDifuntos);
+
+        Task<List<DTO_Titulares>> ListaTitularesActualesContrato(List<int> idTitulares);
     }
 }

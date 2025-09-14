@@ -1,0 +1,191 @@
+﻿@using CemSys2.ViewModel.ConcesionesViewModel
+@using CemSys2.Enumerable
+@model ContratoInicadoVM
+
+@{
+    ViewData["Title"] = "Contrato de concesión";
+    string estadoTramiteDisplay = "";
+    if (Model.EstadoTramiteId != null)
+    {
+        estadoTramiteDisplay = EstadosEnum.ObtenerNombreEstado((TipotamiteEmun)(int)TipotamiteEmun.ContratoDeConcesion, Model.EstadoTramiteId.Value);
+    }
+}
+
+<h1 class="tituloDePagina">Contrato de concesión</h1>
+
+<div class="d-flex align-items-center justify-content-between" style="max-width: 1400px;">
+    <h2 class="nroTramite">Trámite @Model.TramiteId</h2>
+    <h3 class="nroTramite">Concesión @Model.NroConcesion</h3>
+    <h3><strong>Estado: <span class="estadoTramite">@estadoTramiteDisplay</span></strong></h3>
+</div>
+
+
+<!-- Tabla de historial de difuntos actuales -->
+<div class="accordion" id="accordionDifuntos">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingDifuntos">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-target="#panelsStayOpen-collapseDifuntos" aria-expanded="true" aria-controls="panelsStayOpen-collapseDifuntos">
+                Difunto/s (@Model.DifuntosEnParcela.Count())
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseDifuntos" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingDifuntos">
+            @if (Model.DifuntosEnParcela.Any())
+            {
+                <div class="contenedor-2-elementos">
+                    @foreach (var opc in Model.DifuntosEnParcela)
+                    {
+                        string dni = (opc.DNI == "nn") ? "--------" : opc.DNI;
+                        <div class="card-presentacion-datos">
+                            <div>
+                                <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@dni</span></p>
+                            </div>
+                            <div>
+                                <p><b>Nombre: </b><span class="datoEncabezadoHistorialParcela">@opc.Apellido.ToUpper(), @opc.Nombre.ToUpper()</span></p>
+                            </div>
+                            <div>
+                                <p><b>Ingreso: </b><span class="datoEncabezadoHistorialParcela">@opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm")</span></p>
+                            </div>
+                            <div>
+                                <p><b>Estado: </b><span class="datoEncabezadoHistorialParcela">@opc.EstadoDifunto</span></p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    No hay difuntos actuales en esta parcela.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@{
+    string parcela = "";
+    if (Model.DatosParcela.TipoParcela == 1) //nicho
+    {
+        parcela = $"Nicho {Model.DatosParcela.NroParcela.ToString()} Fila {Model.DatosParcela.NroFila.ToString()}";
+    }
+    else if (Model.DatosParcela.TipoParcela == 2)//fosa
+    {
+        parcela = $"Fosa {Model.DatosParcela.NroParcela.ToString()}";
+    }
+    else if (Model.DatosParcela.TipoParcela == 3) //panteon
+    {
+        parcela = $"Lote {Model.DatosParcela.NroParcela.ToString()}";
+    }
+
+    string tipoParela = ((TipoParcelaEnum)Model.DatosParcela.TipoParcela).ToString();
+}
+
+@{//logica de cantidad de años
+    //recibe la cantidad de añosId y devuelve el texto correspondiente
+    string cantidadAniosTexto = "";
+    switch (Model.CantidadAniosId)
+    {
+        case 1:
+            cantidadAniosTexto = "1 AÑO";
+            break;
+        case 2:
+            cantidadAniosTexto = "5 AÑOS";
+            break;
+        case 3:
+            cantidadAniosTexto = "10 AÑOS";
+            break;
+        case 4:
+            cantidadAniosTexto = "15 AÑOS";
+            break;
+        case 5:
+            cantidadAniosTexto = "25 AÑOS";
+            break;
+        default:
+            cantidadAniosTexto = $"{Model.CantidadAniosId} AÑOS";
+            break;
+    }
+}
+
+<div class="contenedor-2-elementos">
+    <!--datos de la parcela-->
+    <div class="card-presentacion-datos">
+        <div>
+            <p class="titulo-intermedio">Datos de la parcela</p>
+        </div>
+        <p class="separador"></p>
+        <div>
+            <p><b>Tipo de parcela: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@tipoParela</span></p>
+        </div>
+        <div>
+            <p><b>Sección: </b><span class="datoEncabezadoHistorialParcela">@Model.DatosParcela.NombreSeccion.ToUpper()</span></p>
+        </div>
+        <div>
+            <p><b>Parcela: </b><span class="datoEncabezadoHistorialParcela">@parcela</span></p>
+        </div>
+    </div>
+
+    <!--datos del contrato-->
+    <div class="card-presentacion-datos">
+        <div>
+            <p class="titulo-intermedio">Datos de la concesión</p>
+        </div>
+        <p class="separador"></p>
+        <div>
+            <p><b>Vencimiento: </b><span class="datoEncabezadoHistorialParcela">@Model.Vencimiento?.ToString("dd/MM/yyyy")</span></p>
+        </div>
+        <div>
+            <p><b>Tiempo del contrato: </b><span class="datoEncabezadoHistorialParcela">@cantidadAniosTexto</span></p>
+        </div>
+        <div>
+            <p><b>Precio final: </b><span class="datoEncabezadoHistorialParcela">$ @String.Format("{0:N2}", Model.PrecioFinal)</span></p>
+        </div>
+    </div>
+</div>
+
+<div class="contenedor-2-elementos">
+    @foreach (var opc in Model.Titulares)
+    {
+
+        <!--datos del titular-->
+        <div class="card-presentacion-datos">
+            <div>
+                <p class="titulo-intermedio">Titular</p>
+            </div>
+            <p class="separador"></p>
+            <div>
+                <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@opc.Dni</span></p>
+            </div>
+            <div>
+                <p><b>Nombre: </b><span class="datoEncabezadoHistorialParcela">@opc.Apellido.ToUpper(), @opc.Nombre.ToUpper()</span></p>
+            </div>
+            <div>
+                <p><b>Celular: </b><span class="datoEncabezadoHistorialParcela">@opc.Celular</span></p>
+            </div>
+            <div>
+                <p><b>Correo: </b><span class="datoEncabezadoHistorialParcela">@opc.CorreoElectronico</span></p>
+            </div>
+            <div>
+                <p><b>Domicilio: </b><span class="datoEncabezadoHistorialParcela">@opc.Domicilio</span></p>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+@section Scripts {
+    <script>
+        // Formatear DNI
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.dni-formateado').forEach(elemento => {
+                const dni = elemento.textContent;
+                if (dni !== '--------') {
+                    elemento.textContent = dni.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                }
+            });
+        });
+    </script>
+}

@@ -14,6 +14,7 @@ namespace CemSys2.DTO.Concesiones
         public int EstadoActualId { get; set; }
         public string Difuntos { get; set; } = string.Empty;
         public string Titulares { get; set; } = string.Empty;
+        public int parcelaId { get; set; }
     }
 
     // DTO para manejar la paginación

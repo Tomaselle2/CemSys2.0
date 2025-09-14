@@ -12,9 +12,9 @@ namespace CemSys2.Business
             _tramiteBD = tramiteBD;
         }
 
-        public Task<Tramite> ConsultarTramite(int idTramite)
+        public async Task<Tramite> ConsultarTramite(int idTramite)
         {
-            throw new NotImplementedException();
+            return await _tramiteBD.ConsultarTramite(idTramite);
         }
 
         public async Task<int> RegistrarTramite(Tramite tramite)

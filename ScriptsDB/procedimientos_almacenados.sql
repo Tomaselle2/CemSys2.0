@@ -568,7 +568,7 @@ BEGIN
 END
 GO
 ---Metodo para la tabla general de concesiones en el index--------------------
-CREATE PROCEDURE sp_ListadoContratosConcesiones
+create PROCEDURE sp_ListadoContratosConcesiones
     @PageNumber INT = 1,
     @PageSize INT = 10
 AS
@@ -585,12 +585,12 @@ BEGIN
             p.NroFila,
             cc.vencimiento,
             tra.estadoActualID,      -- solo ID
-                        
             -- Difuntos actuales en la parcela
             d.Difuntos,
             
             -- Titulares del contrato
-            t.Titulares
+            t.Titulares,
+			cc.parcelaId
         FROM ContratoConcesion cc
         INNER JOIN Tramite tra ON tra.id = cc.idTramite
         INNER JOIN Parcela p ON p.id = cc.parcelaId
@@ -624,9 +624,10 @@ BEGIN
         NroFila,          -- sin formato
         Titulares,
         vencimiento,
-        estadoActualID    -- solo el ID
+        estadoActualID,    -- solo el ID
+		parcelaId
     FROM ContratosCTE
-    ORDER BY vencimiento DESC
+    ORDER BY idTramite DESC
     OFFSET (@PageNumber - 1) * @PageSize ROWS
     FETCH NEXT @PageSize ROWS ONLY;
 

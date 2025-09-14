@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Personas;
+﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Personas;
 using CemSys2.Interface.Personas;
 using CemSys2.Models;
 using Microsoft.Data.SqlClient;
@@ -363,6 +364,24 @@ namespace CemSys2.Data
             }
 
             return resultado;
+        }
+
+        //devuelve los titulares actuales de un contrato de concesion
+        public async Task<List<DTO_Titulares>> ListaTitularesActualesContrato(List<int> idTitulares)
+        {
+            return await _context.Personas
+                .Where(p => idTitulares.Contains(p.IdPersona))
+                .Select(p => new DTO_Titulares
+                {
+                    Id = p.IdPersona,
+                    Dni = p.Dni,
+                    Nombre = p.Nombre,
+                    Apellido = p.Apellido,
+                    Sexo = p.Sexo,
+                    Celular = p.Celular ?? string.Empty,
+                    CorreoElectronico = p.Correo ?? string.Empty,
+                    Domicilio = p.Domicilio ?? string.Empty
+                }).ToListAsync();
         }
 
         public async Task<int> ModificarPersona(Persona model)

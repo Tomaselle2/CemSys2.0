@@ -93,4 +93,4 @@ select * from HistorialTitularesContrato
 select * from PreciosTarifarias where id = 126
 select * from ConceptosFactura
 select * from PreciosTarifarias
-select * from 
+select * from Personas
