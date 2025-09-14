@@ -1,5 +1,6 @@
 ﻿using CemSys2.Interface.Facturas;
 using CemSys2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CemSys2.Data
 {
@@ -24,6 +25,20 @@ namespace CemSys2.Data
             _context.Facturas.Add(factura);
             await _context.SaveChangesAsync();
             return factura.Id;
+        }
+
+        public async Task<Factura> ConsultarFacturaPorTramiteId(int idTramite)
+        {
+            return await _context.Facturas
+                .FirstAsync(f => f.TramiteId == idTramite);
+        }
+
+        public async Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura)
+        {
+            return await _context.ConceptosFacturas
+                .Include(c => c.ConceptoTarifaria)
+                .Where(c => c.FacturaId == idFactura)
+                .ToListAsync();
         }
     }
 }

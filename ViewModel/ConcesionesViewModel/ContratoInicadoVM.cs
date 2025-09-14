@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.Models;
 
 namespace CemSys2.ViewModel.ConcesionesViewModel
 {
@@ -7,6 +8,11 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         public List<DTO_Difuntos_Para_Concesion> DifuntosEnParcela = new();
         public List<DTO_Titulares> Titulares { get; set; } = new();
         public DTO_Datos_Concesion DatosParcela = new DTO_Datos_Concesion();
+
+        public Factura Factura { get; set; } = new();
+        public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new();
+        public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
+        public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
 
         public int? ParcelaId { get; set; }
         public int? TramiteId { get; set; }

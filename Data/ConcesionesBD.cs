@@ -322,25 +322,60 @@ namespace CemSys2.Data
                     }
 
                     PreciosTarifaria precioConcesion = await _tarifariaBd.ConsultarUnPrecioTarifaria(contrato.PrecioTarifariaId);
+                    Factura factura = new Factura();
 
-                    //genero la factura
-                    Factura factura = new Factura{
-                        TramiteId = contrato.IdTramite,
-                        FechaCreacion = contrato.FechaGeneracion,
-                        Total = precioConcesion.Precio,
-                        Pendiente = precioConcesion.Precio,
-                        Visibilidad = true
-                    };
+                    if (contrato.CantidadAnios == 1)
+                    {
+                        //genero la factura para 1 año porque en bd es precio $0
+                        factura = new Factura
+                        {
+                            TramiteId = contrato.IdTramite,
+                            FechaCreacion = contrato.FechaGeneracion,
+                            Total = contrato.Precio,
+                            Pendiente = contrato.Precio,
+                            Visibilidad = true
+                        };
+                    }
+                    else
+                    {
+                        //genero la factura que no sea cantidad de años 1
+                        factura = new Factura
+                        {
+                            TramiteId = contrato.IdTramite,
+                            FechaCreacion = contrato.FechaGeneracion,
+                            Total = precioConcesion.Precio,
+                            Pendiente = precioConcesion.Precio,
+                            Visibilidad = true
+                        };
+                    }
+
+                        
                     int idFactura = await _facturasBD.RegistrarFactura(factura);
 
-                    ConceptosFactura conceptoFactura = new ConceptosFactura
+                    ConceptosFactura conceptoFactura = new ConceptosFactura();
+                    if (contrato.CantidadAnios == 1) //para cuando la cantidad de años es 1
                     {
-                        FacturaId = factura.Id,
-                        ConceptoTarifariaId = precioConcesion.ConceptoTarifariaId,
-                        PrecioUnitario = precioConcesion.Precio,
-                        Cantidad = 1,
-                        TipoConceptoFacturaId = tipoConceptoTarifariaId
-                    };
+                        conceptoFactura = new ConceptosFactura
+                        {
+                            FacturaId = factura.Id,
+                            ConceptoTarifariaId = precioConcesion.ConceptoTarifariaId,
+                            PrecioUnitario = contrato.Precio,
+                            Cantidad = 1,
+                            TipoConceptoFacturaId = tipoConceptoTarifariaId
+                        };
+                    }
+                    else
+                    {//para cuando la cantidad de años es != 1
+                        conceptoFactura = new ConceptosFactura
+                        {
+                            FacturaId = factura.Id,
+                            ConceptoTarifariaId = precioConcesion.ConceptoTarifariaId,
+                            PrecioUnitario = precioConcesion.Precio,
+                            Cantidad = 1,
+                            TipoConceptoFacturaId = tipoConceptoTarifariaId
+                        };
+                    }
+
                     int idConcepto = await _facturasBD.RegistrarConceptoFactura(conceptoFactura);
 
                    

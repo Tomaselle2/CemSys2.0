@@ -9,6 +9,10 @@
     {
         estadoTramiteDisplay = EstadosEnum.ObtenerNombreEstado((TipotamiteEmun)(int)TipotamiteEmun.ContratoDeConcesion, Model.EstadoTramiteId.Value);
     }
+
+    decimal porcentajeFondo = 0.05m; // 5% del fondo
+    decimal montoMinimoDeFondo = 500m;
+    decimal precioFinalMinimoParaQuitarFondo = 10000m;
 }
 
 <h1 class="tituloDePagina">Contrato de concesión</h1>
@@ -147,7 +151,6 @@
 <div class="contenedor-2-elementos">
     @foreach (var opc in Model.Titulares)
     {
-
         <!--datos del titular-->
         <div class="card-presentacion-datos">
             <div>
@@ -172,6 +175,81 @@
         </div>
     }
 </div>
+
+
+<!-- Factura del contrato de concesion -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item acordeon-fijo-chico">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo acordeon-fijo-chico" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Contrato de concesion
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body" style="padding: 0">
+                @* cuerpo del acordion *@
+                @if (Model.ListaConceptosFactura.Any())
+                {
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        //si el totalSinFondo es menor que
+                                        decimal totalConceptos = Model.ListaConceptosFactura.Sum(r => r.PrecioUnitario);
+                                        decimal totalConceptosSinFondo = 0;
+                                        if (totalConceptos < precioFinalMinimoParaQuitarFondo) //hay que restar el montoMinimo del total
+                                        {
+                                            totalConceptosSinFondo = totalConceptos - montoMinimoDeFondo;
+                                        }
+                                        else //el precio es mayor que el monto minimo
+                                        {
+                                            totalConceptosSinFondo = totalConceptos / (1 + porcentajeFondo);
+                                        }
+
+                                        decimal fondoAyuda = ((totalConceptosSinFondo * porcentajeFondo) < montoMinimoDeFondo) ? montoMinimoDeFondo : totalConceptosSinFondo * porcentajeFondo;
+
+                                        decimal subtotal = totalConceptosSinFondo + fondoAyuda;
+                                    }
+                                    @foreach (var opc in Model.ListaConceptosFactura)
+                                    {
+                                        <tr>
+                                            <td>@opc.ConceptoTarifaria.Nombre.ToUpper()</td>
+                                            <td>$ @String.Format("{0:N2}", totalConceptosSinFondo)</td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td>FONDO DE AYUDA CENTRO DE SALUD</td>
+                                        <td>$ @String.Format("{0:N2}", fondoAyuda)</td>
+                                    </tr>
+                                    <tr class="subtotalFactura">
+                                        <td><b>SUBTOTAL</b></td>
+                                        <td><b>$ @String.Format("{0:N2}", subtotal)</b> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Fila de Total-->
+<table class="table table-hover mb-0 filaTotalFactura">
+    <tr class="totalFactura">
+        <td><b>TOTAL</b></td>
+        <td><b>$ @String.Format("{0:N2}", Model.Factura.Total) </b></td>
+    </tr>
+</table>
 
 
 

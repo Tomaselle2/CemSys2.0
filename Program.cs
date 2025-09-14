@@ -59,6 +59,7 @@ builder.Services.AddScoped<IIntroduccionBusiness, IntroduccionBusiness>();
 builder.Services.AddScoped<IPersonasBusiness, PersonasBusiness>();
 builder.Services.AddScoped<IConcesionesBusiness, ConcesionesBusiness>();
 builder.Services.AddScoped<ITramiteBusiness, TramiteBusiness>();
+builder.Services.AddScoped<IFacturaBusiness, FacturasBusiness>();
 
 var app = builder.Build();
 

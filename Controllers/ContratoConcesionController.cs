@@ -4,6 +4,7 @@ using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
+using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
 using CemSys2.Interface.Tramite;
@@ -22,14 +23,18 @@ namespace CemSys2.Controllers
         private readonly IPersonasBusiness _personasBusiness;
         private readonly IPdfService _pdfService;
         private readonly ITramiteBusiness _tramiteBusiness;
+        private readonly IFacturaBusiness _facturaBusiness;
 
-        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, IPersonasBusiness personasBusiness, IPdfService pdfService, ITramiteBusiness tramiteBusiness)
+        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, 
+            IPersonasBusiness personasBusiness, IPdfService pdfService, ITramiteBusiness tramiteBusiness,
+            IFacturaBusiness facturaBusiness)
         {
             _concesionesBusiness = concesionesBusiness;
             _introduccionBusiness = introduccionBusiness;
             _personasBusiness = personasBusiness;
             _pdfService = pdfService;
             _tramiteBusiness = tramiteBusiness;
+            _facturaBusiness = facturaBusiness;
         }
 
         //vista principal de concesiones
@@ -103,8 +108,15 @@ namespace CemSys2.Controllers
                 viewModel.PrecioFinal = contratoConcesion.Precio;
                 viewModel.PrecioSeleccionado = contratoConcesion.PrecioTarifariaId;
                 
-
+                //trae los titulares actuales del contrato
                 viewModel.Titulares = await _concesionesBusiness.ListaTitularesActualesContrato(contratoConcesion.IdTramite);
+
+                //genera la factura
+                Factura factura = await _facturaBusiness.ConsultarFacturaPorTramiteId(tramiteId);
+                var conceptosFactura = await _facturaBusiness.ListaConceptosFacturaPorFactura(factura.Id);
+
+                viewModel.Factura = factura;
+                viewModel.ListaConceptosFactura = conceptosFactura;
             }
             catch (Exception ex)
             {

@@ -965,6 +965,7 @@
 
             if (selectedOption && selectedOption.value !== '') {
                 const cantidadAniosId = selectedOption.getAttribute('data-cantidad-anios-id');
+                console.log(cantidadAniosId);
                 cantidadAniosIdHidden.value = cantidadAniosId;
                 formaDePagoSelect.removeAttribute('disabled');
             } else {

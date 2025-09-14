@@ -2,7 +2,7 @@
 
 namespace CemSys2.Interface.Facturas
 {
-    public interface IFacturasBD
+    public interface IFacturaBusiness
     {
         Task<int> RegistrarFactura(Factura factura);
         Task<int> RegistrarConceptoFactura(ConceptosFactura concepto);

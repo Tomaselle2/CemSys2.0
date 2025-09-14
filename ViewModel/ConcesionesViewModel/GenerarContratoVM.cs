@@ -69,35 +69,34 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         {
             get
             {
-                if(DatosParcela.TipoParcela > 0 && PreciosConcesion[0].precioId > 0)
+                if (DatosParcela.TipoParcela == (int)TipoParcelaEnum.Nicho)
                 {
-                    if (DatosParcela.TipoParcela == (int)TipoParcelaEnum.Nicho)
+                    // Nicho -> mostrar todos los precios
+                    decimal precio1anio = 0;
+                    if (PreciosConcesion[1].Precio != 0) //si precio por 5 años es distinto de 0
                     {
-                        // Nicho -> mostrar todos los precios
-                        decimal precio1anio = 0;
-                        if (PreciosConcesion[1].Precio != 0) //si precio por 5 años es distinto de 0
+                        precio1anio = (PreciosConcesion[1].Precio / 5) * 2; //calculo el precio por 1 año
+                        PreciosConcesion.Insert(0, new DTO_Precios_Concesion //inserto en la posicion 0 el precio por 1 año
                         {
-                            precio1anio = (PreciosConcesion[1].Precio / 5) * 2; //calculo el precio por 1 año
-                            PreciosConcesion.Insert(0, new DTO_Precios_Concesion //inserto en la posicion 0 el precio por 1 año
-                            {
-                                precioId = PreciosConcesion[0].precioId,
-                                conceptoTarifariaId = PreciosConcesion[0].conceptoTarifariaId,
-                                Precio = precio1anio,
-                                seccionId = PreciosConcesion[0].seccionId,
-                                fila = PreciosConcesion[0].fila,
-                                aniosConcesion = 1
-                            });
-                            PreciosConcesion.Remove(PreciosConcesion[1]); //elimino el precio de 1 de $0
-                        }
+                            precioId = PreciosConcesion[0].precioId,
+                            conceptoTarifariaId = PreciosConcesion[0].conceptoTarifariaId,
+                            Precio = precio1anio,
+                            seccionId = PreciosConcesion[0].seccionId,
+                            fila = PreciosConcesion[0].fila,
+                            aniosConcesion = 1,
+                            cantidadAniosId = 1
+                        });
+                        PreciosConcesion.Remove(PreciosConcesion[1]); //elimino el precio de 1 de $0
+                    }
 
-                        return PreciosConcesion;
-                    }
-                    else if (DatosParcela.TipoParcela == (int)TipoParcelaEnum.Fosa)
-                    {
-                        // Fosa -> solo 15 y 25 años
-                        return PreciosConcesion.Where(p => p.aniosConcesion == 15 || p.aniosConcesion == 25);
-                    }
+                    return PreciosConcesion;
                 }
+                else if (DatosParcela.TipoParcela == (int)TipoParcelaEnum.Fosa)
+                {
+                    // Fosa -> solo 15 y 25 años
+                    return PreciosConcesion.Where(p => p.aniosConcesion == 15 || p.aniosConcesion == 25);
+                }
+                
 
                 // Si no es ninguno, devolver vacío
                 return new List<DTO_Precios_Concesion>();
