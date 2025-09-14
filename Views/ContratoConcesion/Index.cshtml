@@ -127,6 +127,7 @@
                                     <th>Parcela</th>
                                     <th>Titular</th>
                                     <th>Vencimiento</th>
+                                    <th>Trámite</th>
                                     <th>Estado</th>
                                     <th>Acción</th>
                                 </tr>
@@ -157,13 +158,14 @@
                                         <td>@parcela</td>
                                         <td>@opc.Titulares.ToUpper()</td>
                                         <td>@opc.Vencimiento.ToString("dd/MM/yyyy")</td>
+                                        <td>@opc.TramiteId</td>
                                         <td>@estadoTramiteDisplay</td>
                                         <td>
                                             <form asp-action="ContratoIniciado" asp-controller="ContratoConcesion" target="_blank" method="get" style="display: inline-block;">
                                                 <input type="hidden" name="parcelaId" value="@opc.parcelaId" />
                                                 <input type="hidden" name="nroConcesion" value="@opc.NroConcesion" />
-                                                <button type="submit" class="btn btn-success" title="Ir a concesión">
-                                                    <i class="bi bi-plus-circle"></i>
+                                                <button type="submit" class="btn btn-info" title="Ir a concesión">
+                                                    <i class="bi bi-box-arrow-in-up-right"></i>
                                                 </button>
                                             </form>
                                         </td>

@@ -299,6 +299,14 @@ namespace CemSys2.Data
                         };
                         _context.HistorialTitularesContratos.Add(historialTitularesContrato);
                         await _context.SaveChangesAsync();
+
+                        //consulto la persona
+                        Persona persona = await _personasBD.ConsultarPersona(t.Id);
+                        if (persona.CategoriaPersona != (int)CategoriaPersonaEnum.Titular) //si no es titular hay que modificarla
+                        {
+                            persona.CategoriaPersona = (int)CategoriaPersonaEnum.Titular;
+                            await _personasBD.ModificarPersona(persona);
+                        }
                     }
 
                     //relaciona cada difunto con el tramite

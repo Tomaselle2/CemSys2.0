@@ -22,7 +22,7 @@ namespace CemSys2.Data
             return await _context.Personas
                 .Include(p => p.ActaDefuncionNavigation)
                 .Include(p => p.EstadoDifuntoNavigation)
-                .FirstOrDefaultAsync(p => p.IdPersona == idPersona);
+                .FirstAsync(p => p.IdPersona == idPersona);
         }
 
         public async Task<DTO_Persona_Historial> DatosPersonalesPersona(int idPersona)

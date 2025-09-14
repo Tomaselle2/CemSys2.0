@@ -402,7 +402,7 @@ namespace CemSys2.Controllers
             {
                 ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Concepto = viewModel.Concepto?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -414,7 +414,7 @@ namespace CemSys2.Controllers
             {
                 ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Concepto = viewModel.Concepto?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -423,7 +423,7 @@ namespace CemSys2.Controllers
             if (!ModelState.IsValid)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Concepto = viewModel.Concepto?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -441,7 +441,7 @@ namespace CemSys2.Controllers
             var recibo = new RecibosFactura
             {
                 FacturaId = viewModel.IdFactura.Value,
-                Concepto = viewModel.Concepto!,
+                Concepto = viewModel.Concepto!.Trim(),
                 Monto = viewModel.Monto.Value,
                 Decreto = viewModel.Decreto,
                 Contribuyente = viewModel.IdContribuyente
@@ -458,7 +458,7 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Concepto = viewModel.Concepto?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
@@ -532,7 +532,7 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Concepto = viewModel.Concepto?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);

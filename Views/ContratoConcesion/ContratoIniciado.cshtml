@@ -23,6 +23,23 @@
     <h3><strong>Estado: <span class="estadoTramite">@estadoTramiteDisplay</span></strong></h3>
 </div>
 
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <!-- Tabla de historial de difuntos actuales -->
 <div class="accordion" id="accordionDifuntos">
@@ -167,10 +184,10 @@
                 <p><b>Celular: </b><span class="datoEncabezadoHistorialParcela">@opc.Celular</span></p>
             </div>
             <div>
-                <p><b>Correo: </b><span class="datoEncabezadoHistorialParcela">@opc.CorreoElectronico</span></p>
+                <p><b>Correo: </b><span class="datoEncabezadoHistorialParcela">@opc.CorreoElectronico.ToLower()</span></p>
             </div>
             <div>
-                <p><b>Domicilio: </b><span class="datoEncabezadoHistorialParcela">@opc.Domicilio</span></p>
+                <p><b>Domicilio: </b><span class="datoEncabezadoHistorialParcela">@opc.Domicilio.ToUpper()</span></p>
             </div>
         </div>
     }
@@ -252,11 +269,352 @@
 </table>
 
 
+<!--Tabla Recibos -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Recibos
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body" style="padding: 0">
+                @* cuerpo del acordion *@
+                <table class="table table-hover mb-0">
+                    <tr style="font-size: 1.2rem">
+                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Factura.Pendiente)</b></td>
+                    </tr>
+                </table>
+                @if (Model.ListaRecibosFactura.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Concepto</th>
+                                <th>Monto</th>
+                                <th>Contribuyente</th>
+                                <th>Archivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var opc in Model.ListaRecibosFactura)
+                            {
+                                <tr>
+                                    <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@opc.Concepto</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Monto)</td>
+                                    <td>@opc.ContribuyenteNavigation?.Nombre @opc.ContribuyenteNavigation?.Apellido</td>
+                                    <td>
+                                        <!-- Botón para abrir modal de editar recibo-->
+                                        @if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion)
+                                        {
+                                            <button class="btn btn-primary btnEditarRecibo"
+                                                    type="button"
+                                                    data-id="@opc.Id"
+                                                    data-concepto="@opc.Concepto"
+                                                    data-archivo="@opc.Archivo?.NombreArchivo">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        }
+
+                                        <!-- Botón para abrir modal de ver recibo-->
+                                        <button type="button"
+                                                class="btn-modificar btn-sm"
+                                                title="Ver"
+                                                onclick="verRecibo('@opc.ArchivoId')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Tabla Archivo del contrato de concesion -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Archivo del contrato
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body" style="padding: 0">
+                @* cuerpo del acordion *@
+                <table class="table table-hover mb-0">
+                    <tr style="font-size: 1.2rem">
+                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Factura.Pendiente)</b></td>
+                    </tr>
+                </table>
+                @if (Model.ListaRecibosFactura.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Fecha de carga</th>
+                                <th>Archivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var opc in Model.ListaRecibosFactura)
+                            {
+                                <tr>
+                                    <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@opc.Concepto</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Monto)</td>
+                                    <td>@opc.ContribuyenteNavigation?.Nombre @opc.ContribuyenteNavigation?.Apellido</td>
+                                    <td>
+                                        <!-- Botón para abrir modal de editar recibo-->
+                                        @if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion)
+                                        {
+                                            <button class="btn btn-primary btnEditarRecibo"
+                                                    type="button"
+                                                    data-id="@opc.Id"
+                                                    data-concepto="@opc.Concepto"
+                                                    data-archivo="@opc.Archivo?.NombreArchivo">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        }
+
+                                        <!-- Botón para abrir modal de ver recibo-->
+                                        <button type="button"
+                                                class="btn-modificar btn-sm"
+                                                title="Ver"
+                                                onclick="verRecibo('@opc.ArchivoId')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- formulario nuevo recibo -->
+@if (Model.Factura.Pendiente > 0)
+{
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                    Nuevo recibo
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                <div class="accordion-body">
+                    @* cuerpo del acordion *@
+                    <form asp-action="CargarRecibo" method="post" id="formRecibo" class="form-box" enctype="multipart/form-data" onsubmit="handleFormSubmit()">
+                        <div class="mb-3">
+                            <!--decreto-->
+                            <input type="checkbox" asp-for="Decreto" id="decreto" onchange="handleDecretoChange(this)" />
+                            <label for="decreto">Decreto municipal</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <!--Contribuyente-->
+                            <label for="">Contribuyente<span class="obligatorio"> * </span></label>
+                            <div class="form-columns-container3">
+                                <div>
+                                    <input id="contribuyenteDisplay" asp-for="IdContribuyente" class="form-control" type="text" placeholder="Seleccione un contribuyente" disabled />
+                                </div>
+                                <div>
+                                    <div>
+                                        <button class="btn btn-success" id="agregarContribuyenteButton" type="button">
+                                            <i class="bi bi-person-plus" id="contribuyenteIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-columns-container3">
+                            <div>
+                                <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
+                                <input asp-for="Concepto" id="conceptoRecibo" class="form-control" type="text" maxlength="100" required />
+                                <span asp-validation-for="Concepto" class="text-danger"></span>
+                            </div>
+
+                            <div>
+                                <label for="montoRecibo">Monto<span class="obligatorio"> * </span></label>
+                                <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" max="@Model.Factura.Pendiente" required placeholder="0.00" step="0.01" />
+                                <span asp-validation-for="Monto" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="archivoRecibo">Archivo<span class="obligatorio"> * (.png .jpg .pdf)</span></label>
+                            <input asp-for="ArchivoRecibo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" required />
+                            <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
+                        </div>
+                        <div class="my-3">
+                            <button type="submit" id="btnCargarRecibo" class="my-3 btn btn-success">
+                                <span class="btn-text">Cargar recibo</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span class="loading-text d-none">Cargando...</span>
+                            </button>
+                        </div>
+                        <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
+                        <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
+                        <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
+                        <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
+                        <input type="hidden" asp-for="IdContribuyente" id="idContribuyenteHidden" />
+                        <input type="hidden" asp-for="Dni" id="dniHidden" />
+                        <input type="hidden" asp-for="Sexo" id="sexoHidden" />
+                        <input type="hidden" asp-for="Nombre" id="nombreHidden" />
+                        <input type="hidden" asp-for="Apellido" id="apellidoHidden" />
+                    </form>
+                    @* Fin cuerpo del acordeon *@
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<!--Modal contribuyente-->
+<div class="modal fade" id="ContribuyenteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Contribuyente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formContribuyente" class="needs-validation" novalidate>
+                    <div class="d-flex justify-content-between align-items-center p-2">
+                        <div>
+                            <!--DNI-->
+                            <label for="dni">DNI<span class="obligatorio"> * </span></label>
+                            <input class="form-control" id="dniInput" type="text" pattern="[0-9]+" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+                            <div class="invalid-feedback">El DNI es obligatorio</div>
+                        </div>
+                        <div>
+                            <!--Sexo-->
+                            <label for="sexoInput">Sexo<span class="obligatorio"> * </span></label>
+                            <select class="form-select" id="sexoInput" required>
+                                <option value="">--Elija una opción--</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            <div class="invalid-feedback">El sexo es obligatorio</div>
+                        </div>
+                    </div>
+
+                    <!-- Campos adicionales (inicialmente ocultos) -->
+                    <div id="camposAdicionales" style="display: none;">
+                        <div class="mt-3">
+                            <!--Nombre-->
+                            <label for="nombreInput">Nombre<span class="obligatorio"> * </span></label>
+                            <input class="form-control" id="nombreInput" type="text" maxlength="60" minlength="2" />
+                            <div class="invalid-feedback">El nombre es obligatorio</div>
+                        </div>
+
+                        <div class="mt-3">
+                            <!--Apellido-->
+                            <label for="apellidoInput">Apellido<span class="obligatorio"> * </span></label>
+                            <input class="form-control" type="text" id="apellidoInput" maxlength="60" minlength="2" />
+                            <div class="invalid-feedback">El apellido es obligatorio</div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de error -->
+                    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success" id="btnAccionContribuyente">Buscar</button>
+                    </div>
+
+                    <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
+                    <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Modal Editar Recibo-->
+<div class="modal fade" id="EditarReciboModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Editar recibo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="EditarRecibo" method="post" id="formEditarRecibo" class="form-box" enctype="multipart/form-data">
+                    <div>
+                        <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
+                        <input asp-for="Concepto" id="conceptoReciboEdicion" class="form-control" type="text" maxlength="100" required />
+                        <span asp-validation-for="Concepto" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label>Archivo actual</label>
+                        <input type="text" id="archivoActualRecibo" class="form-control" readonly />
+                    </div>
+                    <div>
+                        <label for="archivoRecibo">Nuevo archivo (opcional) <span class="obligatorio"> (.png .jpg .pdf)</span></label>
+                        <input asp-for="ArchivoRecibo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" />
+                        <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" asp-for="IdRecibo" id="idReciboHidden" />
+                    <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
+                    <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
+                    <input type="hidden" asp-for="IdContribuyente" id="idContribuyenteHidden" />
+                    <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
+                    <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                        <div class="my-3">
+                            <button type="submit" id="btnCargarRecibo" class="my-3 btn btn-success">
+                                <span class="btn-text">Editar</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span class="loading-text d-none">Cargando...</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal del visor de archivo -->
+<div class="modal fade" id="modalVerRecibo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <!-- Extra grande -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Archivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center" style="height: 85vh;">
+                <iframe id="reciboViewer" style="width: 100%; height: 80vh; border: none; display: none;"></iframe>
+                <img id="reciboImage" style="max-width: 100%; height: auto; display: none;" />
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @section Scripts {
-    <script>
-        // Formatear DNI
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>// Formatear DNI
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.dni-formateado').forEach(elemento => {
                 const dni = elemento.textContent;
@@ -266,4 +624,429 @@
             });
         });
     </script>
+
+    <script>//logica de carga de recibo, spiner
+        function handleFormSubmit(event) {
+            // Primero verificar si el formulario es válido
+            const form = document.getElementById('formRecibo');
+
+            // Usar la validación nativa del navegador
+            if (!form.checkValidity()) {
+                // Si no es válido, mostrar mensajes de validación y detener
+                form.reportValidity();
+                return false;
+            }
+
+            // Si llegamos aquí, la validación pasó
+            const btn = document.getElementById('btnCargarRecibo');
+            const btnText = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.spinner-border');
+            const loadingText = btn.querySelector('.loading-text');
+
+            // Deshabilitar el botón
+            btn.disabled = true;
+
+            // Ocultar texto original y mostrar spinner + texto de carga
+            btnText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+            loadingText.classList.remove('d-none');
+
+            // Permitir que el formulario se envíe
+            return true;
+        }
+    </script>
+
+    <script>//ver el recivo/archivo
+        function verRecibo(archivoId) {
+            const iframe = document.getElementById("reciboViewer");
+            const img = document.getElementById("reciboImage");
+
+            // Ocultar ambos al principio
+            iframe.style.display = "block";
+            img.style.display = "none";
+
+            iframe.src = `/Introduccion/VerRecibo?archivoId=${archivoId}`;
+
+            new bootstrap.Modal(document.getElementById("modalVerRecibo")).show();
+        }
+    </script>
+
+    <script>//logica de agregar contribuyente
+        // Variables globales
+        var estadoPendiente = @(Model.EstadoTramiteId != (int)EstadosContratoConcesion.PendienteDeDocumentacion ? "true" : "false");
+
+        let contribuyenteSeleccionado = null;
+        let estadoModal = 'buscar'; // 'buscar' o 'registrar'
+
+        // Elementos del DOM
+        const agregarContribuyenteButton = document.getElementById('agregarContribuyenteButton');
+        const formContribuyente = document.getElementById('formContribuyente');
+        const dniInput = document.getElementById('dniInput');
+        const sexoInput = document.getElementById('sexoInput');
+        const nombreInput = document.getElementById('nombreInput');
+        const apellidoInput = document.getElementById('apellidoInput');
+        const camposAdicionales = document.getElementById('camposAdicionales');
+        const btnAccionContribuyente = document.getElementById('btnAccionContribuyente');
+        const contribuyenteDisplay = document.getElementById('contribuyenteDisplay');
+        const contribuyenteIcon = document.getElementById('contribuyenteIcon');
+        const errorMessage = document.getElementById('errorMessage');
+        const idContribuyenteHidden = document.getElementById('idContribuyenteHidden');
+
+        // Abrir modal
+        if(agregarContribuyenteButton){
+            agregarContribuyenteButton.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                if (estadoPendiente === "true") {
+                    // Si el trámite es diferente de pendiente, no hacer nada
+                    return;
+                }
+
+                if (contribuyenteSeleccionado) {
+                    // Si ya hay un contribuyente seleccionado, limpiar selección
+                    limpiarSeleccionContribuyente();
+
+                } else {
+                    // Abrir modal para buscar/agregar contribuyente
+                    resetearModal();
+                    $('#ContribuyenteModal').modal('show');
+                }
+            });
+
+        }
+
+        // Submit del formulario del modal
+        formContribuyente.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            if (!validarFormulario()) {
+                return;
+            }
+
+            if (estadoModal === 'buscar') {
+                buscarContribuyente();
+            } else if (estadoModal === 'registrar') {
+                registrarContribuyente();
+            }
+        });
+
+        // Función para validar formulario
+        function validarFormulario() {
+            let esValido = true;
+
+            // Limpiar clases de validación anteriores
+            formContribuyente.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            // Validar DNI
+            if (!dniInput.value.trim() || dniInput.value.length < 1) {
+                dniInput.classList.add('is-invalid');
+                esValido = false;
+            }
+
+            // Validar sexo
+            if (!sexoInput.value) {
+                sexoInput.classList.add('is-invalid');
+                esValido = false;
+            }
+
+            // Si estamos en modo registrar, validar nombre y apellido
+            if (estadoModal === 'registrar') {
+                if (!nombreInput.value.trim() || nombreInput.value.length < 2) {
+                    nombreInput.classList.add('is-invalid');
+                    esValido = false;
+                }
+
+                if (!apellidoInput.value.trim() || apellidoInput.value.length < 2) {
+                    apellidoInput.classList.add('is-invalid');
+                    esValido = false;
+                }
+            }
+
+            return esValido;
+        }
+
+        // Función para buscar contribuyente via AJAX
+        function buscarContribuyente() {
+            mostrarCargando(true);
+            ocultarError();
+
+            const datos = {
+                Dni: parseInt(dniInput.value),
+                Sexo: sexoInput.value
+            };
+
+                fetch('/ContratoConcesion/BuscarContribuyente', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    if (data.contribuyente) {
+                        // Contribuyente encontrado
+                        seleccionarContribuyente(data.contribuyente);
+                        $('#ContribuyenteModal').modal('hide');
+                    } else {
+                        // Contribuyente no encontrado, mostrar campos para registrar
+                        cambiarAModoRegistrar();
+                    }
+                } else {
+                    mostrarError(data.message || 'Error al buscar contribuyente');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+            });
+        }
+
+        // Función para registrar nuevo contribuyente
+        function registrarContribuyente() {
+            mostrarCargando(true);
+            ocultarError();
+
+            const datos = {
+                Dni: parseInt(dniInput.value),
+                Sexo: sexoInput.value,
+                Nombre: nombreInput.value.trim(),
+                Apellido: apellidoInput.value.trim()
+            };
+
+            fetch('/ContratoConcesion/RegistrarContribuyenteParaRecibo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    seleccionarContribuyente(data.contribuyente);
+                    $('#ContribuyenteModal').modal('hide');
+                } else {
+                    mostrarError(data.message || 'Error al registrar contribuyente');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+            });
+        }
+
+        // Función para seleccionar contribuyente
+        function seleccionarContribuyente(contribuyente) {
+
+            // Si es contribuyente de decreto, marcar el checkbox
+            if (contribuyente.dni === "00000000") {
+                document.getElementById('decreto').checked = true;
+            }
+
+            contribuyenteSeleccionado = contribuyente;
+            contribuyenteDisplay.value = `${contribuyente.nombre} ${contribuyente.apellido}`;
+
+            // Actualizar todos los campos hidden
+            document.getElementById('idContribuyenteHidden').value = contribuyente.id;
+            document.getElementById('dniHidden').value = contribuyente.dni;
+            document.getElementById('sexoHidden').value = contribuyente.sexo;
+            document.getElementById('nombreHidden').value = contribuyente.nombre.trim();
+            document.getElementById('apellidoHidden').value = contribuyente.apellido.trim();
+
+            // Cambiar botón a modo "quitar"
+            agregarContribuyenteButton.className = 'btn btn-danger';
+            contribuyenteIcon.className = 'bi bi-person-dash';
+        }
+
+        // Función para limpiar selección de contribuyente
+        function limpiarSeleccionContribuyente() {
+            if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
+                document.getElementById('decreto').checked = false;
+            }
+
+            contribuyenteSeleccionado = null;
+            contribuyenteDisplay.value = '';
+
+            // Limpiar todos los campos hidden
+            document.getElementById('idContribuyenteHidden').value = '';
+            document.getElementById('dniHidden').value = '';
+            document.getElementById('sexoHidden').value = '';
+            document.getElementById('nombreHidden').value = '';
+            document.getElementById('apellidoHidden').value = '';
+
+            // Restaurar botón a modo "agregar"
+            agregarContribuyenteButton.className = 'btn btn-success';
+            contribuyenteIcon.className = 'bi bi-person-plus';
+        }
+
+        // Función para cambiar a modo registrar
+        function cambiarAModoRegistrar() {
+            estadoModal = 'registrar';
+            camposAdicionales.style.display = 'block';
+            btnAccionContribuyente.textContent = 'Registrar';
+
+            // Hacer campos nombre y apellido requeridos
+            nombreInput.setAttribute('required', '');
+            apellidoInput.setAttribute('required', '');
+        }
+
+        // Función para resetear modal
+        function resetearModal() {
+            estadoModal = 'buscar';
+            formContribuyente.reset();
+            formContribuyente.classList.remove('was-validated');
+            camposAdicionales.style.display = 'none';
+            btnAccionContribuyente.textContent = 'Buscar';
+            ocultarError();
+
+            // Quitar required de campos nombre y apellido
+            nombreInput.removeAttribute('required');
+            apellidoInput.removeAttribute('required');
+
+            // Limpiar clases de validación
+            formContribuyente.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        }
+
+        // Funciones auxiliares
+        function mostrarCargando(mostrar) {
+            if (mostrar) {
+                btnAccionContribuyente.disabled = true;
+                btnAccionContribuyente.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...';
+            } else {
+                btnAccionContribuyente.disabled = false;
+                btnAccionContribuyente.textContent = estadoModal === 'buscar' ? 'Buscar' : 'Registrar';
+            }
+        }
+
+        function mostrarError(mensaje) {
+            errorMessage.textContent = mensaje;
+            errorMessage.style.display = 'block';
+        }
+
+        function ocultarError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Función para manejar cambios en el checkbox Decreto
+        function handleDecretoChange(checkbox) {
+            if (checkbox.checked) {
+                // Buscar contribuyente con DNI 00000000
+                buscarContribuyenteDecreto();
+            } else {
+                // Deseleccionar contribuyente si existe
+                if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
+                    limpiarSeleccionContribuyente();
+                }
+            }
+        }
+
+        // Función para buscar contribuyente de decreto
+        function buscarContribuyenteDecreto() {
+            mostrarCargando(true);
+            ocultarError();
+
+            const datos = {
+                Dni: 0, // Se enviará como 0 para identificarlo como decreto
+                Sexo: "otro" // Sexo por defecto
+            };
+
+            fetch('/Introduccion/BuscarContribuyenteDecreto', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    if (data.contribuyente) {
+                        seleccionarContribuyente(data.contribuyente);
+                    } else {
+                        // Registrar si no existe
+                        registrarContribuyenteDecreto();
+                    }
+                } else {
+                    mostrarError(data.message || 'Error al buscar contribuyente de decreto');
+                    document.getElementById('decreto').checked = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+                document.getElementById('decreto').checked = false;
+            });
+        }
+
+        // Función para registrar contribuyente de decreto
+        function registrarContribuyenteDecreto() {
+            mostrarCargando(true);
+
+            const datos = {
+                Dni: 00000000, // Identificador de decreto
+                Sexo: "otro",
+                Nombre: "",
+                Apellido: "Municipalidad Colonia Tirolesa"
+            };
+
+            fetch('/Introduccion/RegistrarContribuyenteDecreto', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify(datos)
+            })
+            .then(response => response.json())
+            .then(data => {
+                mostrarCargando(false);
+
+                if (data.success) {
+                    seleccionarContribuyente(data.contribuyente);
+                } else {
+                    mostrarError(data.message || 'Error al registrar contribuyente de decreto');
+                    document.getElementById('decreto').checked = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarCargando(false);
+                mostrarError('Error de conexión');
+                document.getElementById('decreto').checked = false;
+            });
+        }
+    </script>
+
+    <script>// Lógica para editar un recibo
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('.btnEditarRecibo').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const concepto = this.dataset.concepto;
+                    const archivo = this.dataset.archivo;
+
+                    document.getElementById('idReciboHidden').value = id;
+                    document.getElementById('conceptoReciboEdicion').value = concepto;
+                    document.getElementById('archivoActualRecibo').value = archivo || "Sin archivo";
+
+                    $('#EditarReciboModal').modal('show');
+                });
+            });
+        });
+    </script>
+
 }

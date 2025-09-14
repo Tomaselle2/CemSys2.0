@@ -6,12 +6,15 @@ using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
+using CemSys2.Interface.Parcelas;
 using CemSys2.Interface.Personas;
 using CemSys2.Interface.Tramite;
 using CemSys2.Models;
+using CemSys2.ViewModel;
 using CemSys2.ViewModel.ConcesionesViewModel;
 using CemSys2.ViewModel.ContratoViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 
 namespace CemSys2.Controllers
@@ -80,7 +83,7 @@ namespace CemSys2.Controllers
             }
 
             //se ejecuta cuando no inicio un contrato de concesion
-            await CargarDatosPantallaContrato(viewModel, parcelaId); //metodo privado que carga los datos en la pantalla de contrato concesion que no inico
+            await CargarDatosPantallaContrato(viewModel, parcelaId); //metodo privado que carga los datos en la pantalla de contrato concesion que no inicio
             return View(viewModel);
         }
 
@@ -114,9 +117,11 @@ namespace CemSys2.Controllers
                 //genera la factura
                 Factura factura = await _facturaBusiness.ConsultarFacturaPorTramiteId(tramiteId);
                 var conceptosFactura = await _facturaBusiness.ListaConceptosFacturaPorFactura(factura.Id);
+                var listaRecibosFactura = await _facturaBusiness.ListaRecibosFactura(factura.Id);
 
                 viewModel.Factura = factura;
                 viewModel.ListaConceptosFactura = conceptosFactura;
+                viewModel.ListaRecibosFactura = listaRecibosFactura;
             }
             catch (Exception ex)
             {
@@ -364,8 +369,6 @@ namespace CemSys2.Controllers
 
                 //se busca el tramite
                 tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
-                
-
             }
             catch (Exception ex)
             {
@@ -419,6 +422,135 @@ namespace CemSys2.Controllers
             }
 
             return RedirectToAction("ContratoIniciado", new {nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
+        }
+
+        //cargar el recibo
+        [HttpPost]
+        public async Task<IActionResult> CargarRecibo(ContratoInicadoVM viewModel)
+        {
+            // Desactivar validación automática para Factura
+            ModelState.Remove("Factura.Tramite");
+
+            // Primero validar el archivo específicamente
+            if (viewModel.ArchivoRecibo == null || viewModel.ArchivoRecibo.Length == 0)
+            {
+                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
+                Tramite tramite = new Tramite();
+                try
+                {
+                    tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+
+                    //se busca el tramite
+                    tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                    viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                    await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                    viewModel.Concepto = viewModel.Concepto?.Trim();
+                    viewModel.Monto = viewModel.Monto;
+                    viewModel.MensajeError = "Debe seleccionar un archivo";
+                }
+                catch(Exception ex)
+                {
+                    viewModel.MensajeError = ex.Message;
+                }
+                
+                return View("ContratoIniciado", viewModel);
+            }
+
+            // Validar extensión
+            var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+            var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
+            if (!permitidas.Contains(extension))
+            {
+                ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
+                Tramite tramite = new Tramite();
+                try
+                {
+                    tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+
+                    //se busca el tramite
+                    tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                    viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                    await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                    viewModel.Concepto = viewModel.Concepto?.Trim();
+                    viewModel.Monto = viewModel.Monto;
+                    viewModel.MensajeError = "Solo se permiten archivos PNG, JPG o PDF";
+                }
+                catch (Exception ex)
+                {
+                    viewModel.MensajeError = ex.Message;
+                }
+
+                return View("ContratoIniciado", viewModel);
+            }
+
+            // Luego validar el modelo completo
+            if (!ModelState.IsValid)
+            {
+                Tramite tramite = new Tramite();
+                try
+                {
+                    tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+
+                    //se busca el tramite
+                    tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                    viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                    await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                    viewModel.Concepto = viewModel.Concepto?.Trim();
+                    viewModel.Monto = viewModel.Monto;
+                    viewModel.MensajeError = "Revice los campos obligatorios";
+                }
+                catch (Exception ex)
+                {
+                    viewModel.MensajeError = ex.Message;
+                }
+
+                return View("ContratoIniciado", viewModel);
+            }
+
+            // Mapear el tipo MIME
+            string mimeType = extension switch
+            {
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".pdf" => "application/pdf",
+                _ => "application/octet-stream"
+            };
+
+            var recibo = new RecibosFactura
+            {
+                FacturaId = viewModel.IdFactura.Value,
+                Concepto = viewModel.Concepto!.Trim(),
+                Monto = viewModel.Monto.Value,
+                Decreto = viewModel.Decreto,
+                Contribuyente = viewModel.IdContribuyente
+            };
+
+
+
+            try
+            {
+                await _facturaBusiness.RegistrarReciboFactura(recibo, viewModel.ArchivoRecibo, mimeType, viewModel.TramiteId.Value);
+                TempData["MensajeExito"] = "Recibo cargado con éxito";
+                return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
+            }
+            catch (Exception ex)
+            {
+                Tramite tramite = new Tramite();
+                
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+
+                //se busca el tramite
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                viewModel.Concepto = viewModel.Concepto?.Trim();
+                viewModel.Monto = viewModel.Monto;
+                
+                viewModel.MensajeError = ex.Message;
+                
+                return View("ContratoIniciado", viewModel);
+            }
         }
 
         // Método para buscar contribuyente (AJAX)
@@ -527,6 +659,135 @@ namespace CemSys2.Controllers
             }
         }
 
+        //ver Recibo archivo
+        public async Task<IActionResult> VerRecibo(Guid archivoId)
+        {
+            var archivo = await _introduccionBusiness.ObtenerArchivo(archivoId);
+
+            if (archivo == null || archivo.Contenido == null)
+                return NotFound("Archivo no encontrado.");
+            string tipo = archivo.TipoArchivo.ToLower();
+
+            if (tipo.StartsWith("image/"))
+            {
+                // Convertir la imagen a PDF
+                archivo.Contenido = PdfHelper.ImagenComoPdf(archivo.Contenido);
+                tipo = "application/pdf";
+                archivo.NombreArchivo = Path.ChangeExtension(archivo.NombreArchivo, ".pdf");
+            }
+
+            // Forzar a que el navegador intente mostrarlo
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{archivo.NombreArchivo}\"";
+
+            return File(archivo.Contenido, tipo);
+        }
+
+        // Método para registrar nuevo contribuyente (AJAX)
+        [HttpPost]
+        public async Task<IActionResult> RegistrarContribuyenteParaRecibo([FromBody] RegistrarContribuyenteRequest request)
+        {
+            try
+            {
+                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo) ||
+                    string.IsNullOrEmpty(request.Nombre) || string.IsNullOrEmpty(request.Apellido))
+                {
+                    return Json(new { success = false, message = "Todos los campos son obligatorios" });
+                }
+
+                // Validar que no exista ya
+                Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
+                if (contribuyenteExistente != null)
+                {
+                    return Json(new { success = false, message = "El contribuyente ya existe en el sistema" });
+                }
+
+                // Crear nuevo contribuyente
+                var nuevoContribuyente = new Persona
+                {
+                    Dni = request.Dni.ToString(),
+                    Nombre = request.Nombre.Trim(),
+                    Apellido = request.Apellido.Trim(),
+                    Sexo = request.Sexo
+                };
+
+                // Guardar en base de datos (ajusta según tu lógica de negocio)
+                var contribuyenteCreado = await _introduccionBusiness.RegistrarContribuyente(nuevoContribuyente);
+
+                return Json(new
+                {
+                    success = true,
+                    contribuyente = new
+                    {
+                        id = contribuyenteCreado.IdPersona,
+                        nombre = contribuyenteCreado.Nombre,
+                        apellido = contribuyenteCreado.Apellido,
+                        dni = request.Dni, // Usar el DNI del request
+                        sexo = contribuyenteCreado.Sexo
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        //Editar recibo
+        [HttpPost]
+        public async Task<IActionResult> EditarRecibo(ContratoInicadoVM viewModel)
+        {
+
+            if (!viewModel.EsEdicion && viewModel.ArchivoRecibo == null)
+            {
+                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
+            }
+
+            // Validar Concepto
+            if (string.IsNullOrWhiteSpace(viewModel.Concepto))
+            {
+                ModelState.AddModelError("Concepto", "El concepto es obligatorio.");
+            }
+
+            // Validar archivo SOLO si se sube uno nuevo
+            if (viewModel.ArchivoRecibo != null && viewModel.ArchivoRecibo.Length > 0)
+            {
+                var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+                var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
+                if (!permitidas.Contains(extension))
+                {
+                    ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
+                }
+            }
+
+            try
+            {
+                await _introduccionBusiness.EditarReciboFactura(
+                    viewModel.IdRecibo.Value,
+                    viewModel.Concepto!.Trim(),
+                    viewModel.ArchivoRecibo
+                );
+
+                TempData["MensajeExito"] = "Recibo editado con éxito";
+                return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
+            }
+            catch (Exception ex)
+            {
+                Tramite tramite = new Tramite();
+
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+
+                //se busca el tramite
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                viewModel.Concepto = viewModel.Concepto?.Trim();
+                viewModel.Monto = viewModel.Monto;
+
+                viewModel.MensajeError = ex.Message;
+
+                return View("ContratoIniciado", viewModel);
+            }
+        }
         // Clase para los requests AJAX
         public class BuscarContribuyenteRequest
         {

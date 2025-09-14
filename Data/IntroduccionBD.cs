@@ -555,7 +555,7 @@ namespace CemSys2.Data
                 var archivoRecibo = new ArchivosDocumentacion
                 {
                     CategoriaArchivo = categoriaArchivo.ToString(),
-                    ReciboId = reciboFactura.Id,
+                    TramiteId = tramiteId,
                     NombreArchivo = Path.GetFileName(archivo.FileName),
                     TipoArchivo = mimeType,
                     TamanoBytes = archivo.Length,

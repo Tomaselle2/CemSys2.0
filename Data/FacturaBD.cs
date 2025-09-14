@@ -1,4 +1,5 @@
-﻿using CemSys2.Interface.Facturas;
+﻿using CemSys2.Enumerable;
+using CemSys2.Interface.Facturas;
 using CemSys2.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +40,111 @@ namespace CemSys2.Data
                 .Include(c => c.ConceptoTarifaria)
                 .Where(c => c.FacturaId == idFactura)
                 .ToListAsync();
+        }
+
+        public async Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId)
+        {
+            return await _context.RecibosFacturas.Include(p => p.ContribuyenteNavigation).Include(a => a.Archivo).Where(f => f.FacturaId == facturaId).OrderByDescending(t => t.FechaPago).ToListAsync();
+        }
+
+        public async Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 1️ Insertar ReciboFactura
+                var reciboFactura = new RecibosFactura
+                {
+                    FacturaId = recibo.FacturaId,
+                    FechaPago = DateTime.Now,
+                    Concepto = recibo.Concepto!,
+                    Monto = recibo.Monto,
+                    Decreto = recibo.Decreto,
+                    Contribuyente = recibo.Contribuyente
+                };
+                _context.RecibosFacturas.Add(reciboFactura);
+                await _context.SaveChangesAsync();
+
+                // 2️ Insertar archivo en ArchivosDocumentacion (FILESTREAM)
+                byte[] contenido;
+                using (var ms = new MemoryStream())
+                {
+                    await archivo.CopyToAsync(ms);
+                    contenido = ms.ToArray();
+                }
+                CategoriaArchivosEnum categoriaArchivo = CategoriaArchivosEnum.Recibo;
+                var archivoRecibo = new ArchivosDocumentacion
+                {
+                    CategoriaArchivo = categoriaArchivo.ToString(),
+                    TramiteId = tramiteId,
+                    NombreArchivo = Path.GetFileName(archivo.FileName),
+                    TipoArchivo = mimeType,
+                    TamanoBytes = archivo.Length,
+                    Contenido = contenido,
+                    Descripcion = $"Recibo {recibo.Id} - Factura {reciboFactura.FacturaId}",
+                    FechaCreacion = DateTime.Now,
+                    Visibilidad = true,
+                };
+                _context.ArchivosDocumentacions.Add(archivoRecibo);
+                await _context.SaveChangesAsync();
+
+                // 3️⃣ Actualizar FK del Recibo con el archivoID
+                reciboFactura.ArchivoId = archivoRecibo.ArchivoId;
+                _context.RecibosFacturas.Update(reciboFactura);
+                await _context.SaveChangesAsync();
+
+
+                //busco la factura
+                Factura factura = await _context.Facturas.FirstAsync(f => f.Id == reciboFactura.FacturaId);
+
+                //busco el tramite
+                Tramite tramite = await _context.Tramites.FirstAsync(t => t.Id == tramiteId);
+
+                if (factura != null)
+                {
+                    //resto del monto que llega, nunca puede ser mayor que el pendiente
+                    factura.Pendiente = factura.Pendiente - reciboFactura.Monto;
+
+                    if (factura.Pendiente <= 0) //se abono todo
+                    {
+                        //actualizo la factura
+                        factura.Pendiente = 0;
+                        _context.Facturas.Update(factura);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        _context.Facturas.Update(factura);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                // ✅ VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
+                bool relacionExistente = await _context.TramitePersonas
+                    .AnyAsync(tp => tp.TramiteId == tramite.Id && tp.PersonaId == recibo.Contribuyente.Value);
+
+                // Solo crear la relación si no existe
+                if (!relacionExistente)
+                {
+                    TramitePersona tramitePersona = new TramitePersona
+                    {
+                        TramiteId = tramite.Id,
+                        PersonaId = recibo.Contribuyente.Value
+                    };
+                    _context.TramitePersonas.Add(tramitePersona);
+                    await _context.SaveChangesAsync();
+                }
+
+
+                await transaction.CommitAsync();
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

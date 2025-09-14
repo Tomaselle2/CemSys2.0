@@ -91,7 +91,7 @@
 @* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
 @if (!string.IsNullOrEmpty(Model.MensajeError))
 {
-    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
         @Model.MensajeError
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -504,7 +504,7 @@
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-            <div class="accordion-body">
+            <div class="accordion-body" style="padding: 0">
                 @* cuerpo del acordion *@
                 <table class="table table-hover mb-0">
                     <tr style="font-size: 1.2rem">

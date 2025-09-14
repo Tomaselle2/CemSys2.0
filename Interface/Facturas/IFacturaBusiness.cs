@@ -8,6 +8,8 @@ namespace CemSys2.Interface.Facturas
         Task<int> RegistrarConceptoFactura(ConceptosFactura concepto);
 
         Task<Factura> ConsultarFacturaPorTramiteId(int idTramite);
+        Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId);
         Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura);
+        Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
     }
 }

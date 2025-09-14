@@ -90,7 +90,13 @@ select * from ContratoConcesion
 select * from TramitePersonas
 select * from TitularesContratoConcesion
 select * from HistorialTitularesContrato
-select * from PreciosTarifarias where id = 126
+
 select * from ConceptosFactura
 select * from PreciosTarifarias
 select * from Personas
+select * from TiposConceptoTarifaria
+select * from ConceptosTarifarias
+
+select * from PreciosTarifarias where id = 114
+select * from Facturas where tramiteId = 65
+select * from ConceptosFactura where facturaId = 1052
