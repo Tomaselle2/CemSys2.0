@@ -1,4 +1,5 @@
-﻿using CemSys2.Interface.Facturas;
+﻿using CemSys2.DTO.Concesiones;
+using CemSys2.Interface.Facturas;
 using CemSys2.Models;
 
 namespace CemSys2.Business
@@ -16,6 +17,16 @@ namespace CemSys2.Business
             return await _facturasBD.ConsultarFacturaPorTramiteId(idTramite);
         }
 
+        public async Task EditarArchivo(Guid archivoId, string descripcion, string categoriaArchivo, IFormFile? nuevoArchivo)
+        {
+            await _facturasBD.EditarArchivo(archivoId, descripcion, categoriaArchivo, nuevoArchivo);
+        }
+
+        public async Task<List<DTO_Archivos_Documentacion>> ListaArchivosTramiteId(int tramiteId)
+        {
+            return await _facturasBD.ListaArchivosTramiteId(tramiteId);
+        }
+
         public async Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura)
         {
             return await _facturasBD.ListaConceptosFacturaPorFactura(idFactura);
@@ -26,9 +37,9 @@ namespace CemSys2.Business
             return await _facturasBD.ListaRecibosFactura(facturaId);
         }
 
-        public async Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo)
+        public async Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo, string descripcion)
         {
-            await _facturasBD.RegistrarArchivo(archivo, mimeType, tramiteId, categoriaArchivo);
+            await _facturasBD.RegistrarArchivo(archivo, mimeType, tramiteId, categoriaArchivo, descripcion);
         }
 
         public async Task<int> RegistrarConceptoFactura(ConceptosFactura concepto)

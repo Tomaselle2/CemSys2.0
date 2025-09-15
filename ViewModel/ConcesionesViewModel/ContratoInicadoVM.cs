@@ -17,8 +17,9 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
 
         public Factura Factura { get; set; } = new();
         public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new();
-        public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
+        public List<RecibosFactura> ListaRecibosFactura { get; set; } = new(); //solo recibos
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
+        public List<DTO_Archivos_Documentacion> ListaArchivos {  get; set; } = new(); //solo archivos sin recibos
 
         public int? ParcelaId { get; set; }
         public int? TramiteId { get; set; }
@@ -48,6 +49,8 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         public IFormFile? ArchivoRecibo { get; set; }
         public int? IdFactura { get; set; }
         public int? IdRecibo { get; set; }
+
+        public Guid? IdArchivo { get; set; } //para editar un archivo
 
         public bool EsEdicion { get; set; }
 

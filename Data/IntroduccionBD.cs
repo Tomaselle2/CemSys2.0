@@ -685,7 +685,7 @@ namespace CemSys2.Data
 
         public async Task<ArchivosDocumentacion> ObtenerArchivo(Guid archivoGuid)
         {
-            return await _context.ArchivosDocumentacions.FirstOrDefaultAsync(a => a.ArchivoId == archivoGuid);
+            return await _context.ArchivosDocumentacions.FirstAsync(a => a.ArchivoId == archivoGuid);
         }
 
         public async Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo)
@@ -751,7 +751,7 @@ namespace CemSys2.Data
                 }
 
                 var archivo = await _context.ArchivosDocumentacions
-                    .FirstOrDefaultAsync(a => a.ReciboId == recibo.Id);
+                    .FirstOrDefaultAsync(a => a.ArchivoId == recibo.ArchivoId);
 
                 if (archivo != null)
                 {
@@ -759,24 +759,8 @@ namespace CemSys2.Data
                     archivo.TipoArchivo = mimeType;
                     archivo.TamanoBytes = nuevoArchivo.Length;
                     archivo.Contenido = contenido;
-                    archivo.FechaCreacion = DateTime.Now;
 
                     _context.ArchivosDocumentacions.Update(archivo);
-                }
-                else
-                {
-                    var nuevo = new ArchivosDocumentacion
-                    {
-                        CategoriaArchivo = CategoriaArchivosEnum.Recibo.ToString(),
-                        ReciboId = recibo.Id,
-                        NombreArchivo = Path.GetFileName(nuevoArchivo.FileName),
-                        TipoArchivo = mimeType,
-                        TamanoBytes = nuevoArchivo.Length,
-                        Contenido = contenido,
-                        FechaCreacion = DateTime.Now,
-                        Visibilidad = true,
-                    };
-                    _context.ArchivosDocumentacions.Add(nuevo);
                 }
             }
 

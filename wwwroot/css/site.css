@@ -329,12 +329,12 @@ body {
     cursor: pointer;
 
 }
+    .btn-modificar:hover {
+        background-color: #194441;
+    }
 
-        .btn-modificar:hover {
-            background-color: #194441;
-        }
 
-.btnEditarRecibo {
+.btnEditarArchivo, .btnAgregarArchivo, .btnEditarRecibo {
     background-color: #1f36ef;
     color: #ffffff;
     border: none;
@@ -343,9 +343,11 @@ body {
     border-radius: 5px;
     cursor: pointer;
 }
-    .btnEditarRecibo:hover {
+
+    .btnEditarArchivo:hover, .btnAgregarArchivo:hover, .btnEditarRecibo:hover {
         background-color: #194441;
     }
+
     /*BOTON ELIMINAR*/
     .btn-eliminar {
         background-color: #e53935;

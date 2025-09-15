@@ -120,8 +120,9 @@ namespace CemSys2.Controllers
                 var listaRecibosFactura = await _facturaBusiness.ListaRecibosFactura(factura.Id);
 
                 viewModel.Factura = factura;
-                viewModel.ListaConceptosFactura = conceptosFactura;
-                viewModel.ListaRecibosFactura = listaRecibosFactura;
+                viewModel.ListaConceptosFactura = conceptosFactura; //conceptos
+                viewModel.ListaRecibosFactura = listaRecibosFactura; //recibos
+                viewModel.ListaArchivos = await _facturaBusiness.ListaArchivosTramiteId(tramiteId); //archivos
 
                 viewModel.Categorias = EnumHelper.ToSelectList<CategoriaArchivosEnum>();
             }
@@ -432,6 +433,7 @@ namespace CemSys2.Controllers
         {
             // Desactivar validación automática para Factura
             ModelState.Remove("Factura.Tramite");
+            ModelState.Remove("Categoria");
 
             // Primero validar el archivo específicamente
             if (viewModel.ArchivoRecibo == null || viewModel.ArchivoRecibo.Length == 0)
@@ -628,8 +630,8 @@ namespace CemSys2.Controllers
 
             try
             {
-                await _facturaBusiness.RegistrarArchivo(viewModel.ArchivoRecibo, mimeType, viewModel.TramiteId.Value, viewModel.Categoria);
-                TempData["MensajeExito"] = "Recibo cargado con éxito";
+                await _facturaBusiness.RegistrarArchivo(viewModel.ArchivoRecibo, mimeType, viewModel.TramiteId.Value, viewModel.Categoria, viewModel.Concepto!);
+                TempData["MensajeExito"] = $"Archivo {viewModel.Categoria} cargado con éxito";
                 return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
             }
             catch (Exception ex)
@@ -834,7 +836,7 @@ namespace CemSys2.Controllers
         [HttpPost]
         public async Task<IActionResult> EditarRecibo(ContratoInicadoVM viewModel)
         {
-
+            ModelState.Remove("Categoria");
             if (!viewModel.EsEdicion && viewModel.ArchivoRecibo == null)
             {
                 ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
@@ -886,6 +888,65 @@ namespace CemSys2.Controllers
                 return View("ContratoIniciado", viewModel);
             }
         }
+
+
+        //Editar Archivo
+        [HttpPost]
+        public async Task<IActionResult> EditarArchivo(ContratoInicadoVM viewModel)
+        {
+            if (!viewModel.EsEdicion && viewModel.ArchivoRecibo == null)
+            {
+                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
+            }
+
+            // Validar Concepto
+            if (string.IsNullOrWhiteSpace(viewModel.Concepto))
+            {
+                ModelState.AddModelError("Concepto", "El concepto es obligatorio.");
+            }
+
+            // Validar archivo SOLO si se sube uno nuevo
+            if (viewModel.ArchivoRecibo != null && viewModel.ArchivoRecibo.Length > 0)
+            {
+                var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+                var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
+                if (!permitidas.Contains(extension))
+                {
+                    ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
+                }
+            }
+
+            try
+            {
+                await _facturaBusiness.EditarArchivo(
+                    viewModel.IdArchivo.Value,
+                    viewModel.Concepto!.Trim(),
+                    viewModel.Categoria,                    
+                    viewModel.ArchivoRecibo
+                );
+
+                TempData["MensajeExito"] = $"Archivo {viewModel.Categoria} editado con éxito";
+                return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
+            }
+            catch (Exception ex)
+            {
+                Tramite tramite = new Tramite();
+
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+
+                //se busca el tramite
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                viewModel.Concepto = viewModel.Concepto?.Trim();
+                viewModel.Monto = viewModel.Monto;
+
+                viewModel.MensajeError = ex.Message;
+
+                return View("ContratoIniciado", viewModel);
+            }
+        }
+
         // Clase para los requests AJAX
         public class BuscarContribuyenteRequest
         {
