@@ -156,9 +156,9 @@
                                         <td>@tipoTramiteDisplay</td>
                                         <td>@estadoTramiteDisplay</td>
                                         <td>
-                                            <form asp-action="ResumenIntroduccion" asp-controller="Introduccion" target="_blank" method="get" style="display: inline-block;">
+                                            <form asp-action="IrATramite" asp-controller="Tramite" target="_blank" method="get" style="display: inline-block;">
                                                 <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
-                                                <button type="submit" class="btn-modificar btn-sm" title="ver">
+                                                <button type="submit" class="btn-modificar btn-sm" title="Ir al trámite">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
                                             </form>
@@ -224,7 +224,7 @@
                                                     onclick="verRecibo('@opc.ReciboId')">
                                                 <i class="bi bi-receipt"></i>
                                             </button>
-                                            <form asp-action="ResumenIntroduccion" asp-controller="Introduccion" target="_blank" method="get" style="display: inline-block;">
+                                            <form asp-action="IrATramite" asp-controller="Tramite" target="_blank" method="get" style="display: inline-block;">
                                                 <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
                                                 <button type="submit" class="btn-modificar btn-sm" title="Ir al trámite">
                                                     <i class="bi bi-eye"></i>

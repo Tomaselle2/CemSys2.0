@@ -88,6 +88,37 @@ namespace CemSys2.Controllers
             return View(viewModel);
         }
 
+        //vista para los contratos que ya se iniciaron
+        [HttpGet]
+        public async Task<IActionResult> ContratoIniciado(string nroConcesion, int parcelaId)
+        {
+            ContratoInicadoVM viewModel = new ContratoInicadoVM();
+            Tramite tramite = new Tramite();
+            try
+            {
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(nroConcesion, parcelaId);
+
+                //se busca el tramite
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = ex.Message;
+            }
+
+
+            if (tramite.EstadoActualId == (int)EstadosContratoConcesion.Iniciado) //quiere decir que no llego al paso pendiente de documentacion
+            {
+                return RedirectToAction("ContratoConcesion", new { parcelaId = parcelaId, nroConcesion = nroConcesion }); //redirigo a la vista de generar contrato
+            }
+
+            viewModel.EstadoTramiteId = tramite.EstadoActualId;
+            await CargarDatosContratoYaInicado(viewModel, parcelaId, tramite.Id);
+
+            return View(viewModel);
+
+        }
+
         //carga los datos de contratos ya iniciados
         private async Task CargarDatosContratoYaInicado(ContratoInicadoVM viewModel, int parcelaId, int tramiteId)
         {
@@ -181,8 +212,6 @@ namespace CemSys2.Controllers
                 viewModel.MensajeError = ex.Message;
             }
         }
-
-        
 
         //metodo de genera el contrato concesion en formato pdf
         public async Task<IActionResult> GenerarContratoConcesionPDF(GenerarContratoVM viewModel)
@@ -359,38 +388,6 @@ namespace CemSys2.Controllers
             //    PageSize = Rotativa.AspNetCore.Options.Size.A4,
             //    FileName = null // null = lo abre en el visor del navegador
             //};
-        }
-
-
-        //vista para los contratos que ya se iniciaron
-        [HttpGet]
-        public async Task<IActionResult> ContratoIniciado(string nroConcesion, int parcelaId)
-        {
-            ContratoInicadoVM viewModel = new ContratoInicadoVM();
-            Tramite tramite = new Tramite();
-            try
-            {
-                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(nroConcesion, parcelaId);
-
-                //se busca el tramite
-                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
-            }
-            catch (Exception ex)
-            {
-                viewModel.MensajeError = ex.Message;
-            }
-
-
-            if (tramite.EstadoActualId == (int)EstadosContratoConcesion.Iniciado) //quiere decir que no llego al paso pendiente de documentacion
-            {
-                return RedirectToAction("ContratoConcesion", new { parcelaId = parcelaId, nroConcesion = nroConcesion }); //redirigo a la vista de generar contrato
-            }
-
-            viewModel.EstadoTramiteId = tramite.EstadoActualId;
-            await CargarDatosContratoYaInicado(viewModel, parcelaId, tramite.Id);
-
-            return View(viewModel);
-            
         }
 
         //metodo que recibe el parcelaId y nroConcesion para pasar a subir Contrato de concesion

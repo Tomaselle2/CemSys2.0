@@ -218,11 +218,12 @@
                
                 <p class="separador"></p>
                 <div>
-                    <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@opc.Dni</span></p>
-                </div>
-                <div>
                     <p><b>Nombre: </b><span class="datoEncabezadoHistorialParcela">@opc.Apellido.ToUpper(), @opc.Nombre.ToUpper()</span></p>
                 </div>
+                <div>
+                    <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@opc.Dni</span></p>
+                </div>
+                
                 <div>
                     <p><b>Celular: </b><span class="datoEncabezadoHistorialParcela">@opc.Celular</span></p>
                 </div>
@@ -268,11 +269,27 @@
                     {
                         string dni = (opc.DNI == "nn") ? "--------" : opc.DNI;
                         <div class="card-presentacion-datos">
-                            <div>
-                                <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@dni</span></p>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <div class="flex-grow-1 text-center">
+                                    <p class="titulo-intermedio m-0">Difunto</p>
+                                </div>
+                                <div>
+                                    <form asp-action="RedirigirAHistorial" asp-controller="Personas" method="get" target="_blank">
+                                        <input type="hidden" name="personaId" value="@opc.DifuntoId" />
+                                        <button type="submit" class="btn-historial" title="Ir a difunto">
+                                            <i class="bi bi-arrow-up-right"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
+
+                            <p class="separador"></p>
+                            
                             <div>
                                 <p><b>Nombre: </b><span class="datoEncabezadoHistorialParcela">@opc.Apellido.ToUpper(), @opc.Nombre.ToUpper()</span></p>
+                            </div>
+                            <div>
+                                <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@dni</span></p>
                             </div>
                             <div>
                                 <p><b>Ingreso: </b><span class="datoEncabezadoHistorialParcela">@opc.FechaIngreso.ToString("dd/MM/yyyy HH:mm")</span></p>
