@@ -152,9 +152,12 @@
                     <p class="titulo-intermedio m-0">Datos de la parcela</p>
                 </div>
                 <div>
-                    <button class="btn-historial" type="button" title="Ir a parcela">
-                        <i class="bi bi-arrow-up-right"></i>
-                    </button>
+                    <form asp-action="HistorialParcela" asp-controller="Parcelas" method="get" target="_blank">
+                        <input type="hidden" name="parcelaId" value="@Model.ParcelaId" />
+                        <button class="btn-historial" type="submit" title="Ir a parcela">
+                            <i class="bi bi-arrow-up-right"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
             <p class="separador"></p>
@@ -204,10 +207,13 @@
                         <p class="titulo-intermedio m-0">Titular</p>
                     </div>
                     <div>
-                    <button class="btn-historial" type="button" title="Ir a titular">
-                        <i class="bi bi-arrow-up-right"></i>
-                    </button>
-                </div>
+                        <form asp-action="RedirigirAHistorial" asp-controller="Personas" method="get" target="_blank">
+                            <input type="hidden" name="personaId" value="@opc.Id" />
+                            <button type="submit" class="btn-historial" title="Ir a titular">
+                                <i class="bi bi-arrow-up-right"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
                
                 <p class="separador"></p>

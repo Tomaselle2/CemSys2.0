@@ -769,13 +769,38 @@
 @if (estadoTramite == (int)EstadosIntroduccion.Cobrado) //solo si es cobrado
 {
     <div class="d-flex justify-content-center align-items-center">
-        <form asp-action="FinalizarTramite" method="post">
+        <form asp-action="FinalizarTramite" method="post" id="formFinalizar">
             <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
-            <input type="submit" class="btn btn-success" value="Finalizar trámite" />    
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                Finalizar trámite
+            </button>
         </form>
     </div>
 }
 
+
+<!-- Modal Confirmar finalizar-->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <b>¿Está seguro que desea finalizar el trámite de introducción?</b>
+                <br />
+                No podrá editar recibos.
+                <br />
+                No podrá editar el bloque de información adicional.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnConfirmar">Finalizar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 @section Scripts {
@@ -1236,6 +1261,17 @@
 
                     $('#EditarReciboModal').modal('show');
                 });
+            });
+        });
+    </script>
+
+     <script>//Modal de Confirmar finalizar pago pendiente documentacion
+        document.addEventListener("DOMContentLoaded", function () {
+            const btnConfirmar = document.getElementById("btnConfirmar");
+            const form = document.getElementById("formFinalizar");
+
+            btnConfirmar.addEventListener("click", function () {
+                form.submit();
             });
         });
     </script>

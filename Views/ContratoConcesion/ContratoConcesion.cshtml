@@ -345,20 +345,20 @@
 </style>
 
 
-<!-- Modal Confirmación Eliminar -->
+<!-- Modal Confirmación Quitar contribuyente -->
 <div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="confirmarEliminarModalLabel">Confirmar eliminación</h5>
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="confirmarEliminarModalLabel">Advertencia</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                ¿Está seguro de que desea eliminar este titular?
+                ¿Está seguro de que desea quitar este titular?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">Eliminar</button>
+                <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">Quitar</button>
             </div>
         </div>
     </div>
@@ -656,7 +656,7 @@
                     <div class="titular-header">
                         <span class="titular-number">Titular ${index + 1}</span>
                         <button type="button" class="btn btn-danger btn-sm btn-eliminar" onclick="eliminarTitular(${titular.id})">
-                            <i class="bi bi-trash"></i> Eliminar
+                            <i class="bi bi-trash"></i> Quitar
                         </button>
                     </div>
                     <div class="p-3">
