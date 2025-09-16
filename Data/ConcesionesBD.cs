@@ -568,5 +568,48 @@ namespace CemSys2.Data
             return await _personasBD.ListaTitularesActualesContrato(idTitulares);
 
         }
+
+        //verificar que el contrato de subio
+        public async Task<bool> VerificarArchivoContratoSubido(int tramiteId)
+        {
+            return await _context.ArchivosDocumentacions.AnyAsync(a => a.TramiteId == tramiteId && a.CategoriaArchivo == CategoriaArchivosEnum.Contrato_Concesion.ToString());
+        }
+
+        //finaliza el pendiente de documentacion
+        public async Task FinalizarPendienteDocumentacion(int tramiteId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                //busco el tramite
+                Tramite tramite = await _context.Tramites.FirstAsync(t => t.Id == tramiteId);
+
+                int estadoTramiteId = (int)EstadosContratoConcesion.Activa;
+
+                //se agrega el estado en historial estado
+                HistorialEstadoTramite historial = new HistorialEstadoTramite
+                {
+                    TramiteId = tramite.Id,
+                    EstadoTramiteId = estadoTramiteId,
+                    Fecha = DateTime.Now
+                };
+                _context.HistorialEstadoTramites.Add(historial);
+                await _context.SaveChangesAsync();
+
+                //se actualiza el estado actual en el tramite
+                tramite.EstadoActualId = estadoTramiteId;
+                _context.Tramites.Update(tramite);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

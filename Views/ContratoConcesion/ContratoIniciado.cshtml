@@ -15,9 +15,6 @@
     decimal precioFinalMinimoParaQuitarFondo = 10000m;
 }
 
-<h1 class="tituloDePagina">Contrato de concesión</h1>
-
-
 
 @* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
 @if (TempData["MensajeExito"] != null)
@@ -81,6 +78,40 @@
             break;
     }
 }
+<div class="d-flex justify-content-center align-items-center">
+    <div>
+        <h1 class="tituloDePagina">Contrato de concesión</h1>
+    </div>
+</div>
+<!-- Panel lateral derecho del historial -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasHistorial">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Historial</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="timeline">
+            @foreach (var opc in Model.HistorialEstadoTramites)
+            {
+                int valor = opc.EstadoTramiteId;
+                string estado = EstadosEnum.ObtenerNombreEstado((TipotamiteEmun)(int)TipotamiteEmun.ContratoDeConcesion, opc.EstadoTramiteId);
+                <div class="timeline-item">
+                    <div class="icon bg-success text-white">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div class="content">
+                        <p class="mb-0 fw-bold">@estado</p>
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> @opc.Fecha.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
 <div class="contenedor-resumen" style="max-width: 1400px; padding-left: 20px; padding-right: 20px;">
     <div class="d-flex align-items-center justify-content-between">
         <h2 class="nroTramite">Trámite @Model.TramiteId</h2>
@@ -91,8 +122,16 @@
     <div class="contenedor-2-elementos">
         <!--datos de la parcela-->
         <div class="card-presentacion-datos">
-            <div>
-                <p class="titulo-intermedio">Datos de la parcela</p>
+            <div class="d-flex justify-content-center align-items-center">
+                <!-- Título centrado -->
+                <div class="flex-grow-1 text-center">
+                    <p class="titulo-intermedio m-0">Datos de la parcela</p>
+                </div>
+                <div>
+                    <button class="btn-historial" type="button" title="Ir a parcela">
+                        <i class="bi bi-arrow-up-right"></i>
+                    </button>
+                </div>
             </div>
             <p class="separador"></p>
             <div>
@@ -108,8 +147,17 @@
 
         <!--datos del contrato-->
         <div class="card-presentacion-datos">
-            <div>
-                <p class="titulo-intermedio">Datos de la concesión</p>
+            <div class="d-flex justify-content-center align-items-center">
+                <!-- Título centrado -->
+                <div class="flex-grow-1 text-center">
+                    <p class="titulo-intermedio m-0">Datos de la concesión</p>
+                </div>
+                <!--Btn historial-->
+                <div>
+                    <button class="btn-historial" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHistorial" title="Ver historial">
+                        <i class="bi bi-clock-history"></i>
+                    </button>
+                </div>
             </div>
             <p class="separador"></p>
             <div>
@@ -127,9 +175,17 @@
         {
             <!--datos del titular-->
             <div class="card-presentacion-datos">
-                <div>
-                    <p class="titulo-intermedio">Titular</p>
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="flex-grow-1 text-center">
+                        <p class="titulo-intermedio m-0">Titular</p>
+                    </div>
+                    <div>
+                    <button class="btn-historial" type="button" title="Ir a titular">
+                        <i class="bi bi-arrow-up-right"></i>
+                    </button>
                 </div>
+                </div>
+               
                 <p class="separador"></p>
                 <div>
                     <p><b>DNI: </b><span class="datoEncabezadoHistorialParcela dni-formateado">@opc.Dni</span></p>
@@ -483,14 +539,17 @@
                 @* Fin cuerpo del acordeon *@
             </div>
         </div>
-        <button class="btn btn-success m-3"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#SubirArchivoContrato">
-               @*  data-archivo="@opc.Archivo?.NombreArchivo" *@
-            <i class="bi bi-file-earmark-arrow-up" style="font-size: 20px;"></i>
-            Subir archivo
-        </button>
+        @if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion)
+        {
+            <button class="btn btn-success m-3"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#SubirArchivoContrato">
+                @*  data-archivo="@opc.Archivo?.NombreArchivo" *@
+                <i class="bi bi-file-earmark-arrow-up" style="font-size: 20px;"></i>
+                Subir archivo
+            </button>
+        }
     </div>
 </div>
 
@@ -509,7 +568,7 @@
                         <div>
                             <!--DNI-->
                             <label for="dni">DNI<span class="obligatorio"> * </span></label>
-                            <input class="form-control" id="dniInput" type="text" pattern="[0-9]+" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+                            <input class="form-control" id="dniInput" type="text" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,8)" required />
                             <div class="invalid-feedback">El DNI es obligatorio</div>
                         </div>
                         <div>
@@ -724,6 +783,20 @@
         </div>
     </div>
 </div>
+
+<!--btn fianlizar pendiente de documentracion-->
+@if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion && Model.Factura.Pendiente <= 0) //solo si es pendiente de documentacion
+{
+    <div class="d-flex justify-content-center align-items-center">
+        <form asp-action="FinalizarPasoPendieteDocumentacion" method="post">
+            <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
+            <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
+            <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
+            <input type="submit" class="btn btn-success" value="Finalizar paso Pendiente de documentación" />
+        </form>
+    </div>
+}
+
 
 
 @section Scripts {

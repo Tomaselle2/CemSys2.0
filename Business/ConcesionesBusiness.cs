@@ -28,6 +28,11 @@ namespace CemSys2.Business
             return await _concesionesDB.DatosParcela(parcelaId);
         }
 
+        public async Task FinalizarPendienteDocumentacion(int tramiteId)
+        {
+            await _concesionesDB.FinalizarPendienteDocumentacion(tramiteId);
+        }
+
         public async Task<bool> GenerarContrato(DTO_DatosGenerarContratoConcesion contrato, Tramite tramite)
         {
             return await _concesionesDB.GenerarContrato(contrato, tramite);
@@ -71,6 +76,11 @@ namespace CemSys2.Business
         public async Task<Persona> RegistrarTitular(Persona titular)
         {
             return await _concesionesDB.RegistrarTitular(titular);
+        }
+
+        public Task<bool> VerificarArchivoContratoSubido(int tramiteId)
+        {
+            return _concesionesDB.VerificarArchivoContratoSubido(tramiteId);
         }
 
         public async Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId)

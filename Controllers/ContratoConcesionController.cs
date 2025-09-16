@@ -15,6 +15,7 @@ using CemSys2.ViewModel.ConcesionesViewModel;
 using CemSys2.ViewModel.ContratoViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Threading.Tasks;
 
 
 namespace CemSys2.Controllers
@@ -110,7 +111,7 @@ namespace CemSys2.Controllers
                 viewModel.Vencimiento = contratoConcesion.Vencimiento;
                 viewModel.PrecioFinal = contratoConcesion.Precio;
                 viewModel.PrecioSeleccionado = contratoConcesion.PrecioTarifariaId;
-                
+                viewModel.HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
                 //trae los titulares actuales del contrato
                 viewModel.Titulares = await _concesionesBusiness.ListaTitularesActualesContrato(contratoConcesion.IdTramite);
 
@@ -940,6 +941,76 @@ namespace CemSys2.Controllers
                 await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
                 viewModel.Concepto = viewModel.Concepto?.Trim();
                 viewModel.Monto = viewModel.Monto;
+
+                viewModel.MensajeError = ex.Message;
+
+                return View("ContratoIniciado", viewModel);
+            }
+        }
+
+
+        //Finaliza el paso pendiente de documentacion
+        [HttpPost]
+        public async Task<IActionResult> FinalizarPasoPendieteDocumentacion(ContratoInicadoVM viewModel)
+        {
+            bool pendienteFinalizado = false;
+            try
+            {
+                pendienteFinalizado = await _concesionesBusiness.VerificarArchivoContratoSubido(viewModel.TramiteId.Value);
+            }
+            catch (Exception ex)
+            {
+                Tramite tramite = new Tramite();
+
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+
+                //se busca el tramite
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+
+                viewModel.MensajeError = ex.Message;
+
+                return View("ContratoIniciado", viewModel);
+            }
+
+            if (!pendienteFinalizado)
+            {
+                Tramite tramite = new Tramite();
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+
+                //regreso mensaje que falta subir contrato de concesion
+                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+
+                viewModel.MensajeError = "Falta subir el contrato de concesión";
+
+                return View("ContratoIniciado", viewModel);
+            }
+
+
+            //paso al paso de "activa"
+            try
+            {
+                await _concesionesBusiness.FinalizarPendienteDocumentacion(viewModel.TramiteId.Value);
+                TempData["MensajeExito"] = "Pendiente de documentación finalizado exitosamente";
+                return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
+            }
+            catch (Exception ex)
+            {
+                Tramite tramite = new Tramite();
+
+                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+
+                //se busca el tramite
+                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
 
                 viewModel.MensajeError = ex.Message;
 

@@ -20,6 +20,8 @@ namespace CemSys2.Interface.Concesiones
         Task<DTO_Listado_Paginado_Concesiones> ListadoConcesiones(int paginaActual, int tamanoPagina);
 
         Task<List<DTO_Titulares>> ListaTitularesActualesContrato(int contratoId);
+        Task<bool> VerificarArchivoContratoSubido(int tramiteId);
+        Task FinalizarPendienteDocumentacion(int tramiteId);
 
 
 

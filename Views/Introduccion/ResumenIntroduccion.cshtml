@@ -674,7 +674,7 @@
                         <div>
                             <!--DNI-->
                             <label for="dni">DNI<span class="obligatorio"> * </span></label>
-                            <input class="form-control" id="dniInput" type="text" pattern="[0-9]+" maxlength="8" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+                            <input class="form-control" id="dniInput" type="text" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,8)" required />
                             <div class="invalid-feedback">El DNI es obligatorio</div>
                         </div>
                         <div>

@@ -16,11 +16,20 @@
 <h1 class="tituloDePagina">Contrato de concesión</h1>
 @if (Model.EstadoTramiteId != null)
 {
-    <div class="d-flex align-items-center justify-content-between" style="max-width: 1400px;">
-        <h2 class="nroTramite">Trámite @Model.TramiteId</h2>
-        <h3 class="nroTramite">Concesión @Model.NroConcesion</h3>
-        <h3><strong>Estado: <span class="estadoTramite">@estadoTramiteDisplay</span></strong></h3>
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 10px;">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h2 class="nroTramite">Trámite @Model.TramiteId</h2>
+            </div>
+            <div>
+                <h3><b>Concesión:</b> <span class="nroTramite">@Model.NroConcesion</span></h3>
+            </div>
+            <div>
+                <h3><strong>Estado: <span class="estadoTramite">@estadoTramiteDisplay</span></strong></h3>
+            </div>
+        </div>
     </div>
+    
 }
 
 
