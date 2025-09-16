@@ -34,8 +34,30 @@
     </div>
 }
 
+@{//forma de pago
+    string formaPago = "";
 
-@{
+    if (Model.CantidadCuotaSeleccionada.HasValue)
+    {
+        if (Model.CantidadCuotaSeleccionada == 1)
+        {
+            formaPago = "1 solo pago";
+        }
+        else
+        {
+            decimal precio = (Model.PrecioFinal / Model.CantidadCuotaSeleccionada.Value);
+            formaPago = $"{Model.CantidadCuotaSeleccionada.Value} cuotas mensuales y consecutivas de $ {precio.ToString("N2")}";
+        }
+
+    }
+    else //otra forma de pago
+    {
+        formaPago = Model.OtraFormaPago;
+    }
+
+}
+
+@{ //logica de parcela
     string parcela = "";
     if (Model.DatosParcela.TipoParcela == 1) //nicho
     {
@@ -52,6 +74,8 @@
 
     string tipoParela = ((TipoParcelaEnum)Model.DatosParcela.TipoParcela).ToString();
 }
+
+
 
 @{//logica de cantidad de años
     //recibe la cantidad de añosId y devuelve el texto correspondiente
@@ -111,7 +135,7 @@
     </div>
 </div>
 
-
+<!--Contenedor principal-->
 <div class="contenedor-resumen" style="max-width: 1400px; padding-left: 20px; padding-right: 20px;">
     <div class="d-flex align-items-center justify-content-between">
         <h2 class="nroTramite">Trámite @Model.TramiteId</h2>
@@ -204,6 +228,20 @@
                 </div>
             </div>
         }
+
+        <!--Forma de pago-->
+        <div class="card-presentacion-datos">
+            <div class="d-flex justify-content-center align-items-center">
+                <!-- Título centrado -->
+                <div class="flex-grow-1 text-center">
+                    <p class="titulo-intermedio m-0">Forma de cobro</p>
+                </div>
+            </div>
+            <p class="separador"></p>
+            <div>
+                <p><span class="datoEncabezadoHistorialParcela">@formaPago</span></p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -249,10 +287,6 @@
             }
         </div>
     </div>
-</div>
-
-<div class="contenedor-2-elementos">
-    
 </div>
 
 
@@ -788,16 +822,40 @@
 @if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion && Model.Factura.Pendiente <= 0) //solo si es pendiente de documentacion
 {
     <div class="d-flex justify-content-center align-items-center">
-        <form asp-action="FinalizarPasoPendieteDocumentacion" method="post">
+        <form asp-action="FinalizarPasoPendieteDocumentacion" method="post" id="formFinalizarPendDoc">
             <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
             <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
             <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
-            <input type="submit" class="btn btn-success" value="Finalizar paso Pendiente de documentación" />
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                Finalizar paso Pendiente de documentación
+            </button>
         </form>
     </div>
 }
 
 
+<!-- Modal Confirmar finalizar pago pendiente documentacion -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea finalizar el paso <b>Pendiente de documentación</b>?
+                <br/>
+                No podrá editar recibos y archivos.
+                <br />
+                No podrá subir nuevos archivos.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnConfirmar">Finalizar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -1308,6 +1366,17 @@
                 });
             });
 
+        });
+    </script>
+
+    <script>//Modal de Confirmar finalizar pago pendiente documentacion
+        document.addEventListener("DOMContentLoaded", function () {
+            const btnConfirmar = document.getElementById("btnConfirmar");
+            const form = document.getElementById("formFinalizarPendDoc");
+
+            btnConfirmar.addEventListener("click", function () {
+                form.submit();
+            });
         });
     </script>
 }

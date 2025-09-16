@@ -111,6 +111,7 @@ namespace CemSys2.Controllers
                 viewModel.Vencimiento = contratoConcesion.Vencimiento;
                 viewModel.PrecioFinal = contratoConcesion.Precio;
                 viewModel.PrecioSeleccionado = contratoConcesion.PrecioTarifariaId;
+                viewModel.OtraFormaPago = contratoConcesion.PagoDescripcion ?? "";
                 viewModel.HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
                 //trae los titulares actuales del contrato
                 viewModel.Titulares = await _concesionesBusiness.ListaTitularesActualesContrato(contratoConcesion.IdTramite);

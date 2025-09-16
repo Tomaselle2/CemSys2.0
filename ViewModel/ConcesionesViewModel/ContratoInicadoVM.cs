@@ -32,6 +32,7 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         public DateOnly? Vencimiento { get; set; }
         public int? CantidadCuotaSeleccionada { get; set; }
         public decimal PrecioFinal { get; set; }
+        public string OtraFormaPago { get; set; } = string.Empty;
 
         //para recibo
         public bool Decreto { get; set; } = false;
