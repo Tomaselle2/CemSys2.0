@@ -21,6 +21,10 @@ public partial class Usuario
 
     public virtual ICollection<ContratoConcesion> ContratoConcesions { get; set; } = new List<ContratoConcesion>();
 
+    public virtual ICollection<Factura> FacturaUsuarioCajeros { get; set; } = new List<Factura>();
+
+    public virtual ICollection<Factura> FacturaUsuarioEmites { get; set; } = new List<Factura>();
+
     public virtual ICollection<Introduccione> Introducciones { get; set; } = new List<Introduccione>();
 
     public virtual RolesUsuario RolNavigation { get; set; } = null!;

@@ -33,6 +33,8 @@ public partial class ContratoConcesion
 
     public decimal Precio { get; set; }
 
+    public decimal Pendiente { get; set; }
+
     public virtual AniosConcesion CantidadAniosNavigation { get; set; } = null!;
 
     public virtual ContratoConcesion? ContratoAnterior { get; set; }

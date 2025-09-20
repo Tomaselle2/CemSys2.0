@@ -13,5 +13,7 @@ public partial class TipoTramite
 
     public virtual ICollection<EstadoTramite> EstadoTramites { get; set; } = new List<EstadoTramite>();
 
+    public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
+
     public virtual ICollection<Tramite> Tramites { get; set; } = new List<Tramite>();
 }

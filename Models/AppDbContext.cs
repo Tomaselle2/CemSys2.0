@@ -47,6 +47,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Introduccione> Introducciones { get; set; }
 
+    public virtual DbSet<MetodoPago> MetodoPagos { get; set; }
+
     public virtual DbSet<Parcela> Parcelas { get; set; }
 
     public virtual DbSet<ParcelaDifunto> ParcelaDifuntos { get; set; }
@@ -84,7 +86,6 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<TramitePersona> TramitePersonas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -260,6 +261,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(150)
                 .HasColumnName("pagoDescripcion");
             entity.Property(e => e.ParcelaId).HasColumnName("parcelaId");
+            entity.Property(e => e.Pendiente).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Precio)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precio");
@@ -361,9 +363,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("fechaCreacion");
-            entity.Property(e => e.Pendiente)
-                .HasColumnType("decimal(10, 2)")
-                .HasColumnName("pendiente");
+            entity.Property(e => e.TipoTramiteId).HasColumnName("tipoTramiteId");
             entity.Property(e => e.Total)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("total");
@@ -372,10 +372,34 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValue(true)
                 .HasColumnName("visibilidad");
 
+            entity.HasOne(d => d.Contribuyente).WithMany(p => p.Facturas)
+                .HasForeignKey(d => d.ContribuyenteId)
+                .HasConstraintName("FK_Facturas_Contribuyente");
+
+            entity.HasOne(d => d.Estado).WithMany(p => p.Facturas)
+                .HasForeignKey(d => d.EstadoId)
+                .HasConstraintName("FK_Facturas_Estado");
+
+            entity.HasOne(d => d.MetodoPago).WithMany(p => p.Facturas)
+                .HasForeignKey(d => d.MetodoPagoId)
+                .HasConstraintName("FK_Facturas_MetodoPago");
+
+            entity.HasOne(d => d.TipoTramite).WithMany(p => p.Facturas)
+                .HasForeignKey(d => d.TipoTramiteId)
+                .HasConstraintName("FK_Facturas_TipoTramite");
+
             entity.HasOne(d => d.Tramite).WithMany(p => p.Facturas)
                 .HasForeignKey(d => d.TramiteId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Facturas__tramit__1CBC4616");
+
+            entity.HasOne(d => d.UsuarioCajero).WithMany(p => p.FacturaUsuarioCajeros)
+                .HasForeignKey(d => d.UsuarioCajeroId)
+                .HasConstraintName("FK_Facturas_UsuarioCajero");
+
+            entity.HasOne(d => d.UsuarioEmite).WithMany(p => p.FacturaUsuarioEmites)
+                .HasForeignKey(d => d.UsuarioEmiteId)
+                .HasConstraintName("FK_Facturas_UsuarioEmite");
         });
 
         modelBuilder.Entity<HistorialEstadoTramite>(entity =>
@@ -452,6 +476,12 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.InformacionAdicional).HasColumnName("informacionAdicional");
             entity.Property(e => e.IntroduccionNueva).HasColumnName("introduccionNueva");
             entity.Property(e => e.ParcelaId).HasColumnName("parcelaID");
+            entity.Property(e => e.Pendiente)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("pendiente");
+            entity.Property(e => e.Precio)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("precio");
             entity.Property(e => e.Visibilidad).HasColumnName("visibilidad");
 
             entity.HasOne(d => d.Difunto).WithMany(p => p.Introducciones)
@@ -476,6 +506,19 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.ParcelaId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Introducc__parce__7E37BEF6");
+        });
+
+        modelBuilder.Entity<MetodoPago>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MetodoPa__3213E83F79754D9D");
+
+            entity.ToTable("MetodoPago");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(20)
+                .HasColumnName("descripcion");
+            entity.Property(e => e.Visibilidad).HasColumnName("visibilidad");
         });
 
         modelBuilder.Entity<Parcela>(entity =>

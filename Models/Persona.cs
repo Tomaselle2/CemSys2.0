@@ -47,6 +47,8 @@ public partial class Persona
 
     public virtual EstadoDifunto? EstadoDifuntoNavigation { get; set; }
 
+    public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
+
     public virtual ICollection<HistorialTitularesContrato> HistorialTitularesContratos { get; set; } = new List<HistorialTitularesContrato>();
 
     public virtual ICollection<Introduccione> Introducciones { get; set; } = new List<Introduccione>();

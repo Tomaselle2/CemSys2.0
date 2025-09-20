@@ -27,6 +27,10 @@ public partial class Introduccione
 
     public string? InformacionAdicional { get; set; }
 
+    public decimal Precio { get; set; }
+
+    public decimal? Pendiente { get; set; }
+
     public virtual Persona Difunto { get; set; } = null!;
 
     public virtual Usuario? EmpleadoNavigation { get; set; }
