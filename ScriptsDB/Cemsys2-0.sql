@@ -296,7 +296,7 @@ CREATE TABLE ContratoConcesion (
     idTramite INT NOT NULL PRIMARY KEY, -- PK y FK de Tramite
     parcelaId INT NOT NULL,
     cantidadAnios INT NOT NULL,
-    vencimiento DATETIME NOT NULL,
+    vencimiento DATE NOT NULL,
     concesion NVARCHAR(5) NOT NULL,
     precioTarifariaID INT NOT NULL,
     cuotaId INT NULL,
@@ -331,6 +331,7 @@ CREATE TABLE HistorialTitularesContrato (
 CREATE TABLE TitularesContratoConcesion (
     id INT PRIMARY KEY IDENTITY(1,1),
     contratoId INT NOT NULL,
+	fecha DATETIME NOT NULL DEFAULT GETDATE(),
     personaId INT NOT NULL,
     FOREIGN KEY (contratoId) REFERENCES ContratoConcesion(idTramite),
     FOREIGN KEY (personaId) REFERENCES Personas(idPersona)
