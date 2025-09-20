@@ -13,6 +13,7 @@ using CemSys2.Models;
 using CemSys2.ViewModel;
 using CemSys2.ViewModel.ConcesionesViewModel;
 using CemSys2.ViewModel.ContratoViewModel;
+using iText.Forms.Xfdf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Threading.Tasks;
@@ -468,10 +469,8 @@ namespace CemSys2.Controllers
                 Tramite tramite = new Tramite();
                 try
                 {
-                    tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
-
                     //se busca el tramite
-                    tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
+                    tramite = await _tramiteBusiness.ConsultarTramite(viewModel.TramiteId ?? 0);
                     viewModel.EstadoTramiteId = tramite.EstadoActualId;
                     await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
                     viewModel.Concepto = viewModel.Concepto?.Trim();
@@ -483,6 +482,16 @@ namespace CemSys2.Controllers
                     viewModel.MensajeError = ex.Message;
                 }
 
+                return View("ContratoIniciado", viewModel);
+            }
+
+            if(viewModel.Monto != 0 && viewModel.Monto > viewModel.Factura.Pendiente)
+            {
+                ModelState.AddModelError("Monto", $"El monto no puede ser superior a $ {viewModel.Factura.Pendiente}");
+                Tramite tramite = await _tramiteBusiness.ConsultarTramite(viewModel.TramiteId ?? 0);
+                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                viewModel.MensajeError = $"El monto no puede ser superior a $ {viewModel.Factura.Pendiente}";
                 return View("ContratoIniciado", viewModel);
             }
 
@@ -549,7 +558,6 @@ namespace CemSys2.Controllers
                 await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
                 viewModel.Concepto = viewModel.Concepto?.Trim();
                 viewModel.Monto = viewModel.Monto;
-                
                 viewModel.MensajeError = ex.Message;
                 
                 return View("ContratoIniciado", viewModel);

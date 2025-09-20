@@ -502,7 +502,7 @@
 
                             <div>
                                 <label for="montoRecibo">Monto<span class="obligatorio"> * </span></label>
-                                <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" max="@Model.Factura.Pendiente" required placeholder="0.00" step="0.01" />
+                                <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" @* max="@Model.Factura.Pendiente" *@ required placeholder="0.00" step="0.01" />
                                 <span asp-validation-for="Monto" class="text-danger"></span>
                             </div>
                         </div>
@@ -520,6 +520,7 @@
                             </button>
                         </div>
                         <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
+                        <input type="hidden" asp-for="Factura.Pendiente" value="@Model.Factura.Pendiente" />
                         <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
                         <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
                         <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
