@@ -401,7 +401,7 @@
                 @* cuerpo del acordion *@
                 <table class="table table-hover mb-0">
                     <tr style="font-size: 1.2rem">
-                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Factura.Pendiente)</b></td>
+                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.DatosParcela.Pendiente)</b></td>
                     </tr>
                 </table>
                 @if (Model.ListaRecibosFactura.Any())
@@ -458,7 +458,7 @@
 </div>
 
 <!-- formulario nuevo recibo -->
-@if (Model.Factura.Pendiente > 0)
+@if (Model.DatosParcela.Pendiente > 0)
 {
     <div class="accordion" id="accordionPanelsStayOpenExample">
         <div class="accordion-item">
@@ -520,8 +520,8 @@
                             </button>
                         </div>
                         <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
-                        <input type="hidden" asp-for="Factura.Pendiente" value="@Model.Factura.Pendiente" />
-                        <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
+@*                         <input type="hidden" asp-for="Factura.Pendiente" value="@Model.Factura.Pendiente" />
+ *@                        <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
                         <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
                         <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
                         <input type="hidden" asp-for="IdContribuyente" id="idContribuyenteHidden" />
@@ -843,7 +843,7 @@
 </div>
 
 <!--btn fianlizar pendiente de documentracion-->
-@if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion && Model.Factura.Pendiente <= 0) //solo si es pendiente de documentacion
+@if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion && Model.DatosParcela.Pendiente <= 0) //solo si es pendiente de documentacion
 {
     <div class="d-flex justify-content-center align-items-center">
         <form asp-action="FinalizarPasoPendieteDocumentacion" method="post" id="formFinalizarPendDoc">

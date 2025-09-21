@@ -25,6 +25,8 @@ public partial class Tramite
 
     public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
 
+    public virtual ICollection<FacturasInternasPrecio> FacturasInternasPrecios { get; set; } = new List<FacturasInternasPrecio>();
+
     public virtual ICollection<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new List<HistorialEstadoTramite>();
 
     public virtual Introduccione? Introduccione { get; set; }

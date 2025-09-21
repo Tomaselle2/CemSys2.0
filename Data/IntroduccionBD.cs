@@ -135,7 +135,7 @@ namespace CemSys2.Data
            return await _context.Personas.Where(p => p.Visibilidad == true && p.Dni == dni).FirstOrDefaultAsync();
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFacturas, int usuarioId)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFacturaInternasPrecio> conceptosFacturas, int usuarioId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -246,83 +246,31 @@ namespace CemSys2.Data
 
                 //facturacion
 
-                //separar los conceptos por tipo de conceptoTarifaria
-                List<ConceptosFactura> conceptosContribucion = conceptosFacturas
-                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_Contribucion).ToList();
+                decimal subtotal = conceptosFacturas.Sum(c => c.PrecioUnitario * c.Cantidad);
+                decimal fondo5porciento = subtotal * porcentajeFondo;
 
-                List<ConceptosFactura> conceptosRegistroCivil = conceptosFacturas
-                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_RegistroCivil).ToList();
 
-                List<ConceptosFactura> conceptosDerechoDeOficina = conceptosFacturas
-                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_DerechoDeOficina).ToList();
-
-                List<ConceptosFactura> conceptosGenerales = conceptosFacturas
-                    .Where(c => c.TipoConceptoFacturaId == tipoConceptosTarifariaId_Generales).ToList();
-
-                //sumar los montos y sumar el 5% del fondo, este debe ser una variable de la tarifaria vigente
-                decimal totalContribucion = conceptosContribucion.Sum(c => c.PrecioUnitario * c.Cantidad);
-                decimal calcular5porciento = totalContribucion * porcentajeFondo;
-                if(calcular5porciento < montoMinimoDeFondo)
+                if (fondo5porciento < montoMinimoDeFondo) //no suma el 5%, suma el monto minimo
                 {
-                    totalContribucion += montoMinimoDeFondo;
+                    subtotal += montoMinimoDeFondo;
                 }
                 else
                 {
-                    totalContribucion += totalContribucion * porcentajeFondo; //suma el 5%
+                    subtotal += fondo5porciento; //suma el 5%
                 }
-
-                decimal totalRegistroCivil = conceptosRegistroCivil.Sum(c => c.PrecioUnitario * c.Cantidad);
-                calcular5porciento = totalRegistroCivil * porcentajeFondo;
-                if (calcular5porciento < montoMinimoDeFondo)
-                {
-                    totalRegistroCivil += montoMinimoDeFondo;
-                }
-                else
-                {
-                    totalRegistroCivil += totalRegistroCivil * porcentajeFondo; //suma el 5%
-                }
-
-
-                decimal totalDerechoDeOficina = conceptosDerechoDeOficina.Sum(c => c.PrecioUnitario * c.Cantidad);
-                calcular5porciento = totalDerechoDeOficina * porcentajeFondo;
-                if (calcular5porciento < montoMinimoDeFondo)
-                {
-                    totalDerechoDeOficina += montoMinimoDeFondo;
-                }
-                else
-                {
-                    totalDerechoDeOficina += totalDerechoDeOficina * porcentajeFondo; //suma el 5%
-                }
-
-                decimal totalGenerales = conceptosGenerales.Sum(c => c.PrecioUnitario * c.Cantidad);
-                if(totalGenerales != 0)
-                {
-                    calcular5porciento = totalGenerales * porcentajeFondo;
-                    if (calcular5porciento < montoMinimoDeFondo)
-                    {
-                        totalGenerales += montoMinimoDeFondo;
-                    }
-                    else
-                    {
-                        totalGenerales += totalGenerales * porcentajeFondo; //suma el 5%
-                    }
-                }
-                
-
 
                 // 1. Calcular total factura
-                decimal totalFactura = totalContribucion + totalRegistroCivil + totalDerechoDeOficina + totalGenerales;
+                decimal totalFactura = subtotal;
 
                 // 2. Registrar la factura
-                Factura factura = new Factura
+                FacturasInternasPrecio factura = new FacturasInternasPrecio
                 {
                     TramiteId = tramite.Id,
                     FechaCreacion = DateTime.Now,
                     Total = totalFactura,
-                    Pendiente = totalFactura,
                     Visibilidad = true
                 };
-                _context.Facturas.Add(factura);
+                _context.FacturasInternasPrecios.Add(factura);
                 await _context.SaveChangesAsync();
 
                 // 3. Obtener el ID generado para la factura
@@ -331,7 +279,7 @@ namespace CemSys2.Data
                 // 4. Registrar los conceptos de la factura
                 foreach (var concepto in conceptosFacturas)
                 {
-                    ConceptosFactura conceptoFactura = new ConceptosFactura
+                    ConceptosFacturaInternasPrecio conceptoFactura = new ConceptosFacturaInternasPrecio
                     {
                         FacturaId = facturaId,
                         ConceptoTarifariaId = concepto.ConceptoTarifariaId,
@@ -340,8 +288,12 @@ namespace CemSys2.Data
                         TipoConceptoFacturaId = concepto.TipoConceptoFacturaId,
 
                     };
-                    _context.ConceptosFacturas.Add(conceptoFactura);
+                    _context.ConceptosFacturaInternasPrecios.Add(conceptoFactura);
                 }
+
+                //5. actualizo el pendiente de la introduccion
+                introduccion.Pendiente = totalFactura;
+                _context.Introducciones.Update(introduccion);
 
                 await _context.SaveChangesAsync();
 
@@ -511,15 +463,15 @@ namespace CemSys2.Data
                 .FirstOrDefaultAsync(p => p.Id == idParcela && p.Visibilidad == true);
         }
 
-        public async Task<Factura> ConsultarFacturaPorTramiteId(int idTramite)
+        public async Task<FacturasInternasPrecio> ConsultarFacturaInternaPorTramiteId(int idTramite)
         {
-            return await _context.Facturas
+            return await _context.FacturasInternasPrecios
                 .FirstOrDefaultAsync(f => f.TramiteId == idTramite);
         }
 
-        public async Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura)
+        public async Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura)
         {
-            return await _context.ConceptosFacturas
+            return await _context.ConceptosFacturaInternasPrecios
                 .Include(c => c.ConceptoTarifaria)
                 .Where(c => c.FacturaId == idFactura)
                 .ToListAsync();
@@ -581,38 +533,38 @@ namespace CemSys2.Data
 
                 if (factura != null)
                 {
-                    //resto del monto que llega, nunca puede ser mayor que el pendiente
-                    factura.Pendiente = factura.Pendiente - reciboFactura.Monto;
+                    ////resto del monto que llega, nunca puede ser mayor que el pendiente
+                    //factura.Pendiente = factura.Pendiente - reciboFactura.Monto;
 
-                    if (factura.Pendiente <= 0) //se abono todo
-                    {
-                        int estadoTramiteId = (int)EstadosIntroduccion.Cobrado;
+                    //if (factura.Pendiente <= 0) //se abono todo
+                    //{
+                    //    int estadoTramiteId = (int)EstadosIntroduccion.Cobrado;
 
-                        //se agrega el estado en historial estado
-                        HistorialEstadoTramite historial = new HistorialEstadoTramite
-                        {
-                            TramiteId = tramite.Id,
-                            EstadoTramiteId = estadoTramiteId,
-                            Fecha = DateTime.Now
-                        };
-                        _context.HistorialEstadoTramites.Add(historial);
-                        await _context.SaveChangesAsync();
+                    //    //se agrega el estado en historial estado
+                    //    HistorialEstadoTramite historial = new HistorialEstadoTramite
+                    //    {
+                    //        TramiteId = tramite.Id,
+                    //        EstadoTramiteId = estadoTramiteId,
+                    //        Fecha = DateTime.Now
+                    //    };
+                    //    _context.HistorialEstadoTramites.Add(historial);
+                    //    await _context.SaveChangesAsync();
 
-                        //se actualiza el estado actual en el tramite
-                        tramite.EstadoActualId = estadoTramiteId;
-                        _context.Tramites.Update(tramite);
-                        await _context.SaveChangesAsync();
+                    //    //se actualiza el estado actual en el tramite
+                    //    tramite.EstadoActualId = estadoTramiteId;
+                    //    _context.Tramites.Update(tramite);
+                    //    await _context.SaveChangesAsync();
 
-                        //actualizo la factura
-                        factura.Pendiente = 0;
-                        _context.Facturas.Update(factura);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        _context.Facturas.Update(factura);
-                        await _context.SaveChangesAsync();
-                    }
+                    //    //actualizo la factura
+                    //    factura.Pendiente = 0;
+                    //    _context.Facturas.Update(factura);
+                    //    await _context.SaveChangesAsync();
+                    //}
+                    //else
+                    //{
+                    //    _context.Facturas.Update(factura);
+                    //    await _context.SaveChangesAsync();
+                    //}
                 }
 
                 // ✅ VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE

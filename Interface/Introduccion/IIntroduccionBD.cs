@@ -7,7 +7,7 @@ namespace CemSys2.Interface.Introduccion
     public interface IIntroduccionBD
     {
 
-        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFactura> conceptosFactura, int usuarioId);
+        Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFacturaInternasPrecio> conceptosFactura, int usuarioId);
 
         Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model);
 
@@ -30,8 +30,8 @@ namespace CemSys2.Interface.Introduccion
         Task<PreciosTarifaria?> PrecioTarifaria(int tarifariaVigente, int conceptoTarifaria);
         Task GenerarFactura(List<ConceptosFactura> conceptosFacturas);
         Task<Parcela> ConsultarParcela(int idParcela);
-        Task<Factura> ConsultarFacturaPorTramiteId(int idTramite);
-        Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura);
+        Task<FacturasInternasPrecio> ConsultarFacturaInternaPorTramiteId(int idTramite);
+        Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);
 
         Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
         Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId);

@@ -13,6 +13,8 @@ public partial class ConceptosTarifaria
 
     public bool Visibilidad { get; set; }
 
+    public virtual ICollection<ConceptosFacturaInternasPrecio> ConceptosFacturaInternasPrecios { get; set; } = new List<ConceptosFacturaInternasPrecio>();
+
     public virtual ICollection<ConceptosFactura> ConceptosFacturas { get; set; } = new List<ConceptosFactura>();
 
     public virtual ICollection<PreciosTarifaria> PreciosTarifaria { get; set; } = new List<PreciosTarifaria>();

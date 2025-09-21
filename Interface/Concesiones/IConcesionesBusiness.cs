@@ -1,5 +1,6 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.Models;
+using CemSys2.ViewModel.ConcesionesViewModel;
 
 namespace CemSys2.Interface.Concesiones
 {
@@ -12,7 +13,7 @@ namespace CemSys2.Interface.Concesiones
         Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila);
         Task<List<CantidadCuota>> CantidadCuotas();
 
-        Task<bool> GenerarContrato(DTO_DatosGenerarContratoConcesion contrato, CemSys2.Models.Tramite tramite); //para generar contrato
+        Task<DTO_DatosGenerarContratoConcesion> GenerarContrato(GenerarContratoVM viewModel, int? usuarioId); //para generar contrato
         Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId);
         Task<ContratoConcesion> ConsultarContratoConcesion(int tramiteId);
         Task<bool> ModificarContratoConcesion(ContratoConcesion contrato);

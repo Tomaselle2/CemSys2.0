@@ -145,8 +145,8 @@ namespace CemSys2.Controllers
             try
             {
                 var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
-                Factura factura = await _introduccionBusiness.ConsultarFacturaPorTramiteId(tramiteId);
-                var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaPorFactura(factura.Id);
+                FacturasInternasPrecio factura = await _introduccionBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
+                var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id);
                 var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
                 var historialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
                 if (resumen == null || resumen.Count == 0)
@@ -371,8 +371,8 @@ namespace CemSys2.Controllers
         private async Task<ResumenIntroduccionVM> ReconstruirViewModel(int tramiteId)
         {
             var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
-            Factura factura = await _introduccionBusiness.ConsultarFacturaPorTramiteId(tramiteId);
-            var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaPorFactura(factura.Id);
+            FacturasInternasPrecio factura = await _introduccionBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
+            var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id);
             var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
             var historialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
 

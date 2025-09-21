@@ -26,7 +26,7 @@
 @* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
 @if (!string.IsNullOrEmpty(Model.MensajeError))
 {
-    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
         @Model.MensajeError
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -49,7 +49,7 @@
         </h2>
         <div id="panelsGenerales-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsGenerales-headingOne" data-bs-parent="#accordionGenerales">
             @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
-            <div class="accordion-body">
+            <div class="accordion-body" style="padding: 0">
                 <form id="formPreciosGenerales" class="form-box">
                     @* ID único para el formulario *@
                     <input type="hidden" id="tarifarioIdGenerales" value="@Model.IdTarifaria" /> @* ID único para el campo oculto *@
@@ -146,7 +146,7 @@
         </h2>
         <div id="panelsIntroduccion-collapseOne" class="accordion-collapse collapse " aria-labelledby="panelsIntroduccion-headingOne" data-bs-parent="#accordionPrincipal">
             @* Este es el padre del acordeón de Introducción *@
-            <div class="accordion-body">
+            <div class="accordion-body" style="padding: 0">
                 @* **CONTENEDOR DE SUB-ACORDEONES** *@
                 <div class="accordion" id="accordionSubconjuntosIntroduccion">
                     @* Nuevo acordeón padre para los subconjuntos *@
@@ -159,7 +159,7 @@
                         </h2>
                         <div id="panelsContribucion-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsContribucion-headingOne" data-bs-parent="#accordionSubconjuntosIntroduccion">
                             @* Apunta al nuevo padre *@
-                            <div class="accordion-body">
+                            <div class="accordion-body" style="padding: 0">
                                 <form id="formPreciosContribucion" class="form-box">
                                     <input type="hidden" id="tarifarioIdContribucion" value="@Model.IdTarifaria" />
                                     @Html.AntiForgeryToken()
@@ -249,7 +249,7 @@
                         </h2>
                         <div id="panelsRegistroCivil-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsRegistroCivil-headingOne" data-bs-parent="#accordionSubconjuntosIntroduccion">
                             @* Apunta al nuevo padre *@
-                            <div class="accordion-body">
+                            <div class="accordion-body" style="padding: 0">
                                 <form id="formPreciosRegistroCivil" class="form-box">
                                     <input type="hidden" id="tarifarioIdRegistroCivil" value="@Model.IdTarifaria" />
                                     @Html.AntiForgeryToken()
@@ -339,7 +339,7 @@
                         </h2>
                         <div id="panelsDerechoOficina-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsDerechoOficina-headingOne" data-bs-parent="#accordionSubconjuntosIntroduccion">
                             @* Apunta al nuevo padre *@
-                            <div class="accordion-body">
+                            <div class="accordion-body" style="padding: 0">
                                 <form id="formPreciosDerechoOficina" class="form-box">
                                     <input type="hidden" id="tarifarioIdDerechoOficina" value="@Model.IdTarifaria" />
                                     @Html.AntiForgeryToken()
@@ -438,7 +438,7 @@
         </h2>
         <div>
             <div id="panelsNichos-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsNichos-headingOne" data-bs-parent="#accordionNichos">
-                <div class="accordion-body">
+                <div class="accordion-body" style="padding: 0">
                     <!-- Contenedor de sub-acordeones para cada sección -->
                     <div class="accordion" id="accordionSubconjuntosNichos">
                         @{
@@ -626,7 +626,7 @@
             </button>
         </h2>
         <div id="panelsFosa-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsFosa-headingOne" data-bs-parent="#accordionFosa">
-            <div class="accordion-body">
+            <div class="accordion-body" style="padding: 0">
                 <form id="formPreciosFosa" class="form-box">
                     <input type="hidden" id="tarifarioIdFosa" value="@Model.IdTarifaria" />
                     @Html.AntiForgeryToken()
@@ -725,6 +725,102 @@
                         <div class="alert alert-info" role="alert">
                             <i class="fas fa-info-circle"></i>
                             No hay secciones de fosas configuradas para esta tarifaria.
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Formulario precios fondo-->
+<div class="accordion" id="accordionFondo">
+    @* ID único para el acordeón principal *@
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsFondo-headingOne">
+            <button class="accordion-button nueva-seccion" type="button" data-bs-toggle="collapse" data-bs-target="#panelsFondo-collapseOne" aria-expanded="false" aria-controls="panelsFondo-collapseOne">
+                Fondo
+            </button>
+        </h2>
+        <div id="panelsFondo-collapseOne" class="accordion-collapse collapse" aria-labelledby="panelsFondo-headingOne" data-bs-parent="#accordionFondo">
+            @* Agregado data-bs-parent y 'show' para que inicie abierto si lo deseas *@
+            <div class="accordion-body" style="padding: 0">
+                <form id="formPreciosFondo" class="form-box">
+                    @* ID único para el formulario *@
+                    <input type="hidden" id="tarifarioIdFondo" value="@Model.IdTarifaria" /> @* ID único para el campo oculto *@
+                    @Html.AntiForgeryToken()
+
+                    @if (Model.ListaPreciosTarifaria != null && Model.ListaPreciosTarifaria.Any())
+                    {
+                        <div class="card shadow-sm">
+                            <div class="card-body p-0">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Concepto</th>
+                                            <th>Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            var conceptosFondo = Model.ListaPreciosTarifaria
+                                            .Where(p => p.ConceptoTarifaria.TipoConceptoId == 7 && p.ConceptoTarifaria.Visibilidad == true)
+                                            .OrderBy(p => p.ConceptoTarifaria.Nombre)
+                                            .ToList();
+                                        }
+
+                                        @foreach (var precio in conceptosFondo)
+                                        {
+                                            <tr>
+                                                <td>@precio.ConceptoTarifaria.Nombre.ToUpper()</td>
+                                                <td>
+                                                    <div class="input-group">
+                                                        @* <span class="input-group-text">$</span> *@
+                                                        <input type="number"
+                                                               class="form-control precio-input" @* Clase común *@
+                                                               data-precio-id="@precio.Id"
+                                                               data-concepto-id="@precio.ConceptoTarifariaId"
+                                                               value="@precio.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                               step="0.01"
+                                                               min="0"
+                                                               placeholder="0.00" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                        @if (!conceptosFondo.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="2" class="text-center text-muted py-4">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    No hay conceptos de fondo configurados para esta tarifaria.
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if (conceptosFondo.Any())
+                            {
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-success btn-guardar-precios" data-form-id="formPreciosFondo">
+                                            @* Clase común y data-form-id *@
+                                            <i class="fas fa-save"></i> Guardar Cambios
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>
+                            No hay precios configurados para esta tarifaria.
                         </div>
                     }
                 </form>

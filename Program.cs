@@ -47,7 +47,8 @@ builder.Services.AddScoped<IPersonasBD, PersonasBD>();
 builder.Services.AddScoped<IParcelaBD, ParcelaBD>();
 builder.Services.AddScoped<IConcesionesDB, ConcesionesBD>();
 builder.Services.AddScoped<ITramiteBD, TramiteDB>();
-builder.Services.AddScoped<IFacturasBD, FacturaBD>(); 
+builder.Services.AddScoped<IFacturasBD, FacturaBD>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //contenedor de capa de negocio
 builder.Services.AddScoped<IPdfService, PdfService>();

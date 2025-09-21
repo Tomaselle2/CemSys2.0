@@ -23,5 +23,7 @@
         public int NroParcela { get; set; }
         public int NroFila { get; set; }
 
+        public bool contratoGenerado { get; set; } = false;
+
     }
 }

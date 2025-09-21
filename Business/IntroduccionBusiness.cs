@@ -103,9 +103,9 @@ namespace CemSys2.Business
         }
 
         //genero la lista de conceptos de factura
-        public async Task<List<ConceptosFactura>> ListaConceptoFactura(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int parcelaId, int estadoDifuntoId, bool? placa = null)
+        public async Task<List<ConceptosFacturaInternasPrecio>> ListaConceptoFactura(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int parcelaId, int estadoDifuntoId, bool? placa = null)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
 
             //verifico el tipo de parcela
             Parcela parcela = await _introduccionBD.ConsultarParcela(parcelaId);
@@ -166,9 +166,9 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -220,7 +220,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -275,8 +275,8 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
-                        {
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
+                    {
                             ConceptoTarifariaId = precio.ConceptoTarifariaId,
                             PrecioUnitario = precioFinal,
                             Cantidad = 1,
@@ -321,7 +321,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -336,9 +336,9 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosNichosUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosNichosUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -397,7 +397,7 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
                     {
                         ConceptoTarifariaId = precio.ConceptoTarifariaId,
                         PrecioUnitario = precioFinal,
@@ -441,7 +441,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -456,9 +456,9 @@ namespace CemSys2.Business
 
         }
 
-        private async Task<List<ConceptosFactura>> PreciosFosaFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosFosaFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -500,7 +500,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -546,7 +546,7 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
                     {
                         ConceptoTarifariaId = precio.ConceptoTarifariaId,
                         PrecioUnitario = precioFinal,
@@ -582,7 +582,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -597,9 +597,9 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosFosaUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosFosaUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -646,7 +646,7 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
                     {
                         ConceptoTarifariaId = precio.ConceptoTarifariaId,
                         PrecioUnitario = precioFinal,
@@ -678,7 +678,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -693,9 +693,9 @@ namespace CemSys2.Business
 
         }
 
-        private async Task<List<ConceptosFactura>> PreciosPanteonSinNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosPanteonSinNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -731,7 +731,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -770,7 +770,7 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
                     {
                         ConceptoTarifariaId = precio.ConceptoTarifariaId,
                         PrecioUnitario = precioFinal,
@@ -799,7 +799,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -814,9 +814,9 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosPanteonSinNichosUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosPanteonSinNichosUrnas(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -858,7 +858,7 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
                     {
                         ConceptoTarifariaId = precio.ConceptoTarifariaId,
                         PrecioUnitario = precioFinal,
@@ -886,7 +886,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -901,9 +901,9 @@ namespace CemSys2.Business
 
         }
 
-        private async Task<List<ConceptosFactura>> PreciosPanteonConNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosPanteonConNichosFeretroYReduccion(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -955,7 +955,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -1011,7 +1011,7 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
                     {
                         ConceptoTarifariaId = precio.ConceptoTarifariaId,
                         PrecioUnitario = precioFinal,
@@ -1057,7 +1057,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -1072,9 +1072,9 @@ namespace CemSys2.Business
             return conceptosFactura;
         }
 
-        private async Task<List<ConceptosFactura>> PreciosPanteonConNichosUrna(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
+        private async Task<List<ConceptosFacturaInternasPrecio>> PreciosPanteonConNichosUrna(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int cantidadDeDifuntos, bool? placa = null)
         {
-            List<ConceptosFactura> conceptosFactura = new List<ConceptosFactura>();
+            List<ConceptosFacturaInternasPrecio> conceptosFactura = new List<ConceptosFacturaInternasPrecio>();
             List<PreciosTarifaria> listaPrecios = new();
 
             if (domicilioEnTirolesa == null || fallecioEnTirolesa == null)//si vienen nulos los trato como false
@@ -1133,7 +1133,7 @@ namespace CemSys2.Business
                     }
 
                     // Agrego a la lista de conceptos de factura
-                    conceptosFactura.Add(new ConceptosFactura
+                    conceptosFactura.Add(new ConceptosFacturaInternasPrecio
                     {
                         ConceptoTarifariaId = precio.ConceptoTarifariaId,
                         PrecioUnitario = precioFinal,
@@ -1177,7 +1177,7 @@ namespace CemSys2.Business
                 {
                     conceptosFactura.Add( //agregar el concepto a la lista de conceptos de factura
 
-                        new ConceptosFactura
+                        new ConceptosFacturaInternasPrecio
                         {
                             ConceptoTarifariaId = listaPrecios[i].ConceptoTarifariaId,
                             PrecioUnitario = listaPrecios[i].Precio,
@@ -1197,14 +1197,14 @@ namespace CemSys2.Business
             return await _introduccionBD.ConsultarParcela(idParcela);
         }
 
-        public async Task<Factura> ConsultarFacturaPorTramiteId(int idTramite)
+        public async Task<FacturasInternasPrecio> ConsultarFacturaInternaPorTramiteId(int idTramite)
         {
-            return await _introduccionBD.ConsultarFacturaPorTramiteId(idTramite);
+            return await _introduccionBD.ConsultarFacturaInternaPorTramiteId(idTramite);
         }
 
-        public async Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura)
+        public async Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura)
         {
-            return await _introduccionBD.ListaConceptosFacturaPorFactura(idFactura);
+            return await _introduccionBD.ListaConceptosFacturaInternaPorFactura(idFactura);
         }
 
         public async Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId)

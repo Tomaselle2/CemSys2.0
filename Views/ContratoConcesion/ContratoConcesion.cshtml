@@ -42,6 +42,14 @@
     </div>
 }
 
+@if (ViewData.ModelState.ErrorCount > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
+        @Html.ValidationSummary(false, "")
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 
 <form asp-action="GenerarContratoConcesionPDF" method="post" id="formPrincipal" target="_blank">
     <!-- Tabla de historial de difuntos actuales -->
@@ -427,12 +435,7 @@
         formPrincipal.addEventListener('submit', function(event) {
             // Normalizar valores de celular y correo antes de enviar
             const inputsTitulares = contenedorTitulares.querySelectorAll('input');
-            inputsTitulares.forEach(input => {
-                if ((input.name.includes('Celular') || input.name.includes('CorreoElectronico')) && !input.value) {
-                    input.value = "-----";
-                }
-            });
-
+            
             // Primero verificamos la validez del formulario
             if (!this.checkValidity()) {
                 event.preventDefault();
@@ -810,8 +813,8 @@
                             <input type="hidden" name="Titulares[${index}].Apellido" value="${titular.apellido}" />
                             <input type="hidden" name="Titulares[${index}].Domicilio" value="${titular.domicilio}" />
                             <input type="hidden" name="Titulares[${index}].Sexo" value="${titular.sexo}" />
-                            <input type="hidden" name="Titulares[${index}].Celular" value="${titular.celular}" />
-                            <input type="hidden" name="Titulares[${index}].CorreoElectronico" value="${titular.correo}" />
+                            <input type="hidden" name="Titulares[${index}].Celular" value="${titular.celular || ''} " />
+                            <input type="hidden" name="Titulares[${index}].CorreoElectronico" value="${titular.correo || ''}" />
                         `;
                     });
 

@@ -29,6 +29,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<ConceptosFactura> ConceptosFacturas { get; set; }
 
+    public virtual DbSet<ConceptosFacturaInternasPrecio> ConceptosFacturaInternasPrecios { get; set; }
+
     public virtual DbSet<ConceptosTarifaria> ConceptosTarifarias { get; set; }
 
     public virtual DbSet<ContratoConcesion> ContratoConcesions { get; set; }
@@ -40,6 +42,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<EstadoTramite> EstadoTramites { get; set; }
 
     public virtual DbSet<Factura> Facturas { get; set; }
+
+    public virtual DbSet<FacturasInternasPrecio> FacturasInternasPrecios { get; set; }
 
     public virtual DbSet<HistorialEstadoTramite> HistorialEstadoTramites { get; set; }
 
@@ -221,6 +225,40 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_ConceptosFactura_TiposConceptoTarifaria");
         });
 
+        modelBuilder.Entity<ConceptosFacturaInternasPrecio>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Concepto__3213E83F56B55DCE");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Cantidad)
+                .HasDefaultValue(1)
+                .HasColumnName("cantidad");
+            entity.Property(e => e.ConceptoTarifariaId).HasColumnName("conceptoTarifariaId");
+            entity.Property(e => e.FacturaId).HasColumnName("facturaId");
+            entity.Property(e => e.PrecioUnitario)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("precioUnitario");
+            entity.Property(e => e.Subtotal)
+                .HasComputedColumnSql("([precioUnitario]*[cantidad])", true)
+                .HasColumnType("decimal(21, 2)")
+                .HasColumnName("subtotal");
+            entity.Property(e => e.TipoConceptoFacturaId).HasColumnName("tipoConceptoFacturaId");
+
+            entity.HasOne(d => d.ConceptoTarifaria).WithMany(p => p.ConceptosFacturaInternasPrecios)
+                .HasForeignKey(d => d.ConceptoTarifariaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Conceptos__conce__18B6AB08");
+
+            entity.HasOne(d => d.Factura).WithMany(p => p.ConceptosFacturaInternasPrecios)
+                .HasForeignKey(d => d.FacturaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Conceptos__factu__17C286CF");
+
+            entity.HasOne(d => d.TipoConceptoFactura).WithMany(p => p.ConceptosFacturaInternasPrecios)
+                .HasForeignKey(d => d.TipoConceptoFacturaId)
+                .HasConstraintName("FK__Conceptos__tipoC__19AACF41");
+        });
+
         modelBuilder.Entity<ConceptosTarifaria>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Concepto__3213E83FABC53BEE");
@@ -400,6 +438,29 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.UsuarioEmite).WithMany(p => p.FacturaUsuarioEmites)
                 .HasForeignKey(d => d.UsuarioEmiteId)
                 .HasConstraintName("FK_Facturas_UsuarioEmite");
+        });
+
+        modelBuilder.Entity<FacturasInternasPrecio>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Facturas__3213E83F61F6A957");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.FechaCreacion)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("fechaCreacion");
+            entity.Property(e => e.Total)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("total");
+            entity.Property(e => e.TramiteId).HasColumnName("tramiteId");
+            entity.Property(e => e.Visibilidad)
+                .HasDefaultValue(true)
+                .HasColumnName("visibilidad");
+
+            entity.HasOne(d => d.Tramite).WithMany(p => p.FacturasInternasPrecios)
+                .HasForeignKey(d => d.TramiteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__FacturasI__trami__13F1F5EB");
         });
 
         modelBuilder.Entity<HistorialEstadoTramite>(entity =>

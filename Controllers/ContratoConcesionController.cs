@@ -16,6 +16,7 @@ using CemSys2.ViewModel.ContratoViewModel;
 using iText.Forms.Xfdf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 
@@ -227,128 +228,31 @@ namespace CemSys2.Controllers
                 return View("ContratoConcesion", viewModel);
             }
 
-
-            List<DTO_Difuntos_Para_Concesion> Difuntos = new List<DTO_Difuntos_Para_Concesion>();
-            List<DTO_Titulares> Titulares = new List<DTO_Titulares>();
-            DTO_DatosGenerarContratoConcesion dtoDatosGenerarConcesion = new DTO_DatosGenerarContratoConcesion();
+            int? usuarioId = HttpContext.Session.GetInt32("idUsuario");
+            DTO_DatosGenerarContratoConcesion dtoDatosGenerarConcesion = new();
 
             try
             {
-                //busca los difuntos en la parcela
-                Difuntos = await _concesionesBusiness.ListaDifuntosPorParcela(viewModel.ParcelaId.Value);
+                dtoDatosGenerarConcesion = await _concesionesBusiness.GenerarContrato(viewModel, usuarioId);
 
-                //busca el/los titulares, lo actualiza y los agrega a la lista de titulares
-                foreach (var t in viewModel.Titulares)
-                {
-                    Persona titular = await _personasBusiness.ConsultarPersona(t.Id);
-
-                    if (titular != null)
-                    {
-                        // Actualizo los datos del titular con la información del formulario
-                        titular.Nombre = t.Nombre;
-                        titular.Apellido = t.Apellido;
-                        titular.Correo = t.CorreoElectronico;
-                        titular.Celular = t.Celular;
-                        titular.Domicilio = t.Domicilio;
-                        titular.Sexo = t.Sexo;
-                        int resultado = await _personasBusiness.ModificarPersona(titular);
-
-                        Persona titularActualizado = await _personasBusiness.ConsultarPersona(t.Id); // Vuelvo a consultar para asegurarme de tener los datos actualizados
-
-                        // Agrego el titular actualizado a la lista de titulares
-                        Titulares.Add(new DTO_Titulares
-                        {
-                            Id = titularActualizado.IdPersona,
-                            Dni = titularActualizado.Dni,
-                            Nombre = titular.Nombre,
-                            Apellido = titularActualizado.Apellido,
-                            Sexo = titularActualizado.Sexo,
-                            Celular = titularActualizado.Celular ?? "",
-                            CorreoElectronico = titularActualizado.Correo ?? "",
-                            Domicilio = titularActualizado.Domicilio ?? ""
-                        });
-                    }
-                }
-
-                DateTime fechaGeneracion = DateTime.Now;
-                int? usuarioId = HttpContext.Session.GetInt32("idUsuario");
-
-                //creo el dto para enviar a la siguiente pantalla de generacion de contrato concesion
-                dtoDatosGenerarConcesion.Titulares = Titulares;
-                dtoDatosGenerarConcesion.Difuntos = Difuntos;
-                dtoDatosGenerarConcesion.TipoParcela = viewModel.tipoParcela.Value;
-                dtoDatosGenerarConcesion.SeccionNombre = viewModel.seccion;
-                dtoDatosGenerarConcesion.ParcelaString = viewModel.ParcelaString;
-                dtoDatosGenerarConcesion.PrecioId = viewModel.PrecioSeleccionado.Value;
-                dtoDatosGenerarConcesion.Precio = viewModel.PrecioFinal;
-                dtoDatosGenerarConcesion.ParcelaId = viewModel.ParcelaId.Value;
-                dtoDatosGenerarConcesion.CantidadAniosId = viewModel.CantidadAniosId.Value; //aca debe estar el id de cantidad de años años
-                dtoDatosGenerarConcesion.Vencimiento = viewModel.Vencimiento.Value;
-                dtoDatosGenerarConcesion.NroConcesion = viewModel.NroConcesion ?? "";
-                dtoDatosGenerarConcesion.formaPago = viewModel.FormaDePago;
-                dtoDatosGenerarConcesion.NroParcela = viewModel.NroParcela;
-                dtoDatosGenerarConcesion.NroFila = viewModel.NroFila;
-                dtoDatosGenerarConcesion.fechaGeneracion = fechaGeneracion;
-                dtoDatosGenerarConcesion.EmpleadoId = usuarioId ?? 0;
-
-                if (viewModel.FormaDePago == "cuota")
-                {
-                    dtoDatosGenerarConcesion.CuotaId = viewModel.CantidadCuotaSeleccionada;
-                }
-                else // otra forma de pago
-                {
-                    dtoDatosGenerarConcesion.CuotaId = null;
-                    dtoDatosGenerarConcesion.PagoDescripcion = viewModel.otraFormaPago ?? "";
-                }
-
-                //se genera el tramite de contrato de concesion en estado iniciado
-                Tramite tramite = new Tramite
-                {
-                    TipoTramiteId = (int)TipotamiteEmun.ContratoDeConcesion,
-                    FechaCreacion = DateTime.Now,
-                    EstadoActualId = (int)EstadosContratoConcesion.Iniciado,
-                    Visibilidad = true,
-                    Usuario = usuarioId ?? 0
-                };
-
-
-                //si el par (parcelaId y nro de concesion) existe se modifica con los valores nuevos
-                if (!string.IsNullOrEmpty(viewModel.NroConcesion))
-                {
-                    //si existe el nroTramite es > 0
-                    int nroTramite = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion, viewModel.ParcelaId ?? 0);
-                    if (nroTramite > 0)
-                    {
-                        //busco el contrato existente por el nroTramite
-                        CemSys2.Models.ContratoConcesion contratoConcesion = await _concesionesBusiness.ConsultarContratoConcesion(nroTramite);
-                        //modifico el contrato existente con los datos nuevos
-                        contratoConcesion.CantidadAnios = dtoDatosGenerarConcesion.CantidadAniosId;
-                        contratoConcesion.Vencimiento = dtoDatosGenerarConcesion.Vencimiento;
-                        contratoConcesion.PrecioTarifariaId = dtoDatosGenerarConcesion.PrecioId;
-                        contratoConcesion.CuotaId = dtoDatosGenerarConcesion.CuotaId;
-                        contratoConcesion.PagoDescripcion = dtoDatosGenerarConcesion.PagoDescripcion;
-                        contratoConcesion.Empleado = dtoDatosGenerarConcesion.EmpleadoId;
-                        contratoConcesion.Precio = dtoDatosGenerarConcesion.Precio;
-
-                        //modifico el tramite de contrato concesion
-                        bool contratoModificado = await _concesionesBusiness.ModificarContratoConcesion(contratoConcesion);
-                    }
-                    else //si no existe se crea un nuevo contrato
-                    {
-                        bool contratoGenerado = await _concesionesBusiness.GenerarContrato(dtoDatosGenerarConcesion, tramite);
-                    }
-                }
-                
-
-
-            }
-            catch (Exception ex)
+            }catch (ValidationException ex)
             {
-                viewModel.MensajeError = ex.Message;
+                ModelState.AddModelError(string.Empty, ex.Message);
                 await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
+                return View("ContratoConcesion", viewModel);
+            }catch (Exception)
+            {
+                viewModel.MensajeError = "No se pudo generar el contrato";
                 return View("ContratoConcesion", viewModel);
             }
 
+            if (!dtoDatosGenerarConcesion.contratoGenerado) //No se genero el contrato
+            {
+                await CargarDatosPantallaContrato(viewModel, viewModel.ParcelaId ?? 0);
+                viewModel.MensajeError = "No se pudo generar el contrato";
+                return View("ContratoConcesion", viewModel);
+            }
+   
             // Preparar el ViewModel para la vista del contrato en PDF -----------------------------------------------------------------------------------------
             ContratoPDF_VM contratoPDF_VM = new ContratoPDF_VM();
             contratoPDF_VM.datosContrato = dtoDatosGenerarConcesion;
@@ -383,12 +287,6 @@ namespace CemSys2.Controllers
                 // Manejo de errores
                 return BadRequest($"Error generando PDF: {ex.Message}");
             }
-            //return new ViewAsPdf($"{nombreVistaContrato}", contratoPDF_VM)
-            //{
-            //    PageMargins = new Rotativa.AspNetCore.Options.Margins(5, 5, 5, 10),
-            //    PageSize = Rotativa.AspNetCore.Options.Size.A4,
-            //    FileName = null // null = lo abre en el visor del navegador
-            //};
         }
 
         //metodo que recibe el parcelaId y nroConcesion para pasar a subir Contrato de concesion
@@ -485,13 +383,13 @@ namespace CemSys2.Controllers
                 return View("ContratoIniciado", viewModel);
             }
 
-            if(viewModel.Monto != 0 && viewModel.Monto > viewModel.Factura.Pendiente)
+            if(viewModel.Monto != 0 && viewModel.Monto > viewModel.DatosParcela.Pendiente)
             {
-                ModelState.AddModelError("Monto", $"El monto no puede ser superior a $ {viewModel.Factura.Pendiente}");
+                ModelState.AddModelError("Monto", $"El monto no puede ser superior a $ {viewModel.DatosParcela.Pendiente}");
                 Tramite tramite = await _tramiteBusiness.ConsultarTramite(viewModel.TramiteId ?? 0);
                 viewModel.EstadoTramiteId = tramite.EstadoActualId;
                 await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                viewModel.MensajeError = $"El monto no puede ser superior a $ {viewModel.Factura.Pendiente}";
+                viewModel.MensajeError = $"El monto no puede ser superior a $ {viewModel.DatosParcela.Pendiente}";
                 return View("ContratoIniciado", viewModel);
             }
 

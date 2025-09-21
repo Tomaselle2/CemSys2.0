@@ -84,64 +84,54 @@ namespace CemSys2.Data
         {
             bool exito = false;
 
-            using (var transaction = await _context.Database.BeginTransactionAsync())
+            
+                
+            // Registrar el trámite
+            int tramiteId = await _tramiteBD.RegistrarTramite(tramite);
+            if (tramiteId > 0)
             {
-                try
+                // Crear el contrato de concesión
+                var nuevoContrato = new ContratoConcesion
                 {
-                    // Registrar el trámite
-                    int tramiteId = await _tramiteBD.RegistrarTramite(tramite);
-                    if (tramiteId > 0)
-                    {
-                        // Crear el contrato de concesión
-                        var nuevoContrato = new ContratoConcesion
-                        {
-                            IdTramite = tramiteId,
-                            ParcelaId = contrato.ParcelaId,
-                            CantidadAnios = contrato.CantidadAniosId,
-                            Vencimiento = contrato.Vencimiento,
-                            Concesion = contrato.NroConcesion,
-                            PrecioTarifariaId = contrato.PrecioId,
-                            CuotaId = contrato.CuotaId,
-                            PagoDescripcion = contrato.PagoDescripcion,
-                            Visibilidad = true,
-                            FechaGeneracion = contrato.fechaGeneracion,
-                            Empleado = contrato.EmpleadoId,
-                            TipoParcela = contrato.TipoParcela,
-                            ContratoAnteriorId = contrato.ContratoAnteriorId,
-                            Precio = contrato.Precio,
-                        };
-                        _context.ContratoConcesions.Add(nuevoContrato);
-                        await _context.SaveChangesAsync();
+                    IdTramite = tramiteId,
+                    ParcelaId = contrato.ParcelaId,
+                    CantidadAnios = contrato.CantidadAniosId,
+                    Vencimiento = contrato.Vencimiento,
+                    Concesion = contrato.NroConcesion,
+                    PrecioTarifariaId = contrato.PrecioId,
+                    CuotaId = contrato.CuotaId,
+                    PagoDescripcion = contrato.PagoDescripcion,
+                    Visibilidad = true,
+                    FechaGeneracion = contrato.fechaGeneracion,
+                    Empleado = contrato.EmpleadoId,
+                    TipoParcela = contrato.TipoParcela,
+                    ContratoAnteriorId = contrato.ContratoAnteriorId,
+                    Precio = contrato.Precio,
+                };
+                _context.ContratoConcesions.Add(nuevoContrato);
+                await _context.SaveChangesAsync();
 
-                        // Actualizar el estado del trámite
-                        HistorialEstadoTramite estadoTramite = new HistorialEstadoTramite
-                        {
-                            EstadoTramiteId = tramite.EstadoActualId ?? 0, //es iniciado la primera vez
-                            Fecha = DateTime.Now,
-                            TramiteId = tramiteId,
-                        };
-                        _context.HistorialEstadoTramites.Add(estadoTramite);
-                        await _context.SaveChangesAsync();
-
-                        //registrar la parcela con el tramite
-                        TramiteParcela tramiteParcela = new TramiteParcela
-                        {
-                            ParcelaId = contrato.ParcelaId,
-                            TramiteId = tramiteId,
-                            FechaRegistro = DateTime.Now,
-                        };
-                        _context.TramiteParcelas.Add(tramiteParcela);
-                        await _context.SaveChangesAsync();
-
-                        await transaction.CommitAsync();
-                        exito = true;
-                    }
-                }
-                catch (Exception)
+                // Actualizar el estado del trámite
+                HistorialEstadoTramite estadoTramite = new HistorialEstadoTramite
                 {
-                    await transaction.RollbackAsync();
-                    throw; // Re-throw the exception after rolling back
-                }
+                    EstadoTramiteId = tramite.EstadoActualId ?? 0, //es iniciado la primera vez
+                    Fecha = DateTime.Now,
+                    TramiteId = tramiteId,
+                };
+                _context.HistorialEstadoTramites.Add(estadoTramite);
+                await _context.SaveChangesAsync();
+
+                //registrar la parcela con el tramite
+                TramiteParcela tramiteParcela = new TramiteParcela
+                {
+                    ParcelaId = contrato.ParcelaId,
+                    TramiteId = tramiteId,
+                    FechaRegistro = DateTime.Now,
+                };
+                _context.TramiteParcelas.Add(tramiteParcela);
+                await _context.SaveChangesAsync();
+
+                exito = true;
             }
 
             return exito;
@@ -340,7 +330,7 @@ namespace CemSys2.Data
                             TramiteId = contrato.IdTramite,
                             FechaCreacion = contrato.FechaGeneracion,
                             Total = contrato.Precio,
-                            Pendiente = contrato.Precio,
+                            //Pendiente = contrato.Precio,
                             Visibilidad = true
                         };
                     }
@@ -352,7 +342,7 @@ namespace CemSys2.Data
                             TramiteId = contrato.IdTramite,
                             FechaCreacion = contrato.FechaGeneracion,
                             Total = precioConcesion.Precio,
-                            Pendiente = precioConcesion.Precio,
+                            //Pendiente = precioConcesion.Precio,
                             Visibilidad = true
                         };
                     }

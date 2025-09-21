@@ -103,24 +103,24 @@ namespace CemSys2.Data
                 //busco el tramite
                 Tramite tramite = await _context.Tramites.FirstAsync(t => t.Id == tramiteId);
 
-                if (factura != null)
-                {
-                    //resto del monto que llega, nunca puede ser mayor que el pendiente
-                    factura.Pendiente = factura.Pendiente - reciboFactura.Monto;
+                //if (factura != null)
+                //{
+                //    //resto del monto que llega, nunca puede ser mayor que el pendiente
+                //    factura.Pendiente = factura.Pendiente - reciboFactura.Monto;
 
-                    if (factura.Pendiente <= 0) //se abono todo
-                    {
-                        //actualizo la factura
-                        factura.Pendiente = 0;
-                        _context.Facturas.Update(factura);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        _context.Facturas.Update(factura);
-                        await _context.SaveChangesAsync();
-                    }
-                }
+                //    if (factura.Pendiente <= 0) //se abono todo
+                //    {
+                //        //actualizo la factura
+                //        factura.Pendiente = 0;
+                //        _context.Facturas.Update(factura);
+                //        await _context.SaveChangesAsync();
+                //    }
+                //    else
+                //    {
+                //        _context.Facturas.Update(factura);
+                //        await _context.SaveChangesAsync();
+                //    }
+                //}
 
                 // ✅ VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
                 bool relacionExistente = await _context.TramitePersonas

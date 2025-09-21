@@ -8,6 +8,7 @@
         public string NombreSeccion { get; set; } = string.Empty;
         public int NroParcela { get; set; }
         public int NroFila { get; set; }
+        public int Pendiente { get; set; }
     }
 
     public class DTO_Precios_Concesion

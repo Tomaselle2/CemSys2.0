@@ -71,3 +71,10 @@ SELECT CASE WHEN EXISTS (
 select * from ArchivosDocumentacion where TramiteID = 62 and CategoriaArchivo <> 'Recibo'
 select * from ArchivosDocumentacion where TramiteID = 69
 select * from RecibosFactura
+
+select * from TiposConceptoTarifaria
+select * from ConceptosTarifarias
+
+select * from FacturasInternasPrecios
+select * from ConceptosFacturaInternasPrecios
+select * from Introducciones

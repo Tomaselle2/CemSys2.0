@@ -8,8 +8,8 @@ namespace CemSys2.ViewModel
     public class ResumenIntroduccionVM : IValidatableObject
     {
         public List<DTO_Resumen_Introduccion> ResumenIntroduccion { get; set; } = new();
-        public Factura Factura { get; set; } = new();
-        public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new();
+        public FacturasInternasPrecio Factura { get; set; } = new();
+        public List<ConceptosFacturaInternasPrecio> ListaConceptosFactura { get; set; } = new();
         public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
 
@@ -68,7 +68,7 @@ namespace CemSys2.ViewModel
                     new[] { nameof(ArchivoRecibo) });
             }
 
-            MontoMaximo = Factura.Pendiente;
+            //MontoMaximo = Factura.Pendiente;
             if (Monto.HasValue)
             {
                 if (Monto < 1)

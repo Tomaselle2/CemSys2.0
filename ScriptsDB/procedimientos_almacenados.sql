@@ -9,7 +9,7 @@ BEGIN
 END;
 GO
 ---------------------------- Procedimiento almacenado para insertar una tarifaria con todos los precios-------------------------
-create PROCEDURE CrearTarifariaCompleta
+Create PROCEDURE CrearTarifariaCompleta
     @NombreTarifaria NVARCHAR(20)
 AS
 BEGIN
@@ -91,6 +91,15 @@ BEGIN
             0
         FROM ConceptosTarifarias ct
         WHERE ct.tipoConceptoId = 6 and ct.visibilidad = 1;
+
+		-- 7. Insertar todos los conceptos de fondo (tipoConceptoId = 7)
+        INSERT INTO PreciosTarifarias (tarifarioId, conceptoTarifariaId, precio)
+        SELECT 
+            @TarifariaId,
+            ct.id,
+            0
+        FROM ConceptosTarifarias ct
+        WHERE ct.tipoConceptoId = 7 and ct.visibilidad = 1;
 
         COMMIT TRANSACTION;
     END TRY
