@@ -581,14 +581,14 @@
 </div>
 
 
-<!-- formulario nuevo recibo -->
+<!-- formulario nueva factura-->
 @if (estadoTramite == (int)EstadosIntroduccion.Registrado)
 {
     <div class="accordion" id="accordionPanelsStayOpenExample">
         <div class="accordion-item">
             <h2 class="accordion-header" id="panelsStayOpen-headingOne">
                 <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                    Nuevo recibo
+                    Nueva factura
                 </button>
             </h2>
             <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
@@ -618,14 +618,33 @@
                             </div>
                         </div>
                         <div class="form-columns-container3">
-                            <div>
-                                <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
-                                <input asp-for="Concepto" id="conceptoRecibo" class="form-control" type="text" maxlength="100" required />
-                                <span asp-validation-for="Concepto" class="text-danger"></span>
+                            <div> <!--Descripcion general de la factura-->
+                                <label for="conceptoRecibo">Descripción<span class="obligatorio"> * </span></label>
+                                <input asp-for="Descripcion" id="conceptoRecibo" class="form-control" type="text" maxlength="100" required />
+                                <span asp-validation-for="Descripcion" class="text-danger"></span>
+                            </div>
+
+                            <div> <!--lista de conceptos de la tarifaria para introducción-->
+                                <label>Concepto<span class="obligatorio"> * </span></label>
+                                <select id="conceptoSelect" class="form-select" asp-for="ConceptoId" required>
+                                    <option value="">--Elija una opción--</option>
+                                    @foreach (var item in Model.ListaConceptosTarifaria)
+                                    {
+                                        <option value="@item.PrecioId" data-precio="@item.Precio">
+                                            @item.NombreConcepto
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ConceptoId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mt-2">
+                                <label>Precio</label>
+                                <input type="text" id="precioInput" class="form-control" readonly />
                             </div>
 
                             <div>
-                                <label for="montoRecibo">Monto<span class="obligatorio"> * </span></label>
+                                <label for="montoRecibo">Importe<span class="obligatorio"> * </span></label>
                                 <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" @* max="@Model.Factura.Pendiente" *@ required placeholder="0.00" step="0.01" />
                                 <span asp-validation-for="Monto" class="text-danger"></span>
                             </div>
@@ -733,8 +752,8 @@
                 <form asp-action="EditarRecibo" method="post" id="formEditarRecibo" class="form-box" enctype="multipart/form-data">
                     <div>
                         <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
-                        <input asp-for="Concepto" id="conceptoReciboEdicion" class="form-control" type="text" maxlength="100" required />
-                        <span asp-validation-for="Concepto" class="text-danger"></span>
+                        <input asp-for="Descripcion" id="conceptoReciboEdicion" class="form-control" type="text" maxlength="100" required />
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
                     </div>
                     <div>
                         <label>Archivo actual</label>
@@ -1273,6 +1292,15 @@
             btnConfirmar.addEventListener("click", function () {
                 form.submit();
             });
+        });
+    </script>
+
+    <script>
+        document.getElementById("conceptoSelect").addEventListener("change", function () {
+            var selectedOption = this.options[this.selectedIndex];
+            var precio = selectedOption.getAttribute("data-precio");
+
+            document.getElementById("precioInput").value = precio ? precio : "";
         });
     </script>
 }

@@ -18,6 +18,9 @@ INSERT INTO TipoTramite (tipo) VALUES ('Facturación');
 
 go
 insert into EstadoTramite (tipoTramiteId, estado) values (7, 'Emitido'), (7, 'Pendiente de cobro'), (7, 'Cobrado'), (7,'Anulada');
+go
+insert into EstadoTramite (tipoTramiteId, estado) values (7, 'Creado');
+go
 
 ALTER TABLE Facturas DROP COLUMN pendiente;
 go
@@ -30,6 +33,11 @@ ADD
     ContribuyenteId INT NULL,
     MetodoPagoId INT NULL,
     UsuarioCajeroId INT NULL;
+
+go
+
+ALTER TABLE Facturas
+add descripcion nvarchar(100) null;
 
 go
 

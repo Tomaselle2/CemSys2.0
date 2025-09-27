@@ -78,3 +78,10 @@ select * from ConceptosTarifarias
 select * from FacturasInternasPrecios
 select * from ConceptosFacturaInternasPrecios
 select * from Introducciones
+
+select * from Tarifarias
+
+
+select pt.id as precioId, pt.tarifarioId, pt.conceptoTarifariaId, pt.precio, ct.tipoConceptoId, ct.nombre as nombreConcepto from PreciosTarifarias pt
+JOIN ConceptosTarifarias ct ON pt.conceptoTarifariaId = ct.id
+where pt.tarifarioId = 5 and (ct.tipoConceptoId = 1 or ct.tipoConceptoId = 2 or ct.tipoConceptoId = 5 or ct.tipoConceptoId = 6);

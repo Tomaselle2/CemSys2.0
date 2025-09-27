@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
 using CemSys2.Interface.Facturas;
 using CemSys2.Models;
@@ -249,6 +250,29 @@ namespace CemSys2.Data
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<DTO_ConceptosTarifaria>> ListaConceptoTarifariaIntroduccion(int tarifariaId)
+        {
+            return await(
+                from pt in _context.PreciosTarifarias
+                join ct in _context.ConceptosTarifarias
+                    on pt.ConceptoTarifariaId equals ct.Id
+                where pt.TarifarioId == tarifariaId
+                      && (ct.TipoConceptoId == 1
+                          || ct.TipoConceptoId == 2
+                          || ct.TipoConceptoId == 5
+                          || ct.TipoConceptoId == 6)
+                    select new DTO_ConceptosTarifaria
+                    {
+                        PrecioId = pt.Id,
+                        TarifariaId = pt.TarifarioId,
+                        ConceptoTarifariaId = pt.ConceptoTarifariaId,
+                        Precio = pt.Precio,
+                        TipoConceptoTarifariaId = ct.TipoConceptoId,
+                        NombreConcepto = ct.Nombre
+                    }
+            ).ToListAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Introduccion;
+﻿using CemSys2.DTO.Factura;
+using CemSys2.DTO.Introduccion;
 using CemSys2.Models;
 using CemSys2.ValidacionAnotations;
 using System.ComponentModel.DataAnnotations;
@@ -12,20 +13,23 @@ namespace CemSys2.ViewModel
         public List<ConceptosFacturaInternasPrecio> ListaConceptosFactura { get; set; } = new();
         public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
+        public List<DTO_ConceptosTarifaria> ListaConceptosTarifaria { get; set; } = new();
 
         public int? IdTramite { get; set; }
         public int? IdFactura { get; set; }
         public int? IdRecibo { get; set; }
 
-        [Required(ErrorMessage = "El concepto es obligatorio")]
-        [NoSoloEspacios]
-        [StringLength(100, ErrorMessage = "El concepto no puede superar los 100 caracteres")]
-        public string? Concepto { get; set; } = string.Empty;
+        [Required(ErrorMessage = "La descripción es obligatoria")]
+        [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]
+        public string? Descripcion { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El monto es obligatorio")]
         public decimal? Monto { get; set; }
 
         public decimal? MontoMaximo { get; set; }
+
+        [Required(ErrorMessage = "El concepto es obligatorio")]
+        public int ConceptoId { get; set; } //para el concepto tarifaria
 
         public string? infoAdicional { get; set; }
 
@@ -43,11 +47,9 @@ namespace CemSys2.ViewModel
         public int? Dni { get; set; }
 
         [StringLength(60, ErrorMessage = "El nombre no puede superar los 60 caracteres")]
-        [NoSoloEspacios]
         public string? Nombre { get; set; }
 
         [StringLength(60, ErrorMessage = "El apellido no puede superar los 60 caracteres")]
-        [NoSoloEspacios]
         public string? Apellido { get; set; }
 
 

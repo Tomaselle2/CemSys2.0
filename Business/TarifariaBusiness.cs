@@ -98,5 +98,10 @@ namespace CemSys2.Business
                 throw new Exception(mensajeDetallado, ex);
             }
         }
+
+        public async Task<int> ConsultarIdTarifariaVigente()
+        {
+            return await _tarifariaBD.ConsultarIdTarifariaVigente();
+        }
     }
 }

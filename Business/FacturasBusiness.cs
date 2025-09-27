@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Factura;
 using CemSys2.Interface.Facturas;
 using CemSys2.Models;
 
@@ -30,6 +31,11 @@ namespace CemSys2.Business
         public async Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura)
         {
             return await _facturasBD.ListaConceptosFacturaPorFactura(idFactura);
+        }
+
+        public async Task<List<DTO_ConceptosTarifaria>> ListaConceptoTarifariaIntroduccion(int tarifariaId)
+        {
+            return await _facturasBD.ListaConceptoTarifariaIntroduccion(tarifariaId);
         }
 
         public async Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId)

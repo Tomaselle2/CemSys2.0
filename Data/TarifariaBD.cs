@@ -201,5 +201,15 @@ namespace CemSys2.Data
         {
             return await _context.PreciosTarifarias.FirstAsync(p => p.Id == precioId);
         }
+
+        public async Task<int> ConsultarIdTarifariaVigente()
+        {
+            //devuelve el id de la tarifaria que tiene fecha mas reciente
+            return await _context.Tarifarias
+                .OrderByDescending(t => t.FechaCreacionTarifaria)
+                .Select(t => t.Id)
+                .FirstAsync();
+
+        }
     }
 }

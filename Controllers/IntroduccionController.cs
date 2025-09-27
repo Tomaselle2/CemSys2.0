@@ -1,5 +1,7 @@
 ﻿using CemSys2.Business;
+using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
+using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,14 @@ namespace CemSys2.Controllers
     public class IntroduccionController : Controller
     {
         private readonly IIntroduccionBusiness _introduccionBusiness;
+        private readonly IFacturaBusiness _facturaBusiness;
+        private readonly ITarifariaBusiness _tarifariaBusiness;
 
-        public IntroduccionController(IIntroduccionBusiness introduccionBusiness)
+        public IntroduccionController(IIntroduccionBusiness introduccionBusiness, IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness)
         {
             _introduccionBusiness = introduccionBusiness;
+            _facturaBusiness = facturaBusiness;
+            _tarifariaBusiness = tarifariaBusiness;
         }
 
         public async Task<IActionResult> Index(int pagina = 1, string desdeFecha = null, string hastaFecha = null)
@@ -138,73 +144,6 @@ namespace CemSys2.Controllers
 
         }
 
-        //pantalla de resumen
-        [HttpGet]
-        public async Task<IActionResult> ResumenIntroduccion(int tramiteId)
-        {
-            try
-            {
-                var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
-                FacturasInternasPrecio factura = await _introduccionBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
-                var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id);
-                var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
-                var historialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
-                if (resumen == null || resumen.Count == 0)
-                {
-                    return NotFound("No se encontraron datos para el trámite especificado.");
-                }
-
-                var viewModel = new ResumenIntroduccionVM
-                {
-                    ResumenIntroduccion = resumen,
-                    Factura = factura,
-                    ListaConceptosFactura = conceptosFactura,
-                    ListaRecibosFactura = listaRecibosFactura,
-                    infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
-                    HistorialEstadoTramites = historialEstadoTramites
-                };
-                return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                var viewModel = new ResumenIntroduccionVM
-                {
-                    MensajeError = ex.Message,
-                };
-                return View(viewModel);
-            }
-        }
-
-        //imprime en PDF el resumen del tramite
-        [HttpGet]
-        public async Task<IActionResult> ResumenIntroduccionEnPDF(int idtramite)
-        {
-            var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(idtramite);
-            if (resumen == null || resumen.Count == 0)
-            {
-                return NotFound("No se encontraron datos para el trámite especificado.");
-            }
-
-            var viewModel = new ResumenIntroduccionVM
-            {
-                ResumenIntroduccion = resumen,
-            };
-
-            var pdf = new ViewAsPdf("ResumenIntroduccionEnPDF", viewModel)
-            {
-                PageMargins = new Rotativa.AspNetCore.Options.Margins(10, 5, 5, 10),
-                PageSize = Rotativa.AspNetCore.Options.Size.A4,
-                FileName = $"Tramite introduccion {viewModel.ResumenIntroduccion[0].Id}.pdf"
-            };
-
-            // Agregá el valor directamente a su ViewData actual
-            pdf.ViewData["BaseUrl"] = $"{Request.Scheme}://{Request.Host}";
-            pdf.ViewData["UsuarioLogueado"] = HttpContext.Session.GetString("nombreUsuario");
-
-
-            return pdf;
-        }
-
         private async Task CargarCombos(IntroduccionDifuntoVM viewModel)
         {
             try
@@ -257,6 +196,8 @@ namespace CemSys2.Controllers
             return View();
         }
 
+        //----------------------------------------------------------------------------
+        //--------------------ACCIONES PANTALLA DE REPORTES DE INTRODUCCIONES-----------------
         [HttpGet]
         public async Task<JsonResult> ReporteGeneralIntroducciones(string opcion, string desdeFecha, string hastaFecha)
         {
@@ -367,27 +308,87 @@ namespace CemSys2.Controllers
             }
         }
 
+
+
+        //----------------------------------------------------------------------------
+        //--------------------ACCIONES SOBRE EL RESUMEN DE INTRODUCCION-----------------
         //recontruye el ViewModel de ResumenIntroduccion cuando hay un error de validacion
+
         private async Task<ResumenIntroduccionVM> ReconstruirViewModel(int tramiteId)
         {
             var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
-            FacturasInternasPrecio factura = await _introduccionBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
-            var conceptosFactura = await _introduccionBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id);
-            var listaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id);
-            var historialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
+            var factura = await _introduccionBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
 
             return new ResumenIntroduccionVM
             {
                 ResumenIntroduccion = resumen,
                 Factura = factura,
-                ListaConceptosFactura = conceptosFactura,
-                ListaRecibosFactura = listaRecibosFactura,
+                ListaConceptosFactura = await _introduccionBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id),
+                ListaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id),
                 IdTramite = tramiteId,
                 IdFactura = factura.Id,
                 infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
-                HistorialEstadoTramites = historialEstadoTramites
+                HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId),
+                ListaConceptosTarifaria = await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente())
             };
         }
+
+        //pantalla de resumen
+        [HttpGet]
+        public async Task<IActionResult> ResumenIntroduccion(int tramiteId)
+        {
+            ResumenIntroduccionVM viewModel = new();
+            try
+            {
+                viewModel = await ReconstruirViewModel(tramiteId);
+
+                if (viewModel.ResumenIntroduccion == null || viewModel.ResumenIntroduccion.Count == 0)
+                {
+                    return NotFound("No se encontraron datos para el trámite especificado.");
+                }
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                viewModel = new ResumenIntroduccionVM
+                {
+                    MensajeError = ex.Message,
+                };
+                return View(viewModel);
+            }
+        }
+
+        //imprime en PDF el resumen del tramite
+        [HttpGet]
+        public async Task<IActionResult> ResumenIntroduccionEnPDF(int idtramite)
+        {
+            var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(idtramite);
+            if (resumen == null || resumen.Count == 0)
+            {
+                return NotFound("No se encontraron datos para el trámite especificado.");
+            }
+
+            var viewModel = new ResumenIntroduccionVM
+            {
+                ResumenIntroduccion = resumen,
+            };
+
+            var pdf = new ViewAsPdf("ResumenIntroduccionEnPDF", viewModel)
+            {
+                PageMargins = new Rotativa.AspNetCore.Options.Margins(10, 5, 5, 10),
+                PageSize = Rotativa.AspNetCore.Options.Size.A4,
+                FileName = $"Tramite introduccion {viewModel.ResumenIntroduccion[0].Id}.pdf"
+            };
+
+            // Agregá el valor directamente a su ViewData actual
+            pdf.ViewData["BaseUrl"] = $"{Request.Scheme}://{Request.Host}";
+            pdf.ViewData["UsuarioLogueado"] = HttpContext.Session.GetString("nombreUsuario");
+
+
+            return pdf;
+        }
+
 
         //cargar el recibo
         [HttpPost]
@@ -402,7 +403,7 @@ namespace CemSys2.Controllers
             {
                 ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto?.Trim();
+                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -414,7 +415,7 @@ namespace CemSys2.Controllers
             {
                 ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto?.Trim();
+                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -423,7 +424,7 @@ namespace CemSys2.Controllers
             if (!ModelState.IsValid)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto?.Trim();
+                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -441,7 +442,7 @@ namespace CemSys2.Controllers
             var recibo = new RecibosFactura
             {
                 FacturaId = viewModel.IdFactura.Value,
-                Concepto = viewModel.Concepto!.Trim(),
+                Concepto = viewModel.Descripcion!.Trim(),
                 Monto = viewModel.Monto.Value,
                 Decreto = viewModel.Decreto,
                 Contribuyente = viewModel.IdContribuyente
@@ -458,7 +459,7 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto?.Trim();
+                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
@@ -478,7 +479,7 @@ namespace CemSys2.Controllers
             }
 
             // Validar Concepto
-            if (string.IsNullOrWhiteSpace(viewModel.Concepto))
+            if (string.IsNullOrWhiteSpace(viewModel.Descripcion))
             {
                 ModelState.AddModelError("Concepto", "El concepto es obligatorio.");
             }
@@ -504,7 +505,7 @@ namespace CemSys2.Controllers
             {
                 await _introduccionBusiness.EditarReciboFactura(
                     viewModel.IdRecibo.Value,
-                    viewModel.Concepto!,
+                    viewModel.Descripcion!,
                     viewModel.ArchivoRecibo
                 );
 
@@ -532,7 +533,7 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto?.Trim();
+                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
                 vmCompleto.Monto = viewModel.Monto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
@@ -575,7 +576,7 @@ namespace CemSys2.Controllers
             catch (Exception ex)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Concepto = viewModel.Concepto;
+                vmCompleto.Descripcion = viewModel.Descripcion;
                 vmCompleto.Monto = viewModel.Monto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
