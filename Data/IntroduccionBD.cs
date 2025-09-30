@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Introduccion;
+﻿using CemSys2.DTO.Factura;
+using CemSys2.DTO.Introduccion;
 using CemSys2.DTO.Reportes;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
@@ -420,7 +421,9 @@ namespace CemSys2.Data
                                 FallecioEnTirolesa = reader.IsDBNull(reader.GetOrdinal("fallecioEnTirolesa")) ? false : reader.GetBoolean(reader.GetOrdinal("fallecioEnTirolesa")),
                                 CantidadDifuntos = reader.GetInt32(reader.GetOrdinal("cantidadDifuntos")),
                                 estadoTramite = reader.GetInt32(reader.GetOrdinal("estadoActualID")),
-                                informacionAdicionalTramite = reader.IsDBNull(reader.GetOrdinal("informacionAdicionalTramite")) ? "" : reader.GetString(reader.GetOrdinal("informacionAdicionalTramite"))
+                                informacionAdicionalTramite = reader.IsDBNull(reader.GetOrdinal("informacionAdicionalTramite")) ? "" : reader.GetString(reader.GetOrdinal("informacionAdicionalTramite")),
+                                Precio = reader.GetDecimal(reader.GetOrdinal("precio")),
+                                Pendiente = reader.GetDecimal(reader.GetOrdinal("pendiente"))
                             };
                             resultado.Add(dto);
                         }
@@ -461,20 +464,6 @@ namespace CemSys2.Data
                 .Include(p => p.SeccionNavigation)
                 .ThenInclude(s => s.TipoParcelaNavigation)
                 .FirstOrDefaultAsync(p => p.Id == idParcela && p.Visibilidad == true);
-        }
-
-        public async Task<FacturasInternasPrecio> ConsultarFacturaInternaPorTramiteId(int idTramite)
-        {
-            return await _context.FacturasInternasPrecios
-                .FirstOrDefaultAsync(f => f.TramiteId == idTramite);
-        }
-
-        public async Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura)
-        {
-            return await _context.ConceptosFacturaInternasPrecios
-                .Include(c => c.ConceptoTarifaria)
-                .Where(c => c.FacturaId == idFactura)
-                .ToListAsync();
         }
 
         public async Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId)

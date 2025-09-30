@@ -27,11 +27,13 @@ public partial class Factura
 
     public int? UsuarioCajeroId { get; set; }
 
+    public string? Descripcion { get; set; }
+
     public virtual ICollection<ConceptosFactura> ConceptosFacturas { get; set; } = new List<ConceptosFactura>();
 
     public virtual Persona? Contribuyente { get; set; }
 
-    public virtual EstadoTramite? Estado { get; set; }
+    public virtual EstadoFactura? Estado { get; set; }
 
     public virtual MetodoPago? MetodoPago { get; set; }
 

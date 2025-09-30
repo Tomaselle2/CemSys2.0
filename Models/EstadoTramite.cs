@@ -11,8 +11,6 @@ public partial class EstadoTramite
 
     public string Estado { get; set; } = null!;
 
-    public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
-
     public virtual ICollection<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new List<HistorialEstadoTramite>();
 
     public virtual TipoTramite TipoTramite { get; set; } = null!;

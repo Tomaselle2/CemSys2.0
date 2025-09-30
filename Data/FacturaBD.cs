@@ -274,5 +274,28 @@ namespace CemSys2.Data
                     }
             ).ToListAsync();
         }
+
+        //para resumen introducccion
+        public async Task<DTO_FacturaInternaPrecios> ConsultarFacturaInternaPorTramiteId(int idTramite)
+        {
+            return await _context.FacturasInternasPrecios
+                .Where(f => f.TramiteId == idTramite).Select(f => new DTO_FacturaInternaPrecios
+                {
+                    TramiteId = f.TramiteId,
+                    FechaCreacion = f.FechaCreacion,
+                    Id = f.Id,
+                    Total = f.Total,
+                    Visibilidad = f.Visibilidad
+                }).FirstAsync();
+        }
+
+        //para resumen introducccion
+        public async Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura)
+        {
+            return await _context.ConceptosFacturaInternasPrecios
+                .Include(c => c.ConceptoTarifaria)
+                .Where(c => c.FacturaId == idFactura)
+                .ToListAsync();
+        }
     }
 }

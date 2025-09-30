@@ -189,7 +189,9 @@ BEGIN
 		p.fallecioEnTirolesa,
 		par.cantidadDifuntos,
 		tra.estadoActualID,
-		i.informacionAdicional as informacionAdicionalTramite
+		i.informacionAdicional as informacionAdicionalTramite,
+		i.precio,
+		i.pendiente
     FROM Introducciones i
     INNER JOIN EmpresaFunebre e ON i.empresaFunebre = e.id
     INNER JOIN Personas p ON i.difuntoID = p.idPersona

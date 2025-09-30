@@ -39,6 +39,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<EstadoDifunto> EstadoDifuntos { get; set; }
 
+    public virtual DbSet<EstadoFactura> EstadoFacturas { get; set; }
+
     public virtual DbSet<EstadoTramite> EstadoTramites { get; set; }
 
     public virtual DbSet<Factura> Facturas { get; set; }
@@ -374,6 +376,18 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("estado");
         });
 
+        modelBuilder.Entity<EstadoFactura>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__EstadoFa__3213E83F37E97E98");
+
+            entity.ToTable("EstadoFactura");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Estado)
+                .HasMaxLength(30)
+                .HasColumnName("estado");
+        });
+
         modelBuilder.Entity<EstadoTramite>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__EstadoTr__3213E83F35032DC0");
@@ -397,6 +411,9 @@ public partial class AppDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Facturas__3213E83FDD53D291");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(100)
+                .HasColumnName("descripcion");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -416,7 +433,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Estado).WithMany(p => p.Facturas)
                 .HasForeignKey(d => d.EstadoId)
-                .HasConstraintName("FK_Facturas_Estado");
+                .HasConstraintName("FK_Facturas_EstadoFactura");
 
             entity.HasOne(d => d.MetodoPago).WithMany(p => p.Facturas)
                 .HasForeignKey(d => d.MetodoPagoId)

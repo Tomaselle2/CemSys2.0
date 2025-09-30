@@ -97,6 +97,14 @@
     </div>
 }
 
+@if (ViewData.ModelState.ErrorCount > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert" style="max-width: 800px;">
+        @Html.ValidationSummary(false, "")
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <!--Resumen de la introduccion-->
 <div class="contenedor-resumen">
 
@@ -231,7 +239,6 @@
         }
         
     </form>
-    
 </div>
 
 
@@ -489,7 +496,7 @@
 <table class="table table-hover mb-0 filaTotalFactura">
     <tr class="totalFactura">
         <td><b>TOTAL</b></td>
-        <td><b>$ @String.Format("{0:N2}", Model.Factura.Total) </b></td>
+        <td><b>$ @String.Format("{0:N2}", Model.FacturaInterna.Total) </b></td>
     </tr>
 </table>
 
@@ -508,7 +515,7 @@
                 @* cuerpo del acordion *@
                 <table class="table table-hover mb-0">
                     <tr style="font-size: 1.2rem">
-                       @*  <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Factura.Pendiente)</b></td> *@
+                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.ResumenIntroduccion[0].Pendiente)</b></td>
                     </tr>
                 </table>
                 @if (Model.ListaRecibosFactura.Any())
@@ -790,7 +797,7 @@
                     </div>
                     <input type="hidden" asp-for="IdRecibo" id="idReciboHidden" />
                     <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
-                    <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
+                    <input type="hidden" asp-for="IdFactura" value="@Model.FacturaInterna.Id" />
                     <input type="hidden" asp-for="IdContribuyente" id="idContribuyenteHidden" />
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>

@@ -9,7 +9,7 @@ namespace CemSys2.ViewModel
     public class ResumenIntroduccionVM : IValidatableObject
     {
         public List<DTO_Resumen_Introduccion> ResumenIntroduccion { get; set; } = new();
-        public FacturasInternasPrecio Factura { get; set; } = new();
+        public DTO_FacturaInternaPrecios FacturaInterna { get; set; } = new();
         public List<ConceptosFacturaInternasPrecio> ListaConceptosFactura { get; set; } = new();
         public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
@@ -24,7 +24,6 @@ namespace CemSys2.ViewModel
         [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]
         public string? Descripcion { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El monto es obligatorio")]
         public decimal? Monto { get; set; }
 
         public decimal? MontoMaximo { get; set; }
@@ -61,15 +60,14 @@ namespace CemSys2.ViewModel
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (!EsEdicion && ArchivoRecibo == null)
+            if (Decreto == true && !EsEdicion && ArchivoRecibo == null)
             {
                 yield return new ValidationResult(
                     "El archivo es obligatorio al cargar un nuevo recibo.",
                     new[] { nameof(ArchivoRecibo) });
             }
 
-            //MontoMaximo = Factura.Pendiente;
-            if (Monto.HasValue)
+            if (Decreto == true && Monto.HasValue)
             {
                 if (Monto < 1)
                 {

@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Introduccion;
+﻿using CemSys2.DTO.Factura;
+using CemSys2.DTO.Introduccion;
 using CemSys2.DTO.Reportes;
 using CemSys2.Models;
 
@@ -30,8 +31,7 @@ namespace CemSys2.Interface.Introduccion
         Task<PreciosTarifaria?> PrecioTarifaria(int tarifariaVigente, int conceptoTarifaria);
         Task GenerarFactura(List<ConceptosFactura> conceptosFacturas);
         Task<Parcela> ConsultarParcela(int idParcela);
-        Task<FacturasInternasPrecio> ConsultarFacturaInternaPorTramiteId(int idTramite);
-        Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);
+        
 
         Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
         Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId);

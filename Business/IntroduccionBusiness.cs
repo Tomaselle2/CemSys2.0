@@ -1197,16 +1197,6 @@ namespace CemSys2.Business
             return await _introduccionBD.ConsultarParcela(idParcela);
         }
 
-        public async Task<FacturasInternasPrecio> ConsultarFacturaInternaPorTramiteId(int idTramite)
-        {
-            return await _introduccionBD.ConsultarFacturaInternaPorTramiteId(idTramite);
-        }
-
-        public async Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura)
-        {
-            return await _introduccionBD.ListaConceptosFacturaInternaPorFactura(idFactura);
-        }
-
         public async Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId)
         {
             await _introduccionBD.RegistrarReciboFactura(recibo, archivo, mimeType, tramiteId);

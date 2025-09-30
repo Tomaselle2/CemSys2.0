@@ -1,4 +1,5 @@
 ﻿using CemSys2.Business;
+using CemSys2.DTO.Factura;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Tarifaria;
@@ -6,6 +7,7 @@ using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace CemSys2.Controllers
 {
@@ -317,13 +319,13 @@ namespace CemSys2.Controllers
         private async Task<ResumenIntroduccionVM> ReconstruirViewModel(int tramiteId)
         {
             var resumen = await _introduccionBusiness.ObtenerResumenIntroduccion(tramiteId);
-            var factura = await _introduccionBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
+            var factura = await _facturaBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
 
             return new ResumenIntroduccionVM
             {
                 ResumenIntroduccion = resumen,
-                Factura = factura,
-                ListaConceptosFactura = await _introduccionBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id),
+                FacturaInterna = factura,
+                ListaConceptosFactura = await _facturaBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id),
                 ListaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id),
                 IdTramite = tramiteId,
                 IdFactura = factura.Id,
@@ -394,49 +396,37 @@ namespace CemSys2.Controllers
         [HttpPost]
         public async Task<IActionResult> EmitirFactura(ResumenIntroduccionVM viewModel)
         {
-            // Desactivar validación automática para Factura
-            //ModelState.Remove("Factura.Tramite");
-
-            // Primero validar el archivo específicamente
-            if (viewModel.ArchivoRecibo == null || viewModel.ArchivoRecibo.Length == 0)
-            {
-                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
-                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
-                vmCompleto.Monto = viewModel.Monto;
-                return View("ResumenIntroduccion", vmCompleto);
-            }
-
-            // Validar extensión
-            var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
-            var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
-            if (!permitidas.Contains(extension))
-            {
-                ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
-                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
-                vmCompleto.Monto = viewModel.Monto;
-                return View("ResumenIntroduccion", vmCompleto);
-            }
-
-            // Luego validar el modelo completo
+            //validar el modelo
             if (!ModelState.IsValid)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
-                vmCompleto.Monto = viewModel.Monto;
+                vmCompleto.MensajeError = "Por favor, complete todos los campos obligatorios.";
                 return View("ResumenIntroduccion", vmCompleto);
             }
 
-            // Mapear el tipo MIME
-            string mimeType = extension switch
+            try
             {
-                ".png" => "image/png",
-                ".jpg" => "image/jpeg",
-                ".jpeg" => "image/jpeg",
-                ".pdf" => "application/pdf",
-                _ => "application/octet-stream"
-            };
+                DTO_VerificarDetalleFactura dto = new DTO_VerificarDetalleFactura
+                {
+                    Contribuyente = viewModel.IdContribuyente,
+                    DetallesFactura = viewModel.ListaDetalleFactura,
+                    Pendiente = viewModel.ResumenIntroduccion[0].Pendiente,
+                    Decreto = viewModel.Decreto,
+                    Archivo = viewModel.Decreto ? viewModel.ArchivoRecibo : null //si es decreto, el archivo es obligatorio
+                };
+
+                _facturaBusiness.VerificarDetalleFactura(dto);
+            }catch(ValidationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                return View("ResumenIntroduccion", vmCompleto);
+            }catch (Exception ex)
+            {
+                viewModel.MensajeError = "No se pudo generar la factura: " + ex.Message;
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                return View("ResumenIntroduccion", vmCompleto);
+            }
 
             var recibo = new RecibosFactura
             {
@@ -451,7 +441,7 @@ namespace CemSys2.Controllers
 
             try
             {
-                await _introduccionBusiness.RegistrarReciboFactura(recibo, viewModel.ArchivoRecibo, mimeType, viewModel.IdTramite.Value);
+                //await _introduccionBusiness.RegistrarReciboFactura(recibo, viewModel.ArchivoRecibo, mimeType, viewModel.IdTramite.Value);
                 TempData["MensajeExito"] = "Recibo cargado con éxito";
                 return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite } );
             }

@@ -20,6 +20,14 @@ namespace CemSys2.Enumerable
         Renovacion = 9
     }
 
+    public enum EstadosFactura
+    {
+        Creado = 1,
+        PendienteDeCobro = 2,
+        Cobrado = 3,
+        Anulado = 4
+    }
+
     public enum TipotamiteEmun
     {
         [Display(Name = "Introducción")]

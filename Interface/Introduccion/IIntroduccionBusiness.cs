@@ -31,8 +31,6 @@ namespace CemSys2.Interface.Introduccion
 
         //facturacion
         Task<List<ConceptosFacturaInternasPrecio>> ListaConceptoFactura(bool? domicilioEnTirolesa, bool? fallecioEnTirolesa, int parcelaId, int estadoDifuntoId, bool? placa = null); //genera los precios para la vista
-        Task<FacturasInternasPrecio> ConsultarFacturaInternaPorTramiteId(int idTramite);
-        Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);
         Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
         Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId);
         Task FinalizarTramite(int tramiteId);
