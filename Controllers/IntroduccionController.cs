@@ -412,10 +412,11 @@ namespace CemSys2.Controllers
                     DetallesFactura = viewModel.ListaDetalleFactura,
                     Pendiente = viewModel.ResumenIntroduccion[0].Pendiente,
                     Decreto = viewModel.Decreto,
-                    Archivo = viewModel.Decreto ? viewModel.ArchivoRecibo : null //si es decreto, el archivo es obligatorio
+                    Archivo = viewModel.Decreto ? viewModel.ArchivoRecibo : null, //si es decreto, el archivo es obligatorio
+                    TramiteId = viewModel.IdTramite.Value
                 };
 
-                _facturaBusiness.VerificarDetalleFactura(dto);
+                await _facturaBusiness.VerificarDetalleFactura(dto);
             }catch(ValidationException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
@@ -423,8 +424,8 @@ namespace CemSys2.Controllers
                 return View("ResumenIntroduccion", vmCompleto);
             }catch (Exception ex)
             {
-                viewModel.MensajeError = "No se pudo generar la factura: " + ex.Message;
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.MensajeError = "No se pudo generar la factura: " + ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
             }
 

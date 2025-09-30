@@ -14,6 +14,9 @@ namespace CemSys2.Interface.Facturas
         Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura);
         Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
 
+        //verifica las facturas emitidas y pendientes por tramite
+        Task<List<DTO_VerificarMontoFactura>> ListaFacturasEmitidasYPendientesParaVerificarPorTramite(int tramiteId);
+
         //lista de conceptos tarifaria para la introduccion
         Task<List<DTO_ConceptosTarifaria>> ListaConceptoTarifariaIntroduccion(int tarifariaId);
 

@@ -4,12 +4,14 @@ using CemSys2.DTO.Reportes;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
 using CemSys2.Interface.Introduccion;
+using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace CemSys2.Data
 {
@@ -19,24 +21,33 @@ namespace CemSys2.Data
         private readonly IRepositoryDB<EstadoDifunto> _estadoDifuntoBD;
         private readonly IRepositoryDB<TipoParcela> _tipoParcelaBD;
         private readonly IRepositoryDB<EmpresaFunebre> _empresaFunebreBD;
+        private readonly ITarifariaBusiness _tarifariaBusiness;
 
-        private int tipoConceptosTarifariaId_Contribucion = 2;
-        private int tipoConceptosTarifariaId_RegistroCivil = 5;
-        private int tipoConceptosTarifariaId_DerechoDeOficina = 6;
-        private int tipoConceptosTarifariaId_Generales = 1;
+        
 
-        private decimal porcentajeFondo = 0.05m; // 5% del fondo
-        private decimal montoMinimoDeFondo = 500m;
-
-        public IntroduccionBD(AppDbContext context, IRepositoryDB<EstadoDifunto> estadoDifuntoBD, IRepositoryDB<TipoParcela> tipoParcelaBD, IRepositoryDB<EmpresaFunebre> empresaFunebreBD)
+        public IntroduccionBD(AppDbContext context, IRepositoryDB<EstadoDifunto> estadoDifuntoBD, IRepositoryDB<TipoParcela> tipoParcelaBD, IRepositoryDB<EmpresaFunebre> empresaFunebreBD, ITarifariaBusiness tarifariaBusiness)
         {
             _context = context;
             _estadoDifuntoBD = estadoDifuntoBD;
             _tipoParcelaBD = tipoParcelaBD;
             _empresaFunebreBD = empresaFunebreBD;
+            _tarifariaBusiness = tarifariaBusiness;
         }
 
+        private int tipoConceptosTarifariaId_Contribucion = (int)TipoConceptoTarifariaEnum.Contribucion;
+        private int tipoConceptosTarifariaId_RegistroCivil = (int)TipoConceptoTarifariaEnum.RegistroCivil;
+        private int tipoConceptosTarifariaId_DerechoDeOficina = (int)TipoConceptoTarifariaEnum.DerechoDeOficina;
+        private int tipoConceptosTarifariaId_Generales = (int)TipoConceptoTarifariaEnum.General;
 
+        private async Task<decimal> PorcentajeFondo()
+        {
+            return await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
+        }
+
+        private async Task<decimal> MontoMinimoDeFondo()
+        {
+            return await _tarifariaBusiness.ConsultarMontoMinimoFondoActual();
+        }
 
         //Lista para combos
         public async Task<List<EstadoDifunto>> ListaEstadoDifunto()
@@ -248,12 +259,12 @@ namespace CemSys2.Data
                 //facturacion
 
                 decimal subtotal = conceptosFacturas.Sum(c => c.PrecioUnitario * c.Cantidad);
-                decimal fondo5porciento = subtotal * porcentajeFondo;
+                decimal fondo5porciento = subtotal * await PorcentajeFondo();
 
 
-                if (fondo5porciento < montoMinimoDeFondo) //no suma el 5%, suma el monto minimo
+                if (fondo5porciento < await MontoMinimoDeFondo()) //no suma el 5%, suma el monto minimo
                 {
-                    subtotal += montoMinimoDeFondo;
+                    subtotal += await MontoMinimoDeFondo();
                 }
                 else
                 {

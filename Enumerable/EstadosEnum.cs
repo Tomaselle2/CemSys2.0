@@ -23,9 +23,10 @@ namespace CemSys2.Enumerable
     public enum EstadosFactura
     {
         Creado = 1,
-        PendienteDeCobro = 2,
-        Cobrado = 3,
-        Anulado = 4
+        Emitido = 2,
+        PendienteDeCobro = 3,
+        Cobrado = 4,
+        Anulado = 5
     }
 
     public enum TipotamiteEmun

@@ -7,6 +7,7 @@ namespace CemSys2.DTO.Factura
         public List<DTO_DetalleFactura> DetallesFactura { get; set; } = new();
         public int? Contribuyente { get; set; }
         public decimal Pendiente { get; set; }
+        public int TramiteId { get; set; }
 
         public IFormFile? Archivo { get; set; }
         public bool Decreto { get; set; } = false;

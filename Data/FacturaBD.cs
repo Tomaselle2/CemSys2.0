@@ -297,5 +297,24 @@ namespace CemSys2.Data
                 .Where(c => c.FacturaId == idFactura)
                 .ToListAsync();
         }
+
+        //verifica las facturas emitidas y pendientes por tramite
+        public async Task<List<DTO_VerificarMontoFactura>> ListaFacturasEmitidasYPendientesParaVerificarPorTramite(int tramiteId)
+        {
+            List<DTO_VerificarMontoFactura> dto = new List<DTO_VerificarMontoFactura>();
+
+             dto = await (from f in _context.Facturas
+                   where f.TramiteId == tramiteId
+                     && (f.EstadoId == (int)EstadosFactura.Emitido || f.EstadoId == (int)EstadosFactura.PendienteDeCobro)
+                   select new DTO_VerificarMontoFactura
+                   {
+                       FacturaId = f.Id,
+                       MontoTotal = f.Total,
+                       TramiteId = f.TramiteId,
+                       EstadoId = f.EstadoId ?? 0
+                   }).ToListAsync();
+
+            return dto;
+        }
     }
 }

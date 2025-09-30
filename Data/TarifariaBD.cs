@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO;
+using CemSys2.Enumerable;
 using CemSys2.Interface;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
@@ -210,6 +211,24 @@ namespace CemSys2.Data
                 .Select(t => t.Id)
                 .FirstAsync();
 
+        }
+
+        public async Task<decimal> ConsultarPorcentajeFondoActual()
+        {
+            int tarifariaId = await ConsultarIdTarifariaVigente();
+            return await _context.PreciosTarifarias
+                .Where(p => p.TarifarioId == tarifariaId && p.ConceptoTarifariaId == (int)ConceptosTarifariaEnum.FondoCentroAyuda)
+                .Select(p => p.Precio)
+                .FirstAsync();
+        }
+
+        public async Task<decimal> ConsultarMontoMinimoFondoActual()
+        {
+            int tarifariaId = await ConsultarIdTarifariaVigente();
+            return await _context.PreciosTarifarias
+                .Where(p => p.TarifarioId == tarifariaId && p.ConceptoTarifariaId == (int)ConceptosTarifariaEnum.MontoMinimoDeFondo)
+                .Select(p => p.Precio)
+                .FirstAsync();
         }
     }
 }

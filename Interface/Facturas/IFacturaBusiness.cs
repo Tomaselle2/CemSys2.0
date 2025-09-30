@@ -18,7 +18,7 @@ namespace CemSys2.Interface.Facturas
         //duplica el precio de los conceptos si "fallecido en tirolesa(false)"
         List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa);
 
-        void VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura);
+        Task VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura);
 
         //para resumen introduccion
         Task<DTO_FacturaInternaPrecios> ConsultarFacturaInternaPorTramiteId(int idTramite);

@@ -4,6 +4,7 @@ using CemSys2.Enumerable;
 using CemSys2.Interface.Facturas;
 using CemSys2.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace CemSys2.Business
 {
@@ -85,7 +86,7 @@ namespace CemSys2.Business
         }
 
         //verifica el detalle de la factura para generar la factura
-        public void VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura)
+        public async Task VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura)
         {
             if(DTO_verificarDetalleFactura.Contribuyente == 0 || DTO_verificarDetalleFactura.Contribuyente == null) //si no hay contribuyente seleccionado
                 throw new ValidationException("Debe seleccionar un titular para la factura");
@@ -118,8 +119,26 @@ namespace CemSys2.Business
                     _ => "application/octet-stream"
                 };
             }
-
             
+            decimal totalDetalleFactura = DTO_verificarDetalleFactura.DetallesFactura.Sum(d => d.PrecioUnitario);
+
+            //verifica que el monto sea positivo mayor a 0
+            if (totalDetalleFactura <= 0)
+                throw new ValidationException($"El monto no puede ser nulo o negativo");
+
+            //verifica que el monto no supere el pendiente de la factura
+            if (totalDetalleFactura > DTO_verificarDetalleFactura.PendienteFactura)
+                throw new ValidationException($"El monto no puede ser superior a $ {DTO_verificarDetalleFactura.PendienteFactura}");
+
+            List<DTO_VerificarMontoFactura> FacturasEmitidasYPendientes = await _facturasBD.ListaFacturasEmitidasYPendientesParaVerificarPorTramite(DTO_verificarDetalleFactura.TramiteId);
+
+            //si hay facturas emitidas y pendientes
+            if (FacturasEmitidasYPendientes != null && FacturasEmitidasYPendientes.Count > 0)
+            {
+                decimal totalPendiente = FacturasEmitidasYPendientes.Sum(f => f.MontoTotal);
+                if (totalDetalleFactura > totalPendiente)
+                    throw new ValidationException($"El monto no puede ser superior al total de las facturas emitidas o pendientes de cobro ($ {totalPendiente})");
+            }
         }
 
         //para resumen introduccion
@@ -133,5 +152,6 @@ namespace CemSys2.Business
         {
             return await _facturasBD.ListaConceptosFacturaInternaPorFactura(idFactura);
         }
+        
     }
 }

@@ -15,5 +15,7 @@ namespace CemSys2.Interface.Tarifaria
         Task<PreciosTarifaria> ConsultarUnPrecioTarifaria(int precioId);
         Task<int> ConsultarIdTarifariaVigente();
 
+        Task<decimal> ConsultarPorcentajeFondoActual();
+        Task<decimal> ConsultarMontoMinimoFondoActual();
     }
 }

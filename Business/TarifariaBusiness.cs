@@ -103,5 +103,15 @@ namespace CemSys2.Business
         {
             return await _tarifariaBD.ConsultarIdTarifariaVigente();
         }
+
+        public async Task<decimal> ConsultarPorcentajeFondoActual()
+        {
+            return await _tarifariaBD.ConsultarPorcentajeFondoActual();
+        }
+
+        public async Task<decimal> ConsultarMontoMinimoFondoActual()
+        {
+            return await _tarifariaBD.ConsultarMontoMinimoFondoActual();
+        }
     }
 }

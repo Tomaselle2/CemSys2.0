@@ -1,5 +1,7 @@
 ﻿using CemSys2.DTO.Introduccion;
 using CemSys2.DTO.Reportes;
+using CemSys2.Enumerable;
+using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Models;
 using System.Numerics;
@@ -9,21 +11,22 @@ namespace CemSys2.Business
     public class IntroduccionBusiness : IIntroduccionBusiness
     {
         private readonly IIntroduccionBD _introduccionBD;
-        private int conceptoTarifariaId_inhumacionNichoFeretro = 11;
-        private int conceptoTarifariaId_inhumacionNichoUrna = 18;
-        private int conceptoTarifariaId_inhumacionFosaFeretro = 19;
-        private int conceptoTarifariaId_inhumacionFosaUrna = 20;
-        private int conceptoTarifariaId_inhumacionPanteonFeretro = 21;
-        private int conceptoTarifariaId_inhumacionPanteonUrna = 22;
-        private int conceptoTarifariaId_cierreNicho = 4;
-        private int conceptoTarifariaId_cierreFosa = 5;
-        private int conceptoTarifariaId_defuncion = 12;
-        private int conceptoTarifariaId_Transcripcion = 13;
-        private int conceptoTarifariaId_introduccionFeretro = 14;
-        private int conceptoTarifariaId_introduccionUrna = 15;
-        private int conceptoTarifariaId_AperturaFosa = 3;
-        private int conceptoTarifariaId_AperturaNichoConPlaca = 1;
-        private int conceptoTarifariaId_AperturaNichoSinPlaca = 2;
+
+        private int conceptoTarifariaId_inhumacionNichoFeretro = (int)ConceptosTarifariaEnum.InhumacionNichoFeretro;
+        private int conceptoTarifariaId_inhumacionNichoUrna = (int)ConceptosTarifariaEnum.InhumacionNichoUrna;
+        private int conceptoTarifariaId_inhumacionFosaFeretro = (int)ConceptosTarifariaEnum.InhumacionFosaFeretro;
+        private int conceptoTarifariaId_inhumacionFosaUrna = (int)ConceptosTarifariaEnum.InhumacionFosaUrna;
+        private int conceptoTarifariaId_inhumacionPanteonFeretro = (int)ConceptosTarifariaEnum.InhumacionPanteonFerretro;
+        private int conceptoTarifariaId_inhumacionPanteonUrna = (int)ConceptosTarifariaEnum.InhumacionPanteonUrna;
+        private int conceptoTarifariaId_cierreNicho = (int)ConceptosTarifariaEnum.CierreDeNicho;
+        private int conceptoTarifariaId_cierreFosa = (int)ConceptosTarifariaEnum.CierreDeFosa;
+        private int conceptoTarifariaId_defuncion = (int)ConceptosTarifariaEnum.Defuncion;
+        private int conceptoTarifariaId_Transcripcion = (int)ConceptosTarifariaEnum.Transcripcion;
+        private int conceptoTarifariaId_introduccionFeretro = (int)ConceptosTarifariaEnum.IntroduccionFeretro;
+        private int conceptoTarifariaId_introduccionUrna = (int)ConceptosTarifariaEnum.IntroduccionUrna;
+        private int conceptoTarifariaId_AperturaFosa = (int)ConceptosTarifariaEnum.AperturaFosa;
+        private int conceptoTarifariaId_AperturaNichoConPlaca = (int)ConceptosTarifariaEnum.AperturaDeNichoConPlaca;
+        private int conceptoTarifariaId_AperturaNichoSinPlaca = (int)ConceptosTarifariaEnum.AperturaDeNichoSinPlaca;
 
 
         public IntroduccionBusiness(IIntroduccionBD introduccionBD)
