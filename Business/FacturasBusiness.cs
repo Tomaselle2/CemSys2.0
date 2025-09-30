@@ -2,6 +2,7 @@
 using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
 using CemSys2.Interface.Facturas;
+using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ namespace CemSys2.Business
     public class FacturasBusiness : IFacturaBusiness
     {
         private readonly IFacturasBD _facturasBD;
+        private readonly ITarifariaBusiness _tarifariaBusiness;
 
-        public FacturasBusiness(IFacturasBD facturasBD)
+        public FacturasBusiness(IFacturasBD facturasBD, ITarifariaBusiness tarifariaBusiness)
         {
             _facturasBD = facturasBD;
+            _tarifariaBusiness = tarifariaBusiness;
         }
         public async Task<Factura> ConsultarFacturaPorTramiteId(int idTramite)
         {
@@ -120,7 +123,7 @@ namespace CemSys2.Business
                 };
             }
             
-            decimal totalDetalleFactura = DTO_verificarDetalleFactura.DetallesFactura.Sum(d => d.PrecioUnitario);
+            decimal totalDetalleFactura = DTO_verificarDetalleFactura.DetallesFactura.Sum(d => d.PrecioUnitario) * await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
 
             //verifica que el monto sea positivo mayor a 0
             if (totalDetalleFactura <= 0)
