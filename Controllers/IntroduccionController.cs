@@ -329,7 +329,7 @@ namespace CemSys2.Controllers
                 IdFactura = factura.Id,
                 infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
                 HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId),
-                ListaConceptosTarifaria = await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente())
+                ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio( await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), resumen[0].FallecioEnTirolesa)
             };
         }
 
@@ -390,15 +390,14 @@ namespace CemSys2.Controllers
         }
 
 
-        //cargar el recibo
+        //Emitir factura
         [HttpPost]
-        public async Task<IActionResult> CargarRecibo(ResumenIntroduccionVM viewModel)
+        public async Task<IActionResult> EmitirFactura(ResumenIntroduccionVM viewModel)
         {
             // Desactivar validación automática para Factura
-            ModelState.Remove("Factura.Tramite");
+            //ModelState.Remove("Factura.Tramite");
 
             // Primero validar el archivo específicamente
-
             if (viewModel.ArchivoRecibo == null || viewModel.ArchivoRecibo.Length == 0)
             {
                 ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");

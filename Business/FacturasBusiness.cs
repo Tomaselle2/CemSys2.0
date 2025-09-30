@@ -1,5 +1,6 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.DTO.Factura;
+using CemSys2.Enumerable;
 using CemSys2.Interface.Facturas;
 using CemSys2.Models;
 
@@ -36,6 +37,25 @@ namespace CemSys2.Business
         public async Task<List<DTO_ConceptosTarifaria>> ListaConceptoTarifariaIntroduccion(int tarifariaId)
         {
             return await _facturasBD.ListaConceptoTarifariaIntroduccion(tarifariaId);
+        }
+
+        //duplica el precio de los conceptos si no es "fallecido en tirolesa(false)"
+        public List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa)
+        {
+            if (fallecidoEnTirolesa == false)
+            {
+                foreach (var item in conceptosTarifaria)
+                {
+                    if (item.TipoConceptoTarifariaId == (int)TipoConceptoTarifariaEnum.Contribucion || item.TipoConceptoTarifariaId == (int)TipoConceptoTarifariaEnum.DerechoDeOficina)
+                    {
+                        item.Precio *= 2; //duplica el precio
+                    }
+                }
+
+                return conceptosTarifaria;
+            }
+            
+            return conceptosTarifaria; //la devuelve tal cual
         }
 
         public async Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId)

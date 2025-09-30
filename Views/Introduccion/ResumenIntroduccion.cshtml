@@ -594,81 +594,105 @@
             <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
                 <div class="accordion-body">
                     @* cuerpo del acordion *@
-                    <form asp-action="CargarRecibo" method="post" id="formRecibo" class="form-box" enctype="multipart/form-data" onsubmit="handleFormSubmit()">
+                    <form asp-action="EmitirFactura" method="post" id="formRecibo" class="form-box" enctype="multipart/form-data" onsubmit="handleFormSubmit()">
                         <div class="mb-3">
                             <!--decreto-->
                             <input type="checkbox" asp-for="Decreto" id="decreto" onchange="handleDecretoChange(this)" />
                             <label for="decreto">Decreto municipal</label>
                         </div>
 
-                        <div class="mb-3">
-                            <!--Contribuyente-->
-                            <label for="">Contribuyente<span class="obligatorio"> * </span></label>
-                            <div class="form-columns-container3">
-                                <div>
-                                    <input id="contribuyenteDisplay" asp-for="IdContribuyente" class="form-control" type="text" placeholder="Seleccione un contribuyente" disabled />
-                                </div>
-                                <div>
+                        <div class="mb-3 form-columns-container3">
+                            <div> <!--Contribuyente-->
+                                <label for="">Contribuyente<span class="obligatorio"> * </span></label>
+                                <div class="form-columns-container3">
                                     <div>
-                                        <button class="btn btn-success" id="agregarContribuyenteButton" type="button">
-                                            <i class="bi bi-person-plus" id="contribuyenteIcon"></i>
-                                        </button>
+                                        <input id="contribuyenteDisplay" asp-for="IdContribuyente" class="form-control" type="text" placeholder="Seleccione un contribuyente" disabled />
+                                    </div>
+                                    <div>
+                                        <div>
+                                            <button class="btn btn-success" id="agregarContribuyenteButton" type="button">
+                                                <i class="bi bi-person-plus" id="contribuyenteIcon"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-columns-container3">
                             <div> <!--Descripcion general de la factura-->
                                 <label for="conceptoRecibo">Descripción<span class="obligatorio"> * </span></label>
                                 <input asp-for="Descripcion" id="conceptoRecibo" class="form-control" type="text" maxlength="100" required />
                                 <span asp-validation-for="Descripcion" class="text-danger"></span>
                             </div>
-
+                        </div>
+                        <div class="form-columns-container3">
                             <div> <!--lista de conceptos de la tarifaria para introducción-->
-                                <label>Concepto<span class="obligatorio"> * </span></label>
-                                <select id="conceptoSelect" class="form-select" asp-for="ConceptoId" required>
+                                <label>Concepto</label>
+                                <select id="conceptoSelect" class="form-select">
                                     <option value="">--Elija una opción--</option>
                                     @foreach (var item in Model.ListaConceptosTarifaria)
                                     {
-                                        <option value="@item.PrecioId" data-precio="@item.Precio">
+                                        <option value="@item.PrecioId" 
+                                                data-precio="@item.Precio"
+                                                data-tarifariaid="@item.TarifariaId"
+                                                data-conceptoid="@item.ConceptoTarifariaId"
+                                                data-tipoconcepto="@item.TipoConceptoTarifariaId">
                                             @item.NombreConcepto
                                         </option>
                                     }
                                 </select>
-                                <span asp-validation-for="ConceptoId" class="text-danger"></span>
                             </div>
 
-                            <div class="mt-2">
+                            <div>
                                 <label>Precio</label>
                                 <input type="text" id="precioInput" class="form-control" readonly />
                             </div>
 
-                            <div>
+                            @* <div>
                                 <label for="montoRecibo">Importe<span class="obligatorio"> * </span></label>
-                                <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" @* max="@Model.Factura.Pendiente" *@ required placeholder="0.00" step="0.01" />
+                                <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" max="@Model.Factura.Pendiente" required placeholder="0.00" step="0.01" />
                                 <span asp-validation-for="Monto" class="text-danger"></span>
-                            </div>
+                            </div> *@
                         </div>
+                        <button type="button" id="agregarBtn" class="btn btn-success">Agregar</button>
 
-                        <div>
+                        @* <div>
                             <label for="archivoRecibo">Archivo<span class="obligatorio"> * (.png .jpg .pdf)</span></label>
                             <input asp-for="ArchivoRecibo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" required />
                             <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
+                        </div> *@
+
+                        <!-- Tabla con los conceptos seleccionados -->
+                        <table class="table" id="detalleFacturaTable">
+                            <thead>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Precio</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                        <div>
+                            <p>Fondo de ayuda centro de salud (5%): $<span id="fondoSalud">0.00</span></p>
+                            <p><b>Total: $<span id="totalFactura">0.00</span></b></p>
                         </div>
+
                         <div class="my-3">
                             <button type="submit" id="btnCargarRecibo" class="my-3 btn btn-success">
-                                <span class="btn-text">Cargar recibo</span>
+                                <span class="btn-text">Emitir factura</span>
                                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                 <span class="loading-text d-none">Cargando...</span>
                             </button>
                         </div>
                         <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
-                        <input type="hidden" asp-for="IdFactura" value="@Model.Factura.Id" />
+                        <!-- <input type="hidden" asp-for="IdFactura" value="@* @Model.Factura.Id *@" />-->
                         <input type="hidden" asp-for="IdContribuyente" id="idContribuyenteHidden" />
                         <input type="hidden" asp-for="Dni" id="dniHidden" />
                         <input type="hidden" asp-for="Sexo" id="sexoHidden" />
                         <input type="hidden" asp-for="Nombre" id="nombreHidden" />
                         <input type="hidden" asp-for="Apellido" id="apellidoHidden" />
+                        <div id="detalleHiddenInputs"></div>
+
                     </form>
                     @* Fin cuerpo del acordeon *@
                 </div>
@@ -1295,13 +1319,97 @@
         });
     </script>
 
-    <script>
-        document.getElementById("conceptoSelect").addEventListener("change", function () {
-            var selectedOption = this.options[this.selectedIndex];
-            var precio = selectedOption.getAttribute("data-precio");
+    <script> //logica de precio del desplegable
 
-            document.getElementById("precioInput").value = precio ? precio : "";
-        });
+            let listaDetalles = [];
+
+           // Mostrar precio al seleccionar
+           document.getElementById("conceptoSelect").addEventListener("change", function () {
+               var selectedOption = this.options[this.selectedIndex];
+               var precio = selectedOption.getAttribute("data-precio");
+               document.getElementById("precioInput").value = precio ? `$ ${precio}` : "";
+           });
+
+           function agregarConceptoDetalle(){
+               let select = document.getElementById("conceptoSelect");
+               let option = select.options[select.selectedIndex];
+
+               if (!option.value) {
+                   alert("Debe seleccionar un concepto");
+                   return;
+               }
+
+               // validar duplicado por PrecioId (value del select)
+               let precioId = option.value;
+               if (listaDetalles.some(d => d.PrecioId == precioId)) {
+                   alert("Este concepto ya fue agregado");
+                   return;
+               }
+
+               let detalle = {
+                   PrecioId: precioId,
+                   ConceptoTarifariaId: option.getAttribute("data-conceptoid"),
+                   PrecioUnitario: parseFloat(option.getAttribute("data-precio")),
+                   Cantidad: 1, // siempre fijo en 1
+                   TipoConceptoFacturaId: option.getAttribute("data-tipoconcepto"),
+                   NombreConcepto: option.text
+               };
+
+               listaDetalles.push(detalle);
+               renderTabla();
+
+               // resetear el select y precio
+               select.selectedIndex = 0;
+               document.getElementById("precioInput").value = "";
+           }
+
+           // Agregar item
+           document.getElementById("agregarBtn").addEventListener("click", agregarConceptoDetalle);
+
+           // Renderizar tabla + totales
+           function renderTabla() {
+               let tbody = document.querySelector("#detalleFacturaTable tbody");
+               tbody.innerHTML = "";
+
+               let subtotal = 0;
+
+               listaDetalles.forEach((d, index) => {
+                   let row = document.createElement("tr");
+
+                   subtotal += d.PrecioUnitario; // siempre cantidad 1
+
+                   row.innerHTML = `
+                       <td>${d.NombreConcepto}</td>
+                       <td>$${d.PrecioUnitario.toFixed(2)}</td>
+                       <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarDetalle(${index})">X</button></td>
+                   `;
+                   tbody.appendChild(row);
+               });
+
+               let fondo = subtotal * 0.05;
+               let total = subtotal + fondo;
+
+               document.getElementById("fondoSalud").textContent = fondo.toFixed(2);
+               document.getElementById("totalFactura").textContent = total.toFixed(2);
+
+               // Generar inputs ocultos para enviar al backend
+               let hiddenDiv = document.getElementById("detalleHiddenInputs");
+               hiddenDiv.innerHTML = "";
+               listaDetalles.forEach((d, i) => {
+                   hiddenDiv.innerHTML += `
+                       <input type="hidden" name="ListaDetalleFactura[${i}].ConceptoTarifariaId" value="${d.ConceptoTarifariaId}" />
+                       <input type="hidden" name="ListaDetalleFactura[${i}].PrecioUnitario" value="${d.PrecioUnitario}" />
+                       <input type="hidden" name="ListaDetalleFactura[${i}].Cantidad" value="1" />
+                       <input type="hidden" name="ListaDetalleFactura[${i}].TipoConceptoFacturaId" value="${d.TipoConceptoFacturaId}" />
+                   `;
+               });
+           }
+
+           // Eliminar detalle
+           function eliminarDetalle(index) {
+               listaDetalles.splice(index, 1);
+               renderTabla();
+           }
     </script>
 }
 

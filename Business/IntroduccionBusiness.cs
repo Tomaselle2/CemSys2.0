@@ -15,8 +15,8 @@ namespace CemSys2.Business
         private int conceptoTarifariaId_inhumacionFosaUrna = 20;
         private int conceptoTarifariaId_inhumacionPanteonFeretro = 21;
         private int conceptoTarifariaId_inhumacionPanteonUrna = 22;
-        private int conceptoTarifariaId_cierreNicho = 23;
-        private int conceptoTarifariaId_cierreFosa = 24;
+        private int conceptoTarifariaId_cierreNicho = 4;
+        private int conceptoTarifariaId_cierreFosa = 5;
         private int conceptoTarifariaId_defuncion = 12;
         private int conceptoTarifariaId_Transcripcion = 13;
         private int conceptoTarifariaId_introduccionFeretro = 14;

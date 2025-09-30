@@ -14,6 +14,7 @@ namespace CemSys2.ViewModel
         public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
         public List<DTO_ConceptosTarifaria> ListaConceptosTarifaria { get; set; } = new();
+        public List<DTO_DetalleFactura> ListaDetalleFactura { get; set; } = new(); //lista de conceptos de la factura (detalle)
 
         public int? IdTramite { get; set; }
         public int? IdFactura { get; set; }
@@ -27,9 +28,6 @@ namespace CemSys2.ViewModel
         public decimal? Monto { get; set; }
 
         public decimal? MontoMaximo { get; set; }
-
-        [Required(ErrorMessage = "El concepto es obligatorio")]
-        public int ConceptoId { get; set; } //para el concepto tarifaria
 
         public string? infoAdicional { get; set; }
 
