@@ -23,7 +23,8 @@ INSERT INTO CategoriaPersonas (categoria) VALUES
 -- INSERT para RolesUsuarios
 INSERT INTO RolesUsuarios (rol) VALUES 
 ('Empleado'),
-('Encargado');
+('Encargado'),
+('Cajero');
 
 -- INSERT para EstadoDifunto
 INSERT INTO EstadoDifunto (estado) VALUES 
@@ -53,15 +54,16 @@ INSERT INTO TiposConceptoTarifaria (nombre) VALUES
 ('Concesión nicho'),
 ('Concesión fosa'),
 ('Registro Civil'),
-('Derecho de Oficina');
+('Derecho de Oficina'),
+('Fondo');
 
 -- INSERT para conceptos
 INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
 (1, 'Apertura de nicho con placa', 1),
 (1, 'Apertura de nicho sin placa', 1),
 (1, 'Apertura de fosa', 1),
-(1, 'Cierre de nicho', 1),
-(1, 'Cierre de fosa', 1),
+(2, 'Cierre de nicho', 1),
+(2, 'Cierre de fosa', 1),
 (1, 'Inscripción fuera de hora', 1),
 (1, 'Permiso para colocar placa', 1),
 (1, 'Permiso de refacciones', 1),
@@ -73,18 +75,15 @@ INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
 (6, 'Introducción de féretro', 1),
 (6, 'Introducción de urna', 1),
 (3, 'Concesión Nicho', 1),
-(4, 'Concesión Fosa', 1);
-
-INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
+(4, 'Concesión Fosa', 1),
 (2, 'Inhumación nicho urna', 1),
 (2, 'Inhumación fosa féretro', 1),
 (2, 'Inhumación fosa urna', 1),
 (2, 'Inhumación panteón féretro', 1),
-(2, 'Inhumación panteón urna', 1);
+(2, 'Inhumación panteón urna', 1),
+(7, 'Fondo de ayuda centro de salud (%)', 1),
+(7, 'Monto mínimo de fondo', 1);
 
---INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
---(2, 'Cierre de nicho (inhumación)', 1),
---(2, 'Cierre de fosa (inhumación)', 1);
 
 -- INSERT para AniosConcesion (años típicos de concesión)
 INSERT INTO AniosConcesion (anios) VALUES 
@@ -115,7 +114,15 @@ VALUES
 (4, 'Inactiva'),
 (4, 'Renovación');
 
+INSERT INTO EstadoFactura (estado) VALUES
+('Creado'),
+('Emitido'),
+('Pendiente de cobro'),
+('Cobrado'),
+('Anulado');
+GO
+
 insert into Personas (nombre, apellido, dni, visibilidad, categoriaPersona, sexo) values ('', 'Municipalidad Colonia Tirolesa', '00000000', 1, 3, 'otro');
 
-INSERT INTO Usuarios (nombre, correo, usuario, clave, visibilidad, rol) values ('Agustina Molina', 'agusm@gmail.com', 'agusm', '12345', 1, 2);
+INSERT INTO Usuarios (nombre, correo, usuario, clave, visibilidad, rol) values ('Tomas Carreras', 'tomaselle2@gmail.com', 'Tomaselle2', '12345', 1, 2);
 

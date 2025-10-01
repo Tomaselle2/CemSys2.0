@@ -123,15 +123,15 @@ namespace CemSys2.Business
                 };
             }
             
-            decimal totalDetalleFactura = DTO_verificarDetalleFactura.DetallesFactura.Sum(d => d.PrecioUnitario) * await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
+            decimal totalDetalleFactura = DTO_verificarDetalleFactura.DetallesFactura.Sum(d => d.PrecioUnitario) * (1 + await _tarifariaBusiness.ConsultarPorcentajeFondoActual());
 
             //verifica que el monto sea positivo mayor a 0
             if (totalDetalleFactura <= 0)
                 throw new ValidationException($"El monto no puede ser nulo o negativo");
 
             //verifica que el monto no supere el pendiente de la factura
-            if (totalDetalleFactura > DTO_verificarDetalleFactura.PendienteFactura)
-                throw new ValidationException($"El monto no puede ser superior a $ {DTO_verificarDetalleFactura.PendienteFactura}");
+            if (totalDetalleFactura > DTO_verificarDetalleFactura.Pendiente)
+                throw new ValidationException($"El monto no puede ser superior a $ {DTO_verificarDetalleFactura.Pendiente}");
 
             List<DTO_VerificarMontoFactura> FacturasEmitidasYPendientes = await _facturasBD.ListaFacturasEmitidasYPendientesParaVerificarPorTramite(DTO_verificarDetalleFactura.TramiteId);
 

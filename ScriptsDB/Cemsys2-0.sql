@@ -283,6 +283,8 @@ CREATE TABLE Introducciones (
     introduccionNueva BIT NOT NULL,
     fechaRetiro DATETIME NULL,
 	informacionAdicional NVARCHAR(MAX),
+	precio DECIMAL(10,2) NOT NULL DEFAULT 0,
+	pendiente DECIMAL(10,2) NULL,
     FOREIGN KEY (idTramite) REFERENCES Tramite(id),
     FOREIGN KEY (empleado) REFERENCES Usuarios(id),
     FOREIGN KEY (empresaFunebre) REFERENCES EmpresaFunebre(id),
@@ -290,6 +292,10 @@ CREATE TABLE Introducciones (
     FOREIGN KEY (difuntoID) REFERENCES Personas(idPersona)
 );
 
+create table MetodoPago (id INT PRIMARY KEY IDENTITY(1,1), 
+descripcion nvarchar(20) not null, 
+visibilidad bit not null
+);
 
 -- Contrato concesión
 CREATE TABLE ContratoConcesion (
@@ -307,6 +313,7 @@ CREATE TABLE ContratoConcesion (
 	contratoAnteriorId INT NULL,
 	precio DECIMAL(10,2) NOT NULL DEFAULT 0,
     tipoParcela INT NOT NULL,
+	Pendiente DECIMAL(10,2) NOT NULL DEFAULT 0,
     FOREIGN KEY (idTramite) REFERENCES Tramite(id),
     FOREIGN KEY (parcelaId) REFERENCES Parcela(id),
     FOREIGN KEY (cantidadAnios) REFERENCES AniosConcesion(id),
@@ -316,6 +323,38 @@ CREATE TABLE ContratoConcesion (
     FOREIGN KEY (tipoParcela) REFERENCES TipoParcela(id),
 	FOREIGN KEY (contratoAnteriorId) REFERENCES ContratoConcesion(idTramite)
 );
+
+-- Facturas Internas Precios
+CREATE TABLE FacturasInternasPrecios (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    tramiteId INT NOT NULL,
+    fechaCreacion DATETIME NOT NULL DEFAULT GETDATE(),
+    total DECIMAL(10,2) NOT NULL, -- Monto total de la factura
+    visibilidad BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (tramiteId) REFERENCES Tramite(id)
+);
+
+go
+
+-- Conceptos factura
+CREATE TABLE ConceptosFacturaInternasPrecios (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    facturaId INT NOT NULL,
+    conceptoTarifariaId INT NOT NULL,
+    precioUnitario DECIMAL(10,2) NOT NULL,
+    cantidad INT NOT NULL DEFAULT 1,
+	tipoConceptoFacturaId INT NULL,
+    subtotal AS (precioUnitario * cantidad) PERSISTED,
+    FOREIGN KEY (facturaId) REFERENCES FacturasInternasPrecios(id),
+    FOREIGN KEY (conceptoTarifariaId) REFERENCES ConceptosTarifarias(id),
+	FOREIGN KEY (tipoConceptoFacturaId) REFERENCES TiposConceptoTarifaria(id)
+);
+
+CREATE TABLE EstadoFactura (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    estado NVARCHAR(30) NOT NULL
+);
+GO
 
 CREATE TABLE HistorialTitularesContrato (
     id INT PRIMARY KEY IDENTITY(1,1),
@@ -369,9 +408,20 @@ CREATE TABLE Facturas (
     tramiteId INT NOT NULL,
     fechaCreacion DATETIME NOT NULL DEFAULT GETDATE(),
     total DECIMAL(10,2) NOT NULL, -- Monto total de la factura
-    pendiente DECIMAL(10,2) NOT NULL, -- Cuánto queda por pagar
     visibilidad BIT NOT NULL DEFAULT 1,
-    FOREIGN KEY (tramiteId) REFERENCES Tramite(id)
+	tipoTramiteId INT NULL,
+    UsuarioEmiteId INT NULL,
+    EstadoId INT NULL,
+    ContribuyenteId INT NULL,
+    MetodoPagoId INT NULL,
+    UsuarioCajeroId INT NULL,
+    FOREIGN KEY (tramiteId) REFERENCES Tramite(id),
+	FOREIGN KEY (tipoTramiteId) REFERENCES TipoTramite(id),
+	FOREIGN KEY (UsuarioEmiteId) REFERENCES Usuarios(id),
+	FOREIGN KEY (ContribuyenteId) REFERENCES Personas(idPersona),
+	FOREIGN KEY (EstadoId) REFERENCES EstadoFactura(id),
+	FOREIGN KEY (MetodoPagoId) REFERENCES MetodoPago(id),
+	FOREIGN KEY (UsuarioCajeroId) REFERENCES Usuarios(id)
 );
 
 -- Conceptos factura
@@ -440,6 +490,7 @@ CREATE TABLE TramiteParcela (
     FOREIGN KEY (tramiteId) REFERENCES Tramite(id),
     FOREIGN KEY (parcelaId) REFERENCES Parcela(id)
 );
+
 
 
 -- Agregar la FK de RecibosFactura a ArchivosDocumentacion

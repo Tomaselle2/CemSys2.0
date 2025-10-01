@@ -80,6 +80,8 @@ select * from ConceptosFacturaInternasPrecios
 select * from Introducciones
 select * from Facturas
 
+select * from PreciosTarifarias where tarifarioId = 5
+
 select * from Tarifarias
 select * from HistorialEstadoTramite
 

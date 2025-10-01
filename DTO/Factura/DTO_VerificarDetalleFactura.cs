@@ -12,6 +12,5 @@ namespace CemSys2.DTO.Factura
         public IFormFile? Archivo { get; set; }
         public bool Decreto { get; set; } = false;
         public decimal? MontoDecreto { get; set; }
-        public decimal PendienteFactura { get; set; }
     }
 }
