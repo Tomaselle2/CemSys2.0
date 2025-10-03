@@ -13,5 +13,7 @@
         public int Cantidad { get; set; }
 
         public int? TipoConceptoFacturaId { get; set; }
+
+        public int? PrecioId { get; set; } //este precio es el id del precio que se selecciona de la tarifaria, solo para comparar
     }
 }

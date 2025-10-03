@@ -47,13 +47,22 @@ namespace CemSys2.Business
         //duplica el precio de los conceptos si no es "fallecido en tirolesa(false)"
         public List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa)
         {
+            var exclusiones = new[]
+            {
+                (int)ConceptosTarifariaEnum.CierreDeFosa,
+                (int)ConceptosTarifariaEnum.CierreDeNicho
+            };
+
             if (fallecidoEnTirolesa == false)
             {
                 foreach (var item in conceptosTarifaria)
                 {
                     if (item.TipoConceptoTarifariaId == (int)TipoConceptoTarifariaEnum.Contribucion || item.TipoConceptoTarifariaId == (int)TipoConceptoTarifariaEnum.DerechoDeOficina)
                     {
-                        item.Precio *= 2; //duplica el precio
+                        if (!exclusiones.Contains(item.ConceptoTarifariaId))
+                        {
+                            item.Precio *= 2;
+                        }
                     }
                 }
 

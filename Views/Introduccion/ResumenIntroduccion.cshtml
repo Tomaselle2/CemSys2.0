@@ -5,12 +5,12 @@
 
 @{
     ViewData["Title"] = "Resumen introducción";
-    int tipoConceptosTarifariaId_Contribucion = 2;
-    int tipoConceptosTarifariaId_RegistroCivil = 5;
-    int tipoConceptosTarifariaId_DerechoDeOficina = 6;
-    int tipoConceptosTarifariaId_Generales = 1;
-    decimal porcentajeFondo = 0.05m; // 5% del fondo
-    decimal montoMinimoDeFondo = 500m;
+    int tipoConceptosTarifariaId_Contribucion = (int)TipoConceptoTarifariaEnum.Contribucion;
+    int tipoConceptosTarifariaId_RegistroCivil = (int)TipoConceptoTarifariaEnum.RegistroCivil;
+    int tipoConceptosTarifariaId_DerechoDeOficina = (int)TipoConceptoTarifariaEnum.DerechoDeOficina;
+    int tipoConceptosTarifariaId_Generales = (int)TipoConceptoTarifariaEnum.General;
+    decimal porcentajeFondo = Model.PorcentajeFondo ?? 0;
+    decimal montoMinimoDeFondo = Model.MontoMinimoFondo ?? 0;
 
 }
 
@@ -613,7 +613,7 @@
                                 <label for="">Contribuyente<span class="obligatorio"> * </span></label>
                                 <div class="form-columns-container3">
                                     <div>
-                                        <input id="contribuyenteDisplay" asp-for="IdContribuyente" class="form-control" type="text" placeholder="Seleccione un contribuyente" disabled />
+                                        <input id="contribuyenteDisplay" value="@(Model.Nombre + " " + Model.Apellido)" class="form-control" type="text" placeholder="Seleccione un contribuyente" disabled />
                                     </div>
                                     <div>
                                         <div>
@@ -1331,6 +1331,26 @@
 
             let listaDetalles = [];
 
+               @if (Model.ListaDetalleFactura != null && Model.ListaDetalleFactura.Any())
+               {
+                    foreach (var d in Model.ListaDetalleFactura)
+                    {
+                        <text>
+                            listaDetalles.push({
+                                PrecioId: @d.PrecioId,
+                                ConceptoTarifariaId: @d.ConceptoTarifariaId,
+                                PrecioUnitario: @d.PrecioUnitario,
+                                Cantidad: @d.Cantidad,
+                                TipoConceptoFacturaId: @(d.TipoConceptoFacturaId ?? 0),
+                                NombreConcepto: "@Model.ListaConceptosTarifaria.FirstOrDefault(c => c.ConceptoTarifariaId == d.ConceptoTarifariaId)?.NombreConcepto",
+                            });
+                        </text>
+                    }
+               }
+
+               // renderizar la tabla con lo que ya vino del backend
+               renderTabla();
+
            // Mostrar precio al seleccionar
            document.getElementById("conceptoSelect").addEventListener("change", function () {
                var selectedOption = this.options[this.selectedIndex];
@@ -1394,7 +1414,7 @@
                    tbody.appendChild(row);
                });
 
-               let fondo = subtotal * 0.05;
+               let fondo = subtotal * @Model.PorcentajeFondo;
                let total = subtotal + fondo;
 
                document.getElementById("fondoSalud").textContent = fondo.toFixed(2);
@@ -1409,6 +1429,7 @@
                        <input type="hidden" name="ListaDetalleFactura[${i}].PrecioUnitario" value="${d.PrecioUnitario}" />
                        <input type="hidden" name="ListaDetalleFactura[${i}].Cantidad" value="1" />
                        <input type="hidden" name="ListaDetalleFactura[${i}].TipoConceptoFacturaId" value="${d.TipoConceptoFacturaId}" />
+                       <input type="hidden" name="ListaDetalleFactura[${i}].PrecioId" value="${d.PrecioId}" />
                    `;
                });
            }

@@ -38,6 +38,9 @@ namespace CemSys2.ViewModel
 
         public string? MensajeError { get; set; }
 
+        public decimal? MontoMinimoFondo { get; set; }
+        public decimal? PorcentajeFondo { get; set; }
+
         //contribuyente
         [Range(0, 99999999, ErrorMessage = "El DNI no debe tener más de 8 dígitos")]
         [Required(ErrorMessage = "El DNI es obligatorio")]

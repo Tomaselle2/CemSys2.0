@@ -331,7 +331,9 @@ namespace CemSys2.Controllers
                 IdFactura = factura.Id,
                 infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
                 HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId),
-                ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio( await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), resumen[0].FallecioEnTirolesa)
+                ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio( await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), resumen[0].FallecioEnTirolesa),
+                MontoMinimoFondo = await _tarifariaBusiness.ConsultarMontoMinimoFondoActual(),
+                PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual()
             };
         }
 
@@ -421,10 +423,23 @@ namespace CemSys2.Controllers
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.ListaDetalleFactura = viewModel.ListaDetalleFactura; //mantener los conceptos seleccionados
+                vmCompleto.IdContribuyente = viewModel.IdContribuyente;
+                vmCompleto.Nombre = viewModel.Nombre;
+                vmCompleto.Apellido = viewModel.Apellido;
+                vmCompleto.Sexo = viewModel.Sexo;
+                vmCompleto.Dni = viewModel.Dni;
+
                 return View("ResumenIntroduccion", vmCompleto);
             }catch (Exception ex)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                vmCompleto.ListaDetalleFactura = viewModel.ListaDetalleFactura; //mantener los conceptos seleccionados
+                vmCompleto.IdContribuyente = viewModel.IdContribuyente;
+                vmCompleto.Nombre = viewModel.Nombre;
+                vmCompleto.Apellido = viewModel.Apellido;
+                vmCompleto.Sexo = viewModel.Sexo;
+                vmCompleto.Dni = viewModel.Dni;
                 vmCompleto.MensajeError = "No se pudo generar la factura: " + ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
             }
