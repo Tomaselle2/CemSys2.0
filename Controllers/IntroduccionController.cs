@@ -393,6 +393,15 @@ namespace CemSys2.Controllers
             return pdf;
         }
 
+        private void CargarDatosContribuyenteyFactura(ResumenIntroduccionVM vmNuevo, ResumenIntroduccionVM vmAnterior)
+        {
+            vmNuevo.ListaDetalleFactura = vmAnterior.ListaDetalleFactura; //mantener los conceptos seleccionados
+            vmNuevo.IdContribuyente = vmAnterior.IdContribuyente;
+            vmNuevo.Nombre = vmAnterior.Nombre;
+            vmNuevo.Apellido = vmAnterior.Apellido;
+            vmNuevo.Sexo = vmAnterior.Sexo;
+            vmNuevo.Dni = vmAnterior.Dni;
+        }
 
         //Emitir factura
         [HttpPost]
@@ -403,6 +412,7 @@ namespace CemSys2.Controllers
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
                 vmCompleto.MensajeError = "Por favor, complete todos los campos obligatorios.";
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
                 return View("ResumenIntroduccion", vmCompleto);
             }
 
@@ -414,8 +424,10 @@ namespace CemSys2.Controllers
                     DetallesFactura = viewModel.ListaDetalleFactura,
                     Pendiente = viewModel.ResumenIntroduccion[0].Pendiente,
                     Decreto = viewModel.Decreto,
-                    Archivo = viewModel.Decreto ? viewModel.ArchivoRecibo : null, //si es decreto, el archivo es obligatorio
-                    TramiteId = viewModel.IdTramite.Value
+                    Archivo = viewModel.Decreto ? viewModel.ArchivoDecreto : null, //si es decreto, el archivo es obligatorio
+                    TramiteId = viewModel.IdTramite.Value,
+                    MontoDecreto = viewModel.MontoDecreto
+                    
                 };
 
                 await _facturaBusiness.VerificarDetalleFactura(dto);
@@ -423,23 +435,12 @@ namespace CemSys2.Controllers
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.ListaDetalleFactura = viewModel.ListaDetalleFactura; //mantener los conceptos seleccionados
-                vmCompleto.IdContribuyente = viewModel.IdContribuyente;
-                vmCompleto.Nombre = viewModel.Nombre;
-                vmCompleto.Apellido = viewModel.Apellido;
-                vmCompleto.Sexo = viewModel.Sexo;
-                vmCompleto.Dni = viewModel.Dni;
-
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
                 return View("ResumenIntroduccion", vmCompleto);
             }catch (Exception ex)
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.ListaDetalleFactura = viewModel.ListaDetalleFactura; //mantener los conceptos seleccionados
-                vmCompleto.IdContribuyente = viewModel.IdContribuyente;
-                vmCompleto.Nombre = viewModel.Nombre;
-                vmCompleto.Apellido = viewModel.Apellido;
-                vmCompleto.Sexo = viewModel.Sexo;
-                vmCompleto.Dni = viewModel.Dni;
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
                 vmCompleto.MensajeError = "No se pudo generar la factura: " + ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -448,7 +449,7 @@ namespace CemSys2.Controllers
             {
                 FacturaId = viewModel.IdFactura.Value,
                 Concepto = viewModel.Descripcion!.Trim(),
-                Monto = viewModel.Monto.Value,
+                Monto = viewModel.MontoDecreto.Value,
                 Decreto = viewModel.Decreto,
                 Contribuyente = viewModel.IdContribuyente
             };
@@ -465,7 +466,7 @@ namespace CemSys2.Controllers
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
                 vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
-                vmCompleto.Monto = viewModel.Monto;
+                vmCompleto.MontoDecreto = viewModel.MontoDecreto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -478,7 +479,7 @@ namespace CemSys2.Controllers
         public async Task<IActionResult> EditarRecibo(ResumenIntroduccionVM viewModel)
         {
 
-            if (!viewModel.EsEdicion && viewModel.ArchivoRecibo == null)
+            if (!viewModel.EsEdicion && viewModel.ArchivoDecreto == null)
             {
                 ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
             }
@@ -490,9 +491,9 @@ namespace CemSys2.Controllers
             }
 
             // Validar archivo SOLO si se sube uno nuevo
-            if (viewModel.ArchivoRecibo != null && viewModel.ArchivoRecibo.Length > 0)
+            if (viewModel.ArchivoDecreto != null && viewModel.ArchivoDecreto.Length > 0)
             {
-                var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+                var extension = Path.GetExtension(viewModel.ArchivoDecreto.FileName).ToLower();
                 var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
                 if (!permitidas.Contains(extension))
                 {
@@ -511,7 +512,7 @@ namespace CemSys2.Controllers
                 await _introduccionBusiness.EditarReciboFactura(
                     viewModel.IdRecibo.Value,
                     viewModel.Descripcion!,
-                    viewModel.ArchivoRecibo
+                    viewModel.ArchivoDecreto
                 );
 
                 TempData["MensajeExito"] = "Recibo editado con éxito";
@@ -539,7 +540,7 @@ namespace CemSys2.Controllers
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
                 vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
-                vmCompleto.Monto = viewModel.Monto;
+                vmCompleto.MontoDecreto = viewModel.MontoDecreto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
             }
@@ -582,7 +583,7 @@ namespace CemSys2.Controllers
             {
                 var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
                 vmCompleto.Descripcion = viewModel.Descripcion;
-                vmCompleto.Monto = viewModel.Monto;
+                vmCompleto.MontoDecreto = viewModel.MontoDecreto;
                 viewModel.MensajeError = ex.Message;
                 return View("ResumenIntroduccion", vmCompleto);
             }

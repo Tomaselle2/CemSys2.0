@@ -103,7 +103,7 @@ namespace CemSys2.Business
             if(DTO_verificarDetalleFactura.Contribuyente == 0 || DTO_verificarDetalleFactura.Contribuyente == null) //si no hay contribuyente seleccionado
                 throw new ValidationException("Debe seleccionar un titular para la factura");
             
-            if (DTO_verificarDetalleFactura.DetallesFactura.Count == 0) //si no hay conceptos seleccionados
+            if (DTO_verificarDetalleFactura.Decreto == false && DTO_verificarDetalleFactura.DetallesFactura.Count == 0) //si no hay conceptos seleccionados
                 throw new ValidationException("Debe seleccionar al menos un concepto para la factura");
 
             if(DTO_verificarDetalleFactura.Decreto && (DTO_verificarDetalleFactura.Archivo == null || DTO_verificarDetalleFactura.Archivo.Length == 0)) //decreto true y sin archivo
@@ -131,16 +131,30 @@ namespace CemSys2.Business
                     _ => "application/octet-stream"
                 };
             }
+
+            if (DTO_verificarDetalleFactura.Decreto == true)
+            {
+                //verifica que el monto sea positivo mayor a 0
+                if (DTO_verificarDetalleFactura.MontoDecreto != null && DTO_verificarDetalleFactura.MontoDecreto <= 0)
+                    throw new ValidationException($"El monto no puede ser nulo o negativo");
+
+                //verifica que el monto no supere el pendiente de la factura
+                if (DTO_verificarDetalleFactura.MontoDecreto != null && DTO_verificarDetalleFactura.MontoDecreto > DTO_verificarDetalleFactura.Pendiente)
+                    throw new ValidationException($"El monto no puede ser superior a $ {DTO_verificarDetalleFactura.Pendiente}");
+            }
             
             decimal totalDetalleFactura = DTO_verificarDetalleFactura.DetallesFactura.Sum(d => d.PrecioUnitario) * (1 + await _tarifariaBusiness.ConsultarPorcentajeFondoActual());
 
-            //verifica que el monto sea positivo mayor a 0
-            if (totalDetalleFactura <= 0)
-                throw new ValidationException($"El monto no puede ser nulo o negativo");
+            if (DTO_verificarDetalleFactura.Decreto == false)
+            {
+                //verifica que el monto sea positivo mayor a 0
+                if (totalDetalleFactura <= 0)
+                    throw new ValidationException($"El monto no puede ser nulo o negativo");
 
-            //verifica que el monto no supere el pendiente de la factura
-            if (totalDetalleFactura > DTO_verificarDetalleFactura.Pendiente)
-                throw new ValidationException($"El monto no puede ser superior a $ {DTO_verificarDetalleFactura.Pendiente}");
+                //verifica que el monto no supere el pendiente de la factura
+                if (totalDetalleFactura > DTO_verificarDetalleFactura.Pendiente)
+                    throw new ValidationException($"El monto no puede ser superior a $ {DTO_verificarDetalleFactura.Pendiente}");
+            }
 
             List<DTO_VerificarMontoFactura> FacturasEmitidasYPendientes = await _facturasBD.ListaFacturasEmitidasYPendientesParaVerificarPorTramite(DTO_verificarDetalleFactura.TramiteId);
 
@@ -150,7 +164,10 @@ namespace CemSys2.Business
                 decimal totalPendiente = FacturasEmitidasYPendientes.Sum(f => f.MontoTotal);
                 if (totalDetalleFactura > totalPendiente)
                     throw new ValidationException($"El monto no puede ser superior al total de las facturas emitidas o pendientes de cobro ($ {totalPendiente})");
-            }
+
+                if(DTO_verificarDetalleFactura.Decreto && DTO_verificarDetalleFactura.MontoDecreto != null && DTO_verificarDetalleFactura.MontoDecreto > totalPendiente)
+                    throw new ValidationException($"El monto del decreto no puede ser superior al total de las facturas emitidas o pendientes de cobro ($ {totalPendiente})");
+            }   
         }
 
         //para resumen introduccion

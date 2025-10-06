@@ -24,7 +24,7 @@ namespace CemSys2.ViewModel
         [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]
         public string? Descripcion { get; set; } = string.Empty;
 
-        public decimal? Monto { get; set; }
+        public decimal? MontoDecreto { get; set; }
 
         public decimal? MontoMaximo { get; set; }
 
@@ -32,7 +32,7 @@ namespace CemSys2.ViewModel
 
         public bool EsEdicion { get; set; }
 
-        public IFormFile? ArchivoRecibo { get; set; }
+        public IFormFile? ArchivoDecreto { get; set; }
 
         public bool Decreto { get; set; } = false;
 
@@ -63,27 +63,27 @@ namespace CemSys2.ViewModel
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Decreto == true && !EsEdicion && ArchivoRecibo == null)
+            if (Decreto == true && !EsEdicion && ArchivoDecreto == null)
             {
                 yield return new ValidationResult(
                     "El archivo es obligatorio al cargar un nuevo recibo.",
-                    new[] { nameof(ArchivoRecibo) });
+                    new[] { nameof(ArchivoDecreto) });
             }
 
-            if (Decreto == true && Monto.HasValue)
+            if (Decreto == true && MontoDecreto.HasValue)
             {
-                if (Monto < 1)
+                if (MontoDecreto < 1)
                 {
                     yield return new ValidationResult(
                         $"El monto debe ser mayor o igual a 1",
-                        new[] { nameof(Monto) });
+                        new[] { nameof(MontoDecreto) });
                 }
 
-                if (Monto > MontoMaximo)
+                if (MontoDecreto > MontoMaximo)
                 {
                     yield return new ValidationResult(
                         $"El monto no puede ser mayor que {MontoMaximo}",
-                        new[] { nameof(Monto) });
+                        new[] { nameof(MontoDecreto) });
                 }
             }
         }

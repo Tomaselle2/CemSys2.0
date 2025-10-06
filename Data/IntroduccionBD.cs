@@ -34,10 +34,10 @@ namespace CemSys2.Data
             _tarifariaBusiness = tarifariaBusiness;
         }
 
-        private int tipoConceptosTarifariaId_Contribucion = (int)TipoConceptoTarifariaEnum.Contribucion;
-        private int tipoConceptosTarifariaId_RegistroCivil = (int)TipoConceptoTarifariaEnum.RegistroCivil;
-        private int tipoConceptosTarifariaId_DerechoDeOficina = (int)TipoConceptoTarifariaEnum.DerechoDeOficina;
-        private int tipoConceptosTarifariaId_Generales = (int)TipoConceptoTarifariaEnum.General;
+        //private int tipoConceptosTarifariaId_Contribucion = (int)TipoConceptoTarifariaEnum.Contribucion;
+        //private int tipoConceptosTarifariaId_RegistroCivil = (int)TipoConceptoTarifariaEnum.RegistroCivil;
+        //private int tipoConceptosTarifariaId_DerechoDeOficina = (int)TipoConceptoTarifariaEnum.DerechoDeOficina;
+        //private int tipoConceptosTarifariaId_Generales = (int)TipoConceptoTarifariaEnum.General;
 
         private async Task<decimal> PorcentajeFondo()
         {
@@ -656,7 +656,7 @@ namespace CemSys2.Data
                            p.Dni == DniContribuyente &&
                            p.CategoriaPersona != (int)CategoriaPersonaEnum.Fallecido &&
                            (!aplicarFiltroSexo || p.Sexo == sexo))
-                .FirstOrDefaultAsync();
+                .FirstAsync();
         }
 
         public async Task<Persona> RegistrarContribuyente(Persona contribuyente)

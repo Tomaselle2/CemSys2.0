@@ -12,6 +12,7 @@
     decimal porcentajeFondo = Model.PorcentajeFondo ?? 0;
     decimal montoMinimoDeFondo = Model.MontoMinimoFondo ?? 0;
 
+    string fondoString = (porcentajeFondo * 100).ToString("N0");
 }
 
 <a asp-action="Index" asp-controller="Introduccion" class="btn-volver"><i class="bi bi-arrow-left"></i></a>
@@ -502,12 +503,12 @@
 
 
 
-<!--Tabla Recibos -->
+<!--Tabla facturas emitidas -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Recibos
+                Facturas
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
@@ -631,7 +632,7 @@
                             </div>
                         </div>
                         <div class="form-columns-container3">
-                            <div> <!--lista de conceptos de la tarifaria para introducción-->
+                            <div class="elemento-ocultar-check"> <!--lista de conceptos de la tarifaria para introducción-->
                                 <label>Concepto</label>
                                 <select id="conceptoSelect" class="form-select">
                                     <option value="">--Elija una opción--</option>
@@ -648,24 +649,24 @@
                                 </select>
                             </div>
 
-                            <div>
+                            <div class="elemento-ocultar-check">
                                 <label>Precio</label>
                                 <input type="text" id="precioInput" class="form-control" readonly />
                             </div>
 
-                            @* <div>
-                                <label for="montoRecibo">Importe<span class="obligatorio"> * </span></label>
-                                <input asp-for="Monto" id="montoRecibo" class="form-control" type="number" min="1" max="@Model.Factura.Pendiente" required placeholder="0.00" step="0.01" />
-                                <span asp-validation-for="Monto" class="text-danger"></span>
-                            </div> *@
+                            <div style="display: none" id="montoDecreto">
+                                <label for="montoDecreto">Importe<span class="obligatorio"> * </span></label>
+                                <input asp-for="MontoDecreto" class="form-control" type="number" min="1" @*max="@Model.ResumenIntroduccion[0].Pendiente"*@ required placeholder="0.00" step="0.01" />
+                                <span asp-validation-for="MontoDecreto" class="text-danger"></span>
+                            </div>
                         </div>
-                        <button type="button" id="agregarBtn" class="btn btn-success">Agregar</button>
+                        <button type="button" id="agregarBtn" class="btn btn-success elemento-ocultar-check">Agregar</button>
 
-                        @* <div>
-                            <label for="archivoRecibo">Archivo<span class="obligatorio"> * (.png .jpg .pdf)</span></label>
-                            <input asp-for="ArchivoRecibo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" required />
-                            <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
-                        </div> *@
+                        <div style="display: none" id="archivoDecreto">
+                            <label for="archivoDecreto">Archivo<span class="obligatorio"> * (.png .jpg .pdf)</span></label>
+                            <input asp-for="ArchivoDecreto"  class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" required />
+                            <span asp-validation-for="ArchivoDecreto" class="text-danger"></span>
+                        </div>
 
                         <!-- Tabla con los conceptos seleccionados -->
                         <table class="table" id="detalleFacturaTable">
@@ -679,14 +680,14 @@
                             <tbody></tbody>
                         </table>
 
-                        <div>
-                            <p>Fondo de ayuda centro de salud (5%): $<span id="fondoSalud">0.00</span></p>
+                        <div class="elemento-ocultar-check">
+                            <p>Fondo de ayuda centro de salud (@fondoString%): $<span id="fondoSalud">0.00</span></p>
                             <p><b>Total: $<span id="totalFactura">0.00</span></b></p>
                         </div>
 
                         <div class="my-3">
                             <button type="submit" id="btnCargarRecibo" class="my-3 btn btn-success">
-                                <span class="btn-text">Emitir factura</span>
+                                <span class="btn-text" id="btn-enviar-factura">Emitir factura</span>
                                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                                 <span class="loading-text d-none">Cargando...</span>
                             </button>
@@ -721,7 +722,7 @@
             </div>
             <div class="modal-body">
                 <form id="formContribuyente" class="needs-validation" novalidate>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center py-4">
                         <div>
                             <!--DNI-->
                             <label for="dni">DNI<span class="obligatorio"> * </span></label>
@@ -793,8 +794,8 @@
                     </div>
                     <div>
                         <label for="archivoRecibo">Nuevo archivo (opcional) <span class="obligatorio"> (.png .jpg .pdf)</span></label>
-                        <input asp-for="ArchivoRecibo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" />
-                        <span asp-validation-for="ArchivoRecibo" class="text-danger"></span>
+                        <input asp-for="ArchivoDecreto" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" />
+                        <span asp-validation-for="ArchivoDecreto" class="text-danger"></span>
                     </div>
                     <input type="hidden" asp-for="IdRecibo" id="idReciboHidden" />
                     <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
@@ -959,6 +960,7 @@
         const errorMessage = document.getElementById('errorMessage');
         const idContribuyenteHidden = document.getElementById('idContribuyenteHidden');
 
+        let listaDetalles = []; //para los detalles de la factura
         // Abrir modal
         if(agregarContribuyenteButton){
             agregarContribuyenteButton.addEventListener('click', function (event) {
@@ -1139,6 +1141,8 @@
         function limpiarSeleccionContribuyente() {
            if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
                document.getElementById('decreto').checked = false;
+               apareceCamposCheck();
+               ocultarCampoArchivoMonto();
            }
 
             contribuyenteSeleccionado = null;
@@ -1204,18 +1208,58 @@
             errorMessage.style.display = 'none';
         }
 
+        function ocultaCamposCheck(){ //cuando se preciona el decreto
+            const elementos = document.querySelectorAll('.elemento-ocultar-check');
+            elementos.forEach(el => el.style.display = 'none');
+            document.getElementById('detalleFacturaTable').style.display = 'none';
+            listaDetalles = [];
+            document.getElementById("conceptoSelect").selectedIndex = 0;
+            document.getElementById("precioInput").value = "";
+            document.getElementById('btn-enviar-factura').textContent = 'Emitir decreto';
+            renderTabla();
+
+            //aparece el input de archivo y monto
+        }
+
+        function mostrarCampoArchivoMonto(){
+            document.getElementById('montoDecreto').style.display = 'block';
+            document.getElementById('archivoDecreto').style.display = 'block';
+        }
+
+        function ocultarCampoArchivoMonto(){
+            document.getElementById('montoDecreto').style.display = 'none';
+            document.getElementById('archivoDecreto').style.display = 'none';
+        }
+
+        function apareceCamposCheck(){ //cuando se deschequea el decreto
+            const elementos = document.querySelectorAll('.elemento-ocultar-check');
+            elementos.forEach(el => el.style.display = 'block');
+            document.getElementById('detalleFacturaTable').style.display = 'table';
+            document.getElementById('btn-enviar-factura').textContent = 'Emitir factura';
+            //se oculta el input de archivo y monto
+
+        }
+
         // Función para manejar cambios en el checkbox Decreto
         function handleDecretoChange(checkbox) {
             if (checkbox.checked) {
                 // Buscar contribuyente con DNI 00000000
+                //funcion de ocultar campos
+                ocultaCamposCheck();
+                mostrarCampoArchivoMonto();
                 buscarContribuyenteDecreto();
             } else {
                 // Deseleccionar contribuyente si existe
                 if (contribuyenteSeleccionado && contribuyenteSeleccionado.dni === "00000000") {
                     limpiarSeleccionContribuyente();
+                    apareceCamposCheck();
+                    ocultarCampoArchivoMonto();
                 }
             }
         }
+
+        //para cuando vuelve de un error y esta decreto seleccionado
+        document.getElementById('decreto').addEventListener('DOMContentLoaded',handleDecretoChange(document.getElementById('decreto')));
 
         // Función para buscar contribuyente de decreto
         function buscarContribuyenteDecreto() {
@@ -1296,40 +1340,9 @@
                 document.getElementById('decreto').checked = false;
             });
         }
-    </script>
 
-    <script> // Lógica para editar un recibo
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll('.btnEditarRecibo').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const id = this.dataset.id;
-                    const concepto = this.dataset.concepto;
-                    const archivo = this.dataset.archivo;
-
-                    document.getElementById('idReciboHidden').value = id;
-                    document.getElementById('conceptoReciboEdicion').value = concepto;
-                    document.getElementById('archivoActualRecibo').value = archivo || "Sin archivo";
-
-                    $('#EditarReciboModal').modal('show');
-                });
-            });
-        });
-    </script>
-
-     <script>//Modal de Confirmar finalizar pago pendiente documentacion
-        document.addEventListener("DOMContentLoaded", function () {
-            const btnConfirmar = document.getElementById("btnConfirmar");
-            const form = document.getElementById("formFinalizar");
-
-            btnConfirmar.addEventListener("click", function () {
-                form.submit();
-            });
-        });
-    </script>
-
-    <script> //logica de precio del desplegable
-
-            let listaDetalles = [];
+         //logica de precio del desplegable-----------------------------------------------------------------------------------------------------------------------------------------------
+         
 
                @if (Model.ListaDetalleFactura != null && Model.ListaDetalleFactura.Any())
                {
@@ -1439,8 +1452,38 @@
                listaDetalles.splice(index, 1);
                renderTabla();
            }
+
     </script>
-}
+
+    <script> // Lógica para editar un recibo
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('.btnEditarRecibo').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const concepto = this.dataset.concepto;
+                    const archivo = this.dataset.archivo;
+
+                    document.getElementById('idReciboHidden').value = id;
+                    document.getElementById('conceptoReciboEdicion').value = concepto;
+                    document.getElementById('archivoActualRecibo').value = archivo || "Sin archivo";
+
+                    $('#EditarReciboModal').modal('show');
+                });
+            });
+        });
+    </script>
+
+     <script>//Modal de Confirmar finalizar pago pendiente documentacion
+        document.addEventListener("DOMContentLoaded", function () {
+            const btnConfirmar = document.getElementById("btnConfirmar");
+            const form = document.getElementById("formFinalizar");
+
+            btnConfirmar.addEventListener("click", function () {
+                form.submit();
+            });
+        });
+    </script>
+    }
 
 
 
