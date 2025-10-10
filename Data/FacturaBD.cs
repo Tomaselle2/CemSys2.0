@@ -220,5 +220,30 @@ namespace CemSys2.Data
             return await _context.Facturas
                 .FirstAsync(f => f.Id == facturaId);
         }
+
+        public async Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId)
+        {
+            List<DTO_Factura> dto = new List<DTO_Factura>();
+
+             dto = await (from f in _context.Facturas.Include(c => c.Contribuyente)
+                   where f.TramiteId == tramiteId
+                   select new DTO_Factura
+                   {
+                       Id = f.Id,
+                       TramiteId = f.TramiteId,
+                       FechaCreacion = f.FechaCreacion,
+                       Total = f.Total,
+                       Visibilidad = f.Visibilidad,
+                       TipoTramiteId = f.TipoTramiteId,
+                       UsuarioEmiteId = f.UsuarioEmiteId,
+                       EstadoId = f.EstadoId,
+                       ContribuyenteId = f.ContribuyenteId,
+                       MetodoPagoId = f.MetodoPagoId,
+                       UsuarioCajeroId = f.UsuarioCajeroId,
+                       Descripcion = f.Descripcion,
+                       NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : null
+                   }).ToListAsync();
+            return dto;
+        }
     }
 }

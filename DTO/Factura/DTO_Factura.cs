@@ -25,5 +25,7 @@
         public int? UsuarioCajeroId { get; set; }
 
         public string? Descripcion { get; set; }
+
+        public string? NombreContribuyente { get; set; }
     }
 }

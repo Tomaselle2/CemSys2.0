@@ -334,6 +334,10 @@ namespace CemSys2.Business
                 }
             });
         }
-        
+
+        public async Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId)
+        {
+            return await _facturasBD.ListaFacturasPorTramiteId(tramiteId);
+        }
     }
 }

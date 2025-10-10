@@ -30,5 +30,7 @@ namespace CemSys2.Interface.Facturas
 
         Task PasarFactruraEstadoEmitir(int idfactura);
 
+        Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId);
+
     }
 }

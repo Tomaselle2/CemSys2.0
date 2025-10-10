@@ -1,5 +1,6 @@
 ﻿using CemSys2.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace CemSys2.Enumerable
 {
@@ -22,10 +23,19 @@ namespace CemSys2.Enumerable
 
     public enum EstadosFactura
     {
+        [Display(Name = "Creado")]
         Creado = 1,
+
+        [Display(Name = "Emitido")]
         Emitido = 2,
+
+        [Display(Name = "Pendiente de cobro")]
         PendienteDeCobro = 3,
+
+        [Display(Name = "Cobrado")]
         Cobrado = 4,
+
+        [Display(Name = "Anulado")]
         Anulado = 5
     }
 
@@ -104,6 +114,13 @@ namespace CemSys2.Enumerable
             var field = tipo.GetType().GetField(tipo.ToString());
             var attribute = (DisplayAttribute)Attribute.GetCustomAttribute(field, typeof(DisplayAttribute));
             return attribute?.Name ?? tipo.ToString();
+        }
+
+        public static string GetDisplayName(this Enum enumValue)
+        {
+            var member = enumValue.GetType().GetMember(enumValue.ToString()).First();
+            var attribute = member.GetCustomAttribute<DisplayAttribute>();
+            return attribute?.Name ?? enumValue.ToString();
         }
 
 

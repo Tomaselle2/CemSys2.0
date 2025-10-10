@@ -519,46 +519,50 @@
                         <td><b>Pendiente: $ @String.Format("{0:N2}", Model.ResumenIntroduccion[0].Pendiente)</b></td>
                     </tr>
                 </table>
-                @if (Model.ListaRecibosFactura.Any())
+                @if (Model.ListaFacturas.Count > 0)
                 {
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
+                                <th>Nro Factura</th>
                                 <th>Fecha</th>
-                                <th>Concepto</th>
-                                <th>Monto</th>
+                                <th>Descripción</th>
+                                <th>Importe</th>
                                 <th>Contribuyente</th>
-                                <th>Archivo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var opc in Model.ListaRecibosFactura)
+                            @foreach (var opc in Model.ListaFacturas)
                             {
                                 <tr>
-                                    <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td>@opc.Concepto</td>
-                                    <td>$ @String.Format("{0:N2}", opc.Monto)</td>
-                                    <td>@opc.ContribuyenteNavigation?.Nombre @opc.ContribuyenteNavigation?.Apellido</td>
+                                    <td>@opc.Id</td>
+                                    <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@opc.Descripcion</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
+                                    <td>@opc.NombreContribuyente?.ToUpper()</td>
+                                    <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
                                     <td>
                                         <!-- Botón para abrir modal de editar recibo-->
                                         @if (estadoTramite != (int)EstadosIntroduccion.Finalizado)
                                         {
-                                            <button class="btn btn-primary btnEditarRecibo"
+                                            @* <button class="btn btn-primary btnEditarRecibo"
                                                     type="button"
                                                     data-id="@opc.Id"
                                                     data-concepto="@opc.Concepto"
                                                     data-archivo="@opc.Archivo?.NombreArchivo">
                                                 <i class="bi bi-pencil"></i>
-                                            </button>
+                                            </button> *@
                                         }
 
                                         <!-- Botón para abrir modal de ver recibo-->
-                                        <button type="button"
+                                        @* <button type="button"
                                                 class="btn-modificar btn-sm"
                                                 title="Ver"
                                                 onclick="verRecibo('@opc.ArchivoId')">
                                             <i class="bi bi-eye"></i>
-                                        </button>
+                                        </button> *@
                                     </td>
                                 </tr>
                             }

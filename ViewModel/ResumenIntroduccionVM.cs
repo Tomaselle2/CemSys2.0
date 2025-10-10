@@ -11,7 +11,8 @@ namespace CemSys2.ViewModel
         public List<DTO_Resumen_Introduccion> ResumenIntroduccion { get; set; } = new();
         public DTO_FacturaInternaPrecios FacturaInterna { get; set; } = new();
         public List<ConceptosFacturaInternasPrecio> ListaConceptosFactura { get; set; } = new();
-        public List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
+        //ublic List<RecibosFactura> ListaRecibosFactura { get; set; } = new();
+        public List<DTO_Factura> ListaFacturas { get; set; } = new();
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
         public List<DTO_ConceptosTarifaria> ListaConceptosTarifaria { get; set; } = new();
         public List<DTO_DetalleFactura> ListaDetalleFactura { get; set; } = new(); //lista de conceptos de la factura (detalle)
