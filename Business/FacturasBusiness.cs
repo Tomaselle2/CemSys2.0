@@ -251,26 +251,6 @@ namespace CemSys2.Business
             return facturaId;
         }
 
-        public async Task PasarFactruraEstadoEmitir(int idfactura)
-        {
-            await _unitOfWork.ExecuteInTransactionAsync(async () => {
-
-                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
-
-                factura.EstadoId = (int)EstadosFactura.Emitido;
-
-                //registro el historial de estados
-                HistorialEstadosFactura historial = new HistorialEstadosFactura
-                {
-                    FacturaId = factura.Id,
-                    EstadoId = (int)EstadosFactura.Emitido,
-                    FechaCambio = DateTime.Now,
-                };
-
-                await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
-
-            });
-        }
 
         //para resumen introduccion
         public async Task<DTO_FacturaInternaPrecios> ConsultarFacturaInternaPorTramiteId(int idTramite)
@@ -344,6 +324,55 @@ namespace CemSys2.Business
         public async Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes()
         {
             return await _facturasBD.ListaTotalFacturasEmitidasYPendientes();
+        }
+
+        //estados de la factura ----------------------------------------
+        public async Task PasarFacturaEstadoEmitir(int idfactura)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () => {
+
+                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
+
+                factura.EstadoId = (int)EstadosFactura.Emitido;
+
+                //registro el historial de estados
+                HistorialEstadosFactura historial = new HistorialEstadosFactura
+                {
+                    FacturaId = factura.Id,
+                    EstadoId = (int)EstadosFactura.Emitido,
+                    FechaCambio = DateTime.Now,
+                };
+
+                await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
+
+            });
+        }
+
+        public async Task PasarFacturaEstadoAnulado(int idfactura)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () => {
+
+                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
+
+                if (factura.EstadoId == (int)EstadosFactura.Cobrado)
+                    throw new InvalidOperationException("No se puede anular una factura que ya ha sido cobrada.");
+
+                if (factura.EstadoId == (int)EstadosFactura.Anulado)
+                    throw new InvalidOperationException("No se puede anular una factura que ya ha sido anulada.");
+
+                factura.EstadoId = (int)EstadosFactura.Anulado;
+
+                //registro el historial de estados
+                HistorialEstadosFactura historial = new HistorialEstadosFactura
+                {
+                    FacturaId = factura.Id,
+                    EstadoId = (int)EstadosFactura.Anulado,
+                    FechaCambio = DateTime.Now,
+                };
+
+                await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
+
+            });
         }
     }
 }

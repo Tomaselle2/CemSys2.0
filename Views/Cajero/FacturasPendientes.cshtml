@@ -34,24 +34,29 @@
                         <thead>
                             <tr>
                                 <th>Nro Factura</th>
+                                <th>Importe</th>
                                 <th>Fecha</th>
                                 <th>Descripción</th>
-                                <th>Importe</th>
                                 <th>Usuario</th>
                                 <th>Estado</th>
+                                <th>Nro trámite</th>
+                                <th>Tipo trámite</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var opc in Model.ListaFacturasEmitidas)
                             {
+                                string tipoTramiteDisplay = EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)opc.TipoTramiteId.Value);
                                 <tr>
                                     <td>@opc.Id</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
                                     <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Descripcion</td>
-                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
                                     <td>@opc.NombreUsuarioEmite?.ToUpper()</td>
                                     <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
+                                    <td>@opc.TramiteId</td>
+                                    <td>@tipoTramiteDisplay</td>
                                     <td>
                                         procesar
                                     </td>

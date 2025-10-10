@@ -452,7 +452,7 @@ namespace CemSys2.Controllers
 
             if(facturaExito > 0 && !viewModel.Decreto)
             {
-                await _facturaBusiness.PasarFactruraEstadoEmitir(facturaExito);
+                await _facturaBusiness.PasarFacturaEstadoEmitir(facturaExito);
                 TempData["MensajeExito"] = "Factura emitida con éxito";
             }
 
