@@ -12,6 +12,8 @@ using CemSys2.Interface.Concesiones;
 using PuppeteerSharp;
 using CemSys2.Interface.Tramite;
 using CemSys2.Interface.Facturas;
+using CemSys2.Interface.Archivos;
+using CemSys2.Interface.Historiales;
 
 
 
@@ -49,6 +51,8 @@ builder.Services.AddScoped<IConcesionesDB, ConcesionesBD>();
 builder.Services.AddScoped<ITramiteBD, TramiteDB>();
 builder.Services.AddScoped<IFacturasBD, FacturaBD>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IArchivoBD, ArchivoBD>();
+builder.Services.AddScoped<IHistorialesBD, HistorialesBD>();
 
 //contenedor de capa de negocio
 builder.Services.AddScoped<IPdfService, PdfService>();

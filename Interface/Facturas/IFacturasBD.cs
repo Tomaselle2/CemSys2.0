@@ -23,11 +23,8 @@ namespace CemSys2.Interface.Facturas
         //para resumen introduccion
         Task<DTO_FacturaInternaPrecios> ConsultarFacturaInternaPorTramiteId(int idTramite);
         //para resumen introduccion
-        Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);
+        Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);        
 
-        //para archivos
-        Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo, string descripcion);
-        Task<List<DTO_Archivos_Documentacion>> ListaArchivosTramiteId(int tramiteId); //trae todos los archivos menos recibos
-        Task EditarArchivo(Guid archivoId, string descripcion, string categoriaArchivo, IFormFile? nuevoArchivo);
+        Task<Factura> ConsultarFacturaPorId(int facturaId);
     }
 }

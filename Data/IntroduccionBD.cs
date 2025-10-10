@@ -724,5 +724,16 @@ namespace CemSys2.Data
         {
             return await _context.HistorialEstadoTramites.Where(h=> h.TramiteId == tramiteId).ToListAsync();
         }
+
+        public async Task<Introduccione> ObtenerPorTramiteId(int tramiteId)
+        {
+            return await _context.Introducciones.FirstAsync(i => i.IdTramite == tramiteId);
+        }
+
+        public async Task ModificarIntroduccion(Introduccione introduccion)
+        {
+            _context.Introducciones.Update(introduccion);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -35,6 +35,8 @@ public partial class Factura
 
     public virtual EstadoFactura? Estado { get; set; }
 
+    public virtual ICollection<HistorialEstadosFactura> HistorialEstadosFacturas { get; set; } = new List<HistorialEstadosFactura>();
+
     public virtual MetodoPago? MetodoPago { get; set; }
 
     public virtual ICollection<RecibosFactura> RecibosFacturas { get; set; } = new List<RecibosFactura>();

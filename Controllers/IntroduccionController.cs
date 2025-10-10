@@ -1,5 +1,6 @@
 ﻿using CemSys2.Business;
 using CemSys2.DTO.Factura;
+using CemSys2.Enumerable;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Tarifaria;
@@ -407,6 +408,7 @@ namespace CemSys2.Controllers
         [HttpPost]
         public async Task<IActionResult> EmitirFactura(ResumenIntroduccionVM viewModel)
         {
+            int facturaExito = 0;
             //validar el modelo
             if (!ModelState.IsValid)
             {
@@ -415,7 +417,7 @@ namespace CemSys2.Controllers
                 CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
                 return View("ResumenIntroduccion", vmCompleto);
             }
-
+            
             try
             {
                 DTO_VerificarDetalleFactura dto = new DTO_VerificarDetalleFactura
@@ -426,11 +428,12 @@ namespace CemSys2.Controllers
                     Decreto = viewModel.Decreto,
                     Archivo = viewModel.Decreto ? viewModel.ArchivoDecreto : null, //si es decreto, el archivo es obligatorio
                     TramiteId = viewModel.IdTramite.Value,
-                    MontoDecreto = viewModel.MontoDecreto
-                    
+                    MontoDecreto = viewModel.MontoDecreto,
+                    Descripcion = viewModel.Descripcion?.Trim() ?? string.Empty,
+                    EstadoFacturaId = (int)EstadosFactura.Creado //cambiar dependiento del caso
                 };
 
-                await _facturaBusiness.VerificarDetalleFactura(dto);
+               facturaExito = await _facturaBusiness.VerificarDetalleFactura(dto);
             }catch(ValidationException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
@@ -445,33 +448,19 @@ namespace CemSys2.Controllers
                 return View("ResumenIntroduccion", vmCompleto);
             }
 
-            var recibo = new RecibosFactura
+            if(facturaExito > 0 && !viewModel.Decreto)
             {
-                FacturaId = viewModel.IdFactura.Value,
-                Concepto = viewModel.Descripcion!.Trim(),
-                Monto = viewModel.MontoDecreto.Value,
-                Decreto = viewModel.Decreto,
-                Contribuyente = viewModel.IdContribuyente
-            };
-
-
-
-            try
-            {
-                //await _introduccionBusiness.RegistrarReciboFactura(recibo, viewModel.ArchivoRecibo, mimeType, viewModel.IdTramite.Value);
-                TempData["MensajeExito"] = "Recibo cargado con éxito";
-                return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite } );
-            }
-            catch (Exception ex)
-            {
-                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
-                vmCompleto.Descripcion = viewModel.Descripcion?.Trim();
-                vmCompleto.MontoDecreto = viewModel.MontoDecreto;
-                viewModel.MensajeError = ex.Message;
-                return View("ResumenIntroduccion", vmCompleto);
+                await _facturaBusiness.PasarFactruraEstadoEmitir(facturaExito);
+                TempData["MensajeExito"] = "Factura emitida con éxito";
             }
 
-            
+            if (facturaExito > 0 && viewModel.Decreto)
+            {
+                TempData["MensajeExito"] = "Decreto emitido con éxito";
+            }
+
+            return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
+
         }
 
         //Editar recibo

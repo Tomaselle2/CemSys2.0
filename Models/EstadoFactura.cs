@@ -10,4 +10,6 @@ public partial class EstadoFactura
     public string Estado { get; set; } = null!;
 
     public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
+
+    public virtual ICollection<HistorialEstadosFactura> HistorialEstadosFacturas { get; set; } = new List<HistorialEstadosFactura>();
 }

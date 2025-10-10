@@ -27,11 +27,11 @@ public partial class ContratoConcesion
 
     public int Empleado { get; set; }
 
-    public int TipoParcela { get; set; }
-
     public int? ContratoAnteriorId { get; set; }
 
     public decimal Precio { get; set; }
+
+    public int TipoParcela { get; set; }
 
     public decimal Pendiente { get; set; }
 

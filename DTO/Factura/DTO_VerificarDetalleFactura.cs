@@ -8,6 +8,8 @@ namespace CemSys2.DTO.Factura
         public int? Contribuyente { get; set; }
         public decimal Pendiente { get; set; }
         public int TramiteId { get; set; }
+        public string Descripcion { get; set; } = string.Empty;
+        public int EstadoFacturaId { get; set; }
 
         public IFormFile? Archivo { get; set; }
         public bool Decreto { get; set; } = false;

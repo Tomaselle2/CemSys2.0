@@ -1,6 +1,7 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
+using CemSys2.Interface;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
@@ -13,25 +14,17 @@ namespace CemSys2.Business
     {
         private readonly IFacturasBD _facturasBD;
         private readonly ITarifariaBusiness _tarifariaBusiness;
+        public readonly IUnitOfWork _unitOfWork;
 
-        public FacturasBusiness(IFacturasBD facturasBD, ITarifariaBusiness tarifariaBusiness)
+        public FacturasBusiness(IFacturasBD facturasBD, ITarifariaBusiness tarifariaBusiness, IUnitOfWork unitOfWork)
         {
             _facturasBD = facturasBD;
             _tarifariaBusiness = tarifariaBusiness;
+            _unitOfWork = unitOfWork;
         }
         public async Task<Factura> ConsultarFacturaPorTramiteId(int idTramite)
         {
             return await _facturasBD.ConsultarFacturaPorTramiteId(idTramite);
-        }
-
-        public async Task EditarArchivo(Guid archivoId, string descripcion, string categoriaArchivo, IFormFile? nuevoArchivo)
-        {
-            await _facturasBD.EditarArchivo(archivoId, descripcion, categoriaArchivo, nuevoArchivo);
-        }
-
-        public async Task<List<DTO_Archivos_Documentacion>> ListaArchivosTramiteId(int tramiteId)
-        {
-            return await _facturasBD.ListaArchivosTramiteId(tramiteId);
         }
 
         public async Task<List<ConceptosFactura>> ListaConceptosFacturaPorFactura(int idFactura)
@@ -77,11 +70,6 @@ namespace CemSys2.Business
             return await _facturasBD.ListaRecibosFactura(facturaId);
         }
 
-        public async Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo, string descripcion)
-        {
-            await _facturasBD.RegistrarArchivo(archivo, mimeType, tramiteId, categoriaArchivo, descripcion);
-        }
-
         public async Task<int> RegistrarConceptoFactura(ConceptosFactura concepto)
         {
             return await _facturasBD.RegistrarConceptoFactura(concepto);
@@ -98,9 +86,12 @@ namespace CemSys2.Business
         }
 
         //verifica el detalle de la factura para generar la factura
-        public async Task VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura)
+        public async Task<int> VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura)
         {
-            if(DTO_verificarDetalleFactura.Contribuyente == 0 || DTO_verificarDetalleFactura.Contribuyente == null) //si no hay contribuyente seleccionado
+            int facturaId = 0;
+            string mimeType = string.Empty;
+
+            if (DTO_verificarDetalleFactura.Contribuyente == 0 || DTO_verificarDetalleFactura.Contribuyente == null) //si no hay contribuyente seleccionado
                 throw new ValidationException("Debe seleccionar un titular para la factura");
             
             if (DTO_verificarDetalleFactura.Decreto == false && DTO_verificarDetalleFactura.DetallesFactura.Count == 0) //si no hay conceptos seleccionados
@@ -121,8 +112,8 @@ namespace CemSys2.Business
                     throw new ValidationException("Solo se permiten archivos PNG, JPG o PDF.");
                 }
 
-                // Mapear el tipo MIME --quitar de aqui
-                string mimeType = extension switch
+                // Mapear el tipo MIME
+                mimeType = extension switch
                 {
                     ".png" => "image/png",
                     ".jpg" => "image/jpeg",
@@ -161,13 +152,124 @@ namespace CemSys2.Business
             //si hay facturas emitidas y pendientes
             if (FacturasEmitidasYPendientes != null && FacturasEmitidasYPendientes.Count > 0)
             {
-                decimal totalPendiente = FacturasEmitidasYPendientes.Sum(f => f.MontoTotal);
-                if (totalDetalleFactura > totalPendiente)
-                    throw new ValidationException($"El monto no puede ser superior al total de las facturas emitidas o pendientes de cobro ($ {totalPendiente})");
+                decimal totalFacturasEmitidas = FacturasEmitidasYPendientes.Sum(f => f.MontoTotal);
+                decimal permitidoEmitir = DTO_verificarDetalleFactura.Pendiente - totalFacturasEmitidas;
 
-                if(DTO_verificarDetalleFactura.Decreto && DTO_verificarDetalleFactura.MontoDecreto != null && DTO_verificarDetalleFactura.MontoDecreto > totalPendiente)
-                    throw new ValidationException($"El monto del decreto no puede ser superior al total de las facturas emitidas o pendientes de cobro ($ {totalPendiente})");
-            }   
+                if (permitidoEmitir <= 0)
+                    throw new ValidationException($"Ya no es posible emitir nuevas facturas: el total del servicio ya está cubierto con facturas previas por $ {totalFacturasEmitidas}.");
+
+                if (totalDetalleFactura > permitidoEmitir)
+                    throw new ValidationException($"El monto a facturar no puede ser superior al restante permitido ($ {permitidoEmitir}).");
+
+                if (DTO_verificarDetalleFactura.Decreto && DTO_verificarDetalleFactura.MontoDecreto != null &&
+                    DTO_verificarDetalleFactura.MontoDecreto > permitidoEmitir)
+                    throw new ValidationException($"El monto del decreto no puede ser superior al restante permitido ($ {permitidoEmitir}).");
+            }
+
+            //si llego hasta aca es porque paso todas las validaciones----------------------------------------
+            Tramite tramite = await _unitOfWork._tramiteBD.ConsultarTramite(DTO_verificarDetalleFactura.TramiteId);
+
+            if (DTO_verificarDetalleFactura.Decreto == true)
+            {
+                //registrar el archivo del decreto 
+                // y descuenta el monto del decreto al total del tramite que puede ser introduccion o contrato
+                await RegistrarArchivoDecreto(DTO_verificarDetalleFactura.Archivo, tramite, mimeType, $"Decreto trámite {DTO_verificarDetalleFactura.TramiteId.ToString()}",
+                    DTO_verificarDetalleFactura.MontoDecreto.Value, DTO_verificarDetalleFactura.Pendiente);
+
+                facturaId = 1; //indica que es decreto
+                return facturaId;
+            }
+
+            //crea el dto de la factura
+            DTO_Factura dtoFactura = new DTO_Factura
+            {
+                TramiteId = DTO_verificarDetalleFactura.TramiteId,
+                ContribuyenteId = DTO_verificarDetalleFactura.Contribuyente.Value,
+                Total = totalDetalleFactura,
+                Visibilidad = true,
+                TipoTramiteId = tramite.TipoTramiteId,
+                UsuarioEmiteId = 1, //por ahora usuario 1
+                Descripcion = DTO_verificarDetalleFactura.Descripcion,
+                EstadoId = DTO_verificarDetalleFactura.EstadoFacturaId
+            };
+
+            facturaId = await CrearFactura(dtoFactura, DTO_verificarDetalleFactura.DetallesFactura);
+
+            return facturaId;
+
+        }
+
+        //crea la factura en una transaccion
+        public async Task<int> CrearFactura(DTO_Factura dtoFactura, List<DTO_DetalleFactura> dtoDetalleFactura)
+        {
+            int facturaId = 0;
+            await _unitOfWork.ExecuteInTransactionAsync(async () => {
+                //registro la factura
+                Factura nuevaFactura = new Factura
+                {
+                    TramiteId = dtoFactura.TramiteId,
+                    ContribuyenteId = dtoFactura.ContribuyenteId,
+                    FechaCreacion = DateTime.Now,
+                    Total = dtoFactura.Total,
+                    Visibilidad = true,
+                    TipoTramiteId = dtoFactura.TipoTramiteId,
+                    UsuarioEmiteId = dtoFactura.UsuarioEmiteId,
+                    Descripcion = dtoFactura.Descripcion,
+                    EstadoId = dtoFactura.EstadoId,
+                };
+
+                nuevaFactura.Id = await _unitOfWork._facturasBD.RegistrarFactura(nuevaFactura);
+                await _unitOfWork.SaveChangesAsync();
+
+                //registro los conceptos de la factura
+                foreach (var detalle in dtoDetalleFactura)
+                {
+                    ConceptosFactura conceptoFactura = new ConceptosFactura{
+                        FacturaId = nuevaFactura.Id,
+                        ConceptoTarifariaId = detalle.ConceptoTarifariaId,
+                        Cantidad = detalle.Cantidad,
+                        PrecioUnitario = detalle.PrecioUnitario,
+                        TipoConceptoFacturaId = detalle.TipoConceptoFacturaId
+                    };
+
+                    await _unitOfWork._facturasBD.RegistrarConceptoFactura(conceptoFactura);
+                }
+                await _unitOfWork.SaveChangesAsync();
+
+                //registro el historial de estados
+                HistorialEstadosFactura historial = new HistorialEstadosFactura
+                {
+                    FacturaId = nuevaFactura.Id,
+                    EstadoId = nuevaFactura.EstadoId.Value,
+                    FechaCambio = DateTime.Now,
+                };
+
+                await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
+                facturaId = nuevaFactura.Id;
+            });
+
+            return facturaId;
+        }
+
+        public async Task PasarFactruraEstadoEmitir(int idfactura)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () => {
+
+                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
+
+                factura.EstadoId = (int)EstadosFactura.Emitido;
+
+                //registro el historial de estados
+                HistorialEstadosFactura historial = new HistorialEstadosFactura
+                {
+                    FacturaId = factura.Id,
+                    EstadoId = (int)EstadosFactura.Emitido,
+                    FechaCambio = DateTime.Now,
+                };
+
+                await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
+
+            });
         }
 
         //para resumen introduccion
@@ -180,6 +282,57 @@ namespace CemSys2.Business
         public async Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura)
         {
             return await _facturasBD.ListaConceptosFacturaInternaPorFactura(idFactura);
+        }
+
+        private async Task RegistrarArchivoDecreto(IFormFile archivo, Tramite tramite, string mimeType, string descipcion, decimal montoDecreto, decimal totalTramite)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                //registro el archivo del decreto
+                await _unitOfWork._archivoBD.RegistrarArchivo(archivo, mimeType, tramite.Id, CategoriaArchivosEnum.Decreto.ToString(), descipcion);
+
+                totalTramite = totalTramite - montoDecreto;
+
+                // 🔹 Actualizar el pendiente según el tipo de trámite
+                switch ((TipotamiteEmun)tramite.TipoTramiteId)
+                {
+                    case TipotamiteEmun.Introduccion:
+                        var introduccion = await _unitOfWork._introduccionBD.ObtenerPorTramiteId(tramite.Id);
+                        if (introduccion != null)
+                        {
+                            introduccion.Pendiente = totalTramite < 0 ? 0 : totalTramite;
+                            await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
+                        }
+                        break;
+
+                    case TipotamiteEmun.ContratoDeConcesion:
+                        var contrato = await _unitOfWork._concesionesBD.ConsultarContratoConcesion(tramite.Id);
+                        if (contrato != null)
+                        {
+                            contrato.Pendiente = totalTramite < 0 ? 0 : totalTramite;
+                            await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
+                        }
+                        break;
+                }
+
+                if (totalTramite <= 0) //se abono todo
+                {
+                    int estadoTramiteId = (int)EstadosIntroduccion.Cobrado;
+
+                    //se agrega el estado en historial estado
+                    HistorialEstadoTramite historial = new HistorialEstadoTramite
+                    {
+                        TramiteId = tramite.Id,
+                        EstadoTramiteId = estadoTramiteId,
+                        Fecha = DateTime.Now
+                    };
+                    await _unitOfWork._historialesBD.RegistrarHistorialTramite(historial);
+
+                    //se actualiza el estado actual en el tramite
+                    tramite.EstadoActualId = estadoTramiteId;
+                    await _unitOfWork._tramiteBD.ModificarTramite(tramite);                    
+                }
+            });
         }
         
     }

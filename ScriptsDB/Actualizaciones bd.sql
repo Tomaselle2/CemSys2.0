@@ -105,3 +105,12 @@ GO
 ALTER TABLE Facturas
 ADD CONSTRAINT FK_Facturas_EstadoFactura FOREIGN KEY (EstadoId) REFERENCES EstadoFactura(id);
 GO
+
+CREATE TABLE HistorialEstadosFactura (
+    Id INT PRIMARY KEY IDENTITY,
+    FacturaId INT NOT NULL,
+    EstadoId INT NOT NULL,
+    FechaCambio DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (FacturaId) REFERENCES Facturas(id),
+    FOREIGN KEY (EstadoId) REFERENCES EstadoFactura(id)
+);

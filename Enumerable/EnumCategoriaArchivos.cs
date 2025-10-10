@@ -21,6 +21,9 @@ namespace CemSys2.Enumerable
         [Display(Name = "Libreta de Familia")]
         Libreta_Familia,
 
+        [Display(Name = "Decreto Municipal")]
+        Decreto,
+
         [Display(Name = "Otro tipo de archivo")]
         Otro
     }

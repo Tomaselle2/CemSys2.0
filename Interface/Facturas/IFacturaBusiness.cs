@@ -18,17 +18,17 @@ namespace CemSys2.Interface.Facturas
         //duplica el precio de los conceptos si "fallecido en tirolesa(false)"
         List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa);
 
-        Task VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura);
+        Task<int> VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura);
 
         //para resumen introduccion
         Task<DTO_FacturaInternaPrecios> ConsultarFacturaInternaPorTramiteId(int idTramite);
         //para resumen introduccion
         Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);
 
-        //para archivos
-        Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo, string descripcion);
-        Task<List<DTO_Archivos_Documentacion>> ListaArchivosTramiteId(int tramiteId); // todos los archivos menos recibos
-        Task EditarArchivo(Guid archivoId, string descripcion, string categoriaArchivo, IFormFile? nuevoArchivo);
+        //crea la factura y los detalles de la factura en una sola transaccion
+        Task<int> CrearFactura(DTO_Factura dtoFactura, List<DTO_DetalleFactura> dtoDetalleFactura);
+
+        Task PasarFactruraEstadoEmitir(int idfactura);
 
     }
 }

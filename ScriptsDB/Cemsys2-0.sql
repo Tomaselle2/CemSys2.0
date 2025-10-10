@@ -292,6 +292,7 @@ CREATE TABLE Introducciones (
     FOREIGN KEY (difuntoID) REFERENCES Personas(idPersona)
 );
 
+
 create table MetodoPago (id INT PRIMARY KEY IDENTITY(1,1), 
 descripcion nvarchar(20) not null, 
 visibilidad bit not null
@@ -415,6 +416,7 @@ CREATE TABLE Facturas (
     ContribuyenteId INT NULL,
     MetodoPagoId INT NULL,
     UsuarioCajeroId INT NULL,
+	descripcion nvarchar(100) null,
     FOREIGN KEY (tramiteId) REFERENCES Tramite(id),
 	FOREIGN KEY (tipoTramiteId) REFERENCES TipoTramite(id),
 	FOREIGN KEY (UsuarioEmiteId) REFERENCES Usuarios(id),
@@ -489,6 +491,15 @@ CREATE TABLE TramiteParcela (
     PRIMARY KEY (tramiteId, parcelaId),
     FOREIGN KEY (tramiteId) REFERENCES Tramite(id),
     FOREIGN KEY (parcelaId) REFERENCES Parcela(id)
+);
+
+CREATE TABLE HistorialEstadosFactura (
+    Id INT PRIMARY KEY IDENTITY,
+    FacturaId INT NOT NULL,
+    EstadoId INT NOT NULL,
+    FechaCambio DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (FacturaId) REFERENCES Facturas(id),
+    FOREIGN KEY (EstadoId) REFERENCES EstadoFactura(id)
 );
 
 

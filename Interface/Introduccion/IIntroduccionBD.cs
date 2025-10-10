@@ -12,6 +12,9 @@ namespace CemSys2.Interface.Introduccion
 
         Task<int> RegistrarEmpresaSepelio(EmpresaFunebre model);
 
+        Task<Introduccione> ObtenerPorTramiteId(int tramiteId);
+        Task ModificarIntroduccion(Introduccione introduccion);
+
         Task<Persona?> ConsultarDifunto(string dni);
         Task<List<EstadoDifunto>> ListaEstadoDifunto();
         Task<List<TipoParcela>> ListaTipoParcela();

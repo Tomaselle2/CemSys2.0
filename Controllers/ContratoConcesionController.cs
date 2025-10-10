@@ -157,7 +157,7 @@ namespace CemSys2.Controllers
                 viewModel.Factura = factura;
                 viewModel.ListaConceptosFactura = conceptosFactura; //conceptos
                 viewModel.ListaRecibosFactura = listaRecibosFactura; //recibos
-                viewModel.ListaArchivos = await _facturaBusiness.ListaArchivosTramiteId(tramiteId); //archivos
+               // viewModel.ListaArchivos = await _facturaBusiness.ListaArchivosTramiteId(tramiteId); //archivos
 
                 viewModel.Categorias = EnumHelper.ToSelectList<CategoriaArchivosEnum>();
             }
@@ -535,7 +535,7 @@ namespace CemSys2.Controllers
 
             try
             {
-                await _facturaBusiness.RegistrarArchivo(viewModel.ArchivoRecibo, mimeType, viewModel.TramiteId.Value, viewModel.Categoria, viewModel.Concepto!);
+                //await _facturaBusiness.RegistrarArchivo(viewModel.ArchivoRecibo, mimeType, viewModel.TramiteId.Value, viewModel.Categoria, viewModel.Concepto!);
                 TempData["MensajeExito"] = $"Archivo {viewModel.Categoria} cargado con éxito";
                 return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
             }
@@ -823,12 +823,12 @@ namespace CemSys2.Controllers
 
             try
             {
-                await _facturaBusiness.EditarArchivo(
-                    viewModel.IdArchivo.Value,
-                    viewModel.Concepto!.Trim(),
-                    viewModel.Categoria,                    
-                    viewModel.ArchivoRecibo
-                );
+                //await _facturaBusiness.EditarArchivo(
+                //    viewModel.IdArchivo.Value,
+                //    viewModel.Concepto!.Trim(),
+                //    viewModel.Categoria,                    
+                //    viewModel.ArchivoRecibo
+                //);
 
                 TempData["MensajeExito"] = $"Archivo {viewModel.Categoria} editado con éxito";
                 return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
