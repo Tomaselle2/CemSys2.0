@@ -241,8 +241,32 @@ namespace CemSys2.Data
                        MetodoPagoId = f.MetodoPagoId,
                        UsuarioCajeroId = f.UsuarioCajeroId,
                        Descripcion = f.Descripcion,
-                       NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : null
+                       NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : ""
                    }).ToListAsync();
+            return dto;
+        }
+
+        public async Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes()
+        {
+            List<DTO_Factura> dto = new List<DTO_Factura>();
+            dto = await (from f in _context.Facturas.Include(F => F.UsuarioEmite).Where(f => f.EstadoId == (int)EstadosFactura.Emitido || f.EstadoId == (int)EstadosFactura.PendienteDeCobro)
+                         select new DTO_Factura
+                         {
+                             Id = f.Id,
+                             TramiteId = f.TramiteId,
+                             FechaCreacion = f.FechaCreacion,
+                             Total = f.Total,
+                             Visibilidad = f.Visibilidad,
+                             TipoTramiteId = f.TipoTramiteId,
+                             UsuarioEmiteId = f.UsuarioEmiteId,
+                             EstadoId = f.EstadoId,
+                             ContribuyenteId = f.ContribuyenteId,
+                             MetodoPagoId = f.MetodoPagoId,
+                             UsuarioCajeroId = f.UsuarioCajeroId,
+                             Descripcion = f.Descripcion,
+                             NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : ""
+                         }).OrderByDescending(f=>f.FechaCreacion).ToListAsync();
+           
             return dto;
         }
     }

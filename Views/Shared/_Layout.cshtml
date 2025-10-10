@@ -28,38 +28,44 @@
                     </a>
                 </li>
 
+                @if (Context.Session.GetInt32("Rol") == 1 || Context.Session.GetInt32("Rol") == 2) //empleado y encargado
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-file-earmark"></i> <span class="nav-text">Trámites</span>
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-file-earmark"></i> <span class="nav-text">Trámites</span>
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="ContratoConcesion" asp-action="Index">
+                            <i class="bi bi-journal-text"></i> <span class="nav-text">Concesiones</span>
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="ContratoConcesion" asp-action="Index">
-                        <i class="bi bi-journal-text"></i> <span class="nav-text">Concesiones</span>
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Introduccion" asp-action="Index">
+                            <i class="bi bi-person-up"></i><span class="nav-text">Introducciones</span>
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Introduccion" asp-action="Index">
-                        <i class="bi bi-person-up"></i></i> <span class="nav-text">Introducciones</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Secciones" asp-action="Index">
-                        <i class="bi bi-grid-3x3"></i>
-                        <span class="nav-text">Secciones</span>
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Secciones" asp-action="Index">
+                            <i class="bi bi-grid-3x3"></i>
+                            <span class="nav-text">Secciones</span>
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" asp-controller="Personas" asp-action="Index">
-                        <i class="bi bi-person-vcard"></i> <span class="nav-text">Personas</span>
-                    </a>
-                </li>               
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Personas" asp-action="Index">
+                            <i class="bi bi-person-vcard"></i> <span class="nav-text">Personas</span>
+                        </a>
+                    </li>
+                }
+                
 
-                @if (Context.Session.GetInt32("Rol") == 2)
+                          
+
+                @if (Context.Session.GetInt32("Rol") == 2) //encargado
                 {
                     <li class="nav-item">
                         <a class="nav-link text-dark icono-menu" asp-controller="Reportes" asp-action="Index">
@@ -72,6 +78,28 @@
                         </a>
                     </li>                 
                 }
+
+                @if (Context.Session.GetInt32("Rol") == 3) //cajero
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Cajero" asp-action="FacturasPendientes">
+                            <i class="bi bi-bar-chart"></i> <span class="nav-text">Facturas emitidas</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Cajero" asp-action="FacturasCobradas">
+                            <i class="bi bi-gear"></i> <span class="nav-text">Facturas cobradas</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-dark icono-menu" asp-controller="Cajero" asp-action="FacturasAnuladas">
+                            <i class="bi bi-gear"></i> <span class="nav-text">Facturas anuladas</span>
+                        </a>
+                    </li>
+                }
+
 
                 <li class="nav-item">
                     <a class="nav-link cerrar-sesion" asp-controller="Login" asp-action="CerrarSesion">

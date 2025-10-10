@@ -27,5 +27,7 @@
         public string? Descripcion { get; set; }
 
         public string? NombreContribuyente { get; set; }
+
+        public string? NombreUsuarioEmite { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace CemSys2.DTO.Factura
         public int TramiteId { get; set; }
         public string Descripcion { get; set; } = string.Empty;
         public int EstadoFacturaId { get; set; }
+        public int? UsuarioEmiteId { get; set; }
 
         public IFormFile? Archivo { get; set; }
         public bool Decreto { get; set; } = false;

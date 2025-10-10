@@ -27,5 +27,7 @@ namespace CemSys2.Interface.Facturas
 
         Task<Factura> ConsultarFacturaPorId(int facturaId);
         Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId);
+
+        Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes();
     }
 }

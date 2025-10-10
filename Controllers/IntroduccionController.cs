@@ -431,7 +431,8 @@ namespace CemSys2.Controllers
                     TramiteId = viewModel.IdTramite.Value,
                     MontoDecreto = viewModel.MontoDecreto,
                     Descripcion = viewModel.Descripcion?.Trim() ?? string.Empty,
-                    EstadoFacturaId = (int)EstadosFactura.Creado //cambiar dependiento del caso
+                    EstadoFacturaId = (int)EstadosFactura.Creado, //cambiar dependiento del caso,
+                    UsuarioEmiteId = HttpContext.Session.GetInt32("idUsuario")
                 };
 
                facturaExito = await _facturaBusiness.VerificarDetalleFactura(dto);

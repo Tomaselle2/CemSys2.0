@@ -188,9 +188,9 @@ namespace CemSys2.Business
                 Total = totalDetalleFactura,
                 Visibilidad = true,
                 TipoTramiteId = tramite.TipoTramiteId,
-                UsuarioEmiteId = 1, //por ahora usuario 1
+                UsuarioEmiteId = DTO_verificarDetalleFactura.UsuarioEmiteId, 
                 Descripcion = DTO_verificarDetalleFactura.Descripcion,
-                EstadoId = DTO_verificarDetalleFactura.EstadoFacturaId
+                EstadoId = DTO_verificarDetalleFactura.EstadoFacturaId,
             };
 
             facturaId = await CrearFactura(dtoFactura, DTO_verificarDetalleFactura.DetallesFactura);
@@ -338,6 +338,12 @@ namespace CemSys2.Business
         public async Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId)
         {
             return await _facturasBD.ListaFacturasPorTramiteId(tramiteId);
+        }
+
+        //para la pantalla del cajero de facturas emitidas
+        public async Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes()
+        {
+            return await _facturasBD.ListaTotalFacturasEmitidasYPendientes();
         }
     }
 }

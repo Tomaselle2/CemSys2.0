@@ -1,0 +1,73 @@
+﻿@using CemSys2.ViewModel.Cajero
+@using CemSys2.Enumerable
+@model FacturasEmitidasVM
+
+@{
+    ViewData["Title"] = "Facturas emitidas";
+}
+
+<h1 class="tituloDePagina">Facturas emitidas</h1>
+
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<!--Tabla facturas emitidas -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Facturas
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body" style="padding: 0">
+                @* cuerpo del acordion *@
+                @if (Model.ListaFacturasEmitidas.Count > 0)
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nro Factura</th>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Importe</th>
+                                <th>Usuario</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var opc in Model.ListaFacturasEmitidas)
+                            {
+                                <tr>
+                                    <td>@opc.Id</td>
+                                    <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@opc.Descripcion</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
+                                    <td>@opc.NombreUsuarioEmite?.ToUpper()</td>
+                                    <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
+                                    <td>
+                                        procesar
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                } else
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        No hay facturas emitidas.
+                    </div>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
