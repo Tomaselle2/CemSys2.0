@@ -656,7 +656,7 @@ namespace CemSys2.Data
                            p.Dni == DniContribuyente &&
                            p.CategoriaPersona != (int)CategoriaPersonaEnum.Fallecido &&
                            (!aplicarFiltroSexo || p.Sexo == sexo))
-                .FirstAsync();
+                .FirstOrDefaultAsync();
         }
 
         public async Task<Persona> RegistrarContribuyente(Persona contribuyente)
