@@ -569,7 +569,7 @@ namespace CemSys2.Controllers
                     return Json(new { success = false, message = "DNI y sexo son obligatorios" });
                 }
 
-                Persona contribuyente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
+                Persona contribuyente = await _personasBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
 
                 if (contribuyente != null)
                 {
@@ -621,7 +621,7 @@ namespace CemSys2.Controllers
                 }
 
                 // Validar que no exista ya
-                Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
+                Persona contribuyenteExistente = await _personasBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
                 if (contribuyenteExistente != null)
                 {
                     return Json(new { success = false, message = "El titular ya existe en el sistema" });
@@ -664,28 +664,6 @@ namespace CemSys2.Controllers
             }
         }
 
-        //ver Recibo archivo
-        public async Task<IActionResult> VerRecibo(Guid archivoId)
-        {
-            var archivo = await _introduccionBusiness.ObtenerArchivo(archivoId);
-
-            if (archivo == null || archivo.Contenido == null)
-                return NotFound("Archivo no encontrado.");
-            string tipo = archivo.TipoArchivo.ToLower();
-
-            if (tipo.StartsWith("image/"))
-            {
-                // Convertir la imagen a PDF
-                archivo.Contenido = PdfHelper.ImagenComoPdf(archivo.Contenido);
-                tipo = "application/pdf";
-                archivo.NombreArchivo = Path.ChangeExtension(archivo.NombreArchivo, ".pdf");
-            }
-
-            // Forzar a que el navegador intente mostrarlo
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{archivo.NombreArchivo}\"";
-
-            return File(archivo.Contenido, tipo);
-        }
 
         // Método para registrar nuevo contribuyente (AJAX)
         [HttpPost]
@@ -700,7 +678,7 @@ namespace CemSys2.Controllers
                 }
 
                 // Validar que no exista ya
-                Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
+                Persona contribuyenteExistente = await _personasBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
                 if (contribuyenteExistente != null)
                 {
                     return Json(new { success = false, message = "El contribuyente ya existe en el sistema" });
@@ -716,7 +694,7 @@ namespace CemSys2.Controllers
                 };
 
                 // Guardar en base de datos (ajusta según tu lógica de negocio)
-                var contribuyenteCreado = await _introduccionBusiness.RegistrarContribuyente(nuevoContribuyente);
+                var contribuyenteCreado = await _personasBusiness.RegistrarContribuyente(nuevoContribuyente);
 
                 return Json(new
                 {

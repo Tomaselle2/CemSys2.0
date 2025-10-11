@@ -501,6 +501,70 @@
     </tr>
 </table>
 
+<!--Tabla Archivos decreto -->
+@if (Model.ListaArchivos.Count > 0)
+{
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                    Decretos
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                <div class="accordion-body" style="padding: 0">
+                    @* cuerpo del acordion *@
+                    @if (Model.ListaArchivos.Any())
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Fecha de carga</th>
+                                    <th>Categoría</th>
+                                    <th>Archivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaArchivos)
+                                {
+                                    <tr>
+                                        <td>@opc.Descripcion</td>
+                                        <td>@opc.FechaCreacion?.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@opc.CategoriaArchivo</td>
+                                        <td>
+                                            <!-- Botón para abrir modal de editar archivo-->
+                                            @if (estadoTramite != (int)EstadosIntroduccion.Finalizado)
+                                            {
+                                                <button class="btn btn-primary btnEditarArchivo"
+                                                        type="button"
+                                                        data-id="@opc.ArchivoId"
+                                                        data-concepto="@opc.Descripcion"
+                                                        data-archivo="@opc.NombreArchivo" ,
+                                                        data-categoria="@opc.CategoriaArchivo">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            }
+
+                                            <!-- Botón para abrir modal de ver archivo-->
+                                            <button type="button"
+                                                    class="btn-modificar btn-sm"
+                                                    title="Ver"
+                                                    onclick="verRecibo('@opc.ArchivoId')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    @* Fin cuerpo del acordeon *@
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 
 <!--Tabla facturas emitidas -->
@@ -544,31 +608,44 @@
                                     <td>@opc.NombreContribuyente?.ToUpper()</td>
                                     <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
                                     <td>
-                                        <!-- Botón para abrir modal de editar recibo-->
-                                        @if (estadoTramite != (int)EstadosIntroduccion.Finalizado)
+                                        <!-- Botón para abrir modal de anular factura-->
+                                        @if (estadoTramite != (int)EstadosIntroduccion.Finalizado 
+                                        && opc.EstadoId != (int)EstadosFactura.Cobrado 
+                                        && opc.EstadoId != (int)EstadosFactura.Anulado)
                                         {
-                                            @* <button class="btn btn-primary btnEditarRecibo"
-                                                    type="button"
-                                                    data-id="@opc.Id"
-                                                    data-concepto="@opc.Concepto"
-                                                    data-archivo="@opc.Archivo?.NombreArchivo">
-                                                <i class="bi bi-pencil"></i>
-                                            </button> *@
+                                            <button class="btn btn-danger anularFactura" type="button" data-facturaid="@opc.Id" title="Anular">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button> 
                                         }
-
-                                        <!-- Botón para abrir modal de ver recibo-->
-                                        @* <button type="button"
-                                                class="btn-modificar btn-sm"
-                                                title="Ver"
-                                                onclick="verRecibo('@opc.ArchivoId')">
-                                            <i class="bi bi-eye"></i>
-                                        </button> *@
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 }
+                else
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        No hay facturas registradas.
+                    </div>
+                }
+
+                <!-- Botón para abrir modal de ver recibo-->
+                @* <button type="button"
+                                                class="btn-modificar btn-sm"
+                                                title="Ver"
+                                                onclick="verRecibo('@opc.ArchivoId')">
+                                            <i class="bi bi-eye"></i>
+                                        </button> *@
+
+                @* <button class="btn btn-primary btnEditarRecibo"
+                                                    type="button"
+                                                    data-id="@opc.Id"
+                                                    data-concepto="@opc.Concepto"
+                                                    data-archivo="@opc.Archivo?.NombreArchivo">
+                                                <i class="bi bi-pencil"></i>
+                                            </button> *@
                 @* Fin cuerpo del acordeon *@
             </div>
         </div>
@@ -697,7 +774,6 @@
                             </button>
                         </div>
                         <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
-                        <!-- <input type="hidden" asp-for="IdFactura" value="@* @Model.Factura.Id *@" />-->
                         <input type="hidden" asp-for="IdContribuyente" id="idContribuyenteHidden" />
                         <input type="hidden" asp-for="Dni" id="dniHidden" />
                         <input type="hidden" asp-for="Sexo" id="sexoHidden" />
@@ -821,6 +897,39 @@
     </div>
 </div>
 
+<!--Modal Anular factura-->
+<div class="modal fade" id="ModalAnularFactura" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Anular factura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="AnularFactura" method="post" id="formAnularFactura" class="form-box">
+                    <div>
+                        <label>Motivo<span class="obligatorio"> * </span></label>
+                        <input asp-for="MotivoAnulacion" class="form-control" type="text" maxlength="100" required />
+                        <span asp-validation-for="MotivoAnulacion" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
+                    <input type="hidden" asp-for="IdFactura" id="facturaIdAnulacion" />
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                        <div class="my-3">
+                            <button type="submit" id="btnAnularFactura" class="my-3 btn btn-success">
+                                <span class="btn-text">Anular</span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span class="loading-text d-none">Cargando...</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!--btn finalizar-->
 @if (estadoTramite == (int)EstadosIntroduccion.Cobrado) //solo si es cobrado
 {
@@ -928,21 +1037,6 @@
         });
     </script>
 
-    <script> //ver el recivo/archivo
-            function verRecibo(archivoId) {
-                const iframe = document.getElementById("reciboViewer");
-                const img = document.getElementById("reciboImage");
-
-                // Ocultar ambos al principio
-                iframe.style.display = "block";
-                img.style.display = "none";
-
-               iframe.src = `/Introduccion/VerRecibo?archivoId=${archivoId}`;
-
-                new bootstrap.Modal(document.getElementById("modalVerRecibo")).show();
-            }
-    </script>
-
     <script> //logica de agregar contribuyente
         // Variables globales
         var estadoFinalizado = @(estadoTramite == (int)EstadosIntroduccion.Finalizado ? "true" : "false");
@@ -1048,7 +1142,7 @@
                 Sexo: sexoInput.value
             };
 
-                   fetch('/Introduccion/BuscarContribuyente', {
+                   fetch('/Personas/BuscarContribuyente', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1092,7 +1186,7 @@
                 Apellido: apellidoInput.value.trim()
             };
 
-            fetch('/Introduccion/RegistrarContribuyente', {
+            fetch('/Personas/RegistrarContribuyente', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1275,7 +1369,7 @@
                 Sexo: "otro" // Sexo por defecto
             };
 
-            fetch('/Introduccion/BuscarContribuyenteDecreto', {
+            fetch('/Personas/BuscarContribuyenteDecreto', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1318,7 +1412,7 @@
                 Apellido: "Municipalidad Colonia Tirolesa"
             };
 
-            fetch('/Introduccion/RegistrarContribuyenteDecreto', {
+            fetch('/Personas/RegistrarContribuyenteDecreto', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1348,25 +1442,25 @@
          //logica de precio del desplegable-----------------------------------------------------------------------------------------------------------------------------------------------
          
 
-               @if (Model.ListaDetalleFactura != null && Model.ListaDetalleFactura.Any())
-               {
-                    foreach (var d in Model.ListaDetalleFactura)
-                    {
-                        <text>
-                            listaDetalles.push({
-                                PrecioId: @d.PrecioId,
-                                ConceptoTarifariaId: @d.ConceptoTarifariaId,
-                                PrecioUnitario: @d.PrecioUnitario,
-                                Cantidad: @d.Cantidad,
-                                TipoConceptoFacturaId: @(d.TipoConceptoFacturaId ?? 0),
-                                NombreConcepto: "@Model.ListaConceptosTarifaria.FirstOrDefault(c => c.ConceptoTarifariaId == d.ConceptoTarifariaId)?.NombreConcepto",
-                            });
-                        </text>
-                    }
-               }
+            @if (Model.ListaDetalleFactura != null && Model.ListaDetalleFactura.Any())
+            {
+                foreach (var d in Model.ListaDetalleFactura)
+                {
+                    <text>
+                        listaDetalles.push({
+                            PrecioId: @d.PrecioId,
+                            ConceptoTarifariaId: @d.ConceptoTarifariaId,
+                            PrecioUnitario: @d.PrecioUnitario,
+                            Cantidad: @d.Cantidad,
+                            TipoConceptoFacturaId: @(d.TipoConceptoFacturaId ?? 0),
+                            NombreConcepto: "@Model.ListaConceptosTarifaria.FirstOrDefault(c => c.ConceptoTarifariaId == d.ConceptoTarifariaId)?.NombreConcepto",
+                        });
+                    </text>
+                }
+            }
 
-               // renderizar la tabla con lo que ya vino del backend
-               renderTabla();
+            // renderizar la tabla con lo que ya vino del backend
+            renderTabla();
 
            // Mostrar precio al seleccionar
            document.getElementById("conceptoSelect").addEventListener("change", function () {
@@ -1457,6 +1551,38 @@
                renderTabla();
            }
 
+
+           //---------------------------------------------------------------------------------------------------------------------------
+           //-------------------Logica de anular factura---------------------------------------------------------------------------------
+            document.querySelectorAll('.anularFactura').forEach(btn => {
+                btn.addEventListener('click', function () {
+                // Obtener el ID de factura del atributo data-facturaid
+                const facturaId = this.getAttribute('data-facturaid');
+
+                // Asignar el valor al input hidden del modal
+                document.getElementById('facturaIdAnulacion').value = facturaId;
+
+                // Mostrar el modal con Bootstrap 5
+                const modal = new bootstrap.Modal(document.getElementById('ModalAnularFactura'));
+                modal.show();
+                });
+            });
+
+            //------------------------------ver el recivo/archivo----------------------------------------------------------------
+            //------------------------------------------------------------------------------------------------------------------------
+            function verRecibo(archivoId) {
+                const iframe = document.getElementById("reciboViewer");
+                const img = document.getElementById("reciboImage");
+
+                // Ocultar ambos al principio
+                iframe.style.display = "block";
+                img.style.display = "none";
+
+               iframe.src = `/Archivos/VerArchivo?archivoId=${archivoId}`;
+
+                new bootstrap.Modal(document.getElementById("modalVerRecibo")).show();
+            }
+        
     </script>
 
     <script> // Lógica para editar un recibo

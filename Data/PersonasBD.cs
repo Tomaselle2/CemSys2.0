@@ -1,5 +1,6 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.DTO.Personas;
+using CemSys2.Enumerable;
 using CemSys2.Interface.Personas;
 using CemSys2.Models;
 using Microsoft.Data.SqlClient;
@@ -394,6 +395,54 @@ namespace CemSys2.Data
 
             _context.Update(model);
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo)
+        {
+            // Determinar si se debe filtrar por sexo basado en el rango del DNI
+            bool aplicarFiltroSexo = true;
+
+            if (int.TryParse(DniContribuyente, out int dniNumerico) && dniNumerico >= 10000000)
+            {
+                aplicarFiltroSexo = false;
+            }
+
+            // Aplicar la consulta con filtro condicional por sexo
+            return await _context.Personas
+                .Where(p => p.Visibilidad == true &&
+                           p.Dni == DniContribuyente &&
+                           p.CategoriaPersona != (int)CategoriaPersonaEnum.Fallecido &&
+                           (!aplicarFiltroSexo || p.Sexo == sexo))
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Persona> RegistrarContribuyente(Persona contribuyente)
+        {
+            // Asegurarnos de que la persona tenga visibilidad true al crearse
+            contribuyente.Visibilidad = true;
+            contribuyente.CategoriaPersona = (int)CategoriaPersonaEnum.Contribuyente;
+
+            // Agregar el contribuyente al contexto
+            _context.Personas.Add(contribuyente);
+
+            // Guardar los cambios en la base de datos
+            await _context.SaveChangesAsync();
+
+            // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
+            return contribuyente;
+        }
+
+        public async Task<bool> VerificarRelacioPersonaTramiteExiste(int tramiteId, int personaId)
+        {
+            bool relacionExistente = await _context.TramitePersonas
+                    .AnyAsync(tp => tp.TramiteId == tramiteId && tp.PersonaId == personaId);
+
+            return relacionExistente;
+        }
+
+        public async Task AgregarTramitePersona(TramitePersona tramitePersona)
+        {
+            await _context.TramitePersonas.AddAsync(tramitePersona);
         }
     }
 }

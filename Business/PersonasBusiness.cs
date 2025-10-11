@@ -62,5 +62,16 @@ namespace CemSys2.Business
         {
             return await _personasBD.ModificarPersona(model);
         }
+
+        public async Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo)
+        {
+            return await _personasBD.BuscarContribuyente(DniContribuyente, sexo);
+        }
+
+        public async Task<Persona> RegistrarContribuyente(Persona contribuyente)
+        {
+            return await _personasBD.RegistrarContribuyente(contribuyente);
+        }
+
     }
 }

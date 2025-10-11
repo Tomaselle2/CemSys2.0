@@ -184,69 +184,69 @@
 </div>
 
 
-<!-- Tabla de historial de recibos -->
+<!--Tabla facturas emitidas -->
 <div class="accordion" id="accordionPanelsStayOpenExample">
     <div class="accordion-item">
         <h2 class="accordion-header" id="panelsStayOpen-headingOne">
             <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Historial de recibos (@Model.ListaRecibos.Count())
+                Facturas
             </button>
         </h2>
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-            @* cuerpo del acordion *@
-            @if (Model.ListaRecibos.Any())
-            {
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
+            <div class="accordion-body" style="padding: 0">
+                @* cuerpo del acordion *@
+                @if (Model.ListaFacturas.Count > 0)
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nro Factura</th>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Importe</th>
+                                <th>Contribuyente</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var opc in Model.ListaFacturas)
+                            {
                                 <tr>
-                                    <th>Trámite</th>
-                                    <th>Fecha</th>
-                                    <th>Concepto</th>
-                                    <th>Monto</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var opc in Model.ListaRecibos)
-                                {
-                                    <tr>
-                                        <td>@opc.TramiteId.ToString()</td>
-                                        <td>@opc.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
-                                        <td>@opc.Concepto</td>
-                                        <td>$ @String.Format("{0:N2}", opc.Monto)</td>
-                                        <td>
-                                            <!-- Botón para abrir modal de ver recibo-->
-                                            <button type="button"
-                                                    class="btnEditarRecibo btn-sm"
-                                                    title="Ver recibo"
-                                                    onclick="verRecibo('@opc.ReciboId')">
-                                                <i class="bi bi-receipt"></i>
+                                    <td>@opc.Id</td>
+                                    <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@opc.Descripcion</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
+                                    <td>@opc.NombreContribuyente?.ToUpper()</td>
+                                    <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
+                                    <td>
+                                        <!-- Botón para abrir modal de ver recibo--> <!--Como aun no hay factura el btn no funiona--> 
+                                        @* <button type="button"
+                                                class="btnEditarRecibo btn-sm"
+                                                title="Ver recibo"
+                                                onclick="verRecibo('@opc.Id')">
+                                            <i class="bi bi-receipt"></i>
+                                        </button> *@
+                                        <form asp-action="IrATramite" asp-controller="Tramite" target="_blank" method="get" style="display: inline-block;">
+                                            <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
+                                            <button type="submit" class="btn-modificar btn-sm" title="Ir al trámite">
+                                                <i class="bi bi-eye"></i>
                                             </button>
-                                            <form asp-action="IrATramite" asp-controller="Tramite" target="_blank" method="get" style="display: inline-block;">
-                                                <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
-                                                <button type="submit" class="btn-modificar btn-sm" title="Ir al trámite">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-
-                                }
-                            </tbody>
-                        </table>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        No hay facturas registradas.
                     </div>
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i>
-                    No hay recibos registrados.
-                </div>
-            }
-            @* Fin cuerpo del acordeon *@
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -295,3 +295,5 @@
         }
     </script>
 }
+
+

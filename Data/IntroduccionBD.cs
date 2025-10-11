@@ -567,22 +567,7 @@ namespace CemSys2.Data
                     //}
                 }
 
-                // ✅ VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
-                bool relacionExistente = await _context.TramitePersonas
-                    .AnyAsync(tp => tp.TramiteId == tramite.Id && tp.PersonaId == recibo.Contribuyente.Value);
-
-                // Solo crear la relación si no existe
-                if (!relacionExistente)
-                {
-                    TramitePersona tramitePersona = new TramitePersona
-                    {
-                        TramiteId = tramite.Id,
-                        PersonaId = recibo.Contribuyente.Value
-                    };
-                    _context.TramitePersonas.Add(tramitePersona);
-                    await _context.SaveChangesAsync();
-                }
-
+               
 
                 await transaction.CommitAsync();
 
@@ -635,45 +620,9 @@ namespace CemSys2.Data
             }
         }
 
-        public async Task<ArchivosDocumentacion> ObtenerArchivo(Guid archivoGuid)
-        {
-            return await _context.ArchivosDocumentacions.FirstAsync(a => a.ArchivoId == archivoGuid);
-        }
+       
 
-        public async Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo)
-        {
-            // Determinar si se debe filtrar por sexo basado en el rango del DNI
-            bool aplicarFiltroSexo = true;
-
-            if (int.TryParse(DniContribuyente, out int dniNumerico) && dniNumerico >= 10000000)
-            {
-                aplicarFiltroSexo = false;
-            }
-
-            // Aplicar la consulta con filtro condicional por sexo
-            return await _context.Personas
-                .Where(p => p.Visibilidad == true &&
-                           p.Dni == DniContribuyente &&
-                           p.CategoriaPersona != (int)CategoriaPersonaEnum.Fallecido &&
-                           (!aplicarFiltroSexo || p.Sexo == sexo))
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<Persona> RegistrarContribuyente(Persona contribuyente)
-        {
-            // Asegurarnos de que la persona tenga visibilidad true al crearse
-            contribuyente.Visibilidad = true;
-            contribuyente.CategoriaPersona = (int)CategoriaPersonaEnum.Contribuyente;
-
-            // Agregar el contribuyente al contexto
-            _context.Personas.Add(contribuyente);
-
-            // Guardar los cambios en la base de datos
-            await _context.SaveChangesAsync();
-
-            // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
-            return contribuyente;
-        }
+        
 
         public async Task EditarReciboFactura(int reciboId, string nuevoConcepto, IFormFile? nuevoArchivo)
         {

@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Concesiones;
+﻿using CemSys2.Data;
+using CemSys2.DTO.Concesiones;
 using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
@@ -173,8 +174,8 @@ namespace CemSys2.Business
             {
                 //registrar el archivo del decreto 
                 // y descuenta el monto del decreto al total del tramite que puede ser introduccion o contrato
-                await RegistrarArchivoDecreto(DTO_verificarDetalleFactura.Archivo, tramite, mimeType, $"Decreto trámite {DTO_verificarDetalleFactura.TramiteId.ToString()}",
-                    DTO_verificarDetalleFactura.MontoDecreto.Value, DTO_verificarDetalleFactura.Pendiente);
+                await RegistrarArchivoDecreto(DTO_verificarDetalleFactura.Archivo, tramite, mimeType, DTO_verificarDetalleFactura.Descripcion,
+                    DTO_verificarDetalleFactura.MontoDecreto.Value, DTO_verificarDetalleFactura.Pendiente, DTO_verificarDetalleFactura.Contribuyente.Value);
 
                 facturaId = 1; //indica que es decreto
                 return facturaId;
@@ -245,6 +246,22 @@ namespace CemSys2.Business
                 };
 
                 await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
+
+
+                //VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
+                bool relacionExistente = await _unitOfWork._personasBD.VerificarRelacioPersonaTramiteExiste(dtoFactura.TramiteId, dtoFactura.ContribuyenteId.Value);
+
+                // Solo crear la relación si no existe
+                if (!relacionExistente)
+                {
+                    TramitePersona tramitePersona = new TramitePersona
+                    {
+                        TramiteId = dtoFactura.TramiteId,
+                        PersonaId = dtoFactura.ContribuyenteId.Value
+                    };
+                    await _unitOfWork._personasBD.AgregarTramitePersona(tramitePersona);
+                }
+
                 facturaId = nuevaFactura.Id;
             });
 
@@ -264,7 +281,7 @@ namespace CemSys2.Business
             return await _facturasBD.ListaConceptosFacturaInternaPorFactura(idFactura);
         }
 
-        private async Task RegistrarArchivoDecreto(IFormFile archivo, Tramite tramite, string mimeType, string descipcion, decimal montoDecreto, decimal totalTramite)
+        private async Task RegistrarArchivoDecreto(IFormFile archivo, Tramite tramite, string mimeType, string descipcion, decimal montoDecreto, decimal totalTramite, int contribuyente)
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
@@ -312,6 +329,20 @@ namespace CemSys2.Business
                     tramite.EstadoActualId = estadoTramiteId;
                     await _unitOfWork._tramiteBD.ModificarTramite(tramite);                    
                 }
+
+                //VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE
+                bool relacionExistente = await _unitOfWork._personasBD.VerificarRelacioPersonaTramiteExiste(tramite.Id, contribuyente);
+
+                // Solo crear la relación si no existe
+                if (!relacionExistente)
+                {
+                    TramitePersona tramitePersona = new TramitePersona
+                    {
+                        TramiteId = tramite.Id,
+                        PersonaId = contribuyente //la municipalidad
+                    };
+                    await _unitOfWork._personasBD.AgregarTramitePersona(tramitePersona);
+                }
             });
         }
 
@@ -320,11 +351,6 @@ namespace CemSys2.Business
             return await _facturasBD.ListaFacturasPorTramiteId(tramiteId);
         }
 
-        //para la pantalla del cajero de facturas emitidas
-        public async Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes()
-        {
-            return await _facturasBD.ListaTotalFacturasEmitidasYPendientes();
-        }
 
         //estados de la factura ----------------------------------------
         public async Task PasarFacturaEstadoEmitir(int idfactura)
@@ -348,7 +374,7 @@ namespace CemSys2.Business
             });
         }
 
-        public async Task PasarFacturaEstadoAnulado(int idfactura)
+        public async Task PasarFacturaEstadoAnulado(int idfactura, string descripcion)
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () => {
 
@@ -360,7 +386,11 @@ namespace CemSys2.Business
                 if (factura.EstadoId == (int)EstadosFactura.Anulado)
                     throw new InvalidOperationException("No se puede anular una factura que ya ha sido anulada.");
 
+                if(string.IsNullOrEmpty(descripcion))
+                    throw new ValidationException("Debe ingresar una descripción para anular la factura.");
+
                 factura.EstadoId = (int)EstadosFactura.Anulado;
+                factura.Descripcion = descripcion;
 
                 //registro el historial de estados
                 HistorialEstadosFactura historial = new HistorialEstadosFactura
@@ -371,8 +401,19 @@ namespace CemSys2.Business
                 };
 
                 await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
-
             });
+        }
+
+
+        //para la pantalla del cajero de facturas emitidas
+        public async Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes()
+        {
+            return await _facturasBD.ListaTotalFacturasEmitidasYPendientes();
+        }
+
+        public async Task<List<DTO_Factura>> ListaFacturasPorPersonaId(int personaId)
+        {
+            return await _facturasBD.ListaFacturasPorPersonaId(personaId);
         }
     }
 }

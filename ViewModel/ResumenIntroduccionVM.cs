@@ -1,4 +1,5 @@
-﻿using CemSys2.DTO.Factura;
+﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Factura;
 using CemSys2.DTO.Introduccion;
 using CemSys2.Models;
 using CemSys2.ValidacionAnotations;
@@ -16,6 +17,7 @@ namespace CemSys2.ViewModel
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
         public List<DTO_ConceptosTarifaria> ListaConceptosTarifaria { get; set; } = new();
         public List<DTO_DetalleFactura> ListaDetalleFactura { get; set; } = new(); //lista de conceptos de la factura (detalle)
+        public List<DTO_Archivos_Documentacion> ListaArchivos { get; set; } = new(); //para los decretos
 
         public int? IdTramite { get; set; }
         public int? IdFactura { get; set; }
@@ -24,6 +26,8 @@ namespace CemSys2.ViewModel
         [Required(ErrorMessage = "La descripción es obligatoria")]
         [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]
         public string? Descripcion { get; set; } = string.Empty;
+
+        public string? MotivoAnulacion { get; set; }
 
         public decimal? MontoDecreto { get; set; }
 

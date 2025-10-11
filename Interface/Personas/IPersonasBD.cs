@@ -36,5 +36,11 @@ namespace CemSys2.Interface.Personas
         Task<List<DTO_Excel_Difuntos>> ListaDifuntosExcel(List<int> idsDifuntos);
 
         Task<List<DTO_Titulares>> ListaTitularesActualesContrato(List<int> idTitulares);
+
+        Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo);
+        Task<Persona> RegistrarContribuyente(Persona contribuyente);
+
+        Task<bool> VerificarRelacioPersonaTramiteExiste(int tramiteId, int personaId);
+        Task AgregarTramitePersona(TramitePersona tramitePersona);
     }
 }

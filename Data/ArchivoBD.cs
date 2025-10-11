@@ -99,5 +99,10 @@ namespace CemSys2.Data
                 }
             }
         }
+
+        public async Task<ArchivosDocumentacion> ObtenerArchivo(Guid archivoGuid)
+        {
+            return await _context.ArchivosDocumentacions.FirstAsync(a => a.ArchivoId == archivoGuid);
+        }
     }
 }

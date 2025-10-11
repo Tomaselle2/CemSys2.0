@@ -1,6 +1,7 @@
 ﻿using CemSys2.Business;
 using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
+using CemSys2.Interface.Archivos;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Tarifaria;
@@ -17,12 +18,14 @@ namespace CemSys2.Controllers
         private readonly IIntroduccionBusiness _introduccionBusiness;
         private readonly IFacturaBusiness _facturaBusiness;
         private readonly ITarifariaBusiness _tarifariaBusiness;
+        private readonly IArchivoBusiness _archivoBusiness;
 
-        public IntroduccionController(IIntroduccionBusiness introduccionBusiness, IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness)
+        public IntroduccionController(IIntroduccionBusiness introduccionBusiness, IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness, IArchivoBusiness archivoBusiness)
         {
             _introduccionBusiness = introduccionBusiness;
             _facturaBusiness = facturaBusiness;
             _tarifariaBusiness = tarifariaBusiness;
+            _archivoBusiness = archivoBusiness;
         }
 
         public async Task<IActionResult> Index(int pagina = 1, string desdeFecha = null, string hastaFecha = null)
@@ -335,7 +338,8 @@ namespace CemSys2.Controllers
                 HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId),
                 ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio( await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), resumen[0].FallecioEnTirolesa),
                 MontoMinimoFondo = await _tarifariaBusiness.ConsultarMontoMinimoFondoActual(),
-                PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual()
+                PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual(),
+                ListaArchivos = await _archivoBusiness.ListaArchivosTramiteId(tramiteId)
             };
         }
 
@@ -538,28 +542,7 @@ namespace CemSys2.Controllers
             return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
         }
 
-        //ver Recibo archivo
-        public async Task<IActionResult> VerRecibo(Guid archivoId)
-        {
-            var archivo = await _introduccionBusiness.ObtenerArchivo(archivoId);
-
-            if (archivo == null || archivo.Contenido == null)
-                return NotFound("Archivo no encontrado.");
-            string tipo = archivo.TipoArchivo.ToLower();
-
-            if (tipo.StartsWith("image/"))
-            {
-                // Convertir la imagen a PDF
-                archivo.Contenido = PdfHelper.ImagenComoPdf(archivo.Contenido);
-                tipo = "application/pdf";
-                archivo.NombreArchivo = Path.ChangeExtension(archivo.NombreArchivo, ".pdf");
-            }
-
-            // Forzar a que el navegador intente mostrarlo
-            Response.Headers["Content-Disposition"] = $"inline; filename=\"{archivo.NombreArchivo}\"";
-
-            return File(archivo.Contenido, tipo);
-        }
+        
 
         //finaliza el tramite introduccion
         [HttpPost]
@@ -604,204 +587,40 @@ namespace CemSys2.Controllers
             return pdf;
         }
 
-        // Método para buscar contribuyente (AJAX)
+      
+
+        //Anular factura
         [HttpPost]
-        public async Task<IActionResult> BuscarContribuyente([FromBody] BuscarContribuyenteRequest request)
+        public async Task<IActionResult> AnularFactura(ResumenIntroduccionVM viewModel)
         {
             try
             {
-                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo))
-                {
-                    return Json(new { success = false, message = "DNI y sexo son obligatorios" });
-                }
+                await _facturaBusiness.PasarFacturaEstadoAnulado(viewModel.IdFactura.Value, viewModel.MotivoAnulacion);
+                TempData["MensajeExito"] = "Factura anulada con éxito";
 
-                Persona contribuyente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
-
-                if (contribuyente != null)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        contribuyente = new
-                        {
-                            id = contribuyente.IdPersona,
-                            nombre = contribuyente.Nombre,
-                            apellido = contribuyente.Apellido,
-                            dni = request.Dni, // Usar el DNI del request para mantener consistencia
-                            sexo = contribuyente.Sexo
-                        }
-                    });
-                }
-                else
-                {
-                    return Json(new { success = true, contribuyente = (object)null,
-                        dni = request.Dni, // Devolver el DNI aunque no se encuentre el contribuyente
-                        sexo = request.Sexo
-                    });
-                }
+            }catch(ValidationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                return View("ResumenIntroduccion", vmCompleto);
+            }catch(InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                return View("ResumenIntroduccion", vmCompleto);
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                var vmCompleto = await ReconstruirViewModel(viewModel.IdTramite.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo eliminar la factura: " + ex.Message;
+                return View("ResumenIntroduccion", vmCompleto);
             }
+            return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });
         }
 
-        // Método para registrar nuevo contribuyente (AJAX)
-        [HttpPost]
-        public async Task<IActionResult> RegistrarContribuyente([FromBody] RegistrarContribuyenteRequest request)
-        {
-            try
-            {
-                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo) ||
-                    string.IsNullOrEmpty(request.Nombre) || string.IsNullOrEmpty(request.Apellido))
-                {
-                    return Json(new { success = false, message = "Todos los campos son obligatorios" });
-                }
-
-                // Validar que no exista ya
-                Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
-                if (contribuyenteExistente != null)
-                {
-                    return Json(new { success = false, message = "El contribuyente ya existe en el sistema" });
-                }
-
-                // Crear nuevo contribuyente
-                var nuevoContribuyente = new Persona
-                {
-                    Dni = request.Dni.ToString(),
-                    Nombre = request.Nombre.Trim(),
-                    Apellido = request.Apellido.Trim(),
-                    Sexo = request.Sexo
-                };
-
-                // Guardar en base de datos (ajusta según tu lógica de negocio)
-                var contribuyenteCreado = await _introduccionBusiness.RegistrarContribuyente(nuevoContribuyente);
-
-                return Json(new
-                {
-                    success = true,
-                    contribuyente = new
-                    {
-                        id = contribuyenteCreado.IdPersona,
-                        nombre = contribuyenteCreado.Nombre,
-                        apellido = contribuyenteCreado.Apellido,
-                        dni = request.Dni, // Usar el DNI del request
-                        sexo = contribuyenteCreado.Sexo
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-
-        // Método para buscar contribuyente de decreto
-        [HttpPost]
-        public async Task<IActionResult> BuscarContribuyenteDecreto([FromBody] BuscarContribuyenteRequest request)
-        {
-            try
-            {
-                // Buscar contribuyente con DNI 00000000
-                Persona contribuyente = await _introduccionBusiness.BuscarContribuyente("00000000", "otro");
-
-                if (contribuyente != null)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        contribuyente = new
-                        {
-                            id = contribuyente.IdPersona,
-                            nombre = contribuyente.Nombre,
-                            apellido = contribuyente.Apellido,
-                            dni = "00000000",
-                            sexo = "otro"
-                        }
-                    });
-                }
-
-                return Json(new
-                {
-                    success = true,
-                    contribuyente = (object)null
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        // Método para registrar contribuyente de decreto
-        [HttpPost]
-        public async Task<IActionResult> RegistrarContribuyenteDecreto([FromBody] RegistrarContribuyenteRequest request)
-        {
-            try
-            {
-                // Verificar si ya existe
-                Persona contribuyenteExistente = await _introduccionBusiness.BuscarContribuyente("00000000", "otro");
-                if (contribuyenteExistente != null)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        contribuyente = new
-                        {
-                            id = contribuyenteExistente.IdPersona,
-                            nombre = contribuyenteExistente.Nombre,
-                            apellido = contribuyenteExistente.Apellido,
-                            dni = "00000000",
-                            sexo = "otro"
-                        }
-                    });
-                }
-
-                // Crear nuevo contribuyente de decreto
-                var nuevoContribuyente = new Persona
-                {
-                    Dni = "00000000",
-                    Nombre = "MUNICIPALIDAD",
-                    Apellido = "DECRETO",
-                    Sexo = "otro"
-                };
-
-                var contribuyenteCreado = await _introduccionBusiness.RegistrarContribuyente(nuevoContribuyente);
-
-                return Json(new
-                {
-                    success = true,
-                    contribuyente = new
-                    {
-                        id = contribuyenteCreado.IdPersona,
-                        nombre = contribuyenteCreado.Nombre,
-                        apellido = contribuyenteCreado.Apellido,
-                        dni = "00000000",
-                        sexo = contribuyenteCreado.Sexo
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        // Clase para los requests AJAX
-        public class BuscarContribuyenteRequest
-        {
-            public int? Dni { get; set; }
-            public string Sexo { get; set; }
-        }
-
-        // Clase para los requests AJAX
-        public class RegistrarContribuyenteRequest
-        {
-            public int? Dni { get; set; }
-            public string Sexo { get; set; }
-            public string Nombre { get; set; }
-            public string Apellido { get; set; }
-        }
+        
     }
 }

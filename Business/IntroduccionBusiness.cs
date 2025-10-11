@@ -1220,21 +1220,6 @@ namespace CemSys2.Business
             await _introduccionBD.FinalizarTramite(tramiteId);
         }
 
-        public async Task<ArchivosDocumentacion> ObtenerArchivo(Guid archivoGuid)
-        {
-            return await _introduccionBD.ObtenerArchivo(archivoGuid);
-        }
-
-        public async Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo)
-        {
-            return await _introduccionBD.BuscarContribuyente(DniContribuyente, sexo);
-        }
-
-        public async Task<Persona> RegistrarContribuyente(Persona contribuyente)
-        {
-            return await _introduccionBD.RegistrarContribuyente(contribuyente);
-        }
-
         public async Task EditarReciboFactura(int reciboId, string nuevoConcepto, IFormFile? nuevoArchivo)
         {
              await _introduccionBD.EditarReciboFactura(reciboId, nuevoConcepto, nuevoArchivo);

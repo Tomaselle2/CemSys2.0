@@ -29,9 +29,11 @@ namespace CemSys2.Interface.Facturas
         Task<int> CrearFactura(DTO_Factura dtoFactura, List<DTO_DetalleFactura> dtoDetalleFactura);
 
         Task PasarFacturaEstadoEmitir(int idfactura);
-        Task PasarFacturaEstadoAnulado(int idfactura);
+        Task PasarFacturaEstadoAnulado(int idfactura, string descripcion);
 
         Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId);
+        Task<List<DTO_Factura>> ListaFacturasPorPersonaId(int personaId);
+
         Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes();
 
     }
