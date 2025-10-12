@@ -418,7 +418,30 @@ namespace CemSys2.Business
                     HistorialEstadosFactura historial = new HistorialEstadosFactura
                     {
                         FacturaId = factura.Id,
-                        EstadoId = (int)EstadosFactura.Emitido,
+                        EstadoId = (int)EstadosFactura.PendienteDeCobro,
+                        FechaCambio = DateTime.Now,
+                    };
+
+                    await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
+                }
+            });
+        }
+
+        public async Task PasarFacturaEstadoCobrado(int idFactura)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () => {
+
+                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idFactura);
+
+                if (factura.EstadoId != (int)EstadosFactura.Cobrado)
+                {
+                    factura.EstadoId = (int)EstadosFactura.Cobrado;
+
+                    //registro el historial de estados
+                    HistorialEstadosFactura historial = new HistorialEstadosFactura
+                    {
+                        FacturaId = factura.Id,
+                        EstadoId = (int)EstadosFactura.Cobrado,
                         FechaCambio = DateTime.Now,
                     };
 
@@ -447,5 +470,41 @@ namespace CemSys2.Business
         {
             return await _facturasBD.ListaMetodoPago(); 
         }
+
+        public async Task VerificarCobrarFactura(DTO_VerificarCobrarFactura dto)
+        {
+            if (dto.EfectivoRecibido != null && dto.EfectivoRecibido <= 0)
+                throw new ValidationException("El efectivo recibido debe ser mayor a cero.");
+
+            if (dto.EfectivoRecibido != null && dto.EfectivoRecibido < dto.MontoTotal)
+                throw new ValidationException("El efectivo recibido no puede ser menor al monto total de la factura.");
+
+            
+
+            // 🔹 Actualizar el pendiente según el tipo de trámite
+            switch ((TipotamiteEmun)dto.TipoTramiteId)
+            {
+                case TipotamiteEmun.Introduccion:
+                    var introduccion = await _unitOfWork._introduccionBD.ObtenerPorTramiteId(dto.TramiteId);
+                    if (introduccion != null)
+                    {
+                        introduccion.Pendiente -= dto.MontoTotal;
+                        await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
+                    }
+                    break;
+
+                case TipotamiteEmun.ContratoDeConcesion:
+                    var contrato = await _unitOfWork._concesionesBD.ConsultarContratoConcesion(dto.TramiteId);
+                    if (contrato != null)
+                    {
+                        contrato.Pendiente -= dto.MontoTotal;
+                        await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
+                    }
+                    break;
+            }
+
+            await PasarFacturaEstadoCobrado(dto.FacturaId);
+        }
+        
     }
 }

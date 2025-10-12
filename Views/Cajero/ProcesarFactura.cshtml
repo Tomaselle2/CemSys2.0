@@ -21,6 +21,15 @@
     </div>
 }
 
+@if (ViewData.ModelState.ErrorCount > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert" style="max-width: 800px;">
+        @Html.ValidationSummary(false, "")
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
 <p>Factura Nro: @Model.Factura.Id</p>
 <p>Fecha: @Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</p>
 <p>Estado: @(((EstadosFactura)Model.Factura.EstadoId.Value).GetDisplayName())</p>
@@ -85,22 +94,93 @@
 <p>Fondo ayuda centro de salud (@porcentajeFondo%): $ @String.Format("{0:N2}", fondo)</p>
 <p>Total: $ @String.Format("{0:N2}", Model.Factura.Total)</p>
 
-<form asp-action="ProcesarFactura" asp-controller="Cajero" method="post">
-    <input type="hidden" name="facturaId" value="@Model.Factura.Id" />
-    <div class="mb-3">
-        <label for="medioPagoId" class="form-label">Medio de cobro</label>
-        <select class="form-select" id="medioPagoId" name="medioPagoId" required>
-            <option value="" selected disabled>--Seleccione una opción--</option>
-            @foreach (var medio in Model.ListaMetodoPago)
-            {
-                <option value="@medio.Id">@medio.Descripcion</option>
-            }
-        </select>
-        <span asp-validation-for="MetodoPagoId" class="text-danger"></span>
+<form asp-action="ProcesarFactura" asp-controller="Cajero" method="post" style="max-width:1300px; margin-left:auto; margin-right:auto;">
+    <div class="contenedor-resumen" style="max-width: 1000px;">
+        <div class="mb-3">
+            <label for="medioPagoId" class="form-label">Medio de cobro</label>
+            <select class="form-select" id="medioPagoId" name="medioPagoId" required>
+                <option value="" selected disabled>--Seleccione una opción--</option>
+                @foreach (var medio in Model.ListaMetodoPago)
+                {
+                    <option value="@medio.Id">@medio.Descripcion</option>
+                }
+            </select>
+            <span asp-validation-for="MetodoPagoId" class="text-danger"></span>
+        </div>
+        
+        <div class="inputEfectivoRecibido mb-3">
+            <label class="form-label">Efectivo recibido</label>
+            <input class="form-control" type="number" asp-for="EfectivoRecibido" id="EfectivoRecibido" />
+        </div>
+        <div class="inputEfectivoRecibido mb-3">
+            <p><span id="valorVuelto">Vuelto: $-----</span></p>
+        </div>
+
+        <div>
+            <input type="submit" class="btn btn-success" value="Cobrar" />
+        </div>
     </div>
-    <input type="hidden" id="MetodoPagoId" /> <!--Se carga via JS-->
+    
+
+    <input type="hidden" asp-for="MetodoPagoId" id="MetodoPagoId" />
+    <input type="hidden" asp-for="FacturaId" value="@Model.Factura.Id" />
+    <input type="hidden" asp-for="TramiteId" value="@Model.Factura.TramiteId" />
+    <input type="hidden" asp-for="TipoTramiteId" value="@Model.Factura.TipoTramiteId" />
+    <input type="hidden" asp-for="MontoTotal" value="@Model.Factura.Total" />
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectMedioPago = document.getElementById("medioPagoId");
+            const inputEfectivoRecibido = document.querySelectorAll(".inputEfectivoRecibido");
+            const inputEfectivo = document.getElementById("EfectivoRecibido");
+            const spanVuelto = document.getElementById("valorVuelto");
+            const hiddenMetodoPago = document.getElementById("MetodoPagoId");
+
+            const montoTotal = parseFloat("@Model.Factura.Total".replace(",", "."));
+
+            // Ocultar los inputs de efectivo al inicio
+            inputEfectivoRecibido.forEach(div => div.style.display = "none");
+
+            // Mostrar u ocultar según el medio de pago
+            selectMedioPago.addEventListener("change", function () {
+                const seleccionado = selectMedioPago.options[selectMedioPago.selectedIndex].text.toLowerCase();
+
+                // Asignar valor al hidden para enviar al backend
+                if (hiddenMetodoPago) {
+                  hiddenMetodoPago.value = selectMedioPago.value;
+                }
+
+                if (seleccionado.includes("efectivo")) {
+                    inputEfectivoRecibido.forEach(div => div.style.display = "block");
+                } else {
+                    inputEfectivoRecibido.forEach(div => div.style.display = "none");
+                    inputEfectivo.value = "";
+                    spanVuelto.textContent = "Vuelto: $-----";
+                }
+            });
+
+            // Calcular vuelto al salir del input
+            if(inputEfectivo){
+              inputEfectivo.addEventListener("blur", calcularVuelto);
+              inputEfectivo.addEventListener("input", calcularVuelto);
+            }
+           
+
+            function calcularVuelto() {
+                const recibido = parseFloat(inputEfectivo.value);
+                if (!isNaN(recibido) && recibido >= montoTotal) {
+                    const vuelto = recibido - montoTotal;
+                    spanVuelto.textContent = "Vuelto: " + "$ " + vuelto.toFixed(2);
+                } else if (!isNaN(recibido)) {
+                    spanVuelto.textContent = "Monto insuficiente";
+                } else {
+                    spanVuelto.textContent = "Vuelto: $-----";
+                }
+            }
+        });
+    </script>
 }

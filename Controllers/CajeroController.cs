@@ -2,6 +2,7 @@
 using CemSys2.Interface.Tarifaria;
 using CemSys2.ViewModel.Cajero;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace CemSys2.Controllers
@@ -46,7 +47,51 @@ namespace CemSys2.Controllers
         public async Task<IActionResult> ProcesarFactura(int facturaId)
         {
             ProcesarFacturasVM viewModel = new();
+            await LlenarListasProcesarFacturas(viewModel, facturaId);
 
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ProcesarFactura(ProcesarFacturasVM viewModel) //cuando da click en cobrar factura
+        {
+            if (!ModelState.IsValid)
+            {
+                await LlenarListasProcesarFacturas(viewModel, viewModel.FacturaId ?? 0);
+                return View(viewModel);
+            }
+
+            try
+            {
+                await _facturasBusiness.VerificarCobrarFactura(new DTO.Factura.DTO_VerificarCobrarFactura
+                {
+                    FacturaId = viewModel.FacturaId ?? 0,
+                    MetodoPagoId = viewModel.MetodoPagoId ?? 0,
+                    EfectivoRecibido = viewModel.EfectivoRecibido ?? 0,
+                    MontoTotal = viewModel.MontoTotal ?? 0,
+                    TramiteId = viewModel.TramiteId ?? 0,
+                    TipoTramiteId = viewModel.TipoTramiteId ?? 0
+                });
+            }
+            catch (ValidationException ex)
+            {   
+                ModelState.AddModelError(string.Empty, ex.Message);
+                await LlenarListasProcesarFacturas(viewModel, viewModel.FacturaId ?? 0);
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "No se pudo cobrar la factura: " + ex.Message);
+                await LlenarListasProcesarFacturas(viewModel, viewModel.FacturaId ?? 0);
+                return View(viewModel);
+            }
+
+            //paso el id de la factura a una vista aparte
+            return RedirectToAction("CobroExitoso", new {facturaId = viewModel.FacturaId });
+        }
+
+        private async Task LlenarListasProcesarFacturas(ProcesarFacturasVM viewModel, int facturaId)
+        {
             try
             {
                 // Cambiar el estado de la factura a "Pendiente de Cobro"
@@ -57,10 +102,18 @@ namespace CemSys2.Controllers
                 viewModel.PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
                 viewModel.ListaMetodoPago = await _facturasBusiness.ListaMetodoPago();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 viewModel.MensajeError = "No se pudo cargar la factura: " + ex.Message;
             }
+        }
+
+        public IActionResult CobroExitoso(int facturaId)
+        {
+            CobroExitosoVM viewModel = new()
+            {
+                FacturaId = facturaId
+            };
 
             return View(viewModel);
         }

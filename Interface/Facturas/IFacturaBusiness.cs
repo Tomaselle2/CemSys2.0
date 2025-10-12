@@ -19,6 +19,7 @@ namespace CemSys2.Interface.Facturas
         List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa);
 
         Task<int> VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura);
+        Task VerificarCobrarFactura(DTO_VerificarCobrarFactura dto);
 
         //para resumen introduccion
         Task<DTO_FacturaInternaPrecios> ConsultarFacturaInternaPorTramiteId(int idTramite);
@@ -31,6 +32,8 @@ namespace CemSys2.Interface.Facturas
         Task PasarFacturaEstadoEmitir(int idfactura);
         Task PasarFacturaEstadoPendienteCobro(int idFactura);
         Task PasarFacturaEstadoAnulado(int idfactura, string descripcion);
+        Task PasarFacturaEstadoCobrado(int idFactura);
+
 
         Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId);
         Task<List<DTO_Factura>> ListaFacturasPorPersonaId(int personaId);

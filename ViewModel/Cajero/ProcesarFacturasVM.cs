@@ -20,5 +20,7 @@ namespace CemSys2.ViewModel.Cajero
         public decimal? EfectivoRecibido { get; set; }
         public decimal? MontoTotal { get; set; } //precio total de la factura con el fondo incluido
         public int? FacturaId { get; set; }
+        public int? TramiteId { get; set; }
+        public int? TipoTramiteId { get; set; }
     }
 }
