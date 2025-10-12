@@ -404,6 +404,28 @@ namespace CemSys2.Business
             });
         }
 
+        public async Task PasarFacturaEstadoPendienteCobro(int idFactura)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () => {
+
+                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idFactura);
+
+                if(factura.EstadoId != (int)EstadosFactura.PendienteDeCobro)
+                {
+                    factura.EstadoId = (int)EstadosFactura.PendienteDeCobro;
+
+                    //registro el historial de estados
+                    HistorialEstadosFactura historial = new HistorialEstadosFactura
+                    {
+                        FacturaId = factura.Id,
+                        EstadoId = (int)EstadosFactura.Emitido,
+                        FechaCambio = DateTime.Now,
+                    };
+
+                    await _unitOfWork._historialesBD.RegistrarHistorialFactura(historial);
+                }
+            });
+        }
 
         //para la pantalla del cajero de facturas emitidas
         public async Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes()
@@ -414,6 +436,16 @@ namespace CemSys2.Business
         public async Task<List<DTO_Factura>> ListaFacturasPorPersonaId(int personaId)
         {
             return await _facturasBD.ListaFacturasPorPersonaId(personaId);
+        }
+
+        public async Task<Factura> ConsultarFacturaPorId(int facturaId)
+        {
+            return await _facturasBD.ConsultarFacturaPorId(facturaId);
+        }
+
+        public async Task<List<MetodoPago>> ListaMetodoPago()
+        {
+            return await _facturasBD.ListaMetodoPago(); 
         }
     }
 }

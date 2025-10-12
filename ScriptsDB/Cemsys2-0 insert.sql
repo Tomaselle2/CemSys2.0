@@ -122,6 +122,13 @@ INSERT INTO EstadoFactura (estado) VALUES
 ('Anulado');
 GO
 
+INSERT INTO MetodoPago (descripcion, visibilidad) VALUES
+('Efectivo',1),
+('Tarjeta',1),
+('QR',1);
+
+go
+
 insert into Personas (nombre, apellido, dni, visibilidad, categoriaPersona, sexo) values ('', 'Municipalidad Colonia Tirolesa', '00000000', 1, 3, 'otro');
 
 INSERT INTO Usuarios (nombre, correo, usuario, clave, visibilidad, rol) values ('Tomas Carreras', 'tomaselle2@gmail.com', 'Tomaselle2', '12345', 1, 2);

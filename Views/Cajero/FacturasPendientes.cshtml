@@ -58,7 +58,10 @@
                                     <td>@opc.TramiteId</td>
                                     <td>@tipoTramiteDisplay</td>
                                     <td>
-                                        procesar
+                                        <form asp-action="ProcesarFactura" asp-controller="Cajero" method="get">
+                                            <input type="submit" value="Procesar" class="btn btn-primary"/>
+                                            <input type="hidden" name="facturaId" value="@opc.Id" />
+                                        </form>
                                     </td>
                                 </tr>
                             }
@@ -76,3 +79,23 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // 🔹 Detectar cuando se vuelve a la pestaña desde otra
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "visible") {
+                location.reload();
+            }
+        });
+
+        // 🔹 Detectar cuando se vuelve con la flecha "Atrás" o "Adelante"
+        window.addEventListener("pageshow", function (event) {
+            // event.persisted = true => viene del back-forward cache
+            // o puede que navigation.type === 2 (cuando se usa la flecha atrás)
+            if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+                location.reload();
+            }
+        });
+    </script>
+}

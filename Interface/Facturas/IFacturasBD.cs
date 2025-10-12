@@ -31,5 +31,6 @@ namespace CemSys2.Interface.Facturas
         Task<List<DTO_Factura>> ListaFacturasPorPersonaId(int personaId);
 
         Task<List<DTO_Factura>> ListaTotalFacturasEmitidasYPendientes();
+        Task<List<MetodoPago>> ListaMetodoPago();
     }
 }

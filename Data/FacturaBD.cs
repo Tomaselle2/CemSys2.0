@@ -217,7 +217,7 @@ namespace CemSys2.Data
 
         public async Task<Factura> ConsultarFacturaPorId(int facturaId)
         {
-            return await _context.Facturas
+            return await _context.Facturas.Include(f=>f.Contribuyente)
                 .FirstAsync(f => f.Id == facturaId);
         }
 
@@ -293,6 +293,11 @@ namespace CemSys2.Data
                             NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : ""
                         }).ToListAsync();
             return dto;
+        }
+
+        public async Task<List<MetodoPago>> ListaMetodoPago()
+        {
+            return await _context.MetodoPagos.ToListAsync();
         }
     }
 }

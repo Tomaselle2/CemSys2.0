@@ -1,0 +1,106 @@
+﻿@using CemSys2.ViewModel.Cajero
+@using CemSys2.Enumerable
+@model ProcesarFacturasVM
+
+@{
+    ViewData["Title"] = "Procesar factura";
+}
+
+@{
+    decimal subtotal = Model.Factura.Total / (1 + Model.PorcentajeFondo);
+    decimal fondo = Model.Factura.Total - subtotal;
+    string porcentajeFondo = (Model.PorcentajeFondo * 100).ToString("N0");
+}
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<p>Factura Nro: @Model.Factura.Id</p>
+<p>Fecha: @Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</p>
+<p>Estado: @(((EstadosFactura)Model.Factura.EstadoId.Value).GetDisplayName())</p>
+<p>Trámite Nro: @Model.Factura.TramiteId</p>
+<p>Tipo trámite: @EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)Model.Factura.TipoTramiteId.Value)</p>
+
+<p>Contribuyente</p>
+<p>Nombre: @Model.Factura.Contribuyente?.Apellido.ToUpper() @Model.Factura.Contribuyente?.Nombre.ToUpper()</p>
+<p>DNI: @Model.Factura.Contribuyente?.Dni</p>
+
+<!--Tabla Detalle factura -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Detalle
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body" style="padding: 0">
+                @* cuerpo del acordion *@
+                @if (Model.ListaConceptosFactura.Count > 0)
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var opc in Model.ListaConceptosFactura)
+                            {
+                                decimal total = opc.PrecioUnitario * opc.Cantidad;
+                                <tr>
+                                    <td>@opc.ConceptoTarifaria.Nombre</td>
+                                    <td>$ @String.Format("{0:N2}", opc.PrecioUnitario)</td>
+                                    <td>@opc.Cantidad</td>
+                                    <td>$ @String.Format("{0:N2}", total)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        No hay detalle.
+                    </div>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<p>Subtotal: $ @String.Format("{0:N2}", subtotal)</p>
+<p>Fondo ayuda centro de salud (@porcentajeFondo%): $ @String.Format("{0:N2}", fondo)</p>
+<p>Total: $ @String.Format("{0:N2}", Model.Factura.Total)</p>
+
+<form asp-action="ProcesarFactura" asp-controller="Cajero" method="post">
+    <input type="hidden" name="facturaId" value="@Model.Factura.Id" />
+    <div class="mb-3">
+        <label for="medioPagoId" class="form-label">Medio de cobro</label>
+        <select class="form-select" id="medioPagoId" name="medioPagoId" required>
+            <option value="" selected disabled>--Seleccione una opción--</option>
+            @foreach (var medio in Model.ListaMetodoPago)
+            {
+                <option value="@medio.Id">@medio.Descripcion</option>
+            }
+        </select>
+        <span asp-validation-for="MetodoPagoId" class="text-danger"></span>
+    </div>
+    <input type="hidden" id="MetodoPagoId" /> <!--Se carga via JS-->
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
