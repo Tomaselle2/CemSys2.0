@@ -114,3 +114,6 @@ CREATE TABLE HistorialEstadosFactura (
     FOREIGN KEY (FacturaId) REFERENCES Facturas(id),
     FOREIGN KEY (EstadoId) REFERENCES EstadoFactura(id)
 );
+
+ALTER TABLE Facturas
+ADD Vuelto decimal(10,2) NULL

@@ -330,7 +330,6 @@ namespace CemSys2.Controllers
                 ResumenIntroduccion = resumen,
                 FacturaInterna = factura,
                 ListaConceptosFactura = await _facturaBusiness.ListaConceptosFacturaInternaPorFactura(factura.Id),
-                //ListaRecibosFactura = await _introduccionBusiness.ListaRecibosFactura(factura.Id),
                 ListaFacturas = await _facturaBusiness.ListaFacturasPorTramiteId(tramiteId),
                 IdTramite = tramiteId,
                 IdFactura = factura.Id,

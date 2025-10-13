@@ -29,6 +29,8 @@ public partial class Factura
 
     public string? Descripcion { get; set; }
 
+    public decimal? Vuelto { get; set; }
+
     public virtual ICollection<ConceptosFactura> ConceptosFacturas { get; set; } = new List<ConceptosFactura>();
 
     public virtual Persona? Contribuyente { get; set; }

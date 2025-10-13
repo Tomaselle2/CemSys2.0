@@ -55,6 +55,9 @@ namespace CemSys2.Controllers
         [HttpPost]
         public async Task<IActionResult> ProcesarFactura(ProcesarFacturasVM viewModel) //cuando da click en cobrar factura
         {
+            //ignorar validacion de Factura.Tramite
+            ModelState.Remove("Factura.Tramite");
+
             if (!ModelState.IsValid)
             {
                 await LlenarListasProcesarFacturas(viewModel, viewModel.FacturaId ?? 0);
@@ -70,7 +73,8 @@ namespace CemSys2.Controllers
                     EfectivoRecibido = viewModel.EfectivoRecibido ?? 0,
                     MontoTotal = viewModel.MontoTotal ?? 0,
                     TramiteId = viewModel.TramiteId ?? 0,
-                    TipoTramiteId = viewModel.TipoTramiteId ?? 0
+                    TipoTramiteId = viewModel.TipoTramiteId ?? 0,
+                    CajeroId = HttpContext.Session.GetInt32("idUsuario").Value
                 });
             }
             catch (ValidationException ex)

@@ -8,5 +8,6 @@
         public decimal MontoTotal { get; set; } //precio total de la factura con el fondo incluido
         public int TramiteId { get; set; }
         public int TipoTramiteId { get; set; }
+        public int CajeroId { get; set; } //id del usuario que esta cobrando la factura
     }
 }

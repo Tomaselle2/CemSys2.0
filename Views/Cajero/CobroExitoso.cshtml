@@ -31,7 +31,9 @@
     </div>
     <p>Cobro realizado exitosamente</p>
     <p>Ver recibo: factura: @Model.FacturaId</p>
-    <p>Finalizar</p>
+    <form asp-controller="Cajero" asp-action="FacturasPendientes" method="get">
+        <input type="submit"  value="Finalizar" class="btn btn-info" />
+    </form>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

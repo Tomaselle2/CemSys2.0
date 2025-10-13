@@ -473,38 +473,56 @@ namespace CemSys2.Business
 
         public async Task VerificarCobrarFactura(DTO_VerificarCobrarFactura dto)
         {
-            if (dto.EfectivoRecibido != null && dto.EfectivoRecibido <= 0)
+            if (dto.MetodoPagoId == (int)MetodoPagoEnum.Efectivo && dto.EfectivoRecibido != null && dto.EfectivoRecibido <= 0)
                 throw new ValidationException("El efectivo recibido debe ser mayor a cero.");
 
-            if (dto.EfectivoRecibido != null && dto.EfectivoRecibido < dto.MontoTotal)
+            if (dto.MetodoPagoId == (int)MetodoPagoEnum.Efectivo && dto.EfectivoRecibido != null && dto.EfectivoRecibido < dto.MontoTotal)
                 throw new ValidationException("El efectivo recibido no puede ser menor al monto total de la factura.");
 
-            
+            await LogicaCobrarFactura(dto);
+        }
 
-            // 🔹 Actualizar el pendiente según el tipo de trámite
-            switch ((TipotamiteEmun)dto.TipoTramiteId)
-            {
-                case TipotamiteEmun.Introduccion:
-                    var introduccion = await _unitOfWork._introduccionBD.ObtenerPorTramiteId(dto.TramiteId);
-                    if (introduccion != null)
-                    {
-                        introduccion.Pendiente -= dto.MontoTotal;
-                        await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
-                    }
-                    break;
+        private async Task LogicaCobrarFactura(DTO_VerificarCobrarFactura dto)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>  {
+                // 🔹 Actualizar el pendiente del trámite según el tipo de trámite
+                switch ((TipotamiteEmun)dto.TipoTramiteId)
+                {
+                    case TipotamiteEmun.Introduccion:
+                        var introduccion = await _unitOfWork._introduccionBD.ObtenerPorTramiteId(dto.TramiteId);
+                        if (introduccion != null)
+                        {
+                            introduccion.Pendiente -= dto.MontoTotal;
+                            await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
+                        }
+                        break;
 
-                case TipotamiteEmun.ContratoDeConcesion:
-                    var contrato = await _unitOfWork._concesionesBD.ConsultarContratoConcesion(dto.TramiteId);
-                    if (contrato != null)
-                    {
-                        contrato.Pendiente -= dto.MontoTotal;
-                        await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
-                    }
-                    break;
-            }
+                    case TipotamiteEmun.ContratoDeConcesion:
+                        var contrato = await _unitOfWork._concesionesBD.ConsultarContratoConcesion(dto.TramiteId);
+                        if (contrato != null)
+                        {
+                            contrato.Pendiente -= dto.MontoTotal;
+                            await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
+                        }
+                        break;
+                }
+
+                decimal vuelto = 0;
+
+                //si el efectivo recibido es mayor al monto total, se calcula el vuelto
+                if (dto.MetodoPagoId == (int)MetodoPagoEnum.Efectivo && dto.EfectivoRecibido != null && dto.EfectivoRecibido > dto.MontoTotal)
+                {
+                    vuelto = dto.EfectivoRecibido.Value - dto.MontoTotal;
+                }
+
+                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(dto.FacturaId);
+                factura.Vuelto = vuelto;
+                factura.MetodoPagoId = dto.MetodoPagoId;
+                factura.UsuarioCajeroId = dto.CajeroId;
+            });
 
             await PasarFacturaEstadoCobrado(dto.FacturaId);
         }
-        
+
     }
 }
