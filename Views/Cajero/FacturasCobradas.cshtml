@@ -1,5 +1,147 @@
-﻿@{
+﻿@using CemSys2.ViewModel
+@using CemSys2.ViewModel.Cajero
+@using CemSys2.Enumerable
+@model FacturasCobradasVM
+
+@{
     ViewData["Title"] = "Facturas cobradas";
 }
 
 <h1 class="tituloDePagina">Facturas cobradas</h1>
+
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Buscador -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Buscador
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            @* cuerpo del acordion *@
+            <div class="accordion-body">
+                <form asp-action="FacturasCobradas" method="get">
+                    <div class="text-center p-3">
+                        <label>Desde</label>
+                        <input type="date" class="form-control-sm me-2" name="desdeFecha" value="@Context.Request.Query["desdeFecha"]" />
+
+                        <label>Hasta</label>
+                        <input type="date" class="form-control-sm me-2" name="hastaFecha" value="@Context.Request.Query["hastaFecha"]" />
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-success me-2" id="btnBuscar">Buscar</button>
+                        <a asp-action="FacturasCobradas" asp-controller="Cajero" class="btn btn-primary" id="btnLimpiar">Limpiar filtros</a>
+                    </div>
+                </form>
+            </div>
+            @* Fin cuerpo del acordeon *@
+        </div>
+    </div>
+</div>
+
+<!--Tabla facturas cobradas -->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                Facturas
+            </button>
+        </h2>
+        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body" style="padding: 0">
+                @* cuerpo del acordion *@
+                @if (Model.ListaFacturasCobradas.Count > 0)
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nro Factura</th>
+                                <th>Importe</th>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Usuario</th>
+                                <th>Nro trámite</th>
+                                <th>Tipo trámite</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var opc in Model.ListaFacturasCobradas)
+                            {
+                                string tipoTramiteDisplay = EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)opc.TipoTramiteId.Value);
+                                <tr>
+                                    <td>@opc.Id</td>
+                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
+                                    <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@opc.Descripcion</td>
+                                    <td>@opc.NombreUsuarioEmite?.ToUpper()</td>
+                                    <td>@opc.TramiteId</td>
+                                    <td>@tipoTramiteDisplay</td>
+                                    <td>
+                                        @* <form asp-action="ProcesarFactura" asp-controller="Cajero" method="get">
+                                            <input type="submit" value="Procesar" class="btn btn-primary" />
+                                            <input type="hidden" name="facturaId" value="@opc.Id" />
+                                        </form> *@
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        No hay facturas cobradas.
+                    </div>
+                }
+                @* Fin cuerpo del acordeon *@
+            </div>
+        </div>
+        @* Paginador *@
+        @if (Model.TotalPaginas > 1)
+        {
+            @await Html.PartialAsync("_Paginador", new PaginadorViewModel
+            {
+                PaginaActual = Model.PaginaActual,
+                TotalPaginas = Model.TotalPaginas,
+                TotalRegistros = Model.TotalRegistros,
+                Accion = "FacturasCobradas",
+                Controlador = "Cajero",
+            })
+        }
+
+        
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 🔹 Detectar cuando se vuelve a la pestaña desde otra
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === "visible") {
+                location.reload();
+            }
+        });
+
+        // 🔹 Detectar cuando se vuelve con la flecha "Atrás" o "Adelante"
+        window.addEventListener("pageshow", function (event) {
+            // event.persisted = true => viene del back-forward cache
+            // o puede que navigation.type === 2 (cuando se usa la flecha atrás)
+            if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+                location.reload();
+            }
+        });
+    </script>
+}

@@ -299,5 +299,97 @@ namespace CemSys2.Data
         {
             return await _context.MetodoPagos.ToListAsync();
         }
+
+        public async Task<(List<DTO_Factura> Lista, int TotalRegistros)> ListaTotalFacturasCobradas(
+             int paginaActual,
+             int registrosPorPagina,
+             DateTime? fechaDesde = null,
+             DateTime? fechaHasta = null)
+        {
+            var query = _context.Facturas
+                .Include(f => f.UsuarioEmite)
+                .Where(f => f.EstadoId == (int)EstadosFactura.Cobrado);
+
+            // Aplicar filtros solo si se pasan las fechas
+            if (fechaDesde.HasValue)
+                query = query.Where(f => f.FechaCreacion >= fechaDesde.Value);
+
+            if (fechaHasta.HasValue)
+            {
+                // Sumamos un día completo a la fechaHasta para incluir todas las facturas de ese día
+                DateTime hasta = fechaHasta.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(f => f.FechaCreacion <= hasta);
+            }
+
+            int totalRegistros = await query.CountAsync();
+
+            var dto = await query
+                .OrderByDescending(f => f.FechaCreacion)
+                .Skip((paginaActual - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .Select(f => new DTO_Factura
+                {
+                    Id = f.Id,
+                    TramiteId = f.TramiteId,
+                    FechaCreacion = f.FechaCreacion,
+                    Total = f.Total,
+                    Visibilidad = f.Visibilidad,
+                    TipoTramiteId = f.TipoTramiteId,
+                    UsuarioEmiteId = f.UsuarioEmiteId,
+                    EstadoId = f.EstadoId,
+                    ContribuyenteId = f.ContribuyenteId,
+                    MetodoPagoId = f.MetodoPagoId,
+                    UsuarioCajeroId = f.UsuarioCajeroId,
+                    Descripcion = f.Descripcion,
+                    NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : ""
+                })
+                .ToListAsync();
+
+            return (dto, totalRegistros);
+        }
+
+        public async Task<(List<DTO_Factura> Lista, int TotalRegistros)> ListaTotalFacturasAnuladas(int paginaActual, int registrosPorPagina, DateTime? fechaDesde = null, DateTime? fechaHasta = null)
+        {
+            var query = _context.Facturas
+                .Include(f => f.UsuarioEmite)
+                .Where(f => f.EstadoId == (int)EstadosFactura.Anulado);
+
+            // Aplicar filtros solo si se pasan las fechas
+            if (fechaDesde.HasValue)
+                query = query.Where(f => f.FechaCreacion >= fechaDesde.Value);
+
+            if (fechaHasta.HasValue)
+            {
+                // Sumamos un día completo a la fechaHasta para incluir todas las facturas de ese día
+                DateTime hasta = fechaHasta.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(f => f.FechaCreacion <= hasta);
+            }
+
+            int totalRegistros = await query.CountAsync();
+
+            var dto = await query
+                .OrderByDescending(f => f.FechaCreacion)
+                .Skip((paginaActual - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .Select(f => new DTO_Factura
+                {
+                    Id = f.Id,
+                    TramiteId = f.TramiteId,
+                    FechaCreacion = f.FechaCreacion,
+                    Total = f.Total,
+                    Visibilidad = f.Visibilidad,
+                    TipoTramiteId = f.TipoTramiteId,
+                    UsuarioEmiteId = f.UsuarioEmiteId,
+                    EstadoId = f.EstadoId,
+                    ContribuyenteId = f.ContribuyenteId,
+                    MetodoPagoId = f.MetodoPagoId,
+                    UsuarioCajeroId = f.UsuarioCajeroId,
+                    Descripcion = f.Descripcion,
+                    NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : ""
+                })
+                .ToListAsync();
+
+            return (dto, totalRegistros);
+        }
     }
 }

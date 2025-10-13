@@ -1200,11 +1200,6 @@ namespace CemSys2.Business
             return await _introduccionBD.ConsultarParcela(idParcela);
         }
 
-        public async Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId)
-        {
-            await _introduccionBD.RegistrarReciboFactura(recibo, archivo, mimeType, tramiteId);
-        }
-
         public async Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId)
         {
             return await _introduccionBD.ListaRecibosFactura(facturaId);

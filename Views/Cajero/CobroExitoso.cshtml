@@ -21,19 +21,70 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #81d497;
+            background-color: #C4FFD2;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .contenedor-principal {
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centra verticalmente */
+            align-items: center; /* Centra horizontalmente */
+            min-height: 100vh; /* Ocupa todo el alto de la ventana */
+            text-align: center;
+        }
+
+        .contenedor-botones {
+            display: flex;
+            gap: 1rem; /* Espacio entre los formularios */
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .contenedor-check{
+            max-width: 400px;
+        }
+
+        .contenedor-logo {
+            max-width: 300px;
+        }
+
+        .boton{
+            padding: 10px;
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
-    <div>
-        <img src="~/fotos/cemsysss.png" class="img-fluid mx-auto d-block" alt="Logo" />
-    </div>
-    <p>Cobro realizado exitosamente</p>
-    <p>Ver recibo: factura: @Model.FacturaId</p>
-    <form asp-controller="Cajero" asp-action="FacturasPendientes" method="get">
-        <input type="submit"  value="Finalizar" class="btn btn-info" />
-    </form>
+    <div class="contenedor-principal">
+        
+        <div class="contenedor-check" >
+            <img src="~/fotos/Check.png" class="img-fluid mx-auto d-block" alt="Logo" />
+        </div>
+        <div>
+            <h1><b>Cobro exitoso!</b></h1>
+        </div>
+        <div class="contenedor-botones">
+            <div>
+                <form asp-controller="Cajero" asp-action="/" method="get">
+                    <input type="submit" value="Ver recibo" class="btn btn-info boton" />
+                </form>
+            </div>
+            <div>
+                <form asp-controller="Cajero" asp-action="FacturasPendientes" method="get">
+                    <input type="submit" value="Finalizar" class="btn btn-dark boton" />
+                </form>
+            </div>
+        </div>
+        @* <div class="contenedor-logo">
+            <img src="~/fotos/cemsysss.png" class="img-fluid mx-auto d-block" alt="Logo" />
+        </div> *@
+@*         <p>factura: @Model.FacturaId</p>
+ *@    </div>
+   
+    
+
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

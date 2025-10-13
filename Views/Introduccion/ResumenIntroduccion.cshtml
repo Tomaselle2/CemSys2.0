@@ -955,7 +955,7 @@
             <div class="modal-body">
                 <b>¿Está seguro que desea finalizar el trámite de introducción?</b>
                 <br />
-                No podrá editar recibos.
+                No podrá editar decretos.
                 <br />
                 No podrá editar el bloque de información adicional.
             </div>
@@ -1357,8 +1357,10 @@
         }
 
         //para cuando vuelve de un error y esta decreto seleccionado
-        document.getElementById('decreto').addEventListener('DOMContentLoaded',handleDecretoChange(document.getElementById('decreto')));
-
+        if(document.getElementById('decreto')){
+            document.getElementById('decreto').addEventListener('DOMContentLoaded',handleDecretoChange(document.getElementById('decreto')));
+        }
+        
         // Función para buscar contribuyente de decreto
         function buscarContribuyenteDecreto() {
             mostrarCargando(true);
@@ -1463,11 +1465,14 @@
             renderTabla();
 
            // Mostrar precio al seleccionar
-           document.getElementById("conceptoSelect").addEventListener("change", function () {
+           if(document.getElementById("conceptoSelect")){
+               document.getElementById("conceptoSelect").addEventListener("change", function () {
                var selectedOption = this.options[this.selectedIndex];
                var precio = selectedOption.getAttribute("data-precio");
                document.getElementById("precioInput").value = precio ? `$ ${precio}` : "";
            });
+           }
+           
 
            function agregarConceptoDetalle(){
                let select = document.getElementById("conceptoSelect");
@@ -1503,11 +1508,18 @@
            }
 
            // Agregar item
-           document.getElementById("agregarBtn").addEventListener("click", agregarConceptoDetalle);
-
+           if(document.getElementById("agregarBtn")){
+               document.getElementById("agregarBtn").addEventListener("click", agregarConceptoDetalle);
+           }
+           
            // Renderizar tabla + totales
            function renderTabla() {
                let tbody = document.querySelector("#detalleFacturaTable tbody");
+
+               if (!tbody) {
+                    return;
+               }
+
                tbody.innerHTML = "";
 
                let subtotal = 0;

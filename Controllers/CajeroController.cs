@@ -33,14 +33,77 @@ namespace CemSys2.Controllers
             return View(viewModel);
         }
 
-        public IActionResult FacturasCobradas()
+        public async Task<IActionResult> FacturasCobradas(int pagina = 1, string desdeFecha = null, string hastaFecha = null)
         {
-            return View();
+            FacturasCobradasVM viewModel = new();
+
+
+            // Convertir las fechas de string a DateTime
+            DateTime? fechaDesde = null;
+            DateTime? fechaHasta = null;
+
+            if (!string.IsNullOrEmpty(desdeFecha) && DateTime.TryParse(desdeFecha, out var tempDesde))
+            {
+                fechaDesde = tempDesde;
+            }
+
+            if (!string.IsNullOrEmpty(hastaFecha) && DateTime.TryParse(hastaFecha, out var tempHasta))
+            {
+                fechaHasta = tempHasta;
+            }
+
+            try
+            {
+                int registrosPorPagina = 10;
+                var resultado = await _facturasBusiness.ListaTotalFacturasCobradas(pagina, registrosPorPagina, fechaDesde, fechaHasta);
+
+                viewModel.ListaFacturasCobradas = resultado.Lista;
+                viewModel.PaginaActual = pagina;
+                viewModel.TotalRegistros = resultado.TotalRegistros;
+                viewModel.TotalPaginas = (int)Math.Ceiling((double)resultado.TotalRegistros / registrosPorPagina);
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = "No se pudo cargar las facturas: " + ex.Message;
+            }
+
+            return View(viewModel);
         }
 
-        public IActionResult FacturasAnuladas()
+        public async Task<IActionResult> FacturasAnuladas(int pagina = 1, string desdeFecha = null, string hastaFecha = null)
         {
-            return View();
+            FacturasAnuladasVM viewModel = new();
+
+            // Convertir las fechas de string a DateTime
+            DateTime? fechaDesde = null;
+            DateTime? fechaHasta = null;
+
+            if (!string.IsNullOrEmpty(desdeFecha) && DateTime.TryParse(desdeFecha, out var tempDesde))
+            {
+                fechaDesde = tempDesde;
+            }
+
+            if (!string.IsNullOrEmpty(hastaFecha) && DateTime.TryParse(hastaFecha, out var tempHasta))
+            {
+                fechaHasta = tempHasta;
+            }
+
+            try
+            {
+                int registrosPorPagina = 10;
+                var resultado = await _facturasBusiness.ListaTotalFacturasAnuladas(pagina, registrosPorPagina, fechaDesde, fechaHasta);
+
+                viewModel.ListaFacturasAnuladas = resultado.Lista;
+                viewModel.PaginaActual = pagina;
+                viewModel.TotalRegistros = resultado.TotalRegistros;
+                viewModel.TotalPaginas = (int)Math.Ceiling((double)resultado.TotalRegistros / registrosPorPagina);
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = "No se pudo cargar las facturas: " + ex.Message;
+            }
+
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -94,6 +157,7 @@ namespace CemSys2.Controllers
             return RedirectToAction("CobroExitoso", new {facturaId = viewModel.FacturaId });
         }
 
+        //para la pantalla de procesar factura
         private async Task LlenarListasProcesarFacturas(ProcesarFacturasVM viewModel, int facturaId)
         {
             try
@@ -112,6 +176,8 @@ namespace CemSys2.Controllers
             }
         }
 
+
+        //vista que muestra que el cobro fue exitoso
         public IActionResult CobroExitoso(int facturaId)
         {
             CobroExitosoVM viewModel = new()

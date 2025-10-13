@@ -485,6 +485,9 @@ namespace CemSys2.Business
         private async Task LogicaCobrarFactura(DTO_VerificarCobrarFactura dto)
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () =>  {
+
+                Tramite tramite = await _unitOfWork._tramiteBD.ConsultarTramite(dto.TramiteId);
+
                 // 🔹 Actualizar el pendiente del trámite según el tipo de trámite
                 switch ((TipotamiteEmun)dto.TipoTramiteId)
                 {
@@ -493,6 +496,22 @@ namespace CemSys2.Business
                         if (introduccion != null)
                         {
                             introduccion.Pendiente -= dto.MontoTotal;
+                            if (introduccion.Pendiente <= 0)
+                            {
+                                introduccion.Pendiente = 0;
+
+                                tramite.EstadoActualId = (int)EstadosIntroduccion.Cobrado;
+
+                                HistorialEstadoTramite historialEstadoTramite = new HistorialEstadoTramite
+                                {
+                                     TramiteId = tramite.Id,
+                                     EstadoTramiteId = (int)EstadosIntroduccion.Cobrado,
+                                     Fecha = DateTime.Now
+                                };
+
+                                await _unitOfWork._historialesBD.RegistrarHistorialTramite(historialEstadoTramite);
+                                await _unitOfWork._tramiteBD.ModificarTramite(tramite);
+                            }
                             await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
                         }
                         break;
@@ -524,5 +543,15 @@ namespace CemSys2.Business
             await PasarFacturaEstadoCobrado(dto.FacturaId);
         }
 
+
+        public async Task<(List<DTO_Factura> Lista, int TotalRegistros)> ListaTotalFacturasCobradas(int paginaActual, int registrosPorPagina, DateTime? fechaDesde = null, DateTime? fechaHasta = null)
+        {
+            return await _facturasBD.ListaTotalFacturasCobradas(paginaActual, registrosPorPagina, fechaDesde, fechaHasta);
+        }
+
+        public async Task<(List<DTO_Factura> Lista, int TotalRegistros)> ListaTotalFacturasAnuladas(int paginaActual, int registrosPorPagina, DateTime? fechaDesde = null, DateTime? fechaHasta = null)
+        {
+            return await _facturasBD.ListaTotalFacturasAnuladas(paginaActual, registrosPorPagina, fechaDesde, fechaHasta);
+        }
     }
 }

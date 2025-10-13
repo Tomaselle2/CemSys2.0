@@ -36,7 +36,6 @@ namespace CemSys2.Interface.Introduccion
         Task<Parcela> ConsultarParcela(int idParcela);
         
 
-        Task RegistrarReciboFactura(RecibosFactura recibo, IFormFile archivo, string mimeType, int tramiteId);
         Task<List<RecibosFactura>> ListaRecibosFactura(int facturaId);
         Task FinalizarTramite(int tramiteId);
 
