@@ -1,23 +1,17 @@
 ﻿using CemSys2.Business;
-using CemSys2.Data;
 using CemSys2.DTO.Concesiones;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Introduccion;
-using CemSys2.Interface.Parcelas;
 using CemSys2.Interface.Personas;
 using CemSys2.Interface.Tramite;
 using CemSys2.Models;
-using CemSys2.ViewModel;
 using CemSys2.ViewModel.ConcesionesViewModel;
 using CemSys2.ViewModel.ContratoViewModel;
-using iText.Forms.Xfdf;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
 
 namespace CemSys2.Controllers

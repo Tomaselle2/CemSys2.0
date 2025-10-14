@@ -66,8 +66,9 @@
         </div>
         <div class="contenedor-botones">
             <div>
-                <form asp-controller="Cajero" asp-action="/" method="get">
-                    <input type="submit" value="Ver recibo" class="btn btn-info boton" />
+                <form asp-controller="Cajero" asp-action="GenerarFactura" method="get">
+                    <input type="hidden" name="facturaId" value="@Model.FacturaId" />
+                    <input type="submit" value="Ver factura" class="btn btn-info boton" />
                 </form>
             </div>
             <div>

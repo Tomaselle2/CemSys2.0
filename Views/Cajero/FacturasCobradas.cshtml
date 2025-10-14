@@ -89,11 +89,19 @@
                                     <td>@opc.TramiteId</td>
                                     <td>@tipoTramiteDisplay</td>
                                     <td>
-                                        <div>
-                                            <button class="btn-historial" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHistorial"
-                                                    data-facturaid="@opc.Id" title="Historial">
-                                                <i class="bi bi-clock-history"></i>
-                                            </button>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div>
+                                                <button class="btn-historial" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHistorial"
+                                                        data-facturaid="@opc.Id" title="Historial">
+                                                    <i class="bi bi-clock-history"></i>
+                                                </button>
+                                            </div>
+                                            <form asp-action="GenerarFactura" asp-controller="Cajero" method="get">
+                                                <input type="hidden" name="facturaId" value="@opc.Id" />
+                                                <button type="submit" class="btn btn-warning d-flex align-items-center gap-1">
+                                                    <i class="bi bi-download"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

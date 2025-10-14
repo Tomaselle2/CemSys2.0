@@ -1,7 +1,9 @@
 ﻿using CemSys2.Enumerable;
+using CemSys2.Interface;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.ViewModel.Cajero;
+using CemSys2.ViewModel.ConcesionesViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -12,11 +14,14 @@ namespace CemSys2.Controllers
     {
         private readonly IFacturaBusiness _facturasBusiness;
         private readonly ITarifariaBusiness _tarifariaBusiness;
+        private readonly IPdfService _pdfService;
 
-        public CajeroController(IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness)
+
+        public CajeroController(IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness, IPdfService pdfService)
         {
             _facturasBusiness = facturaBusiness;
             _tarifariaBusiness = tarifariaBusiness;
+            _pdfService = pdfService;
         }
 
         public async Task<IActionResult> FacturasPendientes()
@@ -204,6 +209,32 @@ namespace CemSys2.Controllers
             }).ToList();
 
             return Json(new { success = true, historial = resultado });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GenerarFactura(int facturaId)
+        {
+            FacturaPDF_VM viewModel = new FacturaPDF_VM();
+            viewModel.baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+            try
+            {
+                viewModel.Factura = await _facturasBusiness.ConsultarFacturaPorId(facturaId);
+                viewModel.ListaConceptosFactura = await _facturasBusiness.ListaConceptosFacturaPorFactura(facturaId);
+                viewModel.PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
+
+                // Generar PDF con Puppeteer
+                var pdfBytes = await _pdfService.GeneratePdfAsync("FacturaPDF", viewModel, HttpContext);
+
+                return File(pdfBytes, "application/pdf", $"factura {facturaId}.pdf");
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return BadRequest($"Error generando PDF: {ex.Message}");
+            }
+
+
         }
     }
 }
