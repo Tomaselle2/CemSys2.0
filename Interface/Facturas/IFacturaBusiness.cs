@@ -50,5 +50,7 @@ namespace CemSys2.Interface.Facturas
 
         Task<List<MetodoPago>> ListaMetodoPago();
 
+        Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId);
+
     }
 }

@@ -553,5 +553,10 @@ namespace CemSys2.Business
         {
             return await _facturasBD.ListaTotalFacturasAnuladas(paginaActual, registrosPorPagina, fechaDesde, fechaHasta);
         }
+
+        public async Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId)
+        {
+            return await _facturasBD.HistorialEstadoFacturaPorFacturaId(facturaId);
+        }
     }
 }

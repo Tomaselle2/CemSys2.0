@@ -6,5 +6,6 @@ namespace CemSys2.Interface.Historiales
     {
         Task RegistrarHistorialTramite(HistorialEstadoTramite historial);
         Task RegistrarHistorialFactura(HistorialEstadosFactura historial);
+
     }
 }

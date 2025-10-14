@@ -1,4 +1,5 @@
-﻿using CemSys2.Interface.Facturas;
+﻿using CemSys2.Enumerable;
+using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.ViewModel.Cajero;
 using Microsoft.AspNetCore.Mvc;
@@ -176,7 +177,6 @@ namespace CemSys2.Controllers
             }
         }
 
-
         //vista que muestra que el cobro fue exitoso
         public IActionResult CobroExitoso(int facturaId)
         {
@@ -186,6 +186,24 @@ namespace CemSys2.Controllers
             };
 
             return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerHistorialFactura(int facturaId)
+        {
+            var historial = await _facturasBusiness.HistorialEstadoFacturaPorFacturaId(facturaId);
+
+            if (historial == null || historial.Count == 0)
+                return Json(new { success = false, mensaje = "No hay historial para esta factura." });
+
+            var resultado = historial.Select(h => new
+            {
+                facturaId = h.FacturaId,
+                estadoNombre = ((EstadosFactura)h.EstadoId).GetDisplayName(),
+                fecha = h.FechaCambio.ToString("dd/MM/yyyy HH:mm")
+            }).ToList();
+
+            return Json(new { success = true, historial = resultado });
         }
     }
 }

@@ -391,5 +391,21 @@ namespace CemSys2.Data
 
             return (dto, totalRegistros);
         }
+
+        public async Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId)
+        {
+            List<DTO_HistorialEstadoFactura> dto = new List<DTO_HistorialEstadoFactura>();
+
+            dto = await (from f in _context.HistorialEstadosFacturas
+                         where f.FacturaId == facturaId
+                         select new DTO_HistorialEstadoFactura{
+                            Id = f.Id,
+                            FacturaId = f.FacturaId,
+                            EstadoId= f.EstadoId,
+                            FechaCambio = f.FechaCambio,
+                        }).OrderBy(f=>f.FechaCambio).ToListAsync();
+
+            return dto;
+        }
     }
 }

@@ -38,5 +38,7 @@ namespace CemSys2.Interface.Facturas
              DateTime? fechaHasta = null);
 
         Task<List<MetodoPago>> ListaMetodoPago();
+
+        Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId); 
     }
 }
