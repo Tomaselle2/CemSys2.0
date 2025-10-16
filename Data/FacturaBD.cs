@@ -215,10 +215,37 @@ namespace CemSys2.Data
             return dto;
         }
 
-        public async Task<Factura> ConsultarFacturaPorId(int facturaId)
+        //public async Task<Factura> ConsultarFacturaPorId(int facturaId)
+        //{
+        //    return await _context.Facturas.Include(f=>f.Contribuyente)
+        //        .FirstAsync(f => f.Id == facturaId);
+        //}
+
+        public async Task<DTO_Factura> ConsultarFacturaPorId(int facturaId)
         {
-            return await _context.Facturas.Include(f=>f.Contribuyente)
-                .FirstAsync(f => f.Id == facturaId);
+            DTO_Factura dto = new DTO_Factura();
+
+            dto = await (from f in _context.Facturas.Include(c => c.Contribuyente)
+                         where f.Id == facturaId
+                         select new DTO_Factura
+                         {
+                             Id = f.Id,
+                             TramiteId = f.TramiteId,
+                             FechaCreacion = f.FechaCreacion,
+                             Total = f.Total,
+                             Visibilidad = f.Visibilidad,
+                             TipoTramiteId = f.TipoTramiteId,
+                             UsuarioEmiteId = f.UsuarioEmiteId,
+                             EstadoId = f.EstadoId,
+                             ContribuyenteId = f.ContribuyenteId,
+                             MetodoPagoId = f.MetodoPagoId != null ? f.MetodoPagoId : 0,
+                             UsuarioCajeroId = f.UsuarioCajeroId,
+                             Descripcion = f.Descripcion,
+                             NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : "",
+                             ContribuyenteDNI = f.Contribuyente != null ? f.Contribuyente.Dni : "",
+                             Vuelto = f.Vuelto != null ? f.Vuelto : 0
+                         }).FirstAsync();
+            return dto;
         }
 
         public async Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId)

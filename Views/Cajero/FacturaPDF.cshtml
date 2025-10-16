@@ -5,6 +5,17 @@
 @{
     ViewData["Title"] = "Procesar factura";
     Layout = ""; // No usar layout general
+
+    
+    decimal subtotal = Model.Factura.Total / (1 + Model.PorcentajeFondo);
+    decimal fondo = Model.Factura.Total - subtotal;
+    string porcentajeFondo = (Model.PorcentajeFondo * 100).ToString("N0");
+
+    var imgEncabezado = $"{Model.baseUrl}/fotos/EncabezadoFactura.png";
+    var pieImagen = $"{Model.baseUrl}/fotos/sinfondo2.png";
+
+    var nombreEstadoClase = Enum.GetName(typeof(EstadosFactura), Model.Factura.EstadoId.Value);
+
 }
 
 <!DOCTYPE html>
@@ -20,28 +31,314 @@
 
     <style>
         body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #fff;
+            color: #000;
             margin: 0;
             padding: 0;
-            background-color: #C4aFD2;
-            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
         }
+
+        .contenedor {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 30px;
+            box-sizing: border-box;
+        }
+
+        /* Encabezado */
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 260px;
+        }
+
+        .datos-contacto {
+            font-size: 11px;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+
+            .datos-contacto p {
+                margin: 2px 0;
+            }
+
+        .bloque-factura {
+            border: 2px solid #90DED5;
+            text-align: center;
+            width: 160px;
+            margin-bottom: 10px;
+        }
+
+            .bloque-factura h3 {
+                background-color: #90DED5;
+                color: black;
+                margin: 0;
+                padding: 4px;
+                font-size: 12px;
+                letter-spacing: 0.5px;
+                font-weight: bold;
+            }
+
+            .bloque-factura p {
+                font-size: 20px;
+                font-weight: bold;
+                margin: 5px 0;
+            }
+
+        .info-fecha {
+            margin-top: 10px;
+            font-size: 12px;
+            width: 180px;
+        }
+
+            .info-fecha div {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2px;
+                background-color: #90DED5;
+                padding: 5px 8px;
+            }
+
+        /* Línea divisoria */
+        .divider {
+            border-top: 1px solid #000;
+            margin: 15px 0;
+        }
+
+        /* Bloques de información */
+        .bloque {
+            margin-top: 15px;
+        }
+
+            .bloque h4 {
+                background-color: #90DED5;
+                padding: 5px 8px;
+                margin: 0;
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+            .bloque .contenido {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+                .bloque .contenido p {
+                    margin: 4px 0;
+                }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        /* Tabla de descripción */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        th {
+            background-color: #90DED5;
+            text-align: left;
+            padding: 6px 8px;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 6px 8px;
+            height: 24px;
+        }
+
+        .tabla-contenido tr {
+            border-bottom: 1px solid #ccc;
+        }
+
+        /* Totales */
+        .totales {
+            margin-top: 15px;
+            width: 250px;
+            margin-left: auto;
+            border-collapse: collapse;
+        }
+
+            .totales td {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .totales tr:last-child td {
+                background-color: #90DED5;
+                font-weight: bold;
+            }
+
+        /* Pie de página */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+            .footer img {
+                width: 350px;
+                margin-bottom: 5px;
+            }
+
+            .footer p {
+                color: #005b56;
+                font-weight: bold;
+                font-size: 12px;
+                margin: 0;
+            }
+
+        .imgEnzabezado{
+            width: 400px;
+        }
+
+        /*Marca de agua*/
+        .marca-agua {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 80px;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            z-index: 9999;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+            /* Colores según estado */
+            .marca-agua.emitido {
+                color: rgba(255, 165, 0, 0.15); /* naranja */
+            }
+
+            .marca-agua.pendientedecobro {
+                color: rgba(0, 0, 255, 0.15); /* azul */
+            }
+
+            .marca-agua.anulado {
+                color: rgba(255, 0, 0, 0.15); /* rojo */
+            }
+
+            .marca-agua.creado {
+                color: rgba(128, 128, 128, 0.15); /* gris */
+            }
+
+            .marca-agua.cobrado {
+                color: rgba(117, 184, 95, 0.15);
+            }
     </style>
 </head>
 <body>
+    @* <p>Estado: @(((EstadosFactura)Model.Factura.EstadoId.Value).GetDisplayName())</p> *@
+    <div class="marca-agua @nombreEstadoClase?.ToLower()">
+        @(((EstadosFactura)Model.Factura.EstadoId.Value).GetDisplayName())
+    </div>
+    <div class="contenedor">
+        <div class="encabezado">
+            <div>
+                <!-- Logo de la municipalidad -->
+                <img class="imgEnzabezado" src="@imgEncabezado" alt="Encabezado" />
+            </div>
+            <div>
+                <div class="bloque-factura">
+                    <h3>Factura N°</h3>
+                    <p>@Model.Factura.Id</p>
+                </div>
+                <div class="info-fecha">
+                    <div><span><b>Fecha: </b></span><span>@Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</span></div>
+                    <div><span><b>Trámite N°: </b></span><span>@Model.Factura.TramiteId</span></div>
+                </div>
+            </div>
+        </div>
 
-    <h1>Factura</h1>
-    <p>Factura Nro: @Model.Factura.Id</p>
-    <p>Fecha: @Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</p>
-    <p>Estado: @(((EstadosFactura)Model.Factura.EstadoId.Value).GetDisplayName())</p>
-    <p>Trámite Nro: @Model.Factura.TramiteId</p>
-    <p>Tipo trámite: @EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)Model.Factura.TipoTramiteId.Value)</p>
+        <div class="divider"></div>
 
-    <p>Contribuyente</p>
-    <p>Nombre: @Model.Factura.Contribuyente?.Apellido.ToUpper() @Model.Factura.Contribuyente?.Nombre.ToUpper()</p>
-    <p>DNI: @Model.Factura.Contribuyente?.Dni</p>
+        <!-- Contribuyente -->
+        <div class="bloque">
+            <h4>CONTRIBUYENTE</h4>
+            <div class="contenido">
+                <p><span class="bold">DNI: </span>@Model.Factura.ContribuyenteDNI</p>
+                <p><span class="bold">APELLIDO Y NOMBRE: </span>@Model.Factura.NombreContribuyente?.ToUpper()</p>
+            </div>
+        </div>
+
+        <!-- Tipo de trámite -->
+        <div class="bloque">
+            <h4>TIPO DE TRÁMITE</h4>
+            <div class="contenido">
+                <p>@EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)Model.Factura.TipoTramiteId.Value).ToUpper()</p>
+            </div>
+        </div>
+
+        <!-- Condición de pago -->
+        <div class="bloque">
+            <h4>CONDICIÓN DE PAGO</h4>
+            <div class="contenido">
+                <p>@(((MetodoPagoEnum)Model.Factura.MetodoPagoId.Value).GetDisplayName().ToUpper())</p>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <table class="tabla-contenido">
+            <thead>
+                <tr>
+                    <th>Concepto</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var opc in Model.ListaConceptosFactura)
+                {
+                    decimal total = opc.PrecioUnitario * opc.Cantidad;
+                    <tr>
+                        <td>@opc.ConceptoTarifaria.Nombre</td>
+                        <td>$@String.Format("{0:N2}", opc.PrecioUnitario)</td>
+                        <td>@opc.Cantidad</td>
+                        <td>$@String.Format("{0:N2}", total)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Totales -->
+        <table class="totales">
+            <tr>
+                <td>Subtotal</td>
+                <td>$@String.Format("{0:N2}", subtotal)</td>
+            </tr>
+            <tr>
+                <td>Fondo ayuda centro de salud (@porcentajeFondo%)</td>
+                <td>$@String.Format("{0:N2}", fondo)</td>
+            </tr>
+            <tr>
+                <td>TOTAL</td>
+                <td>$@String.Format("{0:N2}", Model.Factura.Total)</td>
+            </tr>
+        </table>
+
+        <!-- Footer -->
+        <div class="footer">
+            <img src="@pieImagen" alt="CemSys" />
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 </body>
 </html>
+

@@ -46,7 +46,7 @@ namespace CemSys2.Interface.Facturas
         Task<(List<DTO_Factura> Lista, int TotalRegistros)> ListaTotalFacturasAnuladas(int paginaActual, int registrosPorPagina, DateTime? fechaDesde = null,
             DateTime? fechaHasta = null);
 
-        Task<Factura> ConsultarFacturaPorId(int facturaId);
+        Task<DTO_Factura> ConsultarFacturaPorId(int facturaId);
 
         Task<List<MetodoPago>> ListaMetodoPago();
 

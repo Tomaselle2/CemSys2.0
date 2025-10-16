@@ -29,5 +29,9 @@
         public string? NombreContribuyente { get; set; }
 
         public string? NombreUsuarioEmite { get; set; }
+
+        public string? ContribuyenteDNI { get; set; }
+
+        public decimal? Vuelto { get; set; }
     }
 }

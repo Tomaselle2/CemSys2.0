@@ -357,14 +357,14 @@ namespace CemSys2.Business
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () => {
 
-                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
+                DTO_Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
 
                 factura.EstadoId = (int)EstadosFactura.Emitido;
 
                 //registro el historial de estados
                 HistorialEstadosFactura historial = new HistorialEstadosFactura
                 {
-                    FacturaId = factura.Id,
+                    FacturaId = factura.Id.Value,
                     EstadoId = (int)EstadosFactura.Emitido,
                     FechaCambio = DateTime.Now,
                 };
@@ -378,7 +378,7 @@ namespace CemSys2.Business
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () => {
 
-                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
+                DTO_Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idfactura);
 
                 if (factura.EstadoId == (int)EstadosFactura.Cobrado)
                     throw new InvalidOperationException("No se puede anular una factura que ya ha sido cobrada.");
@@ -395,7 +395,7 @@ namespace CemSys2.Business
                 //registro el historial de estados
                 HistorialEstadosFactura historial = new HistorialEstadosFactura
                 {
-                    FacturaId = factura.Id,
+                    FacturaId = factura.Id.Value,
                     EstadoId = (int)EstadosFactura.Anulado,
                     FechaCambio = DateTime.Now,
                 };
@@ -408,7 +408,7 @@ namespace CemSys2.Business
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () => {
 
-                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idFactura);
+                DTO_Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idFactura);
 
                 if(factura.EstadoId != (int)EstadosFactura.PendienteDeCobro)
                 {
@@ -417,7 +417,7 @@ namespace CemSys2.Business
                     //registro el historial de estados
                     HistorialEstadosFactura historial = new HistorialEstadosFactura
                     {
-                        FacturaId = factura.Id,
+                        FacturaId = factura.Id.Value,
                         EstadoId = (int)EstadosFactura.PendienteDeCobro,
                         FechaCambio = DateTime.Now,
                     };
@@ -431,7 +431,7 @@ namespace CemSys2.Business
         {
             await _unitOfWork.ExecuteInTransactionAsync(async () => {
 
-                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idFactura);
+                DTO_Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(idFactura);
 
                 if (factura.EstadoId != (int)EstadosFactura.Cobrado)
                 {
@@ -440,7 +440,7 @@ namespace CemSys2.Business
                     //registro el historial de estados
                     HistorialEstadosFactura historial = new HistorialEstadosFactura
                     {
-                        FacturaId = factura.Id,
+                        FacturaId = factura.Id.Value,
                         EstadoId = (int)EstadosFactura.Cobrado,
                         FechaCambio = DateTime.Now,
                     };
@@ -461,7 +461,7 @@ namespace CemSys2.Business
             return await _facturasBD.ListaFacturasPorPersonaId(personaId);
         }
 
-        public async Task<Factura> ConsultarFacturaPorId(int facturaId)
+        public async Task<DTO_Factura> ConsultarFacturaPorId(int facturaId)
         {
             return await _facturasBD.ConsultarFacturaPorId(facturaId);
         }
@@ -534,7 +534,7 @@ namespace CemSys2.Business
                     vuelto = dto.EfectivoRecibido.Value - dto.MontoTotal;
                 }
 
-                Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(dto.FacturaId);
+                DTO_Factura factura = await _unitOfWork._facturasBD.ConsultarFacturaPorId(dto.FacturaId);
                 factura.Vuelto = vuelto;
                 factura.MetodoPagoId = dto.MetodoPagoId;
                 factura.UsuarioCajeroId = dto.CajeroId;

@@ -37,8 +37,8 @@
 <p>Tipo trámite: @EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)Model.Factura.TipoTramiteId.Value)</p>
 
 <p>Contribuyente</p>
-<p>Nombre: @Model.Factura.Contribuyente?.Apellido.ToUpper() @Model.Factura.Contribuyente?.Nombre.ToUpper()</p>
-<p>DNI: @Model.Factura.Contribuyente?.Dni</p>
+<p>Nombre: @Model.Factura.NombreContribuyente?.ToUpper()</p>
+<p>DNI: @Model.Factura.ContribuyenteDNI</p>
 
 <!--Tabla Detalle factura -->
 <div class="accordion" id="accordionPanelsStayOpenExample">

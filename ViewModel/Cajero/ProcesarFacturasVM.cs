@@ -6,7 +6,7 @@ namespace CemSys2.ViewModel.Cajero
 {
     public class ProcesarFacturasVM
     {
-        public Factura Factura { get; set; } = new Factura();
+        public DTO_Factura Factura { get; set; } = new DTO_Factura();
         public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new List<ConceptosFactura>();
         public List<MetodoPago> ListaMetodoPago { get; set; } = new List<MetodoPago>();
 
