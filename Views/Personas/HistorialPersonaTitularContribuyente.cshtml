@@ -216,17 +216,16 @@
                                     <td>@opc.Id</td>
                                     <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Descripcion</td>
-                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
+                                    <td>$@String.Format("{0:N2}", opc.Total)</td>
                                     <td>@opc.NombreContribuyente?.ToUpper()</td>
                                     <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
                                     <td>
-                                        <!-- Botón para abrir modal de ver recibo--> <!--Como aun no hay factura el btn no funiona--> 
-                                        @* <button type="button"
-                                                class="btnEditarRecibo btn-sm"
-                                                title="Ver recibo"
-                                                onclick="verRecibo('@opc.Id')">
-                                            <i class="bi bi-receipt"></i>
-                                        </button> *@
+                                        <form asp-action="GenerarFactura" asp-controller="Cajero" method="get" style="display: inline-block;">
+                                            <input type="hidden" name="facturaId" value="@opc.Id" />
+                                            <button type="submit" class="btn btn-warning d-flex align-items-center gap-1">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                        </form>
                                         <form asp-action="IrATramite" asp-controller="Tramite" target="_blank" method="get" style="display: inline-block;">
                                             <input type="hidden" name="tramiteId" value="@opc.TramiteId" />
                                             <button type="submit" class="btn-modificar btn-sm" title="Ir al trámite">

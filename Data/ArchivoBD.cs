@@ -63,10 +63,10 @@ namespace CemSys2.Data
         public async Task EditarArchivo(Guid archivoId, string descripcion, string categoriaArchivo, IFormFile? nuevoArchivo)
         {
             var archivo = await _context.ArchivosDocumentacions
-                    .FirstAsync(a => a.ArchivoId == archivoId);
+             .FirstAsync(a => a.ArchivoId == archivoId);
 
             archivo.Descripcion = descripcion;
-            _context.ArchivosDocumentacions.Update(archivo);
+            archivo.CategoriaArchivo = categoriaArchivo;
 
             if (nuevoArchivo != null && nuevoArchivo.Length > 0)
             {
@@ -80,24 +80,19 @@ namespace CemSys2.Data
                     _ => "application/octet-stream"
                 };
 
-                byte[] contenido;
                 using (var ms = new MemoryStream())
                 {
                     await nuevoArchivo.CopyToAsync(ms);
-                    contenido = ms.ToArray();
+                    archivo.Contenido = ms.ToArray();
                 }
 
-                if (archivo != null)
-                {
-                    archivo.NombreArchivo = Path.GetFileName(nuevoArchivo.FileName);
-                    archivo.TipoArchivo = mimeType;
-                    archivo.TamanoBytes = nuevoArchivo.Length;
-                    archivo.Contenido = contenido;
-                    archivo.CategoriaArchivo = categoriaArchivo;
-
-                    _context.ArchivosDocumentacions.Update(archivo);
-                }
+                archivo.NombreArchivo = Path.GetFileName(nuevoArchivo.FileName);
+                archivo.TipoArchivo = mimeType;
+                archivo.TamanoBytes = nuevoArchivo.Length;
             }
+
+            _context.ArchivosDocumentacions.Update(archivo);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ArchivosDocumentacion> ObtenerArchivo(Guid archivoGuid)

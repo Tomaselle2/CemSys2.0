@@ -98,6 +98,14 @@
     </div>
 }
 
+@if (TempData["MensajeError"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" style="max-width: 800px;" role="alert">
+        @TempData["MensajeError"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 @if (ViewData.ModelState.ErrorCount > 0)
 {
     <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert" style="max-width: 800px;">
@@ -881,7 +889,7 @@
 </div>
 
 
-<!--Modal Editar Recibo-->
+<!--Modal Editar Archivo-->
 <div class="modal fade" id="EditarReciboModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -890,11 +898,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form asp-action="EditarRecibo" method="post" id="formEditarRecibo" class="form-box" enctype="multipart/form-data">
+                <form asp-action="EditarArchivo" asp-controller="Archivos" method="post" id="formEditarRecibo" class="form-box" enctype="multipart/form-data">
                     <div>
                         <label for="conceptoRecibo">Concepto<span class="obligatorio"> * </span></label>
-                        <input asp-for="Descripcion" id="conceptoReciboEdicion" class="form-control" type="text" maxlength="100" required />
-                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        <input name="descripcion" id="conceptoReciboEdicion" class="form-control" type="text" maxlength="100" required />
                     </div>
                     <div>
                         <label>Archivo actual</label>
@@ -902,13 +909,18 @@
                     </div>
                     <div>
                         <label for="archivoRecibo">Nuevo archivo (opcional) <span class="obligatorio"> (.png .jpg .pdf)</span></label>
-                        <input asp-for="ArchivoDecreto" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" />
-                        <span asp-validation-for="ArchivoDecreto" class="text-danger"></span>
+                        <input name="archivoNuevo" id="archivoRecibo" class="form-control" type="file" accept=".png,.jpg,.jpeg,.pdf" />
                     </div>
-                    <input type="hidden" asp-for="IdRecibo" id="idReciboHidden" />
-                    <input type="hidden" asp-for="IdTramite" value="@nroTramite" />
-                    <input type="hidden" asp-for="IdFactura" value="@Model.FacturaInterna.Id" />
-                    <input type="hidden" asp-for="IdContribuyente" id="idContribuyenteHidden" />
+
+                    <input type="hidden" id="idArchivoActual" name="idArchivoActual" />
+                    <input type="hidden" name="idTramite" value="@nroTramite" />
+                    <input type="hidden" name="categoriaArchivo" value="Decreto" />
+
+                    <!-- este campo indica de qué vista viene -->
+                    <input type="hidden" name="controlador" value="Introduccion" />
+                    <input type="hidden" name="vista" value="ResumenIntroduccion" />
+
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
                         <div class="my-3">
@@ -1684,15 +1696,15 @@
         
     </script>
 
-    <script> // Lógica para editar un recibo
+    <script> // Lógica para editar un ARCHIVO
         document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll('.btnEditarRecibo').forEach(btn => {
+            document.querySelectorAll('.btnEditarArchivo').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const id = this.dataset.id;
                     const concepto = this.dataset.concepto;
                     const archivo = this.dataset.archivo;
 
-                    document.getElementById('idReciboHidden').value = id;
+                    document.getElementById('idArchivoActual').value = id;
                     document.getElementById('conceptoReciboEdicion').value = concepto;
                     document.getElementById('archivoActualRecibo').value = archivo || "Sin archivo";
 

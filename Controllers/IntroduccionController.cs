@@ -468,9 +468,9 @@ namespace CemSys2.Controllers
 
         }
 
-        //Editar recibo
+        //Editar Archivo
         [HttpPost]
-        public async Task<IActionResult> EditarRecibo(ResumenIntroduccionVM viewModel)
+        public async Task<IActionResult> EditarArchivo(ResumenIntroduccionVM viewModel)
         {
 
             if (!viewModel.EsEdicion && viewModel.ArchivoDecreto == null)

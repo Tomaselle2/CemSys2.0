@@ -1,6 +1,8 @@
 ﻿using CemSys2.DTO.Concesiones;
 using CemSys2.Interface.Archivos;
 using CemSys2.Models;
+using DocumentFormat.OpenXml.Presentation;
+using System.ComponentModel.DataAnnotations;
 
 namespace CemSys2.Business
 {
@@ -10,6 +12,23 @@ namespace CemSys2.Business
         public ArchivoBusiness(IArchivoBD archivoBD)
         {
             _archivoBD = archivoBD;
+        }
+
+        public async Task EditarArchivo(Guid archivoId, string descripcion, string categoriaArchivo, IFormFile? nuevoArchivo)
+        {
+            if (string.IsNullOrEmpty(descripcion))
+                throw new ValidationException("El concepto es obligatorio.");
+
+            if (nuevoArchivo != null && nuevoArchivo.Length > 0)
+            {
+                var extension = Path.GetExtension(nuevoArchivo.FileName).ToLower();
+                var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
+
+                if (!permitidas.Contains(extension))
+                    throw new ValidationException("Solo se permiten archivos PNG, JPG o PDF.");
+            }
+
+            await _archivoBD.EditarArchivo(archivoId, descripcion, categoriaArchivo, nuevoArchivo);
         }
 
         public async Task<List<DTO_Archivos_Documentacion>> ListaArchivosTramiteId(int tramiteId)
