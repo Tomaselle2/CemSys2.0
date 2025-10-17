@@ -604,19 +604,33 @@
                                     <td>@opc.Id</td>
                                     <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Descripcion</td>
-                                    <td>$ @String.Format("{0:N2}", opc.Total)</td>
+                                    <td>$@String.Format("{0:N2}", opc.Total)</td>
                                     <td>@opc.NombreContribuyente?.ToUpper()</td>
                                     <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
                                     <td>
-                                        <!-- Botón para abrir modal de anular factura-->
-                                        @if (estadoTramite != (int)EstadosIntroduccion.Finalizado 
-                                        && opc.EstadoId != (int)EstadosFactura.Cobrado 
-                                        && opc.EstadoId != (int)EstadosFactura.Anulado)
-                                        {
-                                            <button class="btn btn-danger anularFactura" type="button" data-facturaid="@opc.Id" title="Anular">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button> 
-                                        }
+                                        <div class="d-flex align-items-center gap-2">
+                                            <!-- Botón para abrir modal de anular factura-->
+                                            @if (estadoTramite != (int)EstadosIntroduccion.Finalizado
+                                                && opc.EstadoId != (int)EstadosFactura.Cobrado
+                                                && opc.EstadoId != (int)EstadosFactura.Anulado)
+                                            {
+                                                <button class="btn btn-danger anularFactura" type="button" data-facturaid="@opc.Id" title="Anular">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            }
+
+                                            <button class="btn-historial" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHistorialFactura"
+                                                    data-facturaid="@opc.Id" title="Historial">
+                                                <i class="bi bi-clock-history"></i>
+                                            </button>
+                                            <form asp-action="GenerarFactura" asp-controller="Cajero" method="get">
+                                                <input type="hidden" name="facturaId" value="@opc.Id" />
+                                                <button type="submit" class="btn btn-warning d-flex align-items-center gap-1">
+                                                    <i class="bi bi-download"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        
                                     </td>
                                 </tr>
                             }
@@ -648,6 +662,20 @@
                                             </button> *@
                 @* Fin cuerpo del acordeon *@
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Panel lateral derecho del historial de la factura -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasHistorialFactura">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Historial</h5>
+        <h5 class="offcanvas-title" id="tituloFactura">Factura:</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="historialContenido">
+        <div class="text-center text-muted">
+            <i class="bi bi-hourglass-split"></i> Selecciona una factura para ver su historial.
         </div>
     </div>
 </div>
@@ -1594,6 +1622,65 @@
 
                 new bootstrap.Modal(document.getElementById("modalVerRecibo")).show();
             }
+
+
+            //---------------------------------------Abrir el panel del historial de la factura--------------------------------------
+            //------------------------------------------------------------------------------------------------------------------
+            document.addEventListener('DOMContentLoaded', function () {
+
+                const botonesHistorial = document.querySelectorAll('.btn-historial');
+                const tituloFactura = document.getElementById('tituloFactura');
+                const contenedor = document.getElementById('historialContenido');
+
+                botonesHistorial.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const facturaId = this.getAttribute('data-facturaid');
+
+                        // Mostrar mensaje de carga
+                        tituloFactura.textContent = `Factura: ${facturaId}`;
+                        contenedor.innerHTML = `
+                            <div class="text-center text-muted">
+                                <i class="bi bi-hourglass-split"></i> Cargando historial...
+                            </div>`;
+
+                        // Llamada AJAX con fetch
+                        fetch(`/Cajero/ObtenerHistorialFactura?facturaId=${facturaId}`)
+                            .then(response => {
+                                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (!data.success) {
+                                    contenedor.innerHTML = `<div class="alert alert-info">${data.mensaje}</div>`;
+                                    return;
+                                }
+
+                                let html = '<div class="timeline">';
+                                data.historial.forEach(item => {
+                                    html += `
+                                        <div class="timeline-item mb-3">
+                                            <div class="icon bg-success text-white">
+                                                <i class="bi bi-check-lg"></i>
+                                            </div>
+                                            <div class="content">
+                                                <p class="mb-0 fw-bold">${item.estadoNombre}</p>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-clock"></i> ${item.fecha}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                html += '</div>';
+                                contenedor.innerHTML = html;
+                            })
+                            .catch(error => {
+                                contenedor.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+                            });
+                    });
+                });
+
+            });
         
     </script>
 

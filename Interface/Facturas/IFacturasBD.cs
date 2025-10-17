@@ -26,6 +26,7 @@ namespace CemSys2.Interface.Facturas
         Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);        
 
         Task<DTO_Factura> ConsultarFacturaPorId(int facturaId);
+        Task<Factura> ConsultarFacturaPorIdd(int facturaId);
 
         Task<List<DTO_Factura>> ListaFacturasPorTramiteId(int tramiteId);
         Task<List<DTO_Factura>> ListaFacturasPorPersonaId(int personaId);

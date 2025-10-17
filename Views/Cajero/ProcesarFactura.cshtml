@@ -29,70 +29,244 @@
     </div>
 }
 
+<style>
+    .contenedor {
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 20px 30px;
+        box-sizing: border-box;
+    }
 
-<p>Factura Nro: @Model.Factura.Id</p>
-<p>Fecha: @Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</p>
-<p>Estado: @(((EstadosFactura)Model.Factura.EstadoId.Value).GetDisplayName())</p>
-<p>Trámite Nro: @Model.Factura.TramiteId</p>
-<p>Tipo trámite: @EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)Model.Factura.TipoTramiteId.Value)</p>
+    /* Encabezado */
+    .encabezado {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
 
-<p>Contribuyente</p>
-<p>Nombre: @Model.Factura.NombreContribuyente?.ToUpper()</p>
-<p>DNI: @Model.Factura.ContribuyenteDNI</p>
+    .logo {
+        width: 260px;
+    }
 
-<!--Tabla Detalle factura -->
-<div class="accordion" id="accordionPanelsStayOpenExample">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-            <button class="accordion-button nueva-seccion acordeon-fijo" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
-                Detalle
-            </button>
-        </h2>
-        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
-            <div class="accordion-body" style="padding: 0">
-                @* cuerpo del acordion *@
-                @if (Model.ListaConceptosFactura.Count > 0)
-                {
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Concepto</th>
-                                <th>Precio</th>
-                                <th>Cantidad</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var opc in Model.ListaConceptosFactura)
-                            {
-                                decimal total = opc.PrecioUnitario * opc.Cantidad;
-                                <tr>
-                                    <td>@opc.ConceptoTarifaria.Nombre</td>
-                                    <td>$ @String.Format("{0:N2}", opc.PrecioUnitario)</td>
-                                    <td>@opc.Cantidad</td>
-                                    <td>$ @String.Format("{0:N2}", total)</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="alert alert-info" role="alert">
-                        <i class="fas fa-info-circle"></i>
-                        No hay detalle.
-                    </div>
-                }
-                @* Fin cuerpo del acordeon *@
+    .bloque-factura {
+        border: 2px solid #90DED5;
+        text-align: center;
+        width: 160px;
+        margin-bottom: 10px;
+    }
+
+        .bloque-factura h3 {
+            background-color: #90DED5;
+            color: black;
+            margin: 0;
+            padding: 4px;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+
+        .bloque-factura p {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+    .info-fecha {
+        margin-top: 10px;
+        font-size: 16px;
+        width: 250px;
+    }
+
+        .info-fecha div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+            background-color: #90DED5;
+            padding: 5px 8px;
+        }
+
+    /* Línea divisoria */
+    .divider {
+        border-top: 1px solid #000;
+        margin: 15px 0;
+    }
+
+    /* Bloques de información */
+    .bloque {
+        margin-top: 15px;
+    }
+
+        .bloque h4 {
+            background-color: #90DED5;
+            padding: 10px 8px;
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .bloque .contenido {
+            padding: 8px;
+            font-size: 16px;
+        }
+
+            .bloque .contenido p {
+                margin: 4px 0;
+            }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    /* Tabla de descripción */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 16px;
+    }
+
+    th {
+        background-color: #90DED5;
+        text-align: left;
+        padding: 6px 8px;
+        font-weight: bold;
+    }
+
+    td {
+        padding: 6px 8px;
+        height: 24px;
+    }
+
+    .tabla-contenido tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    /* Totales */
+    .totales {
+        margin-top: 15px;
+        width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse: collapse;
+    }
+
+        .totales td {
+            padding: 10px 8px;
+            font-size: 16px;
+        }
+
+        .totales tr:last-child td {
+            background-color: #90DED5;
+            font-weight: bold;
+        }
+</style>
+
+<div class="contenedor">
+    <div class="encabezado">
+        <div>
+            <div class="bloque-factura">
+                <h3>Factura N°</h3>
+                <p>@Model.Factura.Id</p>
+            </div>
+            <div class="info-fecha">
+                <div><span><b>Fecha: </b></span><span>@Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</span></div>
+                <div><span><b>Trámite N°: </b></span><span>@Model.Factura.TramiteId</span></div>
             </div>
         </div>
     </div>
+
+    <!-- Contribuyente -->
+    <div class="bloque">
+        <h4>CONTRIBUYENTE</h4>
+        <div class="contenido">
+            <p><span class="bold">DNI: </span>@Model.Factura.ContribuyenteDNI</p>
+            <p><span class="bold">APELLIDO Y NOMBRE: </span>@Model.Factura.NombreContribuyente?.ToUpper()</p>
+        </div>
+    </div>
+
+    <!-- Tipo de trámite -->
+    <div class="bloque">
+        <h4>TIPO DE TRÁMITE</h4>
+        <div class="contenido">
+            <p>@EstadosEnum.ObtenerDisplayTipoTramite((TipotamiteEmun)Model.Factura.TipoTramiteId.Value).ToUpper()</p>
+        </div>
+    </div>
+
+    <!-- Estado-->
+    <div class="bloque">
+        <h4>ESTADO</h4>
+        <div class="contenido">
+            <p>@(((EstadosFactura)Model.Factura.EstadoId.Value).GetDisplayName().ToUpper())</p>
+        </div>
+    </div>
+
+    <!--Tabla Detalle factura -->
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                <button class="accordion-button nueva-seccion acordeon-fijo" style="background-color: #90DED5; color: black;" type="button" data-bs-toggle="" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">
+                    DETALLE
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                <div class="accordion-body" style="padding: 0">
+                    @* cuerpo del acordion *@
+                    @if (Model.ListaConceptosFactura.Count > 0)
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var opc in Model.ListaConceptosFactura)
+                                {
+                                    decimal total = opc.PrecioUnitario * opc.Cantidad;
+                                    <tr>
+                                        <td>@opc.ConceptoTarifaria.Nombre</td>
+                                        <td>$ @String.Format("{0:N2}", opc.PrecioUnitario)</td>
+                                        <td>@opc.Cantidad</td>
+                                        <td>$ @String.Format("{0:N2}", total)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>
+                            No hay detalle.
+                        </div>
+                    }
+                    @* Fin cuerpo del acordeon *@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Totales -->
+    <table class="totales">
+        <tr>
+            <td>Subtotal</td>
+            <td>$@String.Format("{0:N2}", subtotal)</td>
+        </tr>
+        <tr>
+            <td>Fondo ayuda centro de salud (@porcentajeFondo%)</td>
+            <td>$@String.Format("{0:N2}", fondo)</td>
+        </tr>
+        <tr>
+            <td>TOTAL</td>
+            <td>$@String.Format("{0:N2}", Model.Factura.Total)</td>
+        </tr>
+    </table>
 </div>
 
-
-<p>Subtotal: $ @String.Format("{0:N2}", subtotal)</p>
-<p>Fondo ayuda centro de salud (@porcentajeFondo%): $ @String.Format("{0:N2}", fondo)</p>
-<p>Total: $ @String.Format("{0:N2}", Model.Factura.Total)</p>
 
 <form asp-action="ProcesarFactura" asp-controller="Cajero" method="post" style="max-width:1300px; margin-left:auto; margin-right:auto;">
     <div class="contenedor-resumen" style="max-width: 1000px;">

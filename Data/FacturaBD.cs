@@ -215,11 +215,11 @@ namespace CemSys2.Data
             return dto;
         }
 
-        //public async Task<Factura> ConsultarFacturaPorId(int facturaId)
-        //{
-        //    return await _context.Facturas.Include(f=>f.Contribuyente)
-        //        .FirstAsync(f => f.Id == facturaId);
-        //}
+        public async Task<Factura> ConsultarFacturaPorIdd(int facturaId)
+        {
+            return await _context.Facturas.Include(f => f.Contribuyente)
+                .FirstAsync(f => f.Id == facturaId);
+        }
 
         public async Task<DTO_Factura> ConsultarFacturaPorId(int facturaId)
         {
