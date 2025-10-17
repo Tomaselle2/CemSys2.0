@@ -31,6 +31,10 @@ public partial class Factura
 
     public decimal? Vuelto { get; set; }
 
+    public DateOnly? FechaVencimiento { get; set; }
+
+    public decimal? InteresAplicado { get; set; }
+
     public virtual ICollection<ConceptosFactura> ConceptosFacturas { get; set; } = new List<ConceptosFactura>();
 
     public virtual Persona? Contribuyente { get; set; }

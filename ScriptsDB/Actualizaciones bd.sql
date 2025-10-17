@@ -114,6 +114,13 @@ CREATE TABLE HistorialEstadosFactura (
     FOREIGN KEY (FacturaId) REFERENCES Facturas(id),
     FOREIGN KEY (EstadoId) REFERENCES EstadoFactura(id)
 );
+go
 
 ALTER TABLE Facturas
 ADD Vuelto decimal(10,2) NULL
+go
+
+ALTER TABLE Facturas
+ADD 
+    FechaVencimiento DATE NULL,           -- fecha límite de pago
+    InteresAplicado DECIMAL(10,2) NULL;   -- interés final cobrado si hubo mora

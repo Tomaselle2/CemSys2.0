@@ -217,6 +217,7 @@ namespace CemSys2.Business
                     UsuarioEmiteId = dtoFactura.UsuarioEmiteId,
                     Descripcion = dtoFactura.Descripcion,
                     EstadoId = dtoFactura.EstadoId,
+                    FechaVencimiento = DateOnly.FromDateTime(DateTime.Now.AddMonths(1))
                 };
 
                 nuevaFactura.Id = await _unitOfWork._facturasBD.RegistrarFactura(nuevaFactura);
@@ -557,6 +558,34 @@ namespace CemSys2.Business
         public async Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId)
         {
             return await _facturasBD.HistorialEstadoFacturaPorFacturaId(facturaId);
+        }
+
+        private const double TasaMensual = 0.055; // 5.5% mensual
+
+        public decimal CalcularInteres(decimal totalFactura, DateTime fechaVencimiento)
+        {
+            DateTime hoy = DateTime.Today;
+
+            if (hoy <= fechaVencimiento)
+                return 0;
+
+            int diasAtraso = (hoy - fechaVencimiento).Days;
+            DateTime fechaActual = fechaVencimiento;
+
+            double montoConInteres = (double)totalFactura;
+
+            for (int i = 0; i < diasAtraso; i++)
+            {
+                int diasEnMes = DateTime.DaysInMonth(fechaActual.Year, fechaActual.Month);
+                double tasaDiaria = TasaMensual / diasEnMes;
+
+                montoConInteres *= (1 + tasaDiaria);
+
+                fechaActual = fechaActual.AddDays(1);
+            }
+
+            decimal interes = (decimal)montoConInteres - totalFactura;
+            return Math.Round(interes, 2);
         }
     }
 }

@@ -95,7 +95,6 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ActaDefuncion>(entity =>
@@ -421,6 +420,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("fechaCreacion");
+            entity.Property(e => e.InteresAplicado).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.TipoTramiteId).HasColumnName("tipoTramiteId");
             entity.Property(e => e.Total)
                 .HasColumnType("decimal(10, 2)")

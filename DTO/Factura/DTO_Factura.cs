@@ -33,5 +33,7 @@
         public string? ContribuyenteDNI { get; set; }
 
         public decimal? Vuelto { get; set; }
+
+        public DateOnly? Vencimiento { get; set; }
     }
 }

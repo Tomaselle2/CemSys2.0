@@ -52,5 +52,7 @@ namespace CemSys2.Interface.Facturas
 
         Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId);
 
+        decimal CalcularInteres(decimal totalFactura, DateTime fechaVencimiento);
+
     }
 }

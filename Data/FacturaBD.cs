@@ -243,7 +243,8 @@ namespace CemSys2.Data
                              Descripcion = f.Descripcion,
                              NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : "",
                              ContribuyenteDNI = f.Contribuyente != null ? f.Contribuyente.Dni : "",
-                             Vuelto = f.Vuelto != null ? f.Vuelto : 0
+                             Vuelto = f.Vuelto != null ? f.Vuelto : 0,
+                             Vencimiento = f.FechaVencimiento != null ? f.FechaVencimiento : null
                          }).FirstAsync();
             return dto;
         }
@@ -268,7 +269,8 @@ namespace CemSys2.Data
                        MetodoPagoId = f.MetodoPagoId,
                        UsuarioCajeroId = f.UsuarioCajeroId,
                        Descripcion = f.Descripcion,
-                       NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : ""
+                       NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : "",
+                       Vencimiento = f.FechaVencimiento != null ? f.FechaVencimiento : null
                    }).ToListAsync();
             return dto;
         }
@@ -291,7 +293,8 @@ namespace CemSys2.Data
                              MetodoPagoId = f.MetodoPagoId,
                              UsuarioCajeroId = f.UsuarioCajeroId,
                              Descripcion = f.Descripcion,
-                             NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : ""
+                             NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : "",
+                             Vencimiento = f.FechaVencimiento != null ? f.FechaVencimiento : null
                          }).OrderByDescending(f=>f.FechaCreacion).ToListAsync();
            
             return dto;
@@ -368,7 +371,8 @@ namespace CemSys2.Data
                     MetodoPagoId = f.MetodoPagoId,
                     UsuarioCajeroId = f.UsuarioCajeroId,
                     Descripcion = f.Descripcion,
-                    NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : ""
+                    NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : "",
+                    Vencimiento = f.FechaVencimiento != null ? f.FechaVencimiento : null
                 })
                 .ToListAsync();
 
@@ -412,7 +416,8 @@ namespace CemSys2.Data
                     MetodoPagoId = f.MetodoPagoId,
                     UsuarioCajeroId = f.UsuarioCajeroId,
                     Descripcion = f.Descripcion,
-                    NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : ""
+                    NombreUsuarioEmite = f.UsuarioEmite != null ? f.UsuarioEmite.Usuario1 : "",
+                    Vencimiento = f.FechaVencimiento != null ? f.FechaVencimiento : null
                 })
                 .ToListAsync();
 
