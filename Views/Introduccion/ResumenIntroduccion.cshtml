@@ -894,7 +894,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Editar recibo</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Editar Decreto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1011,37 +1011,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
-    <script>//logica de carga de recibo, spiner
-        function handleFormSubmit(event) {
-            // Primero verificar si el formulario es válido
-            const form = document.getElementById('formRecibo');
-
-            // Usar la validación nativa del navegador
-            if (!form.checkValidity()) {
-                // Si no es válido, mostrar mensajes de validación y detener
-                form.reportValidity();
-                return false;
-            }
-
-            // Si llegamos aquí, la validación pasó
-            const btn = document.getElementById('btnCargarRecibo');
-            const btnText = btn.querySelector('.btn-text');
-            const spinner = btn.querySelector('.spinner-border');
-            const loadingText = btn.querySelector('.loading-text');
-
-            // Deshabilitar el botón
-            btn.disabled = true;
-
-            // Ocultar texto original y mostrar spinner + texto de carga
-            btnText.classList.add('d-none');
-            spinner.classList.remove('d-none');
-            loadingText.classList.remove('d-none');
-
-            // Permitir que el formulario se envíe
-            return true;
-        }
-    </script>
-
     <script> //para el textarea
 
         var estadoFinalizado = @(estadoTramite == (int)EstadosIntroduccion.Finalizado ? "true" : "false");
@@ -1077,9 +1046,8 @@
         });
     </script>
 
-    <script> //logica de agregar contribuyente
+    <script> 
         // Variables globales
-        var estadoFinalizado = @(estadoTramite == (int)EstadosIntroduccion.Finalizado ? "true" : "false");
 
         let contribuyenteSeleccionado = null;
         let estadoModal = 'buscar'; // 'buscar' o 'registrar'
@@ -1099,15 +1067,45 @@
         const idContribuyenteHidden = document.getElementById('idContribuyenteHidden');
 
         let listaDetalles = []; //para los detalles de la factura
-        // Abrir modal
+
+
+        //------------------------------------------------//logica de carga de recibo, spiner-------------------------
+        //--------------------------------------------------------------------------------------------------------
+        function handleFormSubmit(event) {
+            // Primero verificar si el formulario es válido
+            const form = document.getElementById('formRecibo');
+
+            // Usar la validación nativa del navegador
+            if (!form.checkValidity()) {
+                // Si no es válido, mostrar mensajes de validación y detener
+                form.reportValidity();
+                return false;
+            }
+
+            // Si llegamos aquí, la validación pasó
+            const btn = document.getElementById('btnCargarRecibo');
+            const btnText = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.spinner-border');
+            const loadingText = btn.querySelector('.loading-text');
+
+            // Deshabilitar el botón
+            btn.disabled = true;
+
+            // Ocultar texto original y mostrar spinner + texto de carga
+            btnText.classList.add('d-none');
+            spinner.classList.remove('d-none');
+            loadingText.classList.remove('d-none');
+
+            // Permitir que el formulario se envíe
+            return true;
+        }
+
+        //-------------------------------------------------//logica de agregar contribuyente----------------------------
+        //---------------------------------------------------------------------------------------------------------
+        // Abrir modal de contribuynete
         if(agregarContribuyenteButton){
             agregarContribuyenteButton.addEventListener('click', function (event) {
                 event.preventDefault();
-
-                if (estadoFinalizado === "true") {
-                    // Si el trámite está finalizado, no hacer nada
-                    return;
-                }
 
                 if (contribuyenteSeleccionado) {
                     // Si ya hay un contribuyente seleccionado, limpiar selección
@@ -1693,10 +1691,10 @@
                 });
 
             });
-        
-    </script>
 
-    <script> // Lógica para editar un ARCHIVO
+
+            //-------------------------------------// Lógica para editar un ARCHIVO---------------------------------
+            //----------------------------------------------------------------------------------------------------
         document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll('.btnEditarArchivo').forEach(btn => {
                 btn.addEventListener('click', function () {
