@@ -244,7 +244,8 @@ namespace CemSys2.Data
                              NombreContribuyente = f.Contribuyente != null ? $"{f.Contribuyente.Apellido}, {f.Contribuyente.Nombre}" : "",
                              ContribuyenteDNI = f.Contribuyente != null ? f.Contribuyente.Dni : "",
                              Vuelto = f.Vuelto != null ? f.Vuelto : 0,
-                             Vencimiento = f.FechaVencimiento != null ? f.FechaVencimiento : null
+                             Vencimiento = f.FechaVencimiento != null ? f.FechaVencimiento : null,
+                             Interes = f.InteresAplicado != null ? f.InteresAplicado : 0,
                          }).FirstAsync();
             return dto;
         }

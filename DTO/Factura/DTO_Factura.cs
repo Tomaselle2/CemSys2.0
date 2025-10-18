@@ -35,5 +35,7 @@
         public decimal? Vuelto { get; set; }
 
         public DateOnly? Vencimiento { get; set; }
+
+        public decimal? Interes {  get; set; }
     }
 }

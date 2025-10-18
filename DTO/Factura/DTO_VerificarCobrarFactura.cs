@@ -9,5 +9,6 @@
         public int TramiteId { get; set; }
         public int TipoTramiteId { get; set; }
         public int CajeroId { get; set; } //id del usuario que esta cobrando la factura
+        public decimal Interes {  get; set; }
     }
 }

@@ -10,6 +10,8 @@
     decimal subtotal = Model.Factura.Total / (1 + Model.PorcentajeFondo);
     decimal fondo = Model.Factura.Total - subtotal;
     string porcentajeFondo = (Model.PorcentajeFondo * 100).ToString("N0");
+    decimal interes = Model.Interes ?? 0;
+    decimal totalFactura = subtotal + fondo + interes;
 }
 
 @* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
@@ -52,16 +54,17 @@
     .bloque-factura {
         border: 2px solid #90DED5;
         text-align: center;
-        width: 160px;
+        width: 200px;
         margin-bottom: 10px;
+        padding: 10px;
     }
 
         .bloque-factura h3 {
             background-color: #90DED5;
             color: black;
             margin: 0;
-            padding: 4px;
-            font-size: 16px;
+            padding: 15px;
+            font-size: 20px;
             letter-spacing: 0.5px;
             font-weight: bold;
         }
@@ -123,7 +126,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
-        font-size: 16px;
+        font-size: 18px;
     }
 
     th {
@@ -153,7 +156,7 @@
 
         .totales td {
             padding: 10px 8px;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .totales tr:last-child td {
@@ -164,15 +167,14 @@
 
 <div class="contenedor">
     <div class="encabezado">
-        <div>
-            <div class="bloque-factura">
-                <h3>Factura N°</h3>
-                <p>@Model.Factura.Id</p>
-            </div>
-            <div class="info-fecha">
-                <div><span><b>Fecha: </b></span><span>@Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</span></div>
-                <div><span><b>Trámite N°: </b></span><span>@Model.Factura.TramiteId</span></div>
-            </div>
+        <div class="bloque-factura">
+            <h3>Factura N°</h3>
+            <p>@Model.Factura.Id</p>
+        </div>
+        <div class="info-fecha">
+            <div><span><b>Fecha: </b></span><span>@Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</span></div>
+            <div><span><b>Trámite N°: </b></span><span>@Model.Factura.TramiteId</span></div>
+            <div><span><b>Vencimiento: </b></span><span>@(Model.Factura.Vencimiento != null ? Model.Factura.Vencimiento.ToString() : "------")</span></div>
         </div>
     </div>
 
@@ -257,12 +259,16 @@
             <td>$@String.Format("{0:N2}", subtotal)</td>
         </tr>
         <tr>
+            <td>Intereses por mora</td>
+            <td>$@String.Format("{0:N2}", interes)</td>
+        </tr>
+        <tr>
             <td>Fondo ayuda centro de salud (@porcentajeFondo%)</td>
             <td>$@String.Format("{0:N2}", fondo)</td>
         </tr>
         <tr>
             <td>TOTAL</td>
-            <td>$@String.Format("{0:N2}", Model.Factura.Total)</td>
+            <td>$@String.Format("{0:N2}", totalFactura)</td>
         </tr>
     </table>
 </div>
@@ -301,6 +307,8 @@
     <input type="hidden" asp-for="TramiteId" value="@Model.Factura.TramiteId" />
     <input type="hidden" asp-for="TipoTramiteId" value="@Model.Factura.TipoTramiteId" />
     <input type="hidden" asp-for="MontoTotal" value="@Model.Factura.Total" />
+    <input type="hidden" asp-for="Interes" value="@Model.Interes" />
+
 </form>
 
 @section Scripts {

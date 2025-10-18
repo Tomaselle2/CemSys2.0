@@ -539,6 +539,8 @@ namespace CemSys2.Business
                 factura.Vuelto = vuelto;
                 factura.MetodoPagoId = dto.MetodoPagoId;
                 factura.UsuarioCajeroId = dto.CajeroId;
+                factura.Total += dto.Interes;
+                factura.InteresAplicado = dto.Interes;
             });
 
             await PasarFacturaEstadoCobrado(dto.FacturaId);

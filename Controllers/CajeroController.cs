@@ -143,7 +143,8 @@ namespace CemSys2.Controllers
                     MontoTotal = viewModel.MontoTotal ?? 0,
                     TramiteId = viewModel.TramiteId ?? 0,
                     TipoTramiteId = viewModel.TipoTramiteId ?? 0,
-                    CajeroId = HttpContext.Session.GetInt32("idUsuario").Value
+                    CajeroId = HttpContext.Session.GetInt32("idUsuario").Value,
+                    Interes = viewModel.Interes ?? 0,
                 });
             }
             catch (ValidationException ex)
@@ -175,6 +176,10 @@ namespace CemSys2.Controllers
                 viewModel.ListaConceptosFactura = await _facturasBusiness.ListaConceptosFacturaPorFactura(facturaId);
                 viewModel.PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
                 viewModel.ListaMetodoPago = await _facturasBusiness.ListaMetodoPago();
+
+                DateTime vencimientoDateTime = viewModel.Factura.Vencimiento?.ToDateTime(new TimeOnly(0, 0, 0)) ?? DateTime.Today;
+                viewModel.Interes = _facturasBusiness.CalcularInteres(viewModel.Factura.Total, vencimientoDateTime);
+                
             }
             catch (Exception ex)
             {

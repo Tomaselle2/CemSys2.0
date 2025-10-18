@@ -10,6 +10,7 @@ namespace CemSys2.ViewModel.Cajero
         public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new List<ConceptosFactura>();
         public List<MetodoPago> ListaMetodoPago { get; set; } = new List<MetodoPago>();
 
+        public decimal? Interes { get; set; }
         public string? MensajeError { get; set; }
         public decimal PorcentajeFondo { get; set; }
 

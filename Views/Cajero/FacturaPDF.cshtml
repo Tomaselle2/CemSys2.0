@@ -10,6 +10,7 @@
     decimal subtotal = Model.Factura.Total / (1 + Model.PorcentajeFondo);
     decimal fondo = Model.Factura.Total - subtotal;
     string porcentajeFondo = (Model.PorcentajeFondo * 100).ToString("N0");
+    decimal interes = Model.Factura.Interes ?? 0;
 
     var imgEncabezado = $"{Model.baseUrl}/fotos/EncabezadoFactura.png";
     var pieImagen = $"{Model.baseUrl}/fotos/sinfondo2.png";
@@ -258,6 +259,7 @@
                 <div class="info-fecha">
                     <div><span><b>Fecha: </b></span><span>@Model.Factura.FechaCreacion.ToString("dd/MM/yyyy HH:mm") hs</span></div>
                     <div><span><b>Trámite N°: </b></span><span>@Model.Factura.TramiteId</span></div>
+                    <div><span><b>Vencimiento: </b></span><span>@(Model.Factura.Vencimiento != null ? Model.Factura.Vencimiento.ToString() : "------")</span></div>
                 </div>
             </div>
         </div>
@@ -318,6 +320,10 @@
             <tr>
                 <td>Subtotal</td>
                 <td>$@String.Format("{0:N2}", subtotal)</td>
+            </tr>
+            <tr>
+                <td>Intereses por mora</td>
+                <td>$@String.Format("{0:N2}", interes)</td>
             </tr>
             <tr>
                 <td>Fondo ayuda centro de salud (@porcentajeFondo%)</td>
