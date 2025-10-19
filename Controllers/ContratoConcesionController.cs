@@ -165,7 +165,7 @@ namespace CemSys2.Controllers
                 viewModel.TramiteId = tramiteId;
                 viewModel.IdFactura = facturaInterna.Id;
                 viewModel.Categorias = EnumHelper.ToSelectList<CategoriaArchivosEnum>();
-                viewModel.ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio(await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), false);
+                viewModel.ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio(await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), true, true);
                 viewModel.ListaFacturas = await _facturaBusiness.ListaFacturasPorTramiteId(tramiteId);
 
             }
@@ -312,15 +312,59 @@ namespace CemSys2.Controllers
 
                 //verifico el tipo de concepto
                 int tipoConceptoTarifaria = 0;
+                int conceptoTarifariaId = 0;
                 switch (contratoConcesion.TipoParcela)
                 {
                     case 1: //nicho
                         tipoConceptoTarifaria = (int)TipoConceptoTarifariaEnum.ConcesionNicho;
+                        conceptoTarifariaId = (int)ConceptosTarifariaEnum.ConcesionNicho;
                         break;
                     case 2: //fosa
                         tipoConceptoTarifaria = (int)TipoConceptoTarifariaEnum.ConcesionFosa;
+                        conceptoTarifariaId = (int)ConceptosTarifariaEnum.ConcesionFosas;
                         break;
                 }
+
+                if (contratoConcesion.CuotaId != null)
+                {
+                    decimal precioFinalContrato = contratoConcesion.Precio;
+                    int cantidadCuotas = contratoConcesion.CuotaId.Value;
+                    decimal valorCuota = Math.Round(precioFinalContrato / cantidadCuotas, 2, MidpointRounding.AwayFromZero);
+                    decimal porcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
+
+
+
+                    for (int i = 0; i < cantidadCuotas; i++)
+                    {
+                        //crea el dto de la factura
+                        DTO_Factura dtoFactura = new DTO_Factura
+                        {
+                            TramiteId = contratoConcesion.IdTramite,
+                            ContribuyenteId = viewModel.Titulares[0].Id,
+                            Total = valorCuota,
+                            Visibilidad = true,
+                            TipoTramiteId = (int)TipotamiteEmun.ContratoDeConcesion,
+                            UsuarioEmiteId = HttpContext.Session.GetInt32("idUsuario"),
+                            Descripcion = $"{i+1}° CUOTA CONTRATO CONCESIÓN NRO {contratoConcesion.Concesion}",
+                            EstadoId = (int)EstadosFactura.Creado
+                        };
+
+                        DTO_DetalleFactura dtoPrecioSinFondo = new DTO_DetalleFactura
+                        {
+                            ConceptoTarifariaId = conceptoTarifariaId,
+                            PrecioUnitario = valorCuota / (1 + porcentajeFondo),
+                            Cantidad = 1,
+                            TipoConceptoFacturaId = tipoConceptoTarifaria
+                        };
+
+                        List<DTO_DetalleFactura> listaDetalleFactura = new List<DTO_DetalleFactura>();
+                        listaDetalleFactura.Add(dtoPrecioSinFondo);
+
+                        int idFactura = await _facturaBusiness.CrearFactura(dtoFactura, listaDetalleFactura, (i+1));
+                    }
+                }
+
+                
 
                 //metodo que carga los datos del paso Pendiente de documentacion
                 bool exito = await _concesionesBusiness.PasoPendienteDocumentacion(contratoConcesion, viewModel.Titulares, tipoConceptoTarifaria);
@@ -638,6 +682,43 @@ namespace CemSys2.Controllers
 
             return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
 
+        }
+
+
+        //pasar factura a estado emitir en caso de cuotas creadas automaticamente
+        [HttpGet]
+        public async Task<IActionResult> PasarFacturaEstadoEmitido(ContratoInicadoVM viewModel)
+        {
+            try
+            {
+                await _facturaBusiness.PasarFacturaEstadoEmitir(viewModel.IdFactura.Value);
+                TempData["MensajeExito"] = "Factura emitida con éxito";
+
+            }
+            catch (ValidationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo emitir la factura: " + ex.Message;
+                return View("ContratoIniciado", vmCompleto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo emitir la factura: " + ex.Message;
+                return View("ContratoIniciado", vmCompleto);
+            }
+            catch (Exception ex)
+            {
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo emitir la factura: " + ex.Message;
+                return View("ContratoIniciado", vmCompleto);
+            }
+            return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
         }
 
         //Anular factura

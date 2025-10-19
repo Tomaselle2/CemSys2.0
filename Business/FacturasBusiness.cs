@@ -39,7 +39,7 @@ namespace CemSys2.Business
         }
 
         //duplica el precio de los conceptos si no es "fallecido en tirolesa(false)"
-        public List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa)
+        public List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa, bool domicilioEntirolesa)
         {
             var exclusiones = new[]
             {
@@ -47,7 +47,7 @@ namespace CemSys2.Business
                 (int)ConceptosTarifariaEnum.CierreDeNicho
             };
 
-            if (fallecidoEnTirolesa == false)
+            if (fallecidoEnTirolesa == false && domicilioEntirolesa == false)
             {
                 foreach (var item in conceptosTarifaria)
                 {
@@ -201,7 +201,7 @@ namespace CemSys2.Business
         }
 
         //crea la factura en una transaccion
-        public async Task<int> CrearFactura(DTO_Factura dtoFactura, List<DTO_DetalleFactura> dtoDetalleFactura)
+        public async Task<int> CrearFactura(DTO_Factura dtoFactura, List<DTO_DetalleFactura> dtoDetalleFactura, int cantidadMesesVencimientoProximo = 1)
         {
             int facturaId = 0;
             await _unitOfWork.ExecuteInTransactionAsync(async () => {
@@ -217,7 +217,7 @@ namespace CemSys2.Business
                     UsuarioEmiteId = dtoFactura.UsuarioEmiteId,
                     Descripcion = dtoFactura.Descripcion,
                     EstadoId = dtoFactura.EstadoId,
-                    FechaVencimiento = DateOnly.FromDateTime(DateTime.Now.AddMonths(1))
+                    FechaVencimiento = DateOnly.FromDateTime(DateTime.Now.AddMonths(cantidadMesesVencimientoProximo))
                 };
 
                 nuevaFactura.Id = await _unitOfWork._facturasBD.RegistrarFactura(nuevaFactura);
@@ -302,7 +302,7 @@ namespace CemSys2.Business
                             await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
                         }
 
-                        if (totalTramite <= 0) //se abono todo
+                        if (totalTramite <= 1) //se abono todo
                         {
                             int estadoTramiteId = (int)EstadosIntroduccion.Cobrado;
 
@@ -318,6 +318,8 @@ namespace CemSys2.Business
                             //se actualiza el estado actual en el tramite
                             tramite.EstadoActualId = estadoTramiteId;
                             await _unitOfWork._tramiteBD.ModificarTramite(tramite);
+
+                            //buscar todas las facturas en estado creado, emitido y pendiente de cobro y anularlas
                         }
                         break;
 
@@ -327,9 +329,12 @@ namespace CemSys2.Business
                         {
                             contrato.Pendiente = totalTramite < 0 ? 0 : totalTramite;
                             await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
-                        }
+                            if(totalTramite <= 1)
+                            {
+                                //buscar todas las facturas en estado creado, emitido y pendiente de cobro y anularlas
 
-                       
+                            }
+                        }
                         break;
                 }
 

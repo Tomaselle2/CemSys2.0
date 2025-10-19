@@ -418,11 +418,14 @@
         <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
             <div class="accordion-body" style="padding: 0">
                 @* cuerpo del acordion *@
-                <table class="table table-hover mb-0">
-                    <tr style="font-size: 1.2rem">
-                        <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Pendiente)</b></td>
-                    </tr>
-                </table>
+                @if (Model.Pendiente >= 1)
+                {
+                    <table class="table table-hover mb-0">
+                        <tr style="font-size: 1.2rem">
+                            <td><b>Pendiente: $ @String.Format("{0:N2}", Model.Pendiente)</b></td>
+                        </tr>
+                    </table>
+                }
                 @if (Model.ListaFacturas.Count > 0)
                 {
                     <table class="table table-hover mb-0">
@@ -431,6 +434,7 @@
                                 <th>Nro Factura</th>
                                 <th>Fecha</th>
                                 <th>Descripción</th>
+                                <th>Vencimiento</th>
                                 <th>Importe</th>
                                 <th>Contribuyente</th>
                                 <th>Estado</th>
@@ -444,6 +448,7 @@
                                     <td>@opc.Id</td>
                                     <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Descripcion</td>
+                                    <td>@opc.Vencimiento.ToString()</td>
                                     <td>$@String.Format("{0:N2}", opc.Total)</td>
                                     <td>@opc.NombreContribuyente?.ToUpper()</td>
                                     <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>
@@ -463,6 +468,21 @@
                                                     data-facturaid="@opc.Id" title="Historial">
                                                 <i class="bi bi-clock-history"></i>
                                             </button>
+
+                                            @if (@opc.EstadoId == (int)EstadosFactura.Creado)
+                                            {
+                                                <form asp-action="PasarFacturaEstadoEmitido" asp-controller="ContratoConcesion" method="get">
+                                                    <input type="hidden" asp-for="TramiteId" value="@Model.TramiteId" />
+                                                    <input type="hidden" asp-for="NroConcesion" value="@Model.NroConcesion" />
+                                                    <input type="hidden" asp-for="ParcelaId" value="@Model.ParcelaId" />
+                                                    <input type="hidden" asp-for="IdFactura" value="@opc.Id" />
+                                                    <button type="submit" class="btn btn-success d-flex align-items-center gap-1" title="Emitir factura">
+                                                        <i class="bi bi-send"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            
+
                                             <form asp-action="GenerarFactura" asp-controller="Cajero" method="get">
                                                 <input type="hidden" name="facturaId" value="@opc.Id" />
                                                 <button type="submit" class="btn btn-warning d-flex align-items-center gap-1">
@@ -504,7 +524,7 @@
 </div>
 
 <!-- formulario nueva factura -->
-@if (Model.Pendiente > 0)
+@if (Model.Pendiente >= 1)
 {
     <div class="accordion" id="accordionPanelsStayOpenExample">
         <div class="accordion-item">
@@ -922,7 +942,7 @@
 </div>
 
 <!--btn fianlizar pendiente de documentracion-->
-@if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion && Model.Pendiente <= 0) //solo si es pendiente de documentacion
+@if (Model.EstadoTramiteId == (int)EstadosContratoConcesion.PendienteDeDocumentacion && Model.Pendiente <= 1) //solo si es pendiente de documentacion
 {
     <div class="d-flex justify-content-center align-items-center">
         <form asp-action="FinalizarPasoPendieteDocumentacion" method="post" id="formFinalizarPendDoc">

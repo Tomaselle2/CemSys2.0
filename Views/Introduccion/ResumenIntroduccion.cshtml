@@ -599,6 +599,7 @@
                                 <th>Nro Factura</th>
                                 <th>Fecha</th>
                                 <th>Descripción</th>
+                                <th>Vencimiento</th>
                                 <th>Importe</th>
                                 <th>Contribuyente</th>
                                 <th>Estado</th>
@@ -612,6 +613,7 @@
                                     <td>@opc.Id</td>
                                     <td>@opc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@opc.Descripcion</td>
+                                    <td>@opc.Vencimiento.ToString()</td>
                                     <td>$@String.Format("{0:N2}", opc.Total)</td>
                                     <td>@opc.NombreContribuyente?.ToUpper()</td>
                                     <td>@(((EstadosFactura)opc.EstadoId.Value).GetDisplayName())</td>

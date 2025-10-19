@@ -339,7 +339,7 @@ namespace CemSys2.Controllers
                 IdFactura = factura.Id,
                 infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
                 HistorialEstadoTramites = await _historialesBusiness.HistorialEstadoTramites(tramiteId),
-                ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio( await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), resumen[0].FallecioEnTirolesa),
+                ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio( await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), resumen[0].FallecioEnTirolesa, resumen[0].DomicilioEnTirolesa),
                 MontoMinimoFondo = await _tarifariaBusiness.ConsultarMontoMinimoFondoActual(),
                 PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual(),
                 ListaArchivos = await _archivoBusiness.ListaArchivosTramiteId(tramiteId)

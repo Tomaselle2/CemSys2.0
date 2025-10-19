@@ -16,7 +16,7 @@ namespace CemSys2.Interface.Facturas
         Task<List<DTO_ConceptosTarifaria>> ListaConceptoTarifariaIntroduccion(int tarifariaId);
 
         //duplica el precio de los conceptos si "fallecido en tirolesa(false)"
-        List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa);
+        List<DTO_ConceptosTarifaria> ListaConceptoTarifariaConPreciosConLogicaNegocio(List<DTO_ConceptosTarifaria> conceptosTarifaria, bool fallecidoEnTirolesa, bool domicilioEntirolesa);
 
         Task<int> VerificarDetalleFactura(DTO_VerificarDetalleFactura DTO_verificarDetalleFactura);
         Task VerificarCobrarFactura(DTO_VerificarCobrarFactura dto);
@@ -27,7 +27,7 @@ namespace CemSys2.Interface.Facturas
         Task<List<ConceptosFacturaInternasPrecio>> ListaConceptosFacturaInternaPorFactura(int idFactura);
 
         //crea la factura y los detalles de la factura en una sola transaccion
-        Task<int> CrearFactura(DTO_Factura dtoFactura, List<DTO_DetalleFactura> dtoDetalleFactura);
+        Task<int> CrearFactura(DTO_Factura dtoFactura, List<DTO_DetalleFactura> dtoDetalleFactura, int cantidadMesesVencimientoProximo = 1);
 
         Task PasarFacturaEstadoEmitir(int idfactura);
         Task PasarFacturaEstadoPendienteCobro(int idFactura);
