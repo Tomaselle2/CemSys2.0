@@ -22,7 +22,7 @@ namespace CemSys2.Interface.Concesiones
         Task<List<DTO_Titulares>> ListaTitularesActualesContrato(int contratoId);
         Task<bool> VerificarArchivoContratoSubido(int tramiteId);
         Task FinalizarPendienteDocumentacion(int tramiteId);
-
+        Task<string> UltimoNumeroContratoConcesion();
 
 
     }

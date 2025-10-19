@@ -534,18 +534,19 @@ namespace CemSys2.Business
 
                                 await _unitOfWork._historialesBD.RegistrarHistorialTramite(historialEstadoTramite);
                                 await _unitOfWork._tramiteBD.ModificarTramite(tramite);
+                                await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
 
                                 await _unitOfWork.SaveChangesAsync();
 
-                                //buscar todas las facturas en estado creado, emitido y pendiente de cobro y anularlas
-                                List<DTO_Factura> listaFacturas = await _facturasBD.ListaFacturasPorTramiteId(tramite.Id);
-                                foreach (var f in listaFacturas)
-                                {
-                                    if (f.EstadoId == (int)EstadosFactura.Creado || f.EstadoId == (int)EstadosFactura.Emitido || f.EstadoId == (int)EstadosFactura.PendienteDeCobro)
-                                    {
-                                        await PasarFacturaEstadoAnulado(f.Id.Value, "Anulado automáticamente por sistema");
-                                    }
-                                }
+                                ////buscar todas las facturas en estado creado, emitido y pendiente de cobro y anularlas
+                                //List<DTO_Factura> listaFacturas = await _facturasBD.ListaFacturasPorTramiteId(tramite.Id);
+                                //foreach (var f in listaFacturas)
+                                //{
+                                //    if (f.EstadoId == (int)EstadosFactura.Creado || f.EstadoId == (int)EstadosFactura.Emitido || f.EstadoId == (int)EstadosFactura.PendienteDeCobro)
+                                //    {
+                                //        await PasarFacturaEstadoAnulado(f.Id.Value, "Anulado automáticamente por sistema");
+                                //    }
+                                //}
                             }
                             await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
                         }
@@ -557,20 +558,22 @@ namespace CemSys2.Business
                         {
                             contrato.Pendiente -= dto.MontoTotal;
 
-                            await _unitOfWork.SaveChangesAsync();
 
                             if (contrato.Pendiente <= 1)
                             {
                                 contrato.Pendiente = 0;
-                                //buscar todas las facturas en estado creado, emitido y pendiente de cobro y anularlas
-                                List<DTO_Factura> listaFacturas = await _facturasBD.ListaFacturasPorTramiteId(tramite.Id);
-                                foreach (var f in listaFacturas)
-                                {
-                                    if (f.EstadoId == (int)EstadosFactura.Creado || f.EstadoId == (int)EstadosFactura.Emitido || f.EstadoId == (int)EstadosFactura.PendienteDeCobro)
-                                    {
-                                        await PasarFacturaEstadoAnulado(f.Id.Value, "Anulado automáticamente por sistema");
-                                    }
-                                }
+                                await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
+                                await _unitOfWork.SaveChangesAsync();
+
+                                ////buscar todas las facturas en estado creado, emitido y pendiente de cobro y anularlas
+                                //List<DTO_Factura> listaFacturas = await _facturasBD.ListaFacturasPorTramiteId(tramite.Id);
+                                //foreach (var f in listaFacturas)
+                                //{
+                                //    if (f.EstadoId == (int)EstadosFactura.Creado || f.EstadoId == (int)EstadosFactura.Emitido || f.EstadoId == (int)EstadosFactura.PendienteDeCobro)
+                                //    {
+                                //        await PasarFacturaEstadoAnulado(f.Id.Value, "Anulado automáticamente por sistema");
+                                //    }
+                                //}
                             }
                             await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
                         }

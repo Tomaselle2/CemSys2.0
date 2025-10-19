@@ -214,7 +214,10 @@ namespace CemSys2.Business
             return await _concesionesDB.PreciosConcesion(conceptoTarifariaId, seccionId, nroFila);
         }
 
-        
+        public async Task<string> UltimoNumeroContratoConcesion()
+        {
+            return await _concesionesDB.UltimoNumeroContratoConcesion();
+        }
 
         public Task<bool> VerificarArchivoContratoSubido(int tramiteId)
         {

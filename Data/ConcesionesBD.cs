@@ -591,5 +591,29 @@ namespace CemSys2.Data
                 throw;
             }
         }
+
+        public async Task<string> UltimoNumeroContratoConcesion()
+        {
+            // Obtener todos los valores no nulos ni vacíos
+            var numeros = await _context.ContratoConcesions
+                .Where(c => !string.IsNullOrWhiteSpace(c.Concesion))
+                .Select(c => c.Concesion.Trim())
+                .ToListAsync();
+
+            // Filtrar solo los que son completamente numéricos
+            var numerosValidos = numeros
+                .Where(n => n.All(char.IsDigit))
+                .Select(n => int.Parse(n))
+                .ToList();
+
+            // Si no hay números válidos, devolver "00001"
+            if (!numerosValidos.Any())
+                return "00001";
+
+            // Obtener el máximo y devolverlo con 5 dígitos
+            int max = numerosValidos.Max();
+            int siguiente = max + 1;
+            return siguiente.ToString("D5"); // Ej: 9 → 00009
+        }
     }
 }

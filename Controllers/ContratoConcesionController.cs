@@ -218,6 +218,8 @@ namespace CemSys2.Controllers
 
                 viewModel.CantidadCuotas = dtoCuota;
 
+                //metodo que pasa al VM el nro de concesion
+                viewModel.NroConcesion = await _concesionesBusiness.UltimoNumeroContratoConcesion();
             }
             catch (Exception ex)
             {
