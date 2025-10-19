@@ -334,7 +334,7 @@ body {
     }
 
 
-.btnEditarArchivo, .btnAgregarArchivo, .btnEditarRecibo {
+.btnEditarArchivo, .btnAgregarArchivo, .btnEditarRecibo, .btnEditarArchivoCons {
     background-color: #1f36ef;
     color: #ffffff;
     border: none;

@@ -73,5 +73,10 @@ namespace CemSys2.Business
             return await _personasBD.RegistrarContribuyente(contribuyente);
         }
 
+        public async Task<Persona> RegistrarTitular(Persona titular)
+        {
+            return await _personasBD.RegistrarTitular(titular);
+        }
+
     }
 }

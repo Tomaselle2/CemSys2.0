@@ -1,13 +1,19 @@
 ﻿using CemSys2.Business;
+using CemSys2.Data;
 using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
+using CemSys2.Interface.Archivos;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Facturas;
+using CemSys2.Interface.Historiales;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
+using CemSys2.Interface.Tarifaria;
 using CemSys2.Interface.Tramite;
 using CemSys2.Models;
+using CemSys2.ViewModel;
 using CemSys2.ViewModel.ConcesionesViewModel;
 using CemSys2.ViewModel.ContratoViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -19,22 +25,26 @@ namespace CemSys2.Controllers
     public class ContratoConcesionController : Controller
     {
         private readonly IConcesionesBusiness _concesionesBusiness;
-        private readonly IIntroduccionBusiness _introduccionBusiness;
         private readonly IPersonasBusiness _personasBusiness;
         private readonly IPdfService _pdfService;
         private readonly ITramiteBusiness _tramiteBusiness;
         private readonly IFacturaBusiness _facturaBusiness;
+        private readonly ITarifariaBusiness _tarifariaBusiness;
+        private readonly IArchivoBusiness _archivoBusiness;
+        private readonly IHistorialesBusiness _historialesBusiness;
 
-        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IIntroduccionBusiness introduccionBusiness, 
+        public ContratoConcesionController(IConcesionesBusiness concesionesBusiness, IArchivoBusiness archivoBusiness, 
             IPersonasBusiness personasBusiness, IPdfService pdfService, ITramiteBusiness tramiteBusiness,
-            IFacturaBusiness facturaBusiness)
+            IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness, IHistorialesBusiness historialesBusiness)
         {
             _concesionesBusiness = concesionesBusiness;
-            _introduccionBusiness = introduccionBusiness;
             _personasBusiness = personasBusiness;
             _pdfService = pdfService;
             _tramiteBusiness = tramiteBusiness;
             _facturaBusiness = facturaBusiness;
+            _tarifariaBusiness = tarifariaBusiness;
+            _archivoBusiness = archivoBusiness;
+            _historialesBusiness = historialesBusiness;
         }
 
         //vista principal de concesiones
@@ -116,7 +126,7 @@ namespace CemSys2.Controllers
         }
 
         //carga los datos de contratos ya iniciados
-        private async Task CargarDatosContratoYaInicado(ContratoInicadoVM viewModel, int parcelaId, int tramiteId)
+        private async Task<ContratoInicadoVM> CargarDatosContratoYaInicado(ContratoInicadoVM viewModel, int parcelaId, int tramiteId)
         {
             try
             {
@@ -139,26 +149,32 @@ namespace CemSys2.Controllers
                 viewModel.PrecioFinal = contratoConcesion.Precio;
                 viewModel.PrecioSeleccionado = contratoConcesion.PrecioTarifariaId;
                 viewModel.OtraFormaPago = contratoConcesion.PagoDescripcion ?? "";
-                viewModel.HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId);
+                viewModel.HistorialEstadoTramites = await _historialesBusiness.HistorialEstadoTramites(tramiteId);
+                viewModel.Pendiente = contratoConcesion.Pendiente;
                 //trae los titulares actuales del contrato
                 viewModel.Titulares = await _concesionesBusiness.ListaTitularesActualesContrato(contratoConcesion.IdTramite);
 
                 //genera la factura
-                Factura factura = await _facturaBusiness.ConsultarFacturaPorTramiteId(tramiteId);
-                var conceptosFactura = await _facturaBusiness.ListaConceptosFacturaPorFactura(factura.Id);
-                var listaRecibosFactura = await _facturaBusiness.ListaRecibosFactura(factura.Id);
-
-                viewModel.Factura = factura;
-                viewModel.ListaConceptosFactura = conceptosFactura; //conceptos
-                viewModel.ListaRecibosFactura = listaRecibosFactura; //recibos
-               // viewModel.ListaArchivos = await _facturaBusiness.ListaArchivosTramiteId(tramiteId); //archivos
-
+                var facturaInterna = await _facturaBusiness.ConsultarFacturaInternaPorTramiteId(tramiteId);
+               
+                viewModel.FacturaInterna = facturaInterna;
+                viewModel.ListaConceptosFactura = await _facturaBusiness.ListaConceptosFacturaInternaPorFactura(facturaInterna.Id); //conceptos
+                viewModel.MontoMinimoFondo = await _tarifariaBusiness.ConsultarMontoMinimoFondoActual();
+                viewModel.PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
+                viewModel.ListaArchivos = await _archivoBusiness.ListaArchivosTramiteId(tramiteId); //archivos
+                viewModel.TramiteId = tramiteId;
+                viewModel.IdFactura = facturaInterna.Id;
                 viewModel.Categorias = EnumHelper.ToSelectList<CategoriaArchivosEnum>();
+                viewModel.ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio(await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), false);
+                viewModel.ListaFacturas = await _facturaBusiness.ListaFacturasPorTramiteId(tramiteId);
+
             }
             catch (Exception ex)
             {
                 viewModel.MensajeError = ex.Message;
             }
+
+            return viewModel;
         }
 
         //metodo privado que carga los datos en la pantalla de contrato concesion de tramites no iniciados
@@ -319,143 +335,6 @@ namespace CemSys2.Controllers
             return RedirectToAction("ContratoIniciado", new {nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
         }
 
-        //cargar el recibo
-        [HttpPost]
-        public async Task<IActionResult> CargarRecibo(ContratoInicadoVM viewModel)
-        {
-            // Desactivar validación automática para Factura
-            ModelState.Remove("Factura.Tramite");
-            ModelState.Remove("Categoria");
-
-            // Primero validar el archivo específicamente
-            if (viewModel.ArchivoRecibo == null || viewModel.ArchivoRecibo.Length == 0)
-            {
-                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
-                Tramite tramite = new Tramite();
-                try
-                {
-                    tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
-
-                    //se busca el tramite
-                    tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
-                    viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                    await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                    viewModel.Concepto = viewModel.Concepto?.Trim();
-                    viewModel.Monto = viewModel.Monto;
-                    viewModel.MensajeError = "Debe seleccionar un archivo";
-                }
-                catch(Exception ex)
-                {
-                    viewModel.MensajeError = ex.Message;
-                }
-                
-                return View("ContratoIniciado", viewModel);
-            }
-
-            // Validar extensión
-            var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
-            var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
-            if (!permitidas.Contains(extension))
-            {
-                ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
-                Tramite tramite = new Tramite();
-                try
-                {
-                    //se busca el tramite
-                    tramite = await _tramiteBusiness.ConsultarTramite(viewModel.TramiteId ?? 0);
-                    viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                    await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                    viewModel.Concepto = viewModel.Concepto?.Trim();
-                    viewModel.Monto = viewModel.Monto;
-                    viewModel.MensajeError = "Solo se permiten archivos PNG, JPG o PDF";
-                }
-                catch (Exception ex)
-                {
-                    viewModel.MensajeError = ex.Message;
-                }
-
-                return View("ContratoIniciado", viewModel);
-            }
-
-            if(viewModel.Monto != 0 && viewModel.Monto > viewModel.DatosParcela.Pendiente)
-            {
-                ModelState.AddModelError("Monto", $"El monto no puede ser superior a $ {viewModel.DatosParcela.Pendiente}");
-                Tramite tramite = await _tramiteBusiness.ConsultarTramite(viewModel.TramiteId ?? 0);
-                viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                viewModel.MensajeError = $"El monto no puede ser superior a $ {viewModel.DatosParcela.Pendiente}";
-                return View("ContratoIniciado", viewModel);
-            }
-
-            // Luego validar el modelo completo
-            if (!ModelState.IsValid)
-            {
-                Tramite tramite = new Tramite();
-                try
-                {
-                    tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
-
-                    //se busca el tramite
-                    tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
-                    viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                    await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                    viewModel.Concepto = viewModel.Concepto?.Trim();
-                    viewModel.Monto = viewModel.Monto;
-                    viewModel.MensajeError = "Revice los campos obligatorios";
-                }
-                catch (Exception ex)
-                {
-                    viewModel.MensajeError = ex.Message;
-                }
-
-                return View("ContratoIniciado", viewModel);
-            }
-
-            // Mapear el tipo MIME
-            string mimeType = extension switch
-            {
-                ".png" => "image/png",
-                ".jpg" => "image/jpeg",
-                ".jpeg" => "image/jpeg",
-                ".pdf" => "application/pdf",
-                _ => "application/octet-stream"
-            };
-
-            var recibo = new RecibosFactura
-            {
-                FacturaId = viewModel.IdFactura.Value,
-                Concepto = viewModel.Concepto!.Trim(),
-                Monto = viewModel.Monto.Value,
-                Decreto = viewModel.Decreto,
-                Contribuyente = viewModel.IdContribuyente
-            };
-
-
-
-            try
-            {
-                await _facturaBusiness.RegistrarReciboFactura(recibo, viewModel.ArchivoRecibo, mimeType, viewModel.TramiteId.Value);
-                TempData["MensajeExito"] = "Recibo cargado con éxito";
-                return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
-            }
-            catch (Exception ex)
-            {
-                Tramite tramite = new Tramite();
-                
-                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
-
-                //se busca el tramite
-                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
-                viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                viewModel.Concepto = viewModel.Concepto?.Trim();
-                viewModel.Monto = viewModel.Monto;
-                viewModel.MensajeError = ex.Message;
-                
-                return View("ContratoIniciado", viewModel);
-            }
-        }
-
 
         //cargar Archivo
         [HttpPost]
@@ -465,7 +344,7 @@ namespace CemSys2.Controllers
             ModelState.Remove("Factura.Tramite");
 
             // Primero validar el archivo específicamente
-            if (viewModel.ArchivoRecibo == null || viewModel.ArchivoRecibo.Length == 0)
+            if (viewModel.ArchivoDecreto == null || viewModel.ArchivoDecreto.Length == 0)
             {
                 ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
                 Tramite tramite = new Tramite();
@@ -490,7 +369,7 @@ namespace CemSys2.Controllers
             }
 
             // Validar extensión
-            var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+            var extension = Path.GetExtension(viewModel.ArchivoDecreto.FileName).ToLower();
             var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
             if (!permitidas.Contains(extension))
             {
@@ -529,7 +408,7 @@ namespace CemSys2.Controllers
 
             try
             {
-                //await _facturaBusiness.RegistrarArchivo(viewModel.ArchivoRecibo, mimeType, viewModel.TramiteId.Value, viewModel.Categoria, viewModel.Concepto!);
+                await _archivoBusiness.RegistrarArchivo(viewModel.ArchivoDecreto, mimeType, viewModel.TramiteId.Value, viewModel.Categoria, viewModel.Concepto.ToString());
                 TempData["MensajeExito"] = $"Archivo {viewModel.Categoria} cargado con éxito";
                 return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
             }
@@ -552,226 +431,16 @@ namespace CemSys2.Controllers
             }
         }
 
-        // Método para buscar contribuyente (AJAX)
-        [HttpPost]
-        public async Task<IActionResult> BuscarContribuyente([FromBody] BuscarContribuyenteRequest request)
-        {
-            try
-            {
-                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo))
-                {
-                    return Json(new { success = false, message = "DNI y sexo son obligatorios" });
-                }
-
-                Persona contribuyente = await _personasBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
-
-                if (contribuyente != null)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        contribuyente = new
-                        {
-                            id = contribuyente.IdPersona,
-                            nombre = contribuyente.Nombre,
-                            apellido = contribuyente.Apellido,
-                            dni = request.Dni, // Usar el DNI del request para mantener consistencia
-                            sexo = contribuyente.Sexo,
-                            celular = contribuyente.Celular,
-                            correo = contribuyente.Correo,
-                            domicilio = contribuyente.Domicilio,
-
-                        }
-                    });
-                }
-                else
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        contribuyente = (object)null,
-                        dni = request.Dni, // Devolver el DNI aunque no se encuentre el contribuyente
-                        sexo = request.Sexo,
-
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        // Método para registrar nuevo contribuyente (AJAX)
-        [HttpPost]
-        public async Task<IActionResult> RegistrarContribuyente([FromBody] RegistrarContribuyenteRequest request)
-        {
-            try
-            {
-                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo) ||
-                    string.IsNullOrEmpty(request.Nombre) || string.IsNullOrEmpty(request.Apellido) || string.IsNullOrEmpty(request.Domicilio))
-                {
-                    return Json(new { success = false, message = "Todos los campos son obligatorios" });
-                }
-
-                // Validar que no exista ya
-                Persona contribuyenteExistente = await _personasBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
-                if (contribuyenteExistente != null)
-                {
-                    return Json(new { success = false, message = "El titular ya existe en el sistema" });
-                }
-
-                // Crear nuevo titular
-                var nuevoTitular = new Persona
-                {
-                    Dni = request.Dni.ToString(),
-                    Nombre = request.Nombre.Trim(),
-                    Apellido = request.Apellido.Trim(),
-                    Sexo = request.Sexo,
-                    Celular = request.Celular?.Trim(),
-                    Correo = request.Correo?.Trim(),
-                    Domicilio = request.Domicilio.Trim(),
-                };
-
-                // Guardar en base de datos
-                var TitularCreado = await _concesionesBusiness.RegistrarTitular(nuevoTitular);
-
-                return Json(new
-                {
-                    success = true,
-                    contribuyente = new
-                    {
-                        id = TitularCreado.IdPersona,
-                        nombre = TitularCreado.Nombre,
-                        apellido = TitularCreado.Apellido,
-                        dni = request.Dni, // Usar el DNI del request
-                        sexo = TitularCreado.Sexo,
-                        celular = TitularCreado.Celular,
-                        correo = TitularCreado.Correo,
-                        domicilio = TitularCreado.Domicilio
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
 
 
-        // Método para registrar nuevo contribuyente (AJAX)
-        [HttpPost]
-        public async Task<IActionResult> RegistrarContribuyenteParaRecibo([FromBody] RegistrarContribuyenteRequest request)
-        {
-            try
-            {
-                if (request.Dni == null || string.IsNullOrEmpty(request.Sexo) ||
-                    string.IsNullOrEmpty(request.Nombre) || string.IsNullOrEmpty(request.Apellido))
-                {
-                    return Json(new { success = false, message = "Todos los campos son obligatorios" });
-                }
 
-                // Validar que no exista ya
-                Persona contribuyenteExistente = await _personasBusiness.BuscarContribuyente(request.Dni.ToString(), request.Sexo);
-                if (contribuyenteExistente != null)
-                {
-                    return Json(new { success = false, message = "El contribuyente ya existe en el sistema" });
-                }
-
-                // Crear nuevo contribuyente
-                var nuevoContribuyente = new Persona
-                {
-                    Dni = request.Dni.ToString(),
-                    Nombre = request.Nombre.Trim(),
-                    Apellido = request.Apellido.Trim(),
-                    Sexo = request.Sexo
-                };
-
-                // Guardar en base de datos (ajusta según tu lógica de negocio)
-                var contribuyenteCreado = await _personasBusiness.RegistrarContribuyente(nuevoContribuyente);
-
-                return Json(new
-                {
-                    success = true,
-                    contribuyente = new
-                    {
-                        id = contribuyenteCreado.IdPersona,
-                        nombre = contribuyenteCreado.Nombre,
-                        apellido = contribuyenteCreado.Apellido,
-                        dni = request.Dni, // Usar el DNI del request
-                        sexo = contribuyenteCreado.Sexo
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        //Editar recibo
-        [HttpPost]
-        public async Task<IActionResult> EditarRecibo(ContratoInicadoVM viewModel)
-        {
-            ModelState.Remove("Categoria");
-            if (!viewModel.EsEdicion && viewModel.ArchivoRecibo == null)
-            {
-                ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
-            }
-
-            // Validar Concepto
-            if (string.IsNullOrWhiteSpace(viewModel.Concepto))
-            {
-                ModelState.AddModelError("Concepto", "El concepto es obligatorio.");
-            }
-
-            // Validar archivo SOLO si se sube uno nuevo
-            if (viewModel.ArchivoRecibo != null && viewModel.ArchivoRecibo.Length > 0)
-            {
-                var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
-                var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
-                if (!permitidas.Contains(extension))
-                {
-                    ModelState.AddModelError("ArchivoRecibo", "Solo se permiten archivos PNG, JPG o PDF.");
-                }
-            }
-
-            try
-            {
-                await _introduccionBusiness.EditarReciboFactura(
-                    viewModel.IdRecibo.Value,
-                    viewModel.Concepto!.Trim(),
-                    viewModel.ArchivoRecibo
-                );
-
-                TempData["MensajeExito"] = "Recibo editado con éxito";
-                return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
-            }
-            catch (Exception ex)
-            {
-                Tramite tramite = new Tramite();
-
-                tramite.Id = await _concesionesBusiness.VerificarSiExisteContratoConcesion(viewModel.NroConcesion!, viewModel.ParcelaId ?? 0);
-
-                //se busca el tramite
-                tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
-                viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                viewModel.Concepto = viewModel.Concepto?.Trim();
-                viewModel.Monto = viewModel.Monto;
-
-                viewModel.MensajeError = ex.Message;
-
-                return View("ContratoIniciado", viewModel);
-            }
-        }
 
 
         //Editar Archivo
         [HttpPost]
         public async Task<IActionResult> EditarArchivo(ContratoInicadoVM viewModel)
         {
-            if (!viewModel.EsEdicion && viewModel.ArchivoRecibo == null)
+            if (!viewModel.EsEdicion && viewModel.ArchivoDecreto == null)
             {
                 ModelState.AddModelError("ArchivoRecibo", "Debe seleccionar un archivo.");
             }
@@ -783,9 +452,9 @@ namespace CemSys2.Controllers
             }
 
             // Validar archivo SOLO si se sube uno nuevo
-            if (viewModel.ArchivoRecibo != null && viewModel.ArchivoRecibo.Length > 0)
+            if (viewModel.ArchivoDecreto != null && viewModel.ArchivoDecreto.Length > 0)
             {
-                var extension = Path.GetExtension(viewModel.ArchivoRecibo.FileName).ToLower();
+                var extension = Path.GetExtension(viewModel.ArchivoDecreto.FileName).ToLower();
                 var permitidas = new[] { ".png", ".jpg", ".jpeg", ".pdf" };
                 if (!permitidas.Contains(extension))
                 {
@@ -795,12 +464,12 @@ namespace CemSys2.Controllers
 
             try
             {
-                //await _facturaBusiness.EditarArchivo(
-                //    viewModel.IdArchivo.Value,
-                //    viewModel.Concepto!.Trim(),
-                //    viewModel.Categoria,                    
-                //    viewModel.ArchivoRecibo
-                //);
+                await _archivoBusiness.EditarArchivo(
+                    viewModel.IdArchivo.Value,
+                    viewModel.Concepto!.Trim(),
+                    viewModel.Categoria,
+                    viewModel.ArchivoDecreto
+                );
 
                 TempData["MensajeExito"] = $"Archivo {viewModel.Categoria} editado con éxito";
                 return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
@@ -844,11 +513,12 @@ namespace CemSys2.Controllers
                 //se busca el tramite
                 tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
                 viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
 
-                viewModel.MensajeError = ex.Message;
+                vmCompleto.MensajeError = ex.Message;
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
 
-                return View("ContratoIniciado", viewModel);
+                return View("ContratoIniciado", vmCompleto);
             }
 
             if (!pendienteFinalizado)
@@ -860,12 +530,13 @@ namespace CemSys2.Controllers
                 tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
 
                 //regreso mensaje que falta subir contrato de concesion
-                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
-                viewModel.EstadoTramiteId = tramite.EstadoActualId;
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                vmCompleto.EstadoTramiteId = tramite.EstadoActualId;
 
-                viewModel.MensajeError = "Falta subir el contrato de concesión";
+                vmCompleto.MensajeError = "Falta subir el contrato de concesión";
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
 
-                return View("ContratoIniciado", viewModel);
+                return View("ContratoIniciado", vmCompleto);
             }
 
 
@@ -886,32 +557,125 @@ namespace CemSys2.Controllers
                 //se busca el tramite
                 tramite = await _tramiteBusiness.ConsultarTramite(tramite.Id);
                 viewModel.EstadoTramiteId = tramite.EstadoActualId;
-                await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId ?? 0, tramite.Id);
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = ex.Message;
 
-                viewModel.MensajeError = ex.Message;
-
-                return View("ContratoIniciado", viewModel);
+                return View("ContratoIniciado", vmCompleto);
             }
         }
 
-        // Clase para los requests AJAX
-        public class BuscarContribuyenteRequest
+       
+
+
+        private void CargarDatosContribuyenteyFactura(ContratoInicadoVM vmNuevo, ContratoInicadoVM vmAnterior)
         {
-            public int? Dni { get; set; }
-            public string Sexo { get; set; }
+            vmNuevo.ListaDetalleFactura = vmAnterior.ListaDetalleFactura; //mantener los conceptos seleccionados
+            vmNuevo.IdContribuyente = vmAnterior.IdContribuyente;
+            vmNuevo.Nombre = vmAnterior.Nombre;
+            vmNuevo.Apellido = vmAnterior.Apellido;
+            vmNuevo.Sexo = vmAnterior.Sexo;
+            vmNuevo.Dni = vmAnterior.Dni;
         }
 
-        // Clase para los requests AJAX
-        public class RegistrarContribuyenteRequest
+        //Emitir factura
+        [HttpPost]
+        public async Task<IActionResult> EmitirFactura(ContratoInicadoVM viewModel)
         {
-            public int? Dni { get; set; }
-            public string Sexo { get; set; }
-            public string Nombre { get; set; }
-            public string Apellido { get; set; }
-            public string Domicilio { get; set; }
-            public string? Celular { get; set; }
-            public string? Correo { get; set; }
+            int facturaExito = 0;
+            //validar el modelo
+            if (!ModelState.IsValid)
+            {
+               var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                viewModel.MensajeError = "Por favor, complete todos los campos obligatorios.";
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                return View("ContratoIniciado", vmCompleto);
+            }
+
+            try
+            {
+                DTO_VerificarDetalleFactura dto = new DTO_VerificarDetalleFactura
+                {
+                    Contribuyente = viewModel.IdContribuyente,
+                    DetallesFactura = viewModel.ListaDetalleFactura,
+                    Pendiente = viewModel.Pendiente.Value,
+                    Decreto = viewModel.Decreto,
+                    Archivo = viewModel.Decreto ? viewModel.ArchivoDecreto : null, //si es decreto, el archivo es obligatorio
+                    TramiteId = viewModel.TramiteId.Value,
+                    MontoDecreto = viewModel.MontoDecreto,
+                    Descripcion = viewModel.Descripcion?.Trim() ?? string.Empty,
+                    EstadoFacturaId = (int)EstadosFactura.Creado, //cambiar dependiento del caso,
+                    UsuarioEmiteId = HttpContext.Session.GetInt32("idUsuario")
+                };
+
+                facturaExito = await _facturaBusiness.VerificarDetalleFactura(dto);
+            }
+            catch (ValidationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                return View("ContratoIniciado", vmCompleto);
+            }
+            catch (Exception ex)
+            {
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo generar la factura: " + ex.Message;
+                return View("ContratoIniciado", vmCompleto);
+            }
+
+            if (facturaExito > 0 && !viewModel.Decreto)
+            {
+                await _facturaBusiness.PasarFacturaEstadoEmitir(facturaExito);
+                TempData["MensajeExito"] = "Factura emitida con éxito";
+            }
+
+            if (facturaExito > 0 && viewModel.Decreto)
+            {
+                TempData["MensajeExito"] = "Decreto emitido con éxito";
+            }
+
+            return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
+
         }
+
+        //Anular factura
+        [HttpPost]
+        public async Task<IActionResult> AnularFactura(ContratoInicadoVM viewModel)
+        {
+            try
+            {
+                await _facturaBusiness.PasarFacturaEstadoAnulado(viewModel.IdFactura.Value, viewModel.MotivoAnulacion);
+                TempData["MensajeExito"] = "Factura anulada con éxito";
+
+            }
+            catch (ValidationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo generar la factura: " + ex.Message;
+                return View("ContratoIniciado", vmCompleto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo generar la factura: " + ex.Message;
+                return View("ContratoIniciado", vmCompleto);
+            }
+            catch (Exception ex)
+            {
+                var vmCompleto = await CargarDatosContratoYaInicado(viewModel, viewModel.ParcelaId.Value, viewModel.TramiteId.Value);
+                CargarDatosContribuyenteyFactura(vmCompleto, viewModel);
+                vmCompleto.MensajeError = "No se pudo generar la factura: " + ex.Message;
+                return View("ContratoIniciado", vmCompleto);
+            }
+            return RedirectToAction("ContratoIniciado", new { nroConcesion = viewModel.NroConcesion, parcelaId = viewModel.ParcelaId });
+        }
+
 
 
     }

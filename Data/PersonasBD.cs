@@ -444,5 +444,22 @@ namespace CemSys2.Data
         {
             await _context.TramitePersonas.AddAsync(tramitePersona);
         }
+
+        //registra un nuevo titular para la concesion
+        public async Task<Persona> RegistrarTitular(Persona titular)
+        {
+            // Asegurarnos de que la persona tenga visibilidad true al crearse
+            titular.Visibilidad = true;
+            titular.CategoriaPersona = (int)CategoriaPersonaEnum.Titular;
+
+            // Agregar el contribuyente al contexto
+            _context.Personas.Add(titular);
+
+            // Guardar los cambios en la base de datos
+            await _context.SaveChangesAsync();
+
+            // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
+            return titular;
+        }
     }
 }

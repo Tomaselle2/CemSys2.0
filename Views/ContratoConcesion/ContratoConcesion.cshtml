@@ -538,7 +538,7 @@
                 Sexo: sexoInput.value,
             };
 
-            fetch('/ContratoConcesion/BuscarContribuyente', {
+            fetch('/Personas/BuscarContribuyenteContrato', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -583,7 +583,7 @@
                 domicilio: domicilioInput.value.trim()
             };
 
-            fetch('/ContratoConcesion/RegistrarContribuyente', {
+            fetch('/Personas/RegistrarContribuyenteContrato', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

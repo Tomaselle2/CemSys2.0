@@ -18,7 +18,7 @@ const contribuyenteIcon = document.getElementById('contribuyenteIcon');
 const errorMessage = document.getElementById('errorMessage');
 const idContribuyenteHidden = document.getElementById('idContribuyenteHidden');
 
-let listaDetalles = []; //para los detalles de la factura
+//let listaDetalles = []; //para los detalles de la factura
 
 
 //------------------------------------------------//logica de carga de recibo, spiner-------------------------
@@ -434,24 +434,25 @@ function registrarContribuyenteDecreto() {
 //logica de precio del desplegable-----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-if (listaDetalleFactura && listaDetalleFactura.length > 0) {
-    listaDetalleFactura.forEach(d => {
-        const concepto = listaConceptosTarifaria.find(c => c.ConceptoTarifariaId === d.ConceptoTarifariaId);
+//if (listaDetalles && listaDetalles.length > 0) {
+//    listaDetalles.forEach(d => {
+//        const concepto = listaConceptosTarifaria.find(c => c.ConceptoTarifariaId === d.ConceptoTarifariaId);
 
-        listaDetalles.push({
-            PrecioId: d.PrecioId,
-            ConceptoTarifariaId: d.ConceptoTarifariaId,
-            PrecioUnitario: d.PrecioUnitario,
-            Cantidad: d.Cantidad,
-            TipoConceptoFacturaId: d.TipoConceptoFacturaId ?? 0,
-            NombreConcepto: concepto ? concepto.NombreConcepto : ""
-        });
-    });
-}
+//        listaDetalles.push({
+//            PrecioId: d.precioId,
+//            ConceptoTarifariaId: d.conceptoTarifariaId,
+//            PrecioUnitario: d.precioUnitario,
+//            Cantidad: d.cantidad,
+//            TipoConceptoFacturaId: d.tipoConceptoFacturaId ?? 0,
+//            NombreConcepto: concepto ? concepto.nombreConcepto : ""
+//        });
+//    });
+//}
 
 // renderizar la tabla con lo que ya vino del backend
-renderTabla();
-
+document.addEventListener("DOMContentLoaded", function () {
+    renderTabla();
+});
 // Mostrar precio al seleccionar
 if (document.getElementById("conceptoSelect")) {
     document.getElementById("conceptoSelect").addEventListener("change", function () {
@@ -505,6 +506,12 @@ function renderTabla() {
     let tbody = document.querySelector("#detalleFacturaTable tbody");
 
     if (!tbody) {
+        console.warn("No se encontró el tbody de la tabla");
+        return;
+    }
+
+    if (!Array.isArray(listaDetalles)) {
+        console.warn("listaDetalles no está definida o no es un array");
         return;
     }
 
@@ -515,34 +522,88 @@ function renderTabla() {
     listaDetalles.forEach((d, index) => {
         let row = document.createElement("tr");
 
-        subtotal += d.PrecioUnitario; // siempre cantidad 1
+        // ✅ Obtener el ID del concepto (en ambos formatos)
+        const conceptoId = d.ConceptoTarifariaId || d.conceptoTarifariaId;
+
+        // ✅ Buscar el nombre en listaConceptosTarifaria
+        let nombreConcepto = d.NombreConcepto || d.nombreConcepto;
+
+        if (!nombreConcepto && conceptoId) {
+            // Buscar en la lista de conceptos
+            const concepto = listaConceptosTarifaria.find(c =>
+                (c.ConceptoTarifariaId || c.conceptoTarifariaId) == conceptoId
+            );
+
+            if (concepto) {
+                nombreConcepto = concepto.NombreConcepto
+                    || concepto.nombreConcepto
+                    || concepto.Nombre
+                    || concepto.nombre;
+            }
+        }
+
+        // Si aún no tiene nombre, usar valor por defecto
+        nombreConcepto = nombreConcepto || 'Sin nombre';
+
+        // ✅ Obtener el precio
+        const precioUnitario = parseFloat(
+            d.PrecioUnitario
+            || d.precioUnitario
+            || 0
+        );
+
+        console.log(`Item ${index}:`, { conceptoId, nombreConcepto, precioUnitario });
+
+        subtotal += precioUnitario;
 
         row.innerHTML = `
-                       <td>${d.NombreConcepto}</td>
-                       <td>$${d.PrecioUnitario.toFixed(2)}</td>
-                       <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarDetalle(${index})">X</button></td>
-                   `;
+            <td>${nombreConcepto}</td>
+            <td>$${precioUnitario.toFixed(2)}</td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarDetalle(${index})">X</button></td>
+        `;
         tbody.appendChild(row);
     });
 
-    let fondo = subtotal * porcentajeFondo;
+    // ✅ Cálculo del fondo y total
+    const fondoPorcentaje = isNaN(porcentajeFondo) ? 0.05 : porcentajeFondo;
+
+    let fondo = subtotal * fondoPorcentaje;
     let total = subtotal + fondo;
 
-    document.getElementById("fondoSalud").textContent = fondo.toFixed(2);
-    document.getElementById("totalFactura").textContent = total.toFixed(2);
+    console.log("=== CÁLCULO ===");
+    console.log("Subtotal:", subtotal);
+    console.log("Fondo:", fondo);
+    console.log("Total:", total);
+
+    const fondoElement = document.getElementById("fondoSalud");
+    const totalElement = document.getElementById("totalFactura");
+
+    if (fondoElement) {
+        fondoElement.textContent = fondo.toFixed(2);
+    }
+    if (totalElement) {
+        totalElement.textContent = total.toFixed(2);
+    }
 
     // Generar inputs ocultos para enviar al backend
     let hiddenDiv = document.getElementById("detalleHiddenInputs");
-    hiddenDiv.innerHTML = "";
-    listaDetalles.forEach((d, i) => {
-        hiddenDiv.innerHTML += `
-                       <input type="hidden" name="ListaDetalleFactura[${i}].ConceptoTarifariaId" value="${d.ConceptoTarifariaId}" />
-                       <input type="hidden" name="ListaDetalleFactura[${i}].PrecioUnitario" value="${d.PrecioUnitario}" />
-                       <input type="hidden" name="ListaDetalleFactura[${i}].Cantidad" value="1" />
-                       <input type="hidden" name="ListaDetalleFactura[${i}].TipoConceptoFacturaId" value="${d.TipoConceptoFacturaId}" />
-                       <input type="hidden" name="ListaDetalleFactura[${i}].PrecioId" value="${d.PrecioId}" />
-                   `;
-    });
+    if (hiddenDiv) {
+        hiddenDiv.innerHTML = "";
+        listaDetalles.forEach((d, i) => {
+            const conceptoId = d.ConceptoTarifariaId || d.conceptoTarifariaId || '';
+            const precio = d.PrecioUnitario || d.precioUnitario || 0;
+            const tipoConcepto = d.TipoConceptoFacturaId || d.tipoConceptoFacturaId || '';
+            const precioId = d.PrecioId || d.precioId || '';
+
+            hiddenDiv.innerHTML += `
+                <input type="hidden" name="ListaDetalleFactura[${i}].ConceptoTarifariaId" value="${conceptoId}" />
+                <input type="hidden" name="ListaDetalleFactura[${i}].PrecioUnitario" value="${precio}" />
+                <input type="hidden" name="ListaDetalleFactura[${i}].Cantidad" value="1" />
+                <input type="hidden" name="ListaDetalleFactura[${i}].TipoConceptoFacturaId" value="${tipoConcepto}" />
+                <input type="hidden" name="ListaDetalleFactura[${i}].PrecioId" value="${precioId}" />
+            `;
+        });
+    }
 }
 
 // Eliminar detalle

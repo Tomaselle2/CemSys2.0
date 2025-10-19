@@ -1011,6 +1011,19 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
+    <script>
+        let listaDetalles = @Html.Raw(Model.ListaDetalleFactura != null ? Json.Serialize(Model.ListaDetalleFactura) : "[]");
+        const listaConceptosTarifaria = @Html.Raw(Model.ListaConceptosTarifaria != null ? Json.Serialize(Model.ListaConceptosTarifaria) : "[]");
+
+        // Convertir a número de forma segura
+        let porcentajeFondoStr = '@(Model.PorcentajeFondo?.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) ?? "0.05")';
+        const porcentajeFondo = parseFloat(porcentajeFondoStr) || 0.05;
+
+    </script>
+
+
+    <script src="~/js/_Facturacion.js"></script>
+
     <script> //para el textarea
 
         var estadoFinalizado = @(estadoTramite == (int)EstadosIntroduccion.Finalizado ? "true" : "false");
@@ -1045,14 +1058,6 @@
             }
         });
     </script>
-
-    <script>
-        const listaDetalleFactura = @Html.Raw(Json.Serialize(Model.ListaDetalleFactura));
-        const listaConceptosTarifaria = @Html.Raw(Json.Serialize(Model.ListaConceptosTarifaria));
-        const porcentajeFondo = @Model.PorcentajeFondo;
-
-    </script>
-    <script src="~/js/_Facturacion.js"></script>
 
      <script>//Modal de Confirmar finalizar pago pendiente documentacion
         document.addEventListener("DOMContentLoaded", function () {

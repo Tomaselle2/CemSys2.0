@@ -42,5 +42,6 @@ namespace CemSys2.Interface.Personas
 
         Task<bool> VerificarRelacioPersonaTramiteExiste(int tramiteId, int personaId);
         Task AgregarTramitePersona(TramitePersona tramitePersona);
+        Task<Persona> RegistrarTitular(Persona titular);
     }
 }

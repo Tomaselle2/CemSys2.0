@@ -20,7 +20,7 @@ namespace CemSys2.ViewModel
 
         public int? IdTramite { get; set; }
         public int? IdFactura { get; set; }
-        public int? IdRecibo { get; set; }
+        //public int? IdRecibo { get; set; }
 
         [Required(ErrorMessage = "La descripción es obligatoria")]
         [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]

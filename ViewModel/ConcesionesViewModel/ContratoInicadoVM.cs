@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Factura;
 using CemSys2.Models;
 using CemSys2.ValidacionAnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,9 +16,12 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         public List<SelectListItem> Categorias { get; set; } = new();  // 👈 lista de opciones
 
 
-        public Factura Factura { get; set; } = new();
-        public List<ConceptosFactura> ListaConceptosFactura { get; set; } = new();
-        public List<RecibosFactura> ListaRecibosFactura { get; set; } = new(); //solo recibos
+        public DTO_FacturaInternaPrecios FacturaInterna { get; set; } = new();
+        public List<ConceptosFacturaInternasPrecio> ListaConceptosFactura { get; set; } = new();
+        public List<DTO_Factura> ListaFacturas { get; set; } = new();
+        public List<DTO_ConceptosTarifaria> ListaConceptosTarifaria { get; set; } = new();
+        public List<DTO_DetalleFactura> ListaDetalleFactura { get; set; } = new(); //lista de conceptos de la factura (detalle)
+
         public List<HistorialEstadoTramite> HistorialEstadoTramites { get; set; } = new();
         public List<DTO_Archivos_Documentacion> ListaArchivos {  get; set; } = new(); //solo archivos sin recibos
 
@@ -37,19 +41,23 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         //para recibo
         public bool Decreto { get; set; } = false;
 
-        [Required(ErrorMessage = "El contribuyente es obligatorio")]
+        //[Required(ErrorMessage = "El contribuyente es obligatorio")]
         public int? IdContribuyente { get; set; }
 
-        [Required(ErrorMessage = "La descripción es obligatoria")]
+        //[Required(ErrorMessage = "La descripción es obligatoria")]
         [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]
         public string? Concepto { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El monto es obligatorio")]
+        //[Required(ErrorMessage = "El monto es obligatorio")]
         public decimal? Monto { get; set; }
 
-        public IFormFile? ArchivoRecibo { get; set; }
+        public IFormFile? ArchivoDecreto { get; set; }
+
         public int? IdFactura { get; set; }
-        public int? IdRecibo { get; set; }
+        public decimal? Pendiente { get; set; }
+
+        //public int? IdRecibo { get; set; }
+        //public int? IdTramite { get; set; }
 
         public Guid? IdArchivo { get; set; } //para editar un archivo
 
@@ -58,7 +66,7 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
 
         //contribuyente para cargar en la bd
         [Range(0, 99999999, ErrorMessage = "El DNI no debe tener más de 8 dígitos")]
-        [Required(ErrorMessage = "El DNI es obligatorio")]
+        //[Required(ErrorMessage = "El DNI es obligatorio")]
         public int? Dni { get; set; }
 
         [StringLength(60, ErrorMessage = "El nombre no puede superar los 60 caracteres")]
@@ -67,11 +75,23 @@ namespace CemSys2.ViewModel.ConcesionesViewModel
         [StringLength(60, ErrorMessage = "El apellido no puede superar los 60 caracteres")]
         public string? Apellido { get; set; }
 
-        [Required(ErrorMessage = "El sexo es obligatorio")]
+        //[Required(ErrorMessage = "El sexo es obligatorio")]
         public string? Sexo { get; set; }
 
-        [Required(ErrorMessage = "La categoría es obligatoria")]
+        //[Required(ErrorMessage = "La categoría es obligatoria")]
         [Display(Name = "Categoría del archivo")]
         public string Categoria { get; set; } = string.Empty;   // 👈 String, no enum
+
+        //[Required(ErrorMessage = "La descripción es obligatoria")]
+        [StringLength(100, ErrorMessage = "La descripción no puede superar los 100 caracteres")]
+        public string? Descripcion { get; set; } = string.Empty;
+
+        public string? MotivoAnulacion { get; set; }
+
+        public decimal? MontoDecreto { get; set; }
+
+        public decimal? MontoMaximo { get; set; }
+        public decimal? MontoMinimoFondo { get; set; }
+        public decimal? PorcentajeFondo { get; set; }
     }
 }

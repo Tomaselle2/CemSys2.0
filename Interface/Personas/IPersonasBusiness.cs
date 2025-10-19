@@ -36,6 +36,7 @@ namespace CemSys2.Interface.Personas
 
         Task<Persona> BuscarContribuyente(string DniContribuyente, string sexo);
         Task<Persona> RegistrarContribuyente(Persona contribuyente);
+        Task<Persona> RegistrarTitular(Persona titular);
 
 
 

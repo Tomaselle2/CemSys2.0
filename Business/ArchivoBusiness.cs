@@ -41,5 +41,9 @@ namespace CemSys2.Business
             return await _archivoBD.ObtenerArchivo(archivoGuid);
         }
 
+        public async Task RegistrarArchivo(IFormFile archivo, string mimeType, int tramiteId, string categoriaArchivo, string descripcion)
+        {
+            await _archivoBD.RegistrarArchivo(archivo, mimeType, tramiteId, categoriaArchivo, descripcion);
+        }
     }
 }

@@ -69,7 +69,7 @@ namespace CemSys2.Data
                                                ? string.Empty
                                                : reader.GetString(reader.GetOrdinal("NombreSeccion")),
                                 NroParcela = reader.GetInt32(reader.GetOrdinal("NroParcela")),
-                                NroFila = reader.GetInt32(reader.GetOrdinal("NroFila"))
+                                NroFila = reader.GetInt32(reader.GetOrdinal("NroFila")),
                             };   
                         }
                     }
@@ -319,43 +319,44 @@ namespace CemSys2.Data
                         }
                     }
 
+                    //facturacion
+
                     PreciosTarifaria precioConcesion = await _tarifariaBd.ConsultarUnPrecioTarifaria(contrato.PrecioTarifariaId);
-                    Factura factura = new Factura();
+                    FacturasInternasPrecio facturaInterna = new FacturasInternasPrecio();
 
                     if (contrato.CantidadAnios == 1)
                     {
                         //genero la factura para 1 año porque en bd es precio $0
-                        factura = new Factura
+                        facturaInterna = new FacturasInternasPrecio
                         {
                             TramiteId = contrato.IdTramite,
                             FechaCreacion = contrato.FechaGeneracion,
                             Total = contrato.Precio,
-                            //Pendiente = contrato.Precio,
                             Visibilidad = true
                         };
                     }
                     else
                     {
                         //genero la factura que no sea cantidad de años 1
-                        factura = new Factura
+                        facturaInterna = new FacturasInternasPrecio
                         {
                             TramiteId = contrato.IdTramite,
                             FechaCreacion = contrato.FechaGeneracion,
                             Total = precioConcesion.Precio,
-                            //Pendiente = precioConcesion.Precio,
                             Visibilidad = true
                         };
                     }
 
                         
-                    int idFactura = await _facturasBD.RegistrarFactura(factura);
+                    _context.FacturasInternasPrecios.Add(facturaInterna);
+                    await _context.SaveChangesAsync();
 
-                    ConceptosFactura conceptoFactura = new ConceptosFactura();
+                    ConceptosFacturaInternasPrecio conceptoFactura = new ConceptosFacturaInternasPrecio();
                     if (contrato.CantidadAnios == 1) //para cuando la cantidad de años es 1
                     {
-                        conceptoFactura = new ConceptosFactura
+                        conceptoFactura = new ConceptosFacturaInternasPrecio
                         {
-                            FacturaId = factura.Id,
+                            FacturaId = facturaInterna.Id,
                             ConceptoTarifariaId = precioConcesion.ConceptoTarifariaId,
                             PrecioUnitario = contrato.Precio,
                             Cantidad = 1,
@@ -364,9 +365,9 @@ namespace CemSys2.Data
                     }
                     else
                     {//para cuando la cantidad de años es != 1
-                        conceptoFactura = new ConceptosFactura
+                        conceptoFactura = new ConceptosFacturaInternasPrecio
                         {
-                            FacturaId = factura.Id,
+                            FacturaId = facturaInterna.Id,
                             ConceptoTarifariaId = precioConcesion.ConceptoTarifariaId,
                             PrecioUnitario = precioConcesion.Precio,
                             Cantidad = 1,
@@ -374,13 +375,17 @@ namespace CemSys2.Data
                         };
                     }
 
-                    int idConcepto = await _facturasBD.RegistrarConceptoFactura(conceptoFactura);
+                    _context.ConceptosFacturaInternasPrecios.Add(conceptoFactura);
+                    await _context.SaveChangesAsync();
 
-                   
+
                     //busco el tramite y actualizo el estado
                     Tramite tramite = await _tramiteBD.ConsultarTramite(contrato.IdTramite);
                     tramite.EstadoActualId = (int)EstadosContratoConcesion.PendienteDeDocumentacion;
                     int idTramite = await _tramiteBD.ModificarTramite(tramite); //actualizo el estado del tramite
+
+                    contrato.Pendiente = facturaInterna.Total;
+                    _context.ContratoConcesions.Update(contrato);
 
                     // Actualizar el estado del trámite pasa el tramite a Pendiente de Documentacion
                     HistorialEstadoTramite estadoTramite = new HistorialEstadoTramite
@@ -456,22 +461,7 @@ namespace CemSys2.Data
             }
         }
 
-        //registra un nuevo titular para la concesion
-        public async Task<Persona> RegistrarTitular(Persona titular)
-        {
-            // Asegurarnos de que la persona tenga visibilidad true al crearse
-            titular.Visibilidad = true;
-            titular.CategoriaPersona = (int)CategoriaPersonaEnum.Titular;
-
-            // Agregar el contribuyente al contexto
-            _context.Personas.Add(titular);
-
-            // Guardar los cambios en la base de datos
-            await _context.SaveChangesAsync();
-
-            // Devolver el contribuyente con todos sus campos, incluyendo el ID generado
-            return titular;
-        }
+        
 
         //verifica si ya existe un contrato con ese numero de concesion
         public async Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId)

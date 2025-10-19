@@ -301,6 +301,24 @@ namespace CemSys2.Business
                             introduccion.Pendiente = totalTramite < 0 ? 0 : totalTramite;
                             await _unitOfWork._introduccionBD.ModificarIntroduccion(introduccion);
                         }
+
+                        if (totalTramite <= 0) //se abono todo
+                        {
+                            int estadoTramiteId = (int)EstadosIntroduccion.Cobrado;
+
+                            //se agrega el estado en historial estado
+                            HistorialEstadoTramite historial = new HistorialEstadoTramite
+                            {
+                                TramiteId = tramite.Id,
+                                EstadoTramiteId = estadoTramiteId,
+                                Fecha = DateTime.Now
+                            };
+                            await _unitOfWork._historialesBD.RegistrarHistorialTramite(historial);
+
+                            //se actualiza el estado actual en el tramite
+                            tramite.EstadoActualId = estadoTramiteId;
+                            await _unitOfWork._tramiteBD.ModificarTramite(tramite);
+                        }
                         break;
 
                     case TipotamiteEmun.ContratoDeConcesion:
@@ -310,25 +328,9 @@ namespace CemSys2.Business
                             contrato.Pendiente = totalTramite < 0 ? 0 : totalTramite;
                             await _unitOfWork._concesionesBD.ModificarContratoConcesion(contrato);
                         }
+
+                       
                         break;
-                }
-
-                if (totalTramite <= 0) //se abono todo
-                {
-                    int estadoTramiteId = (int)EstadosIntroduccion.Cobrado;
-
-                    //se agrega el estado en historial estado
-                    HistorialEstadoTramite historial = new HistorialEstadoTramite
-                    {
-                        TramiteId = tramite.Id,
-                        EstadoTramiteId = estadoTramiteId,
-                        Fecha = DateTime.Now
-                    };
-                    await _unitOfWork._historialesBD.RegistrarHistorialTramite(historial);
-
-                    //se actualiza el estado actual en el tramite
-                    tramite.EstadoActualId = estadoTramiteId;
-                    await _unitOfWork._tramiteBD.ModificarTramite(tramite);                    
                 }
 
                 //VERIFICAR SI LA RELACIÓN TRÁMITE-PERSONA YA EXISTE

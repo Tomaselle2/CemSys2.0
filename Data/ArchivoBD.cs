@@ -37,6 +37,7 @@ namespace CemSys2.Data
                     Visibilidad = true,
                 };
                 _context.ArchivosDocumentacions.Add(archivoo);
+            await _context.SaveChangesAsync();
            
         }
 

@@ -3,6 +3,7 @@ using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
 using CemSys2.Interface.Archivos;
 using CemSys2.Interface.Facturas;
+using CemSys2.Interface.Historiales;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Tarifaria;
 using CemSys2.Models;
@@ -19,13 +20,16 @@ namespace CemSys2.Controllers
         private readonly IFacturaBusiness _facturaBusiness;
         private readonly ITarifariaBusiness _tarifariaBusiness;
         private readonly IArchivoBusiness _archivoBusiness;
+        private readonly IHistorialesBusiness _historialesBusiness;
 
-        public IntroduccionController(IIntroduccionBusiness introduccionBusiness, IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness, IArchivoBusiness archivoBusiness)
+        public IntroduccionController(IIntroduccionBusiness introduccionBusiness, IFacturaBusiness facturaBusiness, ITarifariaBusiness tarifariaBusiness, 
+            IArchivoBusiness archivoBusiness, IHistorialesBusiness historialesBusiness)
         {
             _introduccionBusiness = introduccionBusiness;
             _facturaBusiness = facturaBusiness;
             _tarifariaBusiness = tarifariaBusiness;
             _archivoBusiness = archivoBusiness;
+            _historialesBusiness = historialesBusiness;
         }
 
         public async Task<IActionResult> Index(int pagina = 1, string desdeFecha = null, string hastaFecha = null)
@@ -334,7 +338,7 @@ namespace CemSys2.Controllers
                 IdTramite = tramiteId,
                 IdFactura = factura.Id,
                 infoAdicional = resumen.FirstOrDefault()?.informacionAdicionalTramite,
-                HistorialEstadoTramites = await _introduccionBusiness.HistorialEstadoTramites(tramiteId),
+                HistorialEstadoTramites = await _historialesBusiness.HistorialEstadoTramites(tramiteId),
                 ListaConceptosTarifaria = _facturaBusiness.ListaConceptoTarifariaConPreciosConLogicaNegocio( await _facturaBusiness.ListaConceptoTarifariaIntroduccion(await _tarifariaBusiness.ConsultarIdTarifariaVigente()), resumen[0].FallecioEnTirolesa),
                 MontoMinimoFondo = await _tarifariaBusiness.ConsultarMontoMinimoFondoActual(),
                 PorcentajeFondo = await _tarifariaBusiness.ConsultarPorcentajeFondoActual(),
@@ -503,11 +507,11 @@ namespace CemSys2.Controllers
 
             try
             {
-                await _introduccionBusiness.EditarReciboFactura(
-                    viewModel.IdRecibo.Value,
-                    viewModel.Descripcion!,
-                    viewModel.ArchivoDecreto
-                );
+                //await _introduccionBusiness.EditarReciboFactura(
+                //    viewModel.IdRecibo.Value,
+                //    viewModel.Descripcion!,
+                //    viewModel.ArchivoDecreto
+                //);
 
                 TempData["MensajeExito"] = "Recibo editado con éxito";
                 return RedirectToAction("ResumenIntroduccion", new { tramiteId = viewModel.IdTramite });

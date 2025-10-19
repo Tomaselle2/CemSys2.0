@@ -8,7 +8,6 @@ namespace CemSys2.Interface.Concesiones
     {
         Task<List<DTO_Parcelas_Sin_Contrato>> ListaParcelasSinContrato();
         Task<List<DTO_Difuntos_Para_Concesion>> ListaDifuntosPorParcela(int parcelaId);
-        Task<Persona> RegistrarTitular(Persona titular);
         Task<DTO_Datos_Concesion> DatosParcela(int parcelaId);
         Task<List<DTO_Precios_Concesion>> PreciosConcesion(int conceptoTarifariaId, int seccionId, int nroFila);
         Task<List<CantidadCuota>> CantidadCuotas();

@@ -34,11 +34,6 @@ namespace CemSys2.Data
             _tarifariaBusiness = tarifariaBusiness;
         }
 
-        //private int tipoConceptosTarifariaId_Contribucion = (int)TipoConceptoTarifariaEnum.Contribucion;
-        //private int tipoConceptosTarifariaId_RegistroCivil = (int)TipoConceptoTarifariaEnum.RegistroCivil;
-        //private int tipoConceptosTarifariaId_DerechoDeOficina = (int)TipoConceptoTarifariaEnum.DerechoDeOficina;
-        //private int tipoConceptosTarifariaId_Generales = (int)TipoConceptoTarifariaEnum.General;
-
         private async Task<decimal> PorcentajeFondo()
         {
             return await _tarifariaBusiness.ConsultarPorcentajeFondoActual();
@@ -147,7 +142,8 @@ namespace CemSys2.Data
            return await _context.Personas.Where(p => p.Visibilidad == true && p.Dni == dni).FirstOrDefaultAsync();
         }
 
-        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId, int ParcelaId, DateTime fechaIngreso, List<ConceptosFacturaInternasPrecio> conceptosFacturas, int usuarioId)
+        public async Task<int> RegistrarIntroduccionCompleta(ActaDefuncion actaDefuncion, Persona difunto, int empleadoId, int empresaSepelioId,
+            int ParcelaId, DateTime fechaIngreso, List<ConceptosFacturaInternasPrecio> conceptosFacturas, int usuarioId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -568,10 +564,6 @@ namespace CemSys2.Data
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<HistorialEstadoTramite>> HistorialEstadoTramites(int tramiteId)
-        {
-            return await _context.HistorialEstadoTramites.Where(h=> h.TramiteId == tramiteId).ToListAsync();
-        }
 
         public async Task<Introduccione> ObtenerPorTramiteId(int tramiteId)
         {
