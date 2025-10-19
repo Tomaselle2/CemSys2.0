@@ -184,12 +184,12 @@
         /* Pie de página */
         .footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 5px;
         }
 
             .footer img {
                 width: 350px;
-                margin-bottom: 5px;
+                margin-bottom: 1px;
             }
 
             .footer p {
@@ -238,6 +238,38 @@
             .marca-agua.cobrado {
                 color: rgba(117, 184, 95, 0.15);
             }
+
+        .bloque-final {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 30px;
+        }
+
+            .bloque-final .footer {
+                text-align: left;
+                margin: 0;
+            }
+
+                .bloque-final .footer img {
+                    width: 350px;
+                    margin: 0;
+                }
+
+            .bloque-final .totales {
+                width: 280px;
+                border-collapse: collapse;
+            }
+
+                .bloque-final .totales td {
+                    padding: 4px 8px;
+                    font-size: 12px;
+                }
+
+                .bloque-final .totales tr:last-child td {
+                    background-color: #90DED5;
+                    font-weight: bold;
+                }
     </style>
 </head>
 <body>
@@ -323,30 +355,32 @@
             </tbody>
         </table>
 
-        <!-- Totales -->
-        <table class="totales">
-            <tr>
-                <td>Subtotal</td>
-                <td>$@String.Format("{0:N2}", subtotal)</td>
-            </tr>
-            <tr>
-                <td>Intereses por mora</td>
-                <td>$@String.Format("{0:N2}", interes)</td>
-            </tr>
-            <tr>
-                <td>Fondo ayuda centro de salud (@porcentajeFondo%)</td>
-                <td>$@String.Format("{0:N2}", fondo)</td>
-            </tr>
-            <tr>
-                <td>TOTAL</td>
-                <td>$@String.Format("{0:N2}", Model.Factura.Total)</td>
-            </tr>
-        </table>
+        <!-- Bloque final Totales + Footer -->
+        <div class="bloque-final">
+            <div class="footer">
+                <img src="@pieImagen" alt="CemSys" />
+            </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <img src="@pieImagen" alt="CemSys" />
+            <table class="totales">
+                <tr>
+                    <td>Subtotal</td>
+                    <td>$@String.Format("{0:N2}", subtotal)</td>
+                </tr>
+                <tr>
+                    <td>Intereses por mora</td>
+                    <td>$@String.Format("{0:N2}", interes)</td>
+                </tr>
+                <tr>
+                    <td>Fondo ayuda centro de salud (@porcentajeFondo%)</td>
+                    <td>$@String.Format("{0:N2}", fondo)</td>
+                </tr>
+                <tr>
+                    <td>TOTAL</td>
+                    <td>$@String.Format("{0:N2}", Model.Factura.Total)</td>
+                </tr>
+            </table>
         </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
