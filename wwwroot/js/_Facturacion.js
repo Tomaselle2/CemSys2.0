@@ -431,34 +431,33 @@ function registrarContribuyenteDecreto() {
         });
 }
 
-//logica de precio del desplegable-----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-//if (listaDetalles && listaDetalles.length > 0) {
-//    listaDetalles.forEach(d => {
-//        const concepto = listaConceptosTarifaria.find(c => c.ConceptoTarifariaId === d.ConceptoTarifariaId);
-
-//        listaDetalles.push({
-//            PrecioId: d.precioId,
-//            ConceptoTarifariaId: d.conceptoTarifariaId,
-//            PrecioUnitario: d.precioUnitario,
-//            Cantidad: d.cantidad,
-//            TipoConceptoFacturaId: d.tipoConceptoFacturaId ?? 0,
-//            NombreConcepto: concepto ? concepto.nombreConcepto : ""
-//        });
-//    });
-//}
-
+//------------------------------------------------------logica de precio del desplegable-----------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------
 // renderizar la tabla con lo que ya vino del backend
 document.addEventListener("DOMContentLoaded", function () {
     renderTabla();
 });
+
 // Mostrar precio al seleccionar
 if (document.getElementById("conceptoSelect")) {
     document.getElementById("conceptoSelect").addEventListener("change", function () {
         var selectedOption = this.options[this.selectedIndex];
         var precio = selectedOption.getAttribute("data-precio");
-        document.getElementById("precioInput").value = precio ? `$ ${precio}` : "";
+        var nombreConcepto = selectedOption.text.trim().toLowerCase();
+        var precioInput = document.getElementById("precioInput");
+
+        // Si es "Precio manual", habilitar el input y limpiarlo
+        if (nombreConcepto === "precio manual") {
+            precioInput.value = "";
+            precioInput.readOnly = false;
+            precioInput.placeholder = "Ingrese el precio";
+            precioInput.focus();
+        } else {
+            // Si es cualquier otro concepto, volver a solo lectura
+            precioInput.readOnly = true;
+            precioInput.placeholder = "";
+            precioInput.value = precio ? `$ ${precio}` : "";
+        }
     });
 }
 
@@ -466,15 +465,39 @@ if (document.getElementById("conceptoSelect")) {
 function agregarConceptoDetalle() {
     let select = document.getElementById("conceptoSelect");
     let option = select.options[select.selectedIndex];
+    let precioInput = document.getElementById("precioInput");
 
     if (!option.value) {
         alert("Debe seleccionar un concepto");
         return;
     }
 
-    // validar duplicado por PrecioId (value del select)
+    // Obtener el nombre del concepto
+    let nombreConcepto = option.text.trim();
+    let esPrecioManual = nombreConcepto.toLowerCase() === "precio manual";
+
+    // Obtener el precio
+    let precioUnitario;
+    if (esPrecioManual) {
+        // Si es precio manual, obtener el valor del input (sin el símbolo $)
+        let precioManualStr = precioInput.value.replace(/[$\s]/g, "").trim();
+        precioUnitario = parseFloat(precioManualStr);
+
+        if (!precioManualStr || isNaN(precioUnitario) || precioUnitario <= 0) {
+            alert("Debe ingresar un precio válido mayor a 0");
+            precioInput.focus();
+            return;
+        }
+    } else {
+        // Si es un concepto normal, obtener el precio del atributo
+        let precioAttr = option.getAttribute("data-precio");
+        precioUnitario = parseFloat(precioAttr);
+    }
+
+    // Para precio manual, validar duplicados por concepto + precio (ya que puede agregarse múltiples veces con diferentes precios)
     let precioId = option.value;
-    if (listaDetalles.some(d => d.PrecioId == precioId)) {
+
+    if (!esPrecioManual && listaDetalles.some(d => d.PrecioId == precioId)) {
         alert("Este concepto ya fue agregado");
         return;
     }
@@ -482,10 +505,10 @@ function agregarConceptoDetalle() {
     let detalle = {
         PrecioId: precioId,
         ConceptoTarifariaId: option.getAttribute("data-conceptoid"),
-        PrecioUnitario: parseFloat(option.getAttribute("data-precio")),
+        PrecioUnitario: precioUnitario,
         Cantidad: 1, // siempre fijo en 1
         TipoConceptoFacturaId: option.getAttribute("data-tipoconcepto"),
-        NombreConcepto: option.text
+        NombreConcepto: nombreConcepto
     };
 
     listaDetalles.push(detalle);
@@ -493,7 +516,9 @@ function agregarConceptoDetalle() {
 
     // resetear el select y precio
     select.selectedIndex = 0;
-    document.getElementById("precioInput").value = "";
+    precioInput.value = "";
+    precioInput.readOnly = true;
+    precioInput.placeholder = "";
 }
 
 // Agregar item

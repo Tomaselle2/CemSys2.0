@@ -83,6 +83,11 @@ INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
 (2, 'Inhumación panteón urna', 1),
 (7, 'Fondo de ayuda centro de salud (%)', 1),
 (7, 'Monto mínimo de fondo', 1);
+go
+
+INSERT INTO ConceptosTarifarias (tipoConceptoId, nombre, visibilidad) VALUES
+(1, 'Precio manual', 1);
+
 
 
 -- INSERT para AniosConcesion (años típicos de concesión)
