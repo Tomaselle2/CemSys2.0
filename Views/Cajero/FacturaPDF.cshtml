@@ -6,7 +6,7 @@
     ViewData["Title"] = "Procesar factura";
     Layout = ""; // No usar layout general
 
-    
+
     decimal subtotal = Model.Factura.Total / (1 + Model.PorcentajeFondo);
     decimal fondo = Model.Factura.Total - subtotal;
     string porcentajeFondo = (Model.PorcentajeFondo * 100).ToString("N0");
@@ -17,6 +17,8 @@
 
     var nombreEstadoClase = Enum.GetName(typeof(EstadosFactura), Model.Factura.EstadoId.Value);
 
+    decimal vuelto = Model.Factura.Vuelto != null ? Model.Factura.Vuelto.Value : 0;
+    decimal efectivoRecibido = vuelto + Model.Factura.Total;
 }
 
 <!DOCTYPE html>
@@ -163,23 +165,6 @@
             border-bottom: 1px solid #ccc;
         }
 
-        /* Totales */
-        .totales {
-            margin-top: 15px;
-            width: 250px;
-            margin-left: auto;
-            border-collapse: collapse;
-        }
-
-            .totales td {
-                padding: 4px 8px;
-                font-size: 12px;
-            }
-
-            .totales tr:last-child td {
-                background-color: #90DED5;
-                font-weight: bold;
-            }
 
         /* Pie de página */
         .footer {
@@ -266,7 +251,7 @@
                     font-size: 12px;
                 }
 
-                .bloque-final .totales tr:last-child td {
+                .total {
                     background-color: #90DED5;
                     font-weight: bold;
                 }
@@ -374,11 +359,24 @@
                     <td>Fondo ayuda centro de salud (@porcentajeFondo%)</td>
                     <td>$@String.Format("{0:N2}", fondo)</td>
                 </tr>
-                <tr>
+                <tr class="total">
                     <td>TOTAL</td>
                     <td>$@String.Format("{0:N2}", Model.Factura.Total)</td>
                 </tr>
+                @if (Model.Factura.MetodoPagoId == (int)MetodoPagoEnum.Efectivo)
+                {
+                    <tr>
+                        <td>Efectivo recibido</td>
+                        <td>$@String.Format("{0:N2}", efectivoRecibido)</td>
+                    </tr>
+                    <tr>
+                        <td>Vuelto</td>
+                        <td>$@String.Format("{0:N2}", vuelto)</td>
+                    </tr>
+                }
             </table>
+            
+            
         </div>
 
     </div>
