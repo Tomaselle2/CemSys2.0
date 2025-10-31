@@ -1,7 +1,11 @@
-﻿using CemSys2.DTO;
+﻿using CemSys2.Data;
+using CemSys2.DTO;
 using CemSys2.Interface;
 using CemSys2.Interface.Usuario;
+using CemSys2.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace CemSys2.Business
@@ -15,14 +19,48 @@ namespace CemSys2.Business
             _unitOfWork = unitOfWork;
         }
 
-        public Task ModificarContrasenia(int idUsuario, string nuevaPass, string antiguaPass)
+        public async Task ModificarContrasenia(int idUsuario, string nuevaPass, string antiguaPass)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var usuarioExistente = await _unitOfWork._usuarioBD.ConsultarUsuario(idUsuario);
+
+                if (string.IsNullOrEmpty(nuevaPass))
+                    throw new ValidationException("La contraseña nueva no puede estar vacía.");
+
+                if (string.IsNullOrEmpty(antiguaPass))
+                    throw new ValidationException("La contraseña actual no puede estar vacía.");
+
+                if (usuarioExistente.Clave != HashPassword(antiguaPass))
+                    throw new ValidationException("La contraseña actual es incorrecta");
+
+                usuarioExistente.Clave = HashPassword(nuevaPass);
+                _unitOfWork._usuarioBD.ModificarUsuario(usuarioExistente);
+
+            });
+        }
+
+        public static string HashPassword(string password)
+        {
+            byte[] salt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
+
+            return $"{Convert.ToBase64String(salt)}.{hashed}";
         }
 
         public async Task ModificarUsuario(DTO_Usuario usuario)
         {
-           await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
                 var usuarioExistente = await _unitOfWork._usuarioBD.ConsultarUsuario(usuario.Id);
                 if (usuarioExistente == null)
