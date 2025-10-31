@@ -23,7 +23,7 @@
             <ul class="nav flex-column">
 
                 <li class="nav-item">
-                    <a class="nav-link text-dark icono-menu" href="#">
+                    <a class="nav-link text-dark icono-menu" asp-controller="Usuarios" asp-action="IndexPerfilUsuario">
                         <i class="bi bi-person"></i> <span class="nav-text">@Context.Session.GetString("nombreUsuario")</span>
                     </a>
                 </li>

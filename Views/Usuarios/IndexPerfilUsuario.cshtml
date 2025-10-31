@@ -1,0 +1,98 @@
+﻿@using CemSys2.ViewModel.Usuario
+@model PerfirUsuarioModificarVM
+
+@{
+    ViewData["Title"] = "Perfil de Usuario";
+}
+
+<h1 class="tituloDePagina">Perfil de usuario</h1>
+
+<!-- Incluir SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+@* Mostrar mensajes de éxito (desde TempData después de una redirección) *@
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
+@if (!string.IsNullOrEmpty(Model.MensajeError))
+{
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
+        @Model.MensajeError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="contenedor-resumen">
+    <form asp-action="ModificarUsuario" method="post" class="form-box">
+        <input type="hidden" asp-for="Id" />
+            <div class="mb-3">
+                <label class="form-label" for="nombre">Nombre Completo</label>
+                <input class="form-control" type="text" asp-for="Nombre" required maxlength="60" id="nombre" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="nombre">Usuario</label>
+                <input class="form-control" type="text" asp-for="NombreUsuario" required maxlength="60" id="nombre" />
+                <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="correo">Correo</label>
+                <input class="form-control" type="email" asp-for="Correo" required maxlength="60" id="correo" />
+                <span asp-validation-for="Correo" class="text-danger"></span>
+            </div>
+
+        <div class="text-center mt-4">
+            <input type="submit" class="btn btn-success px-4" value="Modificar" />
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Mostrar SweetAlert cuando la página se carga
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (TempData["SweetAlertType"] != null)
+            {
+                    <text>
+                    Swal.fire({
+                        icon: '@TempData["SweetAlertType"]',
+                        title: '@Html.Raw(TempData["SweetAlertTitle"])',
+                        text: '@Html.Raw(TempData["SweetAlertMessage"])',
+                        confirmButtonText: 'Aceptar',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    </text>
+            }
+
+            // Manejar el envío del formulario para mostrar confirmación
+            //document.getElementById('userForm').addEventListener('submit', function(e) {
+                // Opcional: puedes agregar una confirmación antes de enviar
+                // e.preventDefault();
+                // Swal.fire({
+                //     title: '¿Estás seguro?',
+                //     text: "¿Deseas modificar los datos del usuario?",
+                //     icon: 'question',
+                //     showCancelButton: true,
+                //     confirmButtonColor: '#3085d6',
+                //     cancelButtonColor: '#d33',
+                //     confirmButtonText: 'Sí, modificar',
+                //     cancelButtonText: 'Cancelar'
+                // }).then((result) => {
+                //     if (result.isConfirmed) {
+                //         this.submit();
+                //     }
+                // });
+            //});
+        });
+    </script>
+}
+

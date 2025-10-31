@@ -2,6 +2,7 @@
 using CemSys2.Interface;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Tarifaria;
+using CemSys2.ValidacionAnotations;
 using CemSys2.ViewModel.Cajero;
 using CemSys2.ViewModel.ConcesionesViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -187,6 +188,7 @@ namespace CemSys2.Controllers
             }
         }
 
+        [AuthorizeRole(RolUsuario.Cajero)]
         //vista que muestra que el cobro fue exitoso
         public IActionResult CobroExitoso(int facturaId)
         {
@@ -198,6 +200,7 @@ namespace CemSys2.Controllers
             return View(viewModel);
         }
 
+        [AuthorizeRole(RolUsuario.Empleado, RolUsuario.Encargado, RolUsuario.Cajero)]
         [HttpGet]
         public async Task<IActionResult> ObtenerHistorialFactura(int facturaId)
         {
@@ -216,6 +219,7 @@ namespace CemSys2.Controllers
             return Json(new { success = true, historial = resultado });
         }
 
+        [AuthorizeRole(RolUsuario.Empleado, RolUsuario.Encargado, RolUsuario.Cajero)]
         [HttpGet]
         public async Task<IActionResult> GenerarFactura(int facturaId)
         {

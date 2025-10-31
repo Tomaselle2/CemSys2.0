@@ -32,7 +32,7 @@ namespace CemSys2.ViewModel
         [Required(ErrorMessage = "Debe seleccionar un rol")]
         public int? Rol { get; set; }
 
-        public List<Usuario> ListaUsuarios { get; set; } = new();
+        public List<CemSys2.Models.Usuario> ListaUsuarios { get; set; } = new();
         public List<RolesUsuario> ListaRolesUsuarios { get; set; } = new();
 
         public bool EsEdicion { get; set; } = false;

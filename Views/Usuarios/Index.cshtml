@@ -26,7 +26,7 @@
 @* Mostrar mensajes de error genéricos (si los pones en model.MensajeError) *@
     @if (!string.IsNullOrEmpty(Model.MensajeError))
     {
-    <div class="alert alert-success alert-dismissible fade show alerta-contenedor" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show alerta-contenedor" role="alert">
         @Model.MensajeError
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>

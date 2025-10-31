@@ -6,6 +6,7 @@ using CemSys2.Interface.Historiales;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
 using CemSys2.Interface.Tramite;
+using CemSys2.Interface.Usuario;
 using CemSys2.Models;
 using iText.Pdfua.Checkers.Utils.Ua1;
 
@@ -23,8 +24,10 @@ namespace CemSys2.Data
         public IHistorialesBD _historialesBD { get; }
         public IIntroduccionBD _introduccionBD { get; set; }
 
+        public IUsuarioBD _usuarioBD { get; }
+
         public UnitOfWork(AppDbContext context, IConcesionesDB concesionesDB, IFacturasBD facturasBD, IPersonasBD personasBD, ITramiteBD tramite, IArchivoBD archivoBD,
-            IHistorialesBD historialesBD, IIntroduccionBD introduccionBD)
+            IHistorialesBD historialesBD, IIntroduccionBD introduccionBD, IUsuarioBD usuarioBD)
         {
             _context = context;
             _concesionesBD = concesionesDB;
@@ -34,6 +37,7 @@ namespace CemSys2.Data
             _archivoBD = archivoBD;
             _historialesBD = historialesBD;
             _introduccionBD = introduccionBD;
+            _usuarioBD = usuarioBD;
         }
 
         public async Task ExecuteInTransactionAsync(Func<Task> action)

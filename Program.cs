@@ -14,6 +14,7 @@ using CemSys2.Interface.Tramite;
 using CemSys2.Interface.Facturas;
 using CemSys2.Interface.Archivos;
 using CemSys2.Interface.Historiales;
+using CemSys2.Interface.Usuario;
 
 
 
@@ -53,6 +54,8 @@ builder.Services.AddScoped<IFacturasBD, FacturaBD>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IArchivoBD, ArchivoBD>();
 builder.Services.AddScoped<IHistorialesBD, HistorialesBD>();
+builder.Services.AddScoped<IUsuarioBD, UsuarioBD>();
+
 
 //contenedor de capa de negocio
 builder.Services.AddScoped<IPdfService, PdfService>();
@@ -67,6 +70,8 @@ builder.Services.AddScoped<ITramiteBusiness, TramiteBusiness>();
 builder.Services.AddScoped<IFacturaBusiness, FacturasBusiness>();
 builder.Services.AddScoped<IArchivoBusiness, ArchivoBusiness>();
 builder.Services.AddScoped<IHistorialesBusiness, HistorialesBussines>();
+builder.Services.AddScoped<IUsuarioBusiness, UsuarioBusiness>();
+
 
 var app = builder.Build();
 

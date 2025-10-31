@@ -1,6 +1,8 @@
 ﻿using CemSys2.Business;
+using CemSys2.Enumerable;
 using CemSys2.Interface.Archivos;
 using CemSys2.Interface.Introduccion;
+using CemSys2.ValidacionAnotations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CemSys2.Controllers
@@ -14,6 +16,7 @@ namespace CemSys2.Controllers
             _archivoBusiness = archivoBusiness;
         }
 
+        [AuthorizeRole(RolUsuario.Empleado, RolUsuario.Encargado, RolUsuario.Cajero)]
         //ver Recibo o archivo
         public async Task<IActionResult> VerArchivo(Guid archivoId)
         {
@@ -37,6 +40,7 @@ namespace CemSys2.Controllers
             return File(archivo.Contenido, tipo);
         }
 
+        [AuthorizeRole(RolUsuario.Empleado, RolUsuario.Encargado, RolUsuario.Cajero)]
         [HttpPost]
         public async Task<IActionResult> EditarArchivo(Guid idArchivoActual, int idTramite, string descripcion, string categoriaArchivo, IFormFile? archivoNuevo, string vista, string controlador)
         {

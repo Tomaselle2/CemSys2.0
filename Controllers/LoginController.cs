@@ -1,4 +1,5 @@
-﻿using CemSys2.Interface;
+﻿using CemSys2.Enumerable;
+using CemSys2.Interface;
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
@@ -37,6 +38,7 @@ namespace CemSys2.Controllers
                     HttpContext.Session.SetString("nombreUsuario", usuario.Nombre);
                     HttpContext.Session.SetInt32("Rol", usuario.Rol);
                     HttpContext.Session.SetInt32("idUsuario", usuario.Id);
+                    HttpContext.Session.SetString("IsAuthenticated", "true");
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -45,8 +47,9 @@ namespace CemSys2.Controllers
                 if (model.NombreUsuario == "tomaselle2" && model.Clave == "1234")
                 {
                     HttpContext.Session.SetString("nombreUsuario", "Admin Temporal");
-                    HttpContext.Session.SetInt32("Rol", 2);
+                    HttpContext.Session.SetInt32("Rol", (int)RolUsuario.Encargado);
                     HttpContext.Session.SetInt32("idUsuario", 999);
+                    HttpContext.Session.SetString("IsAuthenticated", "true");
 
                     return RedirectToAction("Index", "Home");
                 }

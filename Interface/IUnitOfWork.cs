@@ -6,6 +6,7 @@ using CemSys2.Interface.Historiales;
 using CemSys2.Interface.Introduccion;
 using CemSys2.Interface.Personas;
 using CemSys2.Interface.Tramite;
+using CemSys2.Interface.Usuario;
 namespace CemSys2.Interface
 {
     public interface IUnitOfWork : IDisposable
@@ -19,6 +20,8 @@ namespace CemSys2.Interface
         public IArchivoBD _archivoBD { get; }
         public IHistorialesBD _historialesBD { get; }
         public IIntroduccionBD _introduccionBD { get; }
+        public IUsuarioBD _usuarioBD { get; }
+
         Task<int> SaveChangesAsync();
 
     }

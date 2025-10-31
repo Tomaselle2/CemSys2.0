@@ -7,6 +7,14 @@
         Contribuyente = 3
     }
 
+    public enum RolUsuario
+    {
+        Empleado = 1,
+        Encargado = 2,
+        Cajero = 3
+        // Agrega más roles según necesites
+    }
+
     public class EnumCategoriaPersona
     {
 

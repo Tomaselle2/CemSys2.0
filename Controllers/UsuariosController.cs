@@ -1,11 +1,19 @@
 ﻿using CemSys2.Business;
+using CemSys2.DTO;
+using CemSys2.DTO.Factura;
+using CemSys2.Enumerable;
 using CemSys2.Interface;
+using CemSys2.Interface.Facturas;
+using CemSys2.Interface.Usuario;
 using CemSys2.Models;
 using CemSys2.ViewModel;
+using CemSys2.ViewModel.Usuario;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace CemSys2.Controllers
 {
@@ -14,11 +22,13 @@ namespace CemSys2.Controllers
         private readonly IRepositoryBusiness<Usuario> _usuarioRepositoryBusiness;
         private readonly IRepositoryBusiness<RolesUsuario> _tipoUsuarioRepositoryBusiness;
         private const int CANTIDAD_POR_PAGINA = 20;
+        private readonly IUsuarioBusiness _usuarioBusiness;
 
-        public UsuariosController(IRepositoryBusiness<Usuario> usuarioRepositoryBusiness, IRepositoryBusiness<RolesUsuario> tipoUsuarioRepositoryBusiness)
+        public UsuariosController(IRepositoryBusiness<Usuario> usuarioRepositoryBusiness, IRepositoryBusiness<RolesUsuario> tipoUsuarioRepositoryBusiness, IUsuarioBusiness usuarioBusiness)
         {
             _usuarioRepositoryBusiness = usuarioRepositoryBusiness;
             _tipoUsuarioRepositoryBusiness = tipoUsuarioRepositoryBusiness;
+            _usuarioBusiness = usuarioBusiness;
         }
 
         public async Task<IActionResult> Index(int pagina = 1)
@@ -180,6 +190,78 @@ namespace CemSys2.Controllers
             ModelState.Clear();
 
             return View("Index", model);
+        }
+
+        //----------------------------------------------------------
+        // Modificar perfir Usuario
+        public async Task<IActionResult> IndexPerfilUsuario()
+        {
+            PerfirUsuarioModificarVM viewModel = new PerfirUsuarioModificarVM();
+            try
+            {
+                Usuario modelo = await _usuarioRepositoryBusiness.Consultar(HttpContext.Session.GetInt32("idUsuario").Value);
+
+                viewModel.Id = modelo.Id;
+                viewModel.Nombre = modelo.Nombre;
+                viewModel.Correo = modelo.Correo;
+                viewModel.NombreUsuario = modelo.Usuario1;
+
+            }
+            catch (Exception ex)
+            {
+                viewModel.MensajeError = ex.Message;
+            }
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ModificarUsuario(PerfirUsuarioModificarVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.MensajeError = "Complete los campos obligatorios";
+                return View("IndexPerfilUsuario", model);
+            }
+
+            DTO_Usuario usuario = new DTO_Usuario
+            {
+                Id = model.Id.Value,
+                Nombre = model.Nombre,
+                Correo = model.Correo,
+                Usuario1 = model.NombreUsuario,
+                Visibilidad = true,
+                Rol = HttpContext.Session.GetInt32("Rol").Value
+            };
+
+            try
+            {
+                await _usuarioBusiness.ModificarUsuario(usuario);
+
+                // Mensaje de éxito en TempData
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertTitle"] = "¡Éxito!";
+                TempData["SweetAlertMessage"] = "Usuario modificado correctamente";
+            }
+            catch (ValidationException ex)
+            {
+                // Mensaje de error de validación
+                TempData["SweetAlertType"] = "warning";
+                TempData["SweetAlertTitle"] = "Validación";
+                TempData["SweetAlertMessage"] = ex.Message;
+                return View("IndexPerfilUsuario", model);
+            }
+            catch (Exception ex)
+            {
+                // Mensaje de error general
+                TempData["SweetAlertType"] = "error";
+                TempData["SweetAlertTitle"] = "Error";
+                TempData["SweetAlertMessage"] = "No se pudo modificar el usuario: " + ex.Message;
+                return View("IndexPerfilUsuario", model);
+            }
+
+            HttpContext.Session.SetString("nombreUsuario", usuario.Nombre);
+            return RedirectToAction("IndexPerfilUsuario");
         }
 
     }
