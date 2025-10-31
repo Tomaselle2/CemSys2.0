@@ -1,4 +1,5 @@
 ﻿using CemSys2.Business;
+using CemSys2.Data;
 using CemSys2.DTO;
 using CemSys2.DTO.Factura;
 using CemSys2.Enumerable;
@@ -205,6 +206,7 @@ namespace CemSys2.Controllers
                 viewModel.Nombre = modelo.Nombre;
                 viewModel.Correo = modelo.Correo;
                 viewModel.NombreUsuario = modelo.Usuario1;
+                viewModel.Rol = ((RolUsuario)modelo.Rol).ToString();
 
             }
             catch (Exception ex)
@@ -262,6 +264,55 @@ namespace CemSys2.Controllers
 
             HttpContext.Session.SetString("nombreUsuario", usuario.Nombre);
             return RedirectToAction("IndexPerfilUsuario");
+        }
+
+        [HttpGet]
+        public IActionResult CambiarContraseniaUsuario(int usuarioId)
+        {
+            CambiarContraseniaUsuarioVM viewModel = new CambiarContraseniaUsuarioVM
+            {
+                Id = usuarioId
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CambiarContraseniaUsuario(CambiarContraseniaUsuarioVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.MensajeError = "Complete los campos obligatorios";
+                return View("CambiarContraseniaUsuario", model);
+            }
+
+            try
+            {
+                await _usuarioBusiness.ModificarContrasenia(model.Id.Value, model.ClaveNueva, model.ClaveAnterior);
+
+                // Mensaje de éxito en TempData
+                TempData["SweetAlertType"] = "success";
+                TempData["SweetAlertTitle"] = "¡Éxito!";
+                TempData["SweetAlertMessage"] = "Contraseña modificada correctamente";
+            }
+            catch (ValidationException ex)
+            {
+                // Mensaje de error de validación
+                TempData["SweetAlertType"] = "warning";
+                TempData["SweetAlertTitle"] = "Validación";
+                TempData["SweetAlertMessage"] = ex.Message;
+                return View("CambiarContraseniaUsuario", model);
+            }
+            catch (Exception ex)
+            {
+                // Mensaje de error general
+                TempData["SweetAlertType"] = "error";
+                TempData["SweetAlertTitle"] = "Error";
+                TempData["SweetAlertMessage"] = "No se pudo cambiar la contraseña: " + ex.Message;
+                return View("CambiarContraseniaUsuario", model);
+            }
+            return RedirectToAction("CambiarContraseniaUsuario", new { usuarioId = model.Id});
+
         }
 
     }

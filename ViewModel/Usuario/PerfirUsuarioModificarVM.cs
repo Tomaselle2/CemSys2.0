@@ -23,9 +23,7 @@ namespace CemSys2.ViewModel.Usuario
         [NoSoloEspacios]
         public string? NombreUsuario { get; set; } = null!;
 
-        //[StringLength(300, ErrorMessage = "La contraseña no puede superar los 300 caracteres")]
-        //[NoSoloEspacios]
-        //public string? Clave { get; set; }
+        public string? Rol { get; set; }
 
         public string? MensajeError { get; set; }
     }
