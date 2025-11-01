@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Reportes;
 using CemSys2.Enumerable;
 using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
@@ -179,6 +180,7 @@ namespace CemSys2.Business
             return dtoDatosGenerarConcesion;
         }
 
+
         public async Task<List<DTO_Difuntos_Para_Concesion>> ListaDifuntosPorParcela(int parcelaId)
         {
             return await _concesionesDB.ListaDifuntosPorParcela(parcelaId);
@@ -227,6 +229,13 @@ namespace CemSys2.Business
         public async Task<int> VerificarSiExisteContratoConcesion(string nroConcesion, int parcelaId)
         {
             return await _concesionesDB.VerificarSiExisteContratoConcesion(nroConcesion, parcelaId);
+        }
+
+
+        //reportes
+        public async Task<List<DTO_ConcesionesReportes>> ListaConcesionesReportes(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return await _concesionesDB.ListaConcesionesReportes(fechaDesde, fechaHasta);
         }
     }
 }

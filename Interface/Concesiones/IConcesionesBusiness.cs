@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Reportes;
 using CemSys2.Models;
 using CemSys2.ViewModel.ConcesionesViewModel;
 
@@ -23,6 +24,9 @@ namespace CemSys2.Interface.Concesiones
         Task<bool> VerificarArchivoContratoSubido(int tramiteId);
         Task FinalizarPendienteDocumentacion(int tramiteId);
         Task<string> UltimoNumeroContratoConcesion();
+
+        //Reportes
+        Task<List<DTO_ConcesionesReportes>> ListaConcesionesReportes(DateTime fechaDesde, DateTime fechaHasta);
 
 
     }

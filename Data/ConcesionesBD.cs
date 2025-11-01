@@ -1,4 +1,5 @@
 ﻿using CemSys2.DTO.Concesiones;
+using CemSys2.DTO.Reportes;
 using CemSys2.Enumerable;
 using CemSys2.Interface.Concesiones;
 using CemSys2.Interface.Facturas;
@@ -614,6 +615,27 @@ namespace CemSys2.Data
             int max = numerosValidos.Max();
             int siguiente = max + 1;
             return siguiente.ToString("D5"); // Ej: 9 → 00009
+        }
+
+
+        //Reportes
+        public async Task<List<DTO_ConcesionesReportes>> ListaConcesionesReportes(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            //Reporte de concesiones por Fecha de Generacion
+            List<DTO_ConcesionesReportes> listaConcesiones = new List<DTO_ConcesionesReportes>();
+
+
+            listaConcesiones = await (from c in _context.ContratoConcesions
+                                      where c.FechaGeneracion.Date >= fechaDesde.Date && c.FechaGeneracion.Date <= fechaHasta.Date
+                                      select new DTO_ConcesionesReportes
+                                      {
+                                          Id = c.IdTramite,
+                                          FechaGeneracion = c.FechaGeneracion,
+                                          TipoParcelaId = c.TipoParcela,
+                                          CantidadAniosId = c.CantidadAnios
+                                      }).ToListAsync();
+               
+            return listaConcesiones;
         }
     }
 }
