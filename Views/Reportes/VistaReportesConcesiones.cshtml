@@ -206,6 +206,8 @@
                 .attr("transform", "rotate(-45)")
                 .style("text-anchor", "end");
 
+            const color = d3.scaleOrdinal(d3.schemeCategory10);
+
             // barras iniciales con height=0 para animación
             const bars = g.selectAll('.bar')
                 .data(data, d => d.label)
@@ -214,7 +216,9 @@
                 .attr('x', d => x(d.label))
                 .attr('y', d => y(0))
                 .attr('width', x.bandwidth())
-                .attr('height', 0);
+                .attr('height', 0)
+                .attr('fill', (d,i) => color(i));
+
 
             // transicion
             bars.transition()
