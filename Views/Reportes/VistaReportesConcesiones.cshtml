@@ -40,7 +40,7 @@
     <div class="row">
         <div class="col-12 mb-5 contenedor-resumen" style="max-width: 1000px;">
             <div class="card p-3">
-                <h3>Concesiones</h3>
+                <h3>Concesiones por fecha de generación</h3>
                 <div class="d-flex gap-2 align-items-center mb-3">
                     <label>Tipo gráfico:</label>
                     <select id="concesionesChartType" class="form-control-sm">
@@ -214,9 +214,10 @@
                 .attr('fill', (d,i) => color(i));
 
 
-            // transicion
             bars.transition()
                 .duration(800)
+                .delay((d, i) => i * 100)
+                .ease(d3.easeElasticOut)
                 .attr('y', d => y(d.value))
                 .attr('height', d => (height - margin.top - margin.bottom) - y(d.value));
 
@@ -262,16 +263,22 @@
                 .join('g')
                 .attr('class','slice');
 
+                //animacion
+
             g.append('path')
                 .attr('d', arc)
                 .attr('fill', (d,i) => color(i))
+                .attr('opacity', 0)
                 .transition()
-                .duration(800)
+                .duration(600)
+                .delay((d, i) => i * 150)
+                .attr('opacity', 1)
                 .attrTween('d', function(d) {
-                    const i = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+                    const i = d3.interpolate({startAngle: d.startAngle, endAngle: d.startAngle}, d);
                     return t => arc(i(t));
-                });
+            });
 
+                //fin animacion
             // etiquetas con porcentaje
             g.append('text')
                 .attr('transform', d => `translate(${arc.centroid(d)})`)
@@ -457,7 +464,7 @@
                 const frecuencia = document.getElementById('concesionesFrecuencia').value;
                 const chartType = document.getElementById('concesionesChartType').value;
 
-                await enviarDescarga(png, realDesde, realHasta, 'Concesiones', chartType, frecuencia, '');
+                await enviarDescarga(png, realDesde, realHasta, 'Concesiones por fecha de generación', chartType, frecuencia, '');
              });
         }
         
