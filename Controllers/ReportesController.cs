@@ -1,4 +1,5 @@
-﻿using CemSys2.Interface.Concesiones;
+﻿using CemSys2.Interface;
+using CemSys2.Interface.Concesiones;
 using CemSys2.Models;
 using CemSys2.ViewModel.Reportes;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace CemSys2.Controllers
     public class ReportesController : Controller
     {
         private readonly IConcesionesBusiness _concesionesBusiness;
+        private readonly IPdfService _pdfService;
 
-        public ReportesController(IConcesionesBusiness concesionesBusiness)
+        public ReportesController(IConcesionesBusiness concesionesBusiness, IPdfService pdfService)
         {
             _concesionesBusiness = concesionesBusiness;
+            _pdfService = pdfService;
         }
         public IActionResult Index()
         {
@@ -57,37 +60,116 @@ namespace CemSys2.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DescargarReporte(IFormFile image, DateTime realDesde, DateTime realHasta, string categoria, string chartType, string frecuencia, string tipoParcela)
+        public async Task<IActionResult> DescargarReporteConcesion(
+       [FromForm] string imageBase64,  // Cambiar de IFormFile a string
+       [FromForm] string realDesde,
+       [FromForm] string realHasta,
+       [FromForm] string categoria,
+       [FromForm] string chartType,
+       [FromForm] string frecuencia,
+       [FromForm] string tipoParcela)
         {
             try
             {
-                // image: el gráfico como archivo (png)
-                // realDesde/realHasta: las fechas reales encontradas en los registros
-                // categoria: "Concesiones" o "ConcesionesPorTiempo"
-                // chartType: "barras" o "torta"
-                // frecuencia / tipoParcela: según desplegables
+                DateTime desde = string.IsNullOrEmpty(realDesde) ? DateTime.MinValue : DateTime.Parse(realDesde);
+                DateTime hasta = string.IsNullOrEmpty(realHasta) ? DateTime.MaxValue : DateTime.Parse(realHasta);
 
-                // Ejemplo: guardar imagen temporalmente o procesar para PDF luego
-                if (image != null && image.Length > 0)
+                // Procesar la imagen Base64
+                string imageBase64ForPdf = "";
+                if (!string.IsNullOrEmpty(imageBase64))
                 {
-                    var filePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.png");
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await image.CopyToAsync(stream);
-                    }
-
-                    // aquí podés enviar filePath y demás parámetros a tu servicio de generación de PDF
-                    // por ahora devolvemos OK
+                    imageBase64ForPdf = imageBase64;
+                    Console.WriteLine($"Imagen Base64 recibida: {imageBase64.Length} caracteres");
                 }
 
-                // devolver éxito
-                return Json(new { success = true });
+                // Crear el ViewModel para el PDF
+                var viewModel = new ConcesionesReportePDFVM
+                {
+                    BaseUrl = $"{Request.Scheme}://{Request.Host}",
+                    Categoria = categoria ?? "No especificada",
+                    ChartType = ObtenerNombreTipoGrafico(chartType),
+                    Frecuencia = ObtenerNombreFrecuencia(frecuencia),
+                    TipoParcela = ObtenerNombreTipoParcela(tipoParcela),
+                    FechaDesde = DateTime.Now.AddMonths(-1), // O usa las fechas reales si las tienes
+                    FechaHasta = DateTime.Now,
+                    RealDesde = desde,
+                    RealHasta = hasta,
+                    ImageBase64 = imageBase64ForPdf,
+                    TituloReporte = GenerarTituloReporte(categoria, chartType)
+                };
+
+                Console.WriteLine($"Generando PDF con imagen: {!string.IsNullOrEmpty(imageBase64ForPdf)}");
+
+                // Generar PDF
+                var pdfBytes = await _pdfService.GeneratePdfAsync("ReporteConcesionesPDF", viewModel, HttpContext);
+
+                // Devolver el PDF
+                var fileName = $"reporte_{categoria?.ToLower() ?? "concesiones"}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                return File(pdfBytes, "application/pdf", fileName);
+
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error en DescargarReporteConcesion: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+        // Métodos auxiliares para formatear los valores
+        private string ObtenerNombreTipoGrafico(string chartType)
+        {
+            return chartType?.ToLower() switch
+            {
+                "barras" => "Gráfico de Barras",
+                "torta" => "Gráfico de Torta",
+                _ => chartType ?? "No especificado"
+            };
+        }
+
+        private string ObtenerNombreFrecuencia(string frecuencia)
+        {
+            return frecuencia?.ToLower() switch
+            {
+                "mes" => "Mensual",
+                "semana" => "Semanal",
+                "dia" => "Diario",
+                _ => frecuencia ?? "No especificada"
+            };
+        }
+
+        private string ObtenerNombreTipoParcela(string tipoParcela)
+        {
+            return tipoParcela?.ToLower() switch
+            {
+                "1" => "Nicho",
+                "2" => "Fosa",
+                "todos" => "Todos los tipos",
+                _ => tipoParcela ?? "No especificado"
+            };
+        }
+
+        private string GenerarTituloReporte(string categoria, string chartType)
+        {
+            var titulo = "Reporte de ";
+
+            if (!string.IsNullOrEmpty(categoria))
+            {
+                titulo += categoria;
+            }
+            else
+            {
+                titulo += "Concesiones";
+            }
+
+            if (!string.IsNullOrEmpty(chartType))
+            {
+                titulo += $" - {ObtenerNombreTipoGrafico(chartType)}";
+            }
+
+            return titulo;
+        }
+
 
     }
 }

@@ -16,6 +16,8 @@
         <div class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
             <div class="accordion-body">
                 <form asp-action="ReporteConcesiones" asp-controller="Reportes" method="get" id="frmBuscar">
+                    @Html.AntiForgeryToken()
+
                     <div class="text-center p-3">
                         <label>Desde</label>
                         <input type="date" class="form-control-sm me-2" asp-for="FechaDesde" />
@@ -41,13 +43,13 @@
                 <h3>Concesiones</h3>
                 <div class="d-flex gap-2 align-items-center mb-3">
                     <label>Tipo gráfico:</label>
-                    <select id="concesionesChartType">
+                    <select id="concesionesChartType" class="form-control-sm">
                         <option value="barras">Barras</option>
                         <option value="torta">Torta</option>
                     </select>
 
                     <label>Frecuencia:</label>
-                    <select id="concesionesFrecuencia">
+                    <select id="concesionesFrecuencia" class="form-control-sm">
                         <option value="mes">Mes</option>
                         <option value="semana">Semana</option>
                         <option value="dia">Día</option>
@@ -69,13 +71,13 @@
                 <h3>Concesiones por tiempo de concesión</h3>
                 <div class="d-flex gap-2 align-items-center mb-3">
                     <label>Tipo gráfico:</label>
-                    <select id="tiempoChartType">
+                    <select id="tiempoChartType" class="form-control-sm">
                         <option value="barras">Barras</option>
                         <option value="torta">Torta</option>
                     </select>
 
                     <label>Tipo Parcela:</label>
-                    <select id="tipoParcelaFiltro">
+                    <select id="tipoParcelaFiltro" class="form-control-sm">
                         <option value="todos">Todos</option>
                         <option value="1">Nicho</option>
                         <option value="2">Fosa</option>
@@ -194,7 +196,9 @@
                 .call(d3.axisBottom(x))
                 .selectAll("text")
                 .attr("transform", "rotate(-45)")
-                .style("text-anchor", "end");
+                .style("text-anchor", "end")
+                .style('font-size', '15px');  // <- tamaño de letra
+
 
             const color = d3.scaleOrdinal(d3.schemeCategory10);
 
@@ -275,8 +279,9 @@
                 .attr('text-anchor', 'middle')
                 .text(d => {
                     const pct = d.data.value / total;
-                    // formateo en porcentaje sin decimales
-                    return pct > 0 ? d3.format('.0%')(pct) : '';
+                    if (pct === 0) return '';
+                    const formatted = pct % 1 === 0 ? d3.format('.0%')(pct) : d3.format('.2%')(pct);
+                    return formatted;
                 });
 
             // leyenda (label + porcentaje)
@@ -290,7 +295,7 @@
                 .attr('transform', (d,i) => `translate(0, ${i*18})`);
 
             legendItems.append('rect').attr('width',12).attr('height',12).attr('fill',(d,i)=>color(i));
-            legendItems.append('text').attr('x', 16).attr('y', 10).text(d => `${d.label} (${d.value})`);
+            legendItems.append('text').attr('x', 22).attr('y', 10).text(d => `${d.label} (${d.value})`);
         }
 
         // ---------- función para encontrar fechas reales en el conjunto filtrado ----------
@@ -332,35 +337,55 @@
         }
 
         // ---------- función para enviar descarga al controlador ----------
-        async function enviarDescarga(pngDataUrl, realDesde, realHasta, categoria, chartType, frecuencia, tipoParcela) {
-            const blob = dataURLtoBlob(pngDataUrl);
-            const form = new FormData();
-            form.append('image', blob, 'chart.png');
-            // anexar parámetros
-            if (realDesde) form.append('realDesde', new Date(realDesde).toISOString());
-            if (realHasta) form.append('realHasta', new Date(realHasta).toISOString());
-            form.append('categoria', categoria);
-            form.append('chartType', chartType);
-            form.append('frecuencia', frecuencia ?? '');
-            form.append('tipoParcela', tipoParcela ?? '');
+                // ---------- función para enviar descarga al controlador ----------
+           async function enviarDescarga(pngDataUrl, realDesde, realHasta, categoria, chartType, frecuencia, tipoParcela) {
+            try {
+                console.log('Iniciando descarga...');
 
-            // token antiforgery si lo tenés
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-            const headers = token ? { 'RequestVerificationToken': token } : {};
+                // Extraer solo la parte base64 del data URL
+                const imageBase64 = pngDataUrl.split(',')[1];
 
-            const resp = await fetch('@Url.Action("DescargarReporte", "Reportes")', {
-                method: 'POST',
-                headers,
-                body: form
-            });
+                // token antiforgery
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
-            if (!resp.ok) {
-                const txt = await resp.text();
-                alert('Error al enviar el reporte: ' + txt);
-            } else {
-                const json = await resp.json();
-                if (json.success) alert('Reporte enviado correctamente.');
-                else alert('Error en servidor: ' + (json.message || ''));
+                // Crear un formulario temporal
+                const tempForm = document.createElement('form');
+                tempForm.method = 'POST';
+                tempForm.action = '/Reportes/DescargarReporteConcesion';
+                tempForm.style.display = 'none';
+
+                // Función para agregar campos al formulario
+                function addField(name, value) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    tempForm.appendChild(input);
+                }
+
+                // Agregar todos los campos
+                addField('imageBase64', imageBase64);
+                if (realDesde) addField('realDesde', new Date(realDesde).toISOString());
+                if (realHasta) addField('realHasta', new Date(realHasta).toISOString());
+                addField('categoria', categoria ?? '');
+                addField('chartType', chartType ?? '');
+                addField('frecuencia', frecuencia ?? '');
+                addField('tipoParcela', tipoParcela ?? '');
+
+                if (token) {
+                    addField('__RequestVerificationToken', token);
+                    console.log('Token encontrado y agregado');
+                }
+
+                console.log('Enviando formulario con imagen Base64...');
+
+                document.body.appendChild(tempForm);
+                tempForm.submit();
+                document.body.removeChild(tempForm);
+
+            } catch (err) {
+                console.error('Error completo:', err);
+                alert('Error al enviar el reporte: ' + err.message);
             }
         }
 
@@ -438,22 +463,31 @@
         
 
         // Descarga tiempo
+        // Descarga tiempo - CORREGIDO
         const btnDescargarTiempo = document.getElementById('btnDescargarTiempo');
         if(btnDescargarTiempo){
-            document.getElementById('btnDescargarTiempo').addEventListener('click', async (e) => {
-                   e.preventDefault();
-                   const wrapper = document.querySelector('#tiempoChart svg');
-                   if (!wrapper) { alert('No hay gráfico para descargar'); return; }
-                   const png = await exportSvgAsPng(wrapper, wrapper.getAttribute('width'), wrapper.getAttribute('height'));
-                   const { realDesde, realHasta } = encontrarFechasReales(rawData);
-                   const periodo = document.getElementById('tiempoFrecuencia').value;
-                   const chartType = document.getElementById('tiempoChartType').value;
-                   const tipoPar = document.getElementById('tipoParcelaFiltro').value;
+            btnDescargarTiempo.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const wrapper = document.querySelector('#tiempoChart svg');
+                if (!wrapper) {
+                    alert('No hay gráfico para descargar');
+                    return;
+                }
 
-                   await enviarDescarga(png, realDesde, realHasta, 'ConcesionesPorTiempo', chartType, periodo, tipoPar);
+                try {
+                    const png = await exportSvgAsPng(wrapper, wrapper.getAttribute('width'), wrapper.getAttribute('height'));
+                    const { realDesde, realHasta } = encontrarFechasReales(rawData);
+                    //const frecuencia = document.getElementById('tiempoFrecuencia').value;
+                    const chartType = document.getElementById('tiempoChartType').value;
+                    const tipoPar = document.getElementById('tipoParcelaFiltro').value;
+
+                    await enviarDescarga(png, realDesde, realHasta, 'Concesiones por tiempo', chartType, '', tipoPar);
+                } catch (error) {
+                    console.error('Error al descargar:', error);
+                    alert('Error al procesar la descarga: ' + error.message);
+                }
             });
         }
-   
 
         // inicializamos
         if(@Model.ListaConcesiones.Count > 0){
