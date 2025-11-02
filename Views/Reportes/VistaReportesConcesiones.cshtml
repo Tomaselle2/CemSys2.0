@@ -74,28 +74,18 @@
                         <option value="torta">Torta</option>
                     </select>
 
-                    @* <label>Frecuencia (años):</label>
-                    <select id="tiempoFrecuencia">
-                        <option value="1">1 año</option>
-                        <option value="2">5 años</option>
-                        <option value="3">10 años</option>
-                        <option value="4">15 años</option>
-                        <option value="5">25 años</option>
-                    </select> *@
-
                     <label>Tipo Parcela:</label>
                     <select id="tipoParcelaFiltro">
                         <option value="todos">Todos</option>
                         <option value="1">Nicho</option>
                         <option value="2">Fosa</option>
-                        <option value="3">Panteón</option>
                     </select>
 
                     <button id="btnActualizarTiempo" class="btn btn-sm btn-primary">Aplicar filtros</button>
                     <button id="btnDescargarTiempo" class="btn btn-sm btn-outline-secondary">Descargar</button>
                 </div>
 
-                <div id="tiempoChartWrapper" style="position:relative;">
+                <div id="tiempoChartWrapper" style="position:relative; ">
                     <div id="tiempoChart" style="overflow-x:auto; padding-bottom:10px;"></div>
                 </div>
             </div>
@@ -281,7 +271,7 @@
             // etiquetas con porcentaje
             g.append('text')
                 .attr('transform', d => `translate(${arc.centroid(d)})`)
-                .attr('dy', '0.35em')
+                .attr('dy', '0.45em')
                 .attr('text-anchor', 'middle')
                 .text(d => {
                     const pct = d.data.value / total;
