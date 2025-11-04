@@ -416,6 +416,9 @@ CREATE TABLE Facturas (
     ContribuyenteId INT NULL,
     MetodoPagoId INT NULL,
     UsuarioCajeroId INT NULL,
+	Vuelto decimal(10,2) NULL,
+	FechaVencimiento DATE NULL,           -- fecha límite de pago
+    InteresAplicado DECIMAL(10,2) NULL,  -- interés final cobrado si hubo mora
 	descripcion nvarchar(100) null,
     FOREIGN KEY (tramiteId) REFERENCES Tramite(id),
 	FOREIGN KEY (tipoTramiteId) REFERENCES TipoTramite(id),
