@@ -54,5 +54,8 @@ namespace CemSys2.Interface.Facturas
 
         decimal CalcularInteres(decimal totalFactura, DateTime fechaVencimiento);
 
+        //Reportes
+        Task<List<CemSys2.DTO.Factura.DTO_FacturasReporte>> ListaFacturasReportes(DateTime fechaDesde, DateTime fechaHasta);
+
     }
 }

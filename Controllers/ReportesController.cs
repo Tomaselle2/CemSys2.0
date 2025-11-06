@@ -1,5 +1,6 @@
 ﻿using CemSys2.Interface;
 using CemSys2.Interface.Concesiones;
+using CemSys2.Interface.Facturas;
 using CemSys2.Models;
 using CemSys2.ViewModel.Reportes;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,13 @@ namespace CemSys2.Controllers
     {
         private readonly IConcesionesBusiness _concesionesBusiness;
         private readonly IPdfService _pdfService;
+        private readonly IFacturaBusiness _facturasBusiness;
 
-        public ReportesController(IConcesionesBusiness concesionesBusiness, IPdfService pdfService)
+        public ReportesController(IConcesionesBusiness concesionesBusiness, IPdfService pdfService, IFacturaBusiness facturaBusiness)
         {
             _concesionesBusiness = concesionesBusiness;
             _pdfService = pdfService;
+            _facturasBusiness = facturaBusiness;
         }
         public IActionResult Index()
         {
@@ -168,6 +171,40 @@ namespace CemSys2.Controllers
             }
 
             return titulo;
+        }
+
+        //reporte de facturas
+        public IActionResult VistaReportesFacturas()
+        {
+            FacturasReporteVM viewModel = new FacturasReporteVM();
+            DateTime fechaHasta = DateTime.Today;
+            DateTime fechaDesde = new DateTime(DateTime.Now.Year, 1, 1);
+
+            viewModel.FechaDesde = fechaDesde;
+            viewModel.FechaHasta = fechaHasta;
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ReporteFacturas(FacturasReporteVM model)
+        {
+            //
+            try
+            {
+                var facturas = await _facturasBusiness.ListaFacturasReportes(model.FechaDesde, model.FechaHasta);
+                model.ListaFacturas = facturas;
+            }
+            catch (Exception ex)
+            {
+                // Mensaje de error general
+                TempData["SweetAlertType"] = "error";
+                TempData["SweetAlertTitle"] = "Error";
+                TempData["SweetAlertMessage"] = "No se pudo obtener las concesiones: " + ex.Message;
+                return View("VistaReportesFacturas", model);
+            }
+
+            return View("VistaReportesFacturas", model);
         }
 
 

@@ -642,5 +642,10 @@ namespace CemSys2.Business
             decimal interes = (decimal)montoConInteres - totalFactura;
             return Math.Round(interes, 2);
         }
+
+        public async Task<List<DTO_FacturasReporte>> ListaFacturasReportes(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return await _facturasBD.ListaFacturasReportes(fechaDesde, fechaHasta);
+        }
     }
 }

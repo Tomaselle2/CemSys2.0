@@ -440,5 +440,20 @@ namespace CemSys2.Data
 
             return dto;
         }
+
+        public async Task<List<DTO_FacturasReporte>> ListaFacturasReportes(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            List<DTO_FacturasReporte> dto = new List<DTO_FacturasReporte>();
+            dto = await (from f in _context.Facturas
+                         where f.FechaCreacion >= fechaDesde && f.FechaCreacion <= fechaHasta
+                         select new DTO_FacturasReporte
+                         {
+                             Id = f.Id,
+                             FechaGeneracion = f.FechaCreacion,
+                             Monto = f.Total
+                         }).ToListAsync();
+
+            return dto;
+        }
     }
 }

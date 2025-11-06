@@ -1,5 +1,5 @@
-﻿using CemSys2.DTO.Concesiones;
-using CemSys2.DTO.Factura;
+﻿using CemSys2.DTO.Factura;
+using CemSys2.DTO.Reportes;
 using CemSys2.Models;
 
 namespace CemSys2.Interface.Facturas
@@ -40,6 +40,9 @@ namespace CemSys2.Interface.Facturas
 
         Task<List<MetodoPago>> ListaMetodoPago();
 
-        Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId); 
+        Task<List<DTO_HistorialEstadoFactura>> HistorialEstadoFacturaPorFacturaId(int facturaId);
+
+        //Reportes
+        Task<List<CemSys2.DTO.Factura.DTO_FacturasReporte>> ListaFacturasReportes(DateTime fechaDesde, DateTime fechaHasta);
     }
 }

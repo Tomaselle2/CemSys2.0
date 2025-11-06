@@ -1,0 +1,650 @@
+﻿@using CemSys2.ViewModel.Reportes
+@model FacturasReporteVM
+@{
+    ViewData["Title"] = "Reporte de facturación";
+}
+<h1 class="tituloDePagina">Reportes de facturación</h1>
+
+<!-- Buscador-->
+<div class="accordion" id="accordionPanelsStayOpenExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+            <button class="accordion-button nueva-seccion acordeon-fijo" type="button">
+                Buscador
+            </button>
+        </h2>
+        <div class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+            <div class="accordion-body">
+                <form asp-action="ReporteFacturas" asp-controller="Reportes" method="get" id="frmBuscar">
+                    @Html.AntiForgeryToken()
+
+                    <div class="text-center p-3">
+                        <label>Desde</label>
+                        <input type="date" class="form-control-sm me-2" asp-for="FechaDesde" />
+                        <label>Hasta</label>
+                        <input type="date" class="form-control-sm me-2" asp-for="FechaHasta" />
+                    </div>
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-success me-2" id="btnBuscar">Buscar</button>
+                        <a asp-action="VistaReportesConcesiones" asp-controller="Reportes" class="btn btn-primary" id="btnLimpiar">Limpiar filtros</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Contenedores de gráficos: dos categorías, apiladas verticalmente -->
+@if (Model.ListaFacturas.Count > 0)
+{
+    <div class="row">
+        <div class="col-12 mb-5 contenedor-resumen" style="max-width: 1000px;">
+            <div class="card p-3">
+                <h3>Facturas cobradas</h3>
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <label>Tipo gráfico:</label>
+                    <select id="facturasChartType" class="form-control-sm">
+                        <option value="barras">Barras</option>
+                        <option value="torta">Torta</option>
+                    </select>
+
+                    <label>Frecuencia:</label>
+                    <select id="facturasFrecuenciaFacturas" class="form-control-sm">
+                        <option value="mes">Mes</option>
+                        <option value="semana">Semana</option>
+                        <option value="dia">Día</option>
+                    </select>
+
+                    <button id="btnActualizarFacturas" class="btn btn-sm btn-primary">Aplicar filtros</button>
+                    <button id="btnDescargarFacturas" class="btn btn-sm btn-outline-secondary">Descargar</button>
+                </div>
+
+                <div id="facturasChartWrapper" style="position:relative;">
+                    <!-- wrapper para scroll horizontal -->
+                    <div id="facturasChart" style="overflow-x:auto; padding-bottom:10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 mb-5 contenedor-resumen" style="max-width: 1000px;">
+            <div class="card p-3">
+                <h3>Recaudación de facturas</h3>
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <label>Tipo gráfico:</label>
+                    <select id="tiempoChartType" class="form-control-sm">
+                        <option value="linea">Líneas</option>
+                    </select>
+
+                    <label>Frecuencia:</label>
+                    <select id="facturasFrecuenciaRecaudacion" class="form-control-sm">
+                        <option value="mes">Mes</option>
+                        <option value="semana">Semana</option>
+                        <option value="dia">Día</option>
+                    </select>
+
+                    <button id="btnActualizarTiempo" class="btn btn-sm btn-primary">Aplicar filtros</button>
+                    <button id="btnDescargarTiempo" class="btn btn-sm btn-outline-secondary">Descargar</button>
+                </div>
+
+                <div id="tiempoChartWrapper" style="position:relative; ">
+                    <div id="tiempoChart" style="overflow-x:auto; padding-bottom:10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- incluir d3.js -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+@section Scripts {
+    <script>
+        // serializamos la lista desde el servidor
+        const rawData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ListaFacturas))
+
+        // Helper: parse fechas de DTO (asume FechaGeneracion en formato ISO)
+        rawData.forEach(r => r.FechaGeneracion = new Date(r.FechaGeneracion));
+
+        // ---------- funciones de agrupación y cálculo ----------
+                function agruparPorFrecuenciaFacturas(data, frecuencia) {
+            const groups = new Map();
+
+            data.forEach(item => {
+                const dt = new Date(item.FechaGeneracion);
+                let sortKey, displayLabel;
+
+                if (frecuencia === 'mes') {
+                    sortKey = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
+                    displayLabel = String(dt.getMonth() + 1).padStart(2, '0') + '-' + dt.getFullYear();
+                } else if (frecuencia === 'semana') {
+                    const onejan = new Date(dt.getFullYear(), 0, 1);
+                    const days = Math.floor((dt - onejan) / (24 * 60 * 60 * 1000));
+                    const week = Math.ceil((days + onejan.getDay() + 1) / 7);
+                    sortKey = dt.getFullYear() + '-W' + String(week).padStart(2, '0');
+                    displayLabel = 'W' + String(week).padStart(2, '0') + '-' + dt.getFullYear();
+                } else { // dia
+                    sortKey = dt.getFullYear() + '-' +
+                             String(dt.getMonth() + 1).padStart(2, '0') + '-' +
+                             String(dt.getDate()).padStart(2, '0');
+                    displayLabel = String(dt.getDate()).padStart(2, '0') + '-' +
+                                  String(dt.getMonth() + 1).padStart(2, '0') + '-' +
+                                  dt.getFullYear();
+                }
+
+                groups.set(sortKey, {
+                    display: displayLabel,
+                    value: (groups.get(sortKey)?.value || 0) + 1
+                });
+            });
+
+            return Array.from(groups.entries())
+                .map(([sortKey, obj]) => ({
+                    label: obj.display,
+                    value: obj.value,
+                    sortKey: sortKey
+                }))
+                .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+        }
+
+        function agruparRecaudacionPorFrecuencia(data, frecuencia) {
+            const groups = new Map();
+
+            data.forEach(item => {
+                const dt = new Date(item.FechaGeneracion);
+                let sortKey, displayLabel;
+
+                if (frecuencia === 'mes') {
+                    sortKey = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
+                    displayLabel = String(dt.getMonth() + 1).padStart(2, '0') + '-' + dt.getFullYear();
+                } else if (frecuencia === 'semana') {
+                    const onejan = new Date(dt.getFullYear(), 0, 1);
+                    const days = Math.floor((dt - onejan) / (24 * 60 * 60 * 1000));
+                    const week = Math.ceil((days + onejan.getDay() + 1) / 7);
+                    sortKey = dt.getFullYear() + '-W' + String(week).padStart(2, '0');
+                    displayLabel = 'W' + String(week).padStart(2, '0') + '-' + dt.getFullYear();
+                } else { // dia
+                    sortKey = dt.getFullYear() + '-' +
+                             String(dt.getMonth() + 1).padStart(2, '0') + '-' +
+                             String(dt.getDate()).padStart(2, '0');
+                    displayLabel = String(dt.getDate()).padStart(2, '0') + '-' +
+                                  String(dt.getMonth() + 1).padStart(2, '0') + '-' +
+                                  dt.getFullYear();
+                }
+
+                groups.set(sortKey, {
+                    display: displayLabel,
+                    value: (groups.get(sortKey)?.value || 0) + Number(item.Monto)
+                });
+            });
+
+            return Array.from(groups.entries())
+                .map(([sortKey, obj]) => ({
+                    label: obj.display,
+                    value: obj.value,
+                    sortKey: sortKey
+                }))
+                .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+        }
+
+
+        // ---------- D3: draw bar chart (with transitions) ----------
+        function drawBarChart(containerSelector, data, options = {}) {
+            // options: widthPerBar, height, margin
+            const widthPerBar = options.widthPerBar || 60;
+            const margin = {top: 20, right: 20, bottom: 80, left: 60};
+            const height = options.height || 400;
+            const totalWidth = Math.max(600, data.length * widthPerBar);
+            // limpiar contenedor
+            const container = d3.select(containerSelector).html('');
+
+            const svg = container.append('svg')
+                .attr('width', totalWidth + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom);
+
+            const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(data.map(d => d.label))
+                .range([0, totalWidth])
+                .padding(0.1);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value) || 1])
+                .nice()
+                .range([height - margin.top - margin.bottom, 0]);
+
+            // Eje Y
+            g.append('g').call(d3.axisLeft(y));
+
+            // Eje X (rotado)
+            g.append('g')
+                .attr('transform', `translate(0,${height - margin.top - margin.bottom})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end")
+                .style('font-size', '15px');  // <- tamaño de letra
+
+
+            const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            // barras iniciales con height=0 para animación
+            const bars = g.selectAll('.bar')
+                .data(data, d => d.label)
+                .join('rect')
+                .attr('class','bar')
+                .attr('x', d => x(d.label))
+                .attr('y', d => y(0))
+                .attr('width', x.bandwidth())
+                .attr('height', 0)
+                .attr('fill', (d,i) => color(i));
+
+
+            bars.transition()
+                .duration(800)
+                .delay((d, i) => i * 100)
+                .ease(d3.easeElasticOut)
+                .attr('y', d => y(d.value))
+                .attr('height', d => (height - margin.top - margin.bottom) - y(d.value));
+
+            // label en top de cada barra (opcional)
+            g.selectAll('.bar-label')
+                .data(data)
+                .join('text')
+                .attr('class','bar-label')
+                .attr('x', d => x(d.label) + x.bandwidth()/2)
+                .attr('y', d => y(d.value) - 6)
+                .attr('text-anchor','middle')
+                .text(d => d.value);
+
+            // Dejar scroll horizontal si totalWidth excede contenedor
+            // ya que svg tiene width totalWidth, el contenedor con overflow-x:auto permitirá scroll
+        }
+
+        // ---------- D3: draw pie chart ----------
+        function drawPieChart(containerSelector, data, options = {}) {
+            // data: [{label, value}, ...]
+            const width = options.width || 600;
+            const height = options.height || 400;
+            const radius = Math.min(width, height) / 2 - 20;
+
+            const container = d3.select(containerSelector).html('');
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', `translate(${width/2},${height/2})`);
+
+            const pie = d3.pie().value(d => d.value);
+            const arcs = pie(data);
+
+            const arc = d3.arc().innerRadius(0).outerRadius(radius);
+            const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            // calcular total para porcentajes
+            const total = d3.sum(data, d => d.value) || 1;
+
+            const g = svg.selectAll('.slice')
+                .data(arcs)
+                .join('g')
+                .attr('class','slice');
+
+                //animacion
+
+            g.append('path')
+                .attr('d', arc)
+                .attr('fill', (d,i) => color(i))
+                .attr('opacity', 0)
+                .transition()
+                .duration(600)
+                .delay((d, i) => i * 150)
+                .attr('opacity', 1)
+                .attrTween('d', function(d) {
+                    const i = d3.interpolate({startAngle: d.startAngle, endAngle: d.startAngle}, d);
+                    return t => arc(i(t));
+            });
+
+                //fin animacion
+            // etiquetas con porcentaje
+            g.append('text')
+                .attr('transform', d => `translate(${arc.centroid(d)})`)
+                .attr('dy', '0.45em')
+                .attr('text-anchor', 'middle')
+                .text(d => {
+                    const pct = d.data.value / total;
+                    if (pct === 0) return '';
+                    const formatted = pct % 1 === 0 ? d3.format('.0%')(pct) : d3.format('.2%')(pct);
+                    return formatted;
+                });
+
+            // leyenda (label + porcentaje)
+            const legend = svg.append('g')
+                .attr('transform', `translate(${-(width/2)+10},${-(height/2)+10})`);
+
+            const legendItems = legend.selectAll('.legend-item')
+                .data(data)
+                .join('g')
+                .attr('class','legend-item')
+                .attr('transform', (d,i) => `translate(0, ${i*18})`);
+
+            legendItems.append('rect').attr('width',12).attr('height',12).attr('fill',(d,i)=>color(i));
+            legendItems.append('text').attr('x', 22).attr('y', 10).text(d => `${d.label} (${d.value})`);
+        }
+
+
+                // ---------- D3: draw inline line chart (recaudación de facturas) ----------
+                function drawInlineLineChart(containerSelector, data, options = {}) {
+            // data: [{label, value}]  label = mes/semana/día, value = monto total
+            const margin = { top: 40, right: 100, bottom: 100, left: 60 };
+            const width = options.width || 900;
+            const height = options.height || 500;
+
+            const container = d3.select(containerSelector).html('');
+            const svg = container.append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Escalas
+            const x = d3.scalePoint()
+                .domain(data.map(d => d.label))
+                .range([0, width])
+                .padding(0.3);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value) || 1])
+                .nice()
+                .range([height, 0]);
+
+            // Ejes
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .attr("transform", "rotate(-45)")
+                .style("text-anchor", "end")
+                .style('font-size', '13px');
+
+            svg.append('g')
+                .call(d3.axisLeft(y));
+
+            // Línea principal: crear UNA vez y guardarla en 'path'
+            const line = d3.line()
+                .x(d => x(d.label))
+                .y(d => y(d.value))
+                .curve(d3.curveMonotoneX);
+
+            const path = svg.append('path')
+                .datum(data)
+                .attr('fill', 'none')
+                .attr('stroke', '#007bff')
+                .attr('stroke-width', 2)
+                .attr('stroke-linecap', 'round')
+                .attr('d', line);
+
+            // Comprobar que el path esté bien formado y obtener su longitud
+            const node = path.node();
+            let totalLength = 0;
+            try {
+                totalLength = node.getTotalLength();
+            } catch (err) {
+                console.warn('No se pudo obtener getTotalLength():', err);
+                totalLength = 0;
+            }
+
+            // Puntos (los creamos con r = 0 para animarlos luego)
+            const points = svg.selectAll('.dot')
+                .data(data)
+                .join('circle')
+                .attr('class', 'dot')
+                .attr('cx', d => x(d.label))
+                .attr('cy', d => y(d.value))
+                .attr('r', 0) // arrancan invisibles
+                .attr('fill', '#007bff')
+                .attr('opacity', 0);
+
+            // Etiquetas (inicialmente invisibles)
+            const labels = svg.selectAll('.label')
+                .data(data)
+                .join('text')
+                .attr('class', 'label')
+                .attr('x', d => x(d.label))
+                .attr('y', d => y(d.value) - 10)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .attr('opacity', 0)
+                .text(d => d3.format('$,.2f')(d.value));
+
+            // Si totalLength > 0 animamos la línea; si no, simplemente mostramos la línea sin dash
+            if (totalLength > 0) {
+                path
+                    .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                    .attr('stroke-dashoffset', totalLength)
+                    .transition()
+                    .duration(1200)
+                    .ease(d3.easeCubic)
+                    .attr('stroke-dashoffset', 0)
+                    .on('end', () => {
+                        // Después de que la línea termine, animar puntos y labels de forma secuencial
+                        points.transition()
+                            .delay((d, i) => i * 100)
+                            .duration(600)
+                            .ease(d3.easeBackOut)
+                            .attr('r', 5)
+                            .attr('opacity', 1);
+
+                        labels.transition()
+                            .delay((d, i) => 200 + i * 100)
+                            .duration(500)
+                            .attr('opacity', 1)
+                            .attr('y', d => y(d.value) - 12);
+                    });
+
+                // También, para que los puntos "aparezcan" ligeramente mientras la línea se dibuja,
+                // podés descomentar esto si preferís animarlos durante (en paralelo) en vez de después:
+                /*
+                points.transition()
+                    .delay((d, i) => i * 80)
+                    .duration(600)
+                    .ease(d3.easeBackOut)
+                    .attr('r', 5)
+                    .attr('opacity', 1);
+                */
+            } else {
+                // Fallback: si no hay longitud (ej. sólo 1 punto o algo raro), mostramos todo sin dash
+                path.attr('stroke-dasharray', null).attr('stroke-dashoffset', null);
+                points.attr('r', 5).attr('opacity', 1);
+                labels.attr('opacity', 1);
+            }
+        }
+
+
+
+
+        // ---------- función para encontrar fechas reales en el conjunto filtrado ----------
+        function encontrarFechasReales(data) {
+            if (!data || data.length === 0) return { realDesde: null, realHasta: null };
+            const sorted = data.slice().sort((a,b) => new Date(a.FechaGeneracion) - new Date(b.FechaGeneracion));
+            return { realDesde: sorted[0].FechaGeneracion, realHasta: sorted[sorted.length-1].FechaGeneracion };
+        }
+
+        // ---------- helper: convertir dataURL a Blob ----------
+        function dataURLtoBlob(dataurl) {
+            const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+            return new Blob([u8arr], {type:mime});
+        }
+
+        // ---------- exportar (convertir SVG a PNG) ----------
+        async function exportSvgAsPng(svgElement, width, height) {
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const svg64 = btoa(unescape(encodeURIComponent(svgString)));
+            const b64Start = 'data:image/svg+xml;base64,';
+            const image64 = b64Start + svg64;
+
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width || img.width;
+                    canvas.height = height || img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const png = canvas.toDataURL('image/png');
+                    resolve(png);
+                };
+                img.onerror = e => reject(e);
+                img.src = image64;
+            });
+        }
+
+        // ---------- función para enviar descarga al controlador ----------
+                // ---------- función para enviar descarga al controlador ----------
+           async function enviarDescarga(pngDataUrl, realDesde, realHasta, categoria, chartType, frecuencia, tipoParcela) {
+            try {
+                console.log('Iniciando descarga...');
+
+                // Extraer solo la parte base64 del data URL
+                const imageBase64 = pngDataUrl.split(',')[1];
+
+                // token antiforgery
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                // Crear un formulario temporal
+                const tempForm = document.createElement('form');
+                tempForm.method = 'POST';
+                tempForm.action = '/Reportes/DescargarReporteConcesion';
+                tempForm.style.display = 'none';
+
+                // Función para agregar campos al formulario
+                function addField(name, value) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    tempForm.appendChild(input);
+                }
+
+                // Agregar todos los campos
+                addField('imageBase64', imageBase64);
+                if (realDesde) addField('realDesde', new Date(realDesde).toISOString());
+                if (realHasta) addField('realHasta', new Date(realHasta).toISOString());
+                addField('categoria', categoria ?? '');
+                addField('chartType', chartType ?? '');
+                addField('frecuencia', frecuencia ?? '');
+                addField('tipoParcela', tipoParcela ?? '');
+
+                if (token) {
+                    addField('__RequestVerificationToken', token);
+                    console.log('Token encontrado y agregado');
+                }
+
+                console.log('Enviando formulario con imagen Base64...');
+
+                document.body.appendChild(tempForm);
+                tempForm.submit();
+                document.body.removeChild(tempForm);
+
+            } catch (err) {
+                console.error('Error completo:', err);
+                alert('Error al enviar el reporte: ' + err.message);
+            }
+        }
+
+        // ---------- wiring UI ----------
+        function actualizarFacturas() {
+            let frecuencia = document.getElementById('facturasFrecuenciaFacturas');
+            let chartType = document.getElementById('facturasChartType');
+
+            if(frecuencia){
+                frecuencia = document.getElementById('facturasFrecuenciaFacturas').value;
+            }
+
+            if(chartType){
+                chartType = document.getElementById('facturasChartType').value;
+            }
+
+            const dataAgrupada = agruparPorFrecuenciaFacturas(rawData, frecuencia);
+            if (chartType === 'barras') {
+                // dejamos ancho por barra proporcional (ej: 80)
+                drawBarChart('#facturasChart', dataAgrupada, { widthPerBar: 80, height: 420 });
+            } else {
+                // pie espera {label, value}; si hay muchas categorías quizá agrupar o tomar top N
+                drawPieChart('#facturasChart', dataAgrupada, { width: 600, height: 420 });
+            }
+        }
+
+
+        const btnActualizarFacturas = document.getElementById('btnActualizarFacturas');
+        if(btnActualizarFacturas){
+            btnActualizarFacturas.addEventListener('click', (e) => {
+                e.preventDefault();
+                actualizarFacturas();
+            });
+        }
+
+        // Descarga Facturas
+        const btnDescargarFacturas = document.getElementById('btnDescargarFacturas');
+        if(btnDescargarFacturas){
+             btnDescargarFacturas.addEventListener('click', async (e) => {
+                e.preventDefault();
+                // obtener SVG del contenedor (si existe)
+                const wrapper = document.querySelector('#facturasChart svg');
+                if (!wrapper) { alert('No hay gráfico para descargar'); return; }
+                const png = await exportSvgAsPng(wrapper, wrapper.getAttribute('width'), wrapper.getAttribute('height'));
+                // fechas reales del rango actual: usar rawData filtrado por fecha (ya vino filtrado por servidor)
+                const { realDesde, realHasta } = encontrarFechasReales(rawData);
+                const frecuencia = document.getElementById('facturasFrecuenciaFacturas').value;
+                const chartType = document.getElementById('facturasChartType').value;
+
+                await enviarDescarga(png, realDesde, realHasta, 'Facturas cobradas', chartType, frecuencia, '');
+             });
+        }
+
+        // Descarga Facturas grafico de lineas
+        const btnDescargarFacturasRecaudacion = document.getElementById('btnDescargarTiempo');
+        if(btnDescargarFacturasRecaudacion){
+             btnDescargarFacturasRecaudacion.addEventListener('click', async (e) => {
+                e.preventDefault();
+                // obtener SVG del contenedor (si existe)
+                const wrapper = document.querySelector('#tiempoChartWrapper svg');
+                if (!wrapper) { alert('No hay gráfico para descargar'); return; }
+                const png = await exportSvgAsPng(wrapper, wrapper.getAttribute('width'), wrapper.getAttribute('height'));
+                // fechas reales del rango actual: usar rawData filtrado por fecha (ya vino filtrado por servidor)
+                const { realDesde, realHasta } = encontrarFechasReales(rawData);
+                const frecuencia = document.getElementById('facturasFrecuenciaRecaudacion').value;
+                const chartType = document.getElementById('tiempoChartType').value;
+
+                await enviarDescarga(png, realDesde, realHasta, 'Recaudación de facturas', chartType, frecuencia, '');
+             });
+        }
+        
+
+        function actualizarRecaudacion() {
+            let frecuencia = document.getElementById('facturasFrecuenciaRecaudacion').value;
+
+            const dataAgrupada = agruparRecaudacionPorFrecuencia(rawData, frecuencia);
+            drawInlineLineChart('#tiempoChart', dataAgrupada, { width: 900, height: 400 });
+        }
+
+        const btnActualizarTiempo = document.getElementById('btnActualizarTiempo');
+        if (btnActualizarTiempo) {
+            btnActualizarTiempo.addEventListener('click', (e) => {
+                e.preventDefault();
+                actualizarRecaudacion();
+            });
+        }
+
+        // inicializamos
+        if(@Model.ListaFacturas.Count > 0){
+             actualizarFacturas();
+            actualizarRecaudacion();
+
+        }
+
+
+    </script>
+}
