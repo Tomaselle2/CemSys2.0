@@ -526,10 +526,10 @@
             const dataAgrupada = agruparPorFrecuenciaConcesiones(rawData, frecuencia);
             if (chartType === 'barras') {
                 // dejamos ancho por barra proporcional (ej: 80)
-                drawBarChart('#concesionesChart', dataAgrupada, { widthPerBar: 80, height: 420 });
+                drawBarChart('#concesionesChart', dataAgrupada, { widthPerBar: 80, height: 520 });
             } else {
                 // pie espera {label, value}; si hay muchas categorías quizá agrupar o tomar top N
-                drawPieChart('#concesionesChart', dataAgrupada, { width: 600, height: 420 });
+                drawPieChart('#concesionesChart', dataAgrupada, { width: 900, height: 520 });
             }
         }
 
@@ -542,9 +542,9 @@
             const dataAgrupada = agruparPorTiempo(rawData, tipoPar);
 
             if (chartType === 'barras') {
-                drawBarChart('#tiempoChart', dataAgrupada, { widthPerBar: 140, height: 420 });
+                drawBarChart('#tiempoChart', dataAgrupada, { widthPerBar: 140, height: 520 });
             } else {
-                drawPieChart('#tiempoChart', dataAgrupada, { width: 600, height: 420 });
+                drawPieChart('#tiempoChart', dataAgrupada, { width: 900, height: 520 });
             }
         }
         const btnActualizarConcesiones = document.getElementById('btnActualizarConcesiones');
