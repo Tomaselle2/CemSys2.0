@@ -47,6 +47,9 @@ namespace CemSys2.Business
                 throw new ValidationException("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.");
             }
 
+            if(nuevaPass.Equals(antiguaPass))
+                throw new ValidationException("La contraseña nueva debe ser diferente de la anterior");
+
             usuarioExistente.Clave = HashPassword(nuevaPass);
             _unitOfWork._usuarioBD.ModificarUsuario(usuarioExistente);
         }
