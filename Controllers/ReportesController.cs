@@ -98,7 +98,7 @@ namespace CemSys2.Controllers
                     RealDesde = desde,
                     RealHasta = hasta,
                     ImageBase64 = imageBase64ForPdf,
-                    TituloReporte = GenerarTituloReporte(categoria, chartType)
+                    TituloReporte = GenerarTituloReporte(categoria)
                 };
 
                 Console.WriteLine($"Generando PDF con imagen: {!string.IsNullOrEmpty(imageBase64ForPdf)}");
@@ -152,7 +152,7 @@ namespace CemSys2.Controllers
             };
         }
 
-        private string GenerarTituloReporte(string categoria, string chartType)
+        private string GenerarTituloReporte(string categoria)
         {
             var titulo = "Reporte de ";
 
@@ -162,12 +162,7 @@ namespace CemSys2.Controllers
             }
             else
             {
-                titulo += "Concesiones";
-            }
-
-            if (!string.IsNullOrEmpty(chartType))
-            {
-                titulo += $" - {ObtenerNombreTipoGrafico(chartType)}";
+                titulo += "------";
             }
 
             return titulo;

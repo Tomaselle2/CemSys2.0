@@ -2,13 +2,16 @@
 @model ConcesionesReportePDFVM
 @{
     Layout = null;
+    var cemsys = $"{Model.BaseUrl}/fotos/sinfondo2.png";
+    var logoMuni = $"{Model.BaseUrl}/fotos/logoMuni.png";
+
 }
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <title>Reporte de Concesiones</title>
+    <title>Reporte</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -62,17 +65,19 @@
 
         .chart-container {
             text-align: center;
-            margin: 30px 0;
+            margin: 20px 0;
             page-break-inside: avoid;
         }
 
         .chart-image {
-            max-width: 100%;
+            max-width: 95%;
+            max-height: 500px; /* Altura máxima para evitar desborde */
             height: auto;
             border: 1px solid #ddd;
             border-radius: 5px;
-            padding: 10px;
+            padding: 5px;
             background-color: white;
+            object-fit: contain; /* Mantiene la proporción de la imagen */
         }
 
         .footer {
@@ -90,63 +95,88 @@
             font-style: italic;
             color: #7f8c8d;
         }
+
+        .footer img {
+            width: 350px;
+            margin-bottom: 1px;
+        }
+
+        .logo{
+            width: 250px;
+            margin-bottom: 5px;
+        }
+
+        .contenedor{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .page-content {
+            min-height: calc(100vh - 200px); /* Asegura espacio para el contenido */
+        }
+        
     </style>
 </head>
 <body>
-    <div class="fecha-generacion">
-        Generado el: @Model.FechaGeneracion.ToString("dd/MM/yyyy HH:mm")
-    </div>
+    <div class="page-content">
+        <div class="fecha-generacion">
+            Generado el: @Model.FechaGeneracion.ToString("dd/MM/yyyy HH:mm")
+        </div>
+        <div class="contenedor">
+            <div>
+                <img class="logo" src="@logoMuni" alt="Logo municipalidad" />
+            </div>
+            <div>
+                <img class="logo" src="@cemsys" alt="Logo municipalidad" />
+            </div>
+        </div>
+        <div class="header">
+            <div class="titulo">@Model.TituloReporte</div>
+        </div>
 
-    <div class="header">
-        <div class="titulo">@Model.TituloReporte</div>
-        <div class="subtitulo">Reporte de Concesiones</div>
-    </div>
-
-    <div class="info-section">
-        <div class="info-row">
-            <span class="info-label">Categoría:</span>
-            <span class="info-value">@Model.Categoria</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Tipo de Gráfico:</span>
-            <span class="info-value">@Model.ChartType</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Frecuencia:</span>
-            <span class="info-value">@Model.Frecuencia</span>
-        </div>
-        @if (!string.IsNullOrEmpty(Model.TipoParcela))
-        {
+        <div class="info-section">
             <div class="info-row">
-                <span class="info-label">Tipo de Parcela:</span>
-                <span class="info-value">@Model.TipoParcela</span>
+                <span class="info-label">Categoría:</span>
+                <span class="info-value">@Model.Categoria</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tipo de Gráfico:</span>
+                <span class="info-value">@Model.ChartType</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Frecuencia:</span>
+                <span class="info-value">@Model.Frecuencia</span>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.TipoParcela))
+            {
+                <div class="info-row">
+                    <span class="info-label">Tipo de Parcela:</span>
+                    <span class="info-value">@Model.TipoParcela</span>
+                </div>
+            }
+            <div class="info-row">
+                <span class="info-label">Período:</span>
+                <span class="info-value">@Model.RealDesde.ToString("dd/MM/yyyy") - @Model.RealHasta.ToString("dd/MM/yyyy")</span>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ImageBase64))
+        {
+            <div class="chart-container">
+                <img src="data:image/png;base64,@Model.ImageBase64" alt="Gráfico del Reporte" class="chart-image" />
             </div>
         }
-        <div class="info-row">
-            <span class="info-label">Período Solicitado:</span>
-            <span class="info-value">@Model.FechaDesde.ToString("dd/MM/yyyy") - @Model.FechaHasta.ToString("dd/MM/yyyy")</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Período Real:</span>
-            <span class="info-value">@Model.RealDesde.ToString("dd/MM/yyyy") - @Model.RealHasta.ToString("dd/MM/yyyy")</span>
-        </div>
+        else
+        {
+            <div class="chart-container">
+                <p>No hay gráfico disponible para este reporte.</p>
+            </div>
+        }
     </div>
-
-    @if (!string.IsNullOrEmpty(Model.ImageBase64))
-    {
-        <div class="chart-container">
-            <img src="data:image/png;base64,@Model.ImageBase64" alt="Gráfico del Reporte" class="chart-image" />
-        </div>
-    }
-    else
-    {
-        <div class="chart-container">
-            <p>No hay gráfico disponible para este reporte.</p>
-        </div>
-    }
-
-    <div class="footer">
-        <p>Sistema de Gestión de Concesiones - @DateTime.Now.Year</p>
-    </div>
+    
 </body>
 </html>

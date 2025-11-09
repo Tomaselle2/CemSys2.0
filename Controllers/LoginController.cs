@@ -194,7 +194,7 @@ namespace CemSys2.Controllers
                 // Mensaje de éxito en TempData
                 TempData["CorreoTitulo"] = "Éxito";
                 TempData["CorreoStatus"] = "success";
-                TempData["CorreoMensaje"] = "Recuperaste tu clave exitosamente"; 
+                TempData["CorreoMensaje"] = "Cambiaste tu clave exitosamente"; 
                 return RedirectToAction("Index", "Login");
             }
             catch (ValidationException ex)
