@@ -116,7 +116,7 @@
                         <button type="submit" class="btn-ingresar">Ingresar</button>
                     </div>
                 </form>
-                <a asp-action="RecuperarPassword" class="text-center" asp-controller="Login">¿Olvidaste tu contraseña?</a>
+                <a asp-action="EnviarCorreoRecuperacion" class="text-center" asp-controller="Login">¿Olvidaste tu contraseña?</a>
 
                 @if (ViewData["Login"] != null)
                 {
@@ -128,6 +128,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -143,6 +144,34 @@
             // Cambiar ícono
             icon.classList.toggle('bi-eye');
             icon.classList.toggle('bi-eye-slash');
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (TempData["CorreoStatus"] != null)
+            {
+                    var status = TempData["CorreoStatus"]?.ToString();
+                    var mensaje = TempData["CorreoMensaje"]?.ToString();
+
+                    if (status == "success")
+                    {
+                            @:Swal.fire({
+                            @:    icon: 'success',
+                            @:    title: '¡Correo enviado!',
+                            @:    text: '@mensaje',
+                            @:    confirmButtonColor: '#3085d6'
+                            @:});
+                    }
+                    else
+                    {
+                            @:Swal.fire({
+                            @:    icon: 'error',
+                            @:    title: 'Error',
+                            @:    text: '@mensaje',
+                            @:    confirmButtonColor: '#d33'
+                            @:});
+                    }
+            }
         });
     </script>
 </body>

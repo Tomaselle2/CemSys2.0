@@ -54,6 +54,25 @@ namespace CemSys2.Business
             _unitOfWork._usuarioBD.ModificarUsuario(usuarioExistente);
         }
 
+        private async Task ReemplazarContraseniaInternal(int idUsuario, string nuevaPass)
+        {
+            // Ahora puedes debuggear paso a paso esta función
+            var usuarioExistente = await _unitOfWork._usuarioBD.ConsultarUsuario(idUsuario);
+
+            if (string.IsNullOrEmpty(nuevaPass))
+                throw new ValidationException("La contraseña nueva no puede estar vacía.");
+
+
+            if (!IsPasswordStrong(nuevaPass))
+            {
+                throw new ValidationException("La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.");
+            }
+
+            usuarioExistente.Clave = HashPassword(nuevaPass);
+            _unitOfWork._usuarioBD.ModificarUsuario(usuarioExistente);
+        }
+
+
         private bool IsPasswordStrong(string password)
         {
             return !string.IsNullOrEmpty(password) &&
@@ -159,6 +178,20 @@ namespace CemSys2.Business
                 usuarioExistente.Visibilidad = usuario.Visibilidad;
                 usuarioExistente.Rol = usuario.Rol;
                 _unitOfWork._usuarioBD.ModificarUsuario(usuarioExistente);
+            });
+        }
+
+        public Task<Usuario> ObtenerUsuarioPorCorreo(string correo)
+        {
+            return _unitOfWork._usuarioBD.ObtenerUsuarioPorCorreo(correo);
+        }
+
+        public async Task ReemplazarContrasenia(int idUsuario, string nuevaPass)
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                await ReemplazarContraseniaInternal(idUsuario, nuevaPass);
+
             });
         }
     }

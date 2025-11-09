@@ -7,5 +7,6 @@ namespace CemSys2.Interface.Usuario
     {
         public void ModificarUsuario(CemSys2.Models.Usuario usuario);
         Task<CemSys2.Models.Usuario> ConsultarUsuario(int id);
+        Task<CemSys2.Models.Usuario> ObtenerUsuarioPorCorreo(string correo);
     }
 }

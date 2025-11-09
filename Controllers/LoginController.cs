@@ -1,10 +1,12 @@
 ﻿using CemSys2.Enumerable;
 using CemSys2.Interface;
+using CemSys2.Interface.Usuario;
 using CemSys2.Models;
 using CemSys2.ViewModel;
 using CemSys2.ViewModel.Login;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -15,11 +17,14 @@ namespace CemSys2.Controllers
     {
         private readonly IRepositoryBusiness<Usuario> _usuarioRepositoryBusiness;
         private readonly IConfiguration _configuration;
+        private readonly IUsuarioBusiness _usuarioBusiness;
 
-        public LoginController(IRepositoryBusiness<Usuario> usuarioRepositoryBusiness, IConfiguration configuration)
+
+        public LoginController(IRepositoryBusiness<Usuario> usuarioRepositoryBusiness, IConfiguration configuration, IUsuarioBusiness usuarioBusiness)
         {
             _usuarioRepositoryBusiness = usuarioRepositoryBusiness;
             _configuration = configuration;
+            _usuarioBusiness = usuarioBusiness;
         }
 
         public IActionResult Index()
@@ -92,13 +97,13 @@ namespace CemSys2.Controllers
         }
 
         [HttpGet]
-        public IActionResult RecuperarPassword()
+        public IActionResult EnviarCorreoRecuperacion()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> RecuperarPassword(CorreoRecuperacionVM viewModel)
+        public async Task<IActionResult> EnviarCorreoRecuperacion(CorreoRecuperacionVM viewModel)
         {
             try
             {
@@ -109,8 +114,36 @@ namespace CemSys2.Controllers
                 string SmtpServer = emailSettings["SmtpServer"];
                 int Port = int.Parse(emailSettings["Port"]);
 
-                using (MailMessage oMailMessage = new MailMessage(EmailOrigen, viewModel.correo,
-                       "Recuperar Contraseña", "<p>Mensaje de prueba</p>"))
+                // Construimos la URL absoluta para el botón
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string actionUrl = $"{baseUrl}/Login/RecuperarClave";
+
+                // --- cuerpo del correo HTML ---
+                string bodyHtml = $@"
+                    <div style='font-family: Arial, sans-serif; color: #333; text-align: center;'>
+                        <h2>Recuperación de Contraseña</h2>
+                        <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
+            
+                        <img src='https://raw.githubusercontent.com/Tomaselle2/CemSys2.0/main/wwwroot/fotos/cemsysss.png' alt='Logo' style='max-width:200px; margin:20px auto; display:block;' />
+
+                        <p>Haz clic en el siguiente botón para restablecer tu contraseña:</p>
+            
+                        <form method='get' action='{actionUrl}' style='display:inline-block; margin-top:20px;'>
+                            <input type='hidden' name='correo' value='{viewModel.correo.Trim()}' />
+                            <button type='submit' 
+                                    style='background-color:#007bff; color:white; border:none; padding:12px 24px;
+                                           border-radius:6px; cursor:pointer; font-size:16px; text-decoration:none;'>
+                                Restablecer Contraseña
+                            </button>
+                        </form>
+
+                        <p style='margin-top:40px; font-size:13px; color:#666;'>
+                            Si no solicitaste este cambio, puedes ignorar este mensaje.
+                        </p>
+                    </div>";
+
+                using (MailMessage oMailMessage = new MailMessage(EmailOrigen, viewModel.correo.Trim(),
+                       "Recuperar Contraseña", bodyHtml))
                 {
                     oMailMessage.IsBodyHtml = true;
 
@@ -124,14 +157,61 @@ namespace CemSys2.Controllers
                     }
                 }
 
-                ViewBag.Mensaje = "Correo enviado correctamente";
+                TempData["CorreoStatus"] = "success";
+                TempData["CorreoMensaje"] = "Correo enviado correctamente. Revisa tu bandeja de entrada.";
             }
             catch (Exception ex)
             {
-                ViewBag.Error = $"Error: {ex.Message}";
+                TempData["CorreoStatus"] = "error";
+                TempData["CorreoMensaje"] = $"No se pudo enviar el correo: {ex.Message}";
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Login");
+        }
+
+        [HttpGet]
+        public IActionResult RecuperarClave(string correo)
+        {
+            CambiarClaveLoginVM viewModel = new CambiarClaveLoginVM
+            {
+                Correo = correo
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecuperarClave(CambiarClaveLoginVM model)
+        {
+            try
+            {
+                Usuario usuario = await _usuarioBusiness.ObtenerUsuarioPorCorreo(model.Correo!);
+
+
+                await _usuarioBusiness.ReemplazarContrasenia(usuario.Id, model.ClaveNueva!);
+
+                // Mensaje de éxito en TempData
+                TempData["CorreoStatus"] = "success";
+                TempData["CorreoMensaje"] = "Recuperaste tu clave exitosamente"; 
+                return RedirectToAction("Index", "Login");
+            }
+            catch (ValidationException ex)
+            {
+                // Mensaje de error de validación
+                TempData["SweetAlertType"] = "warning";
+                TempData["SweetAlertTitle"] = "Validación";
+                TempData["SweetAlertMessage"] = ex.Message;
+                return View("RecuperarClave", new {correo = model.Correo});
+            }
+            catch (Exception ex)
+            {
+                // Mensaje de error general
+                TempData["SweetAlertType"] = "error";
+                TempData["SweetAlertTitle"] = "Error";
+                TempData["SweetAlertMessage"] = "No se pudo cambiar la contraseña: " + ex.Message;
+                return View("RecuperarClave", new { correo = model.Correo });
+            }
+
         }
     }
 }

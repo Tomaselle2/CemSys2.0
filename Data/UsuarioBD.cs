@@ -1,6 +1,7 @@
 ﻿using CemSys2.DTO;
 using CemSys2.Interface.Usuario;
 using CemSys2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CemSys2.Data
 {
@@ -20,6 +21,12 @@ namespace CemSys2.Data
         public async Task<Usuario> ConsultarUsuario (int id)
         {
             return await _context.Usuarios.FindAsync(id);
+        }
+
+        public Task<Usuario> ObtenerUsuarioPorCorreo(string correo)
+        {
+            return _context.Usuarios
+                .FirstAsync(u => u.Correo == correo);
         }
     }
 }
