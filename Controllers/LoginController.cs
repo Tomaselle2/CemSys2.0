@@ -124,7 +124,7 @@ namespace CemSys2.Controllers
                         <h2>Recuperación de Contraseña</h2>
                         <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
             
-                        <img src='https://raw.githubusercontent.com/Tomaselle2/CemSys2.0/main/wwwroot/fotos/cemsysss.png' alt='Logo' style='max-width:200px; margin:20px auto; display:block;' />
+                        <img src='https://raw.githubusercontent.com/Tomaselle2/CemSys2.0/main/wwwroot/fotos/cemsysss.png' alt='Logo' style='max-width:350px; margin:20px auto; display:block;' />
 
                         <p>Haz clic en el siguiente botón para restablecer tu contraseña:</p>
             
