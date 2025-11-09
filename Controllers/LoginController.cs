@@ -156,12 +156,13 @@ namespace CemSys2.Controllers
                         await oSmtpClient.SendMailAsync(oMailMessage);
                     }
                 }
-
+                TempData["CorreoTitulo"] = "Correo Enviado";
                 TempData["CorreoStatus"] = "success";
                 TempData["CorreoMensaje"] = "Correo enviado correctamente. Revisa tu bandeja de entrada.";
             }
             catch (Exception ex)
             {
+                TempData["CorreoTitulo"] = "Error al Enviar Correo";
                 TempData["CorreoStatus"] = "error";
                 TempData["CorreoMensaje"] = $"No se pudo enviar el correo: {ex.Message}";
             }
@@ -191,6 +192,7 @@ namespace CemSys2.Controllers
                 await _usuarioBusiness.ReemplazarContrasenia(usuario.Id, model.ClaveNueva!);
 
                 // Mensaje de éxito en TempData
+                TempData["CorreoTitulo"] = "Éxito";
                 TempData["CorreoStatus"] = "success";
                 TempData["CorreoMensaje"] = "Recuperaste tu clave exitosamente"; 
                 return RedirectToAction("Index", "Login");

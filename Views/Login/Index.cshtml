@@ -152,12 +152,12 @@
             {
                     var status = TempData["CorreoStatus"]?.ToString();
                     var mensaje = TempData["CorreoMensaje"]?.ToString();
-
+                    var titulo = TempData["CorreoTitulo"]?.ToString();
                     if (status == "success")
                     {
                             @:Swal.fire({
                             @:    icon: 'success',
-                            @:    title: '¡Correo enviado!',
+                            @:    title: '@titulo',
                             @:    text: '@mensaje',
                             @:    confirmButtonColor: '#3085d6'
                             @:});
