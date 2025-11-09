@@ -2,17 +2,24 @@
 using CemSys2.Interface;
 using CemSys2.Models;
 using CemSys2.ViewModel;
+using CemSys2.ViewModel.Login;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mail;
+using System.Threading.Tasks;
 
 namespace CemSys2.Controllers
 {
     public class LoginController : Controller
     {
         private readonly IRepositoryBusiness<Usuario> _usuarioRepositoryBusiness;
-        public LoginController(IRepositoryBusiness<Usuario> usuarioRepositoryBusiness)
+        private readonly IConfiguration _configuration;
+
+        public LoginController(IRepositoryBusiness<Usuario> usuarioRepositoryBusiness, IConfiguration configuration)
         {
             _usuarioRepositoryBusiness = usuarioRepositoryBusiness;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
@@ -82,6 +89,49 @@ namespace CemSys2.Controllers
                 numBytesRequested: 256 / 8));
 
             return hash == enteredHash;
+        }
+
+        [HttpGet]
+        public IActionResult RecuperarPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecuperarPassword(CorreoRecuperacionVM viewModel)
+        {
+            try
+            {
+                var emailSettings = _configuration.GetSection("EmailSettings");
+
+                string EmailOrigen = emailSettings["SenderEmail"];
+                string Password = emailSettings["SenderPassword"];
+                string SmtpServer = emailSettings["SmtpServer"];
+                int Port = int.Parse(emailSettings["Port"]);
+
+                using (MailMessage oMailMessage = new MailMessage(EmailOrigen, viewModel.correo,
+                       "Recuperar Contraseña", "<p>Mensaje de prueba</p>"))
+                {
+                    oMailMessage.IsBodyHtml = true;
+
+                    using (SmtpClient oSmtpClient = new SmtpClient(SmtpServer, Port))
+                    {
+                        oSmtpClient.Credentials = new NetworkCredential(EmailOrigen, Password);
+                        oSmtpClient.EnableSsl = true;
+                        oSmtpClient.UseDefaultCredentials = false;
+
+                        await oSmtpClient.SendMailAsync(oMailMessage);
+                    }
+                }
+
+                ViewBag.Mensaje = "Correo enviado correctamente";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Error: {ex.Message}";
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }
