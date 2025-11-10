@@ -125,13 +125,18 @@
         // Cuando se envía el formulario
         document.getElementById('form-recuperacion').addEventListener('submit', function (event) {
             const btn = document.getElementById('btnEnviar');
+            const form = this;
 
-            // Desactivar el botón y mostrar spinner
-            btn.disabled = true;
-            btn.innerHTML = `
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Enviando...
-            `;
+            // Verificar validación usando jQuery Validation
+            if ($(form).valid()) {
+                // Solo mostrar spinner si la validación pasa
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Enviando...
+                `;
+            }
+            // Si no es válido, dejar que el navegador muestre los errores normalmente
         });
 
         document.addEventListener('DOMContentLoaded', function() {

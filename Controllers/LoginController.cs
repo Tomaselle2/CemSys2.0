@@ -107,6 +107,8 @@ namespace CemSys2.Controllers
         {
             try
             {
+                Usuario usuario = await _usuarioBusiness.ObtenerUsuarioPorCorreo(viewModel.correo!);
+
                 var emailSettings = _configuration.GetSection("EmailSettings");
 
                 string EmailOrigen = emailSettings["SenderEmail"];
@@ -162,9 +164,10 @@ namespace CemSys2.Controllers
             }
             catch (Exception ex)
             {
-                TempData["CorreoTitulo"] = "Error al Enviar Correo";
+                TempData["CorreoTitulo"] = "Usuario no registrado";
                 TempData["CorreoStatus"] = "error";
-                TempData["CorreoMensaje"] = $"No se pudo enviar el correo: {ex.Message}";
+                TempData["CorreoMensaje"] = $"Ingrese el correo nuevamente";
+                return View(viewModel);
             }
 
             return RedirectToAction("Index", "Login");

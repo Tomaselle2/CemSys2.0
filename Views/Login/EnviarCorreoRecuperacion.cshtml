@@ -112,6 +112,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -123,13 +124,46 @@
         // Cuando se envía el formulario
         document.getElementById('form-recuperacion').addEventListener('submit', function (event) {
             const btn = document.getElementById('btnEnviar');
+            const form = this;
 
-            // Desactivar el botón y mostrar spinner
-            btn.disabled = true;
-            btn.innerHTML = `
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Enviando...
-            `;
+            // Verificar validación usando jQuery Validation
+            if ($(form).valid()) {
+                // Solo mostrar spinner si la validación pasa
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Enviando...
+                `;
+            }
+            // Si no es válido, dejar que el navegador muestre los errores normalmente
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (TempData["CorreoStatus"] != null)
+            {
+                        var status = TempData["CorreoStatus"]?.ToString();
+                        var mensaje = TempData["CorreoMensaje"]?.ToString();
+                        var titulo = TempData["CorreoTitulo"]?.ToString();
+                        if (status == "success")
+                        {
+                                    @:Swal.fire({
+                                    @:    icon: 'success',
+                                    @:    title: '@titulo',
+                                    @:    text: '@mensaje',
+                                    @:    confirmButtonColor: '#3085d6'
+                                    @:});
+                        }
+                        else
+                        {
+                                    @:Swal.fire({
+                                    @:    icon: 'error',
+                                    @:    title: '@titulo',
+                                    @:    text: '@mensaje',
+                                    @:    confirmButtonColor: '#d33'
+                                    @:});
+                        }
+            }
         });
     </script>
 </body>
