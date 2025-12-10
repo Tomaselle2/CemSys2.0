@@ -115,6 +115,14 @@
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
+
+                                                <form asp-action="VistaSeccionGrafica" asp-controller="SeccionesGraficas" method="get" style="display: inline-block;">
+                                                    <input type="hidden" name="id" value="@opc.Id.ToString()" />
+                                                    <input type="hidden" name="Redirigir" value="InicioSeccionesNichos" />
+                                                    <button type="submit" class="btn-modificar btn-sm" title="Vista gráfica">
+                                                        <i class="bi bi-stack"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     }
