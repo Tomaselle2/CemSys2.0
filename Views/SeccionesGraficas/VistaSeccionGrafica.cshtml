@@ -1,5 +1,7 @@
 ﻿@{
     Layout = null;
+    var urlHistorial = Url.Action("HistorialParcela", "Parcelas");
+
 }
 
 <!doctype html>
@@ -36,8 +38,8 @@
             --fosa-placa-image: url('@Url.Content("~/secc-grafica/placa-nicho.jpg")');
             --panteon-placa-image: url('@Url.Content("~/secc-grafica/placa-panteon.jpg")');
             /* Configuración para panteón sin nichos (féretros) */
-            --feretro-width: 500px;
-            --feretro-height: 650px;
+            --feretro-width: 550px;
+            --feretro-height: 700px;
             --feretro-gap: 20px;
             --feretro-bg-image: url('@Url.Content("~/secc-grafica/feretro.png")');
         }
@@ -55,6 +57,12 @@
             height: 100vh;
             width: 100vw;
             overflow: hidden;
+        }
+
+        .historial{
+            color: #fff;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+
         }
 
         /* SIDEBAR */
@@ -647,6 +655,7 @@
     </div>
 
     <script>
+        const urlHistorial = '@urlHistorial';
         const Datos = @Html.Raw(ViewBag.DatosJson);
 
         const worldInner = document.getElementById('worldInner');
@@ -870,7 +879,13 @@
                 <div class="infoDifunto"> <i class="bi bi-calendar2-plus"></i> ${d.fechaNacimeinto}</div>
                 <div class="infoDifunto"> <i class="bi bi-calendar2-minus"></i> ${d.fechaDefuncion}</div>
                 <div class="infoDifunto"> <i class="bi bi-columns-gap"></i> ${estadoDifunto[d.estadoDifuntoId] || d.estadoDifuntoId}</div>
-              `;
+              <a href="${urlHistorial}?parcelaId=${parcela.id}"
+                   target="_blank"
+                   class="historial"
+                   title="más información">
+                   <i class="bi bi-clock-history"></i> Historial
+                </a>
+                `;
               panel.difuntosLista.appendChild(difDiv);
             });
           } else {
