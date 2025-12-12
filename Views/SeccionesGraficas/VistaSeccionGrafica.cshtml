@@ -8,6 +8,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cementerio - Visualizador de Parcelas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+   <!--Google font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Domine:wght@400..700&display=swap" rel="stylesheet">
     <style>
         :root {
             --sidebar-width: 280px;
@@ -396,6 +401,9 @@
             text-align: center;
             z-index: 5;
             pointer-events: none;
+            font-family: "Domine", serif;
+            font-optical-sizing: auto;
+            font-style: normal;
         }
 
         .cell.nicho .placa-memorial {
@@ -689,12 +697,12 @@
 
           const titulo = document.createElement('div');
           titulo.className = 'seccion-titulo';
-          titulo.textContent = `Sección ${seccion.nombre}`;
+          titulo.textContent = `Sección ${seccion.nombre.toUpperCase()}`;
           gridEl.appendChild(titulo);
 
           setBackgroundForType(tipoParcelaMap[seccion.tipoParcela]);
 
-          panel.seccion.textContent = seccion.nombre;
+          panel.seccion.textContent = seccion.nombre.toUpperCase();
           panel.total.textContent = seccion.nroParcelas;
           panel.filas.textContent = `${filas} (${columnas} columnas)`;
 
@@ -785,7 +793,7 @@
          if(tipoParcela === 'panteon'){
                 
             placa.innerHTML = `
-            <div class="placa-text placa-nombre">${nombrePanteon}</div>`;
+            <div class="placa-text placa-nombre">${nombrePanteon.toUpperCase()}</div>`;
 
             div.appendChild(placa);
 
@@ -797,16 +805,16 @@
               const primerDifunto = difuntosEnParcela[0];
               placa.className = 'placa-memorial';
 
-              const nombreCompleto = `${primerDifunto.nombre} ${primerDifunto.apellido}`;
+              const nombreCompleto = `${primerDifunto.nombre.toUpperCase()} ${primerDifunto.apellido.toUpperCase()}`;
               const fechas = `${primerDifunto.fechaNacimeinto || '?'} - ${primerDifunto.fechaDefuncion || '?'}`;
 
               if(tipoParcela != 'panteon'){
                 placa.innerHTML = `
-                <div class="placa-text placa-nombre">${nombreCompleto}</div>
+                <div class="placa-text placa-nombre">${nombreCompleto.toUpperCase()}</div>
                 <div class="placa-text placa-fecha">${fechas}</div>`;
               } else {
                 placa.innerHTML = `
-                <div class="placa-text placa-nombre">${nombrePanteon}</div>`;
+                <div class="placa-text placa-nombre">${nombrePanteon.toUpperCase()}</div>`;
               }
 
 
@@ -856,12 +864,12 @@
               const difDiv = document.createElement('div');
               difDiv.style.cssText = 'background:rgba(255,255,255,.3);padding:8px;border-radius:6px;margin-bottom:8px;font-size:13px;';
               difDiv.innerHTML = `
-                <div class="nombreDifunto"> ${d.nombre} ${d.apellido}</div>
-                <div class="infoDifunto"> 🪪 ${d.dni}</div>
-                <div class="infoDifunto"> ⚧️ ${d.sexo}</div>
-                <div class="infoDifunto"> ❤️ ${d.fechaNacimeinto}</div>
-                <div class="infoDifunto"> 🪦 ${d.fechaDefuncion}</div>
-                <div class="infoDifunto"> 🩻 ${estadoDifunto[d.estadoDifuntoId] || d.estadoDifuntoId}</div>
+                <div class="nombreDifunto"> ${d.nombre.toUpperCase()} ${d.apellido.toUpperCase()}</div>
+                <div class="infoDifunto"> <i class="bi bi-person-vcard"></i> ${d.dni}</div>
+                <div class="infoDifunto"> <i class="bi bi-gender-ambiguous"></i> ${d.sexo}</div>
+                <div class="infoDifunto"> <i class="bi bi-calendar2-plus"></i> ${d.fechaNacimeinto}</div>
+                <div class="infoDifunto"> <i class="bi bi-calendar2-minus"></i> ${d.fechaDefuncion}</div>
+                <div class="infoDifunto"> <i class="bi bi-columns-gap"></i> ${estadoDifunto[d.estadoDifuntoId] || d.estadoDifuntoId}</div>
               `;
               panel.difuntosLista.appendChild(difDiv);
             });
@@ -1186,7 +1194,7 @@
                 const placa = document.createElement('div');
                 placa.className = 'placa-memorial';
 
-                const nombreCompleto = `${difunto.nombre} ${difunto.apellido}`;
+                const nombreCompleto = `${difunto.nombre.toUpperCase()} ${difunto.apellido.toUpperCase()}`;
                 const fechas = `${difunto.fechaNacimeinto || '?'} - ${difunto.fechaDefuncion || '?'}`;
 
                 placa.innerHTML = `
@@ -1230,12 +1238,12 @@
                 const difDiv = document.createElement('div');
                 difDiv.style.cssText = 'background:rgba(255,255,255,.3);padding:8px;border-radius:6px;margin-bottom:8px;font-size:13px;';
                 difDiv.innerHTML = `
-                    <div class="nombreDifunto">${difunto.nombre} ${difunto.apellido}</div>
-                    <div class="infoDifunto">🪪 ${difunto.dni}</div>
-                    <div class="infoDifunto">⚧️ ${difunto.sexo}</div>
-                    <div class="infoDifunto">❤️ ${difunto.fechaNacimeinto}</div>
-                    <div class="infoDifunto">🪦 ${difunto.fechaDefuncion}</div>
-                    <div class="infoDifunto">🩻 ${estadoDifunto[difunto.estadoDifuntoId] || difunto.estadoDifuntoId}</div>
+                <div class="nombreDifunto"> ${difunto.nombre.toUpperCase()} ${difunto.apellido.toUpperCase()}</div>
+                <div class="infoDifunto"> <i class="bi bi-person-vcard"></i> ${difunto.dni}</div>
+                <div class="infoDifunto"> <i class="bi bi-gender-ambiguous"></i> ${difunto.sexo}</div>
+                <div class="infoDifunto"> <i class="bi bi-calendar2-plus"></i> ${difunto.fechaNacimeinto}</div>
+                <div class="infoDifunto"> <i class="bi bi-calendar2-minus"></i> ${difunto.fechaDefuncion}</div>
+                <div class="infoDifunto"> <i class="bi bi-columns-gap"></i> ${estadoDifunto[difunto.estadoDifuntoId] || difunto.estadoDifuntoId}</div>
                 `;
                 panel.difuntosLista.appendChild(difDiv);
             } else {
